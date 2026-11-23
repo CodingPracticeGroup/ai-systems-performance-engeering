@@ -32,7 +32,7 @@
 
 > Each chapter's techniques should be applied where they matter most. For example, if your training is 40% data loading, 50% GPU compute, and 10% communication, then first fix data loading, as you can maybe halve the overhead. Then look at GPU kernel optimization.
 
-### 优化前后进行性能分析 (Profile before and after)
+### 优化前后进行剖析 (Profile before and after)
 
 每当您应用优化时，都要衡量其影响。这听起来很明显，但通常调整是基于理论做出的，实际上可能没有帮助——甚至有害。
 
@@ -42,7 +42,7 @@
 
 > Consider a scenario where your workload is not memory-limited, but you decide to try enabling activation checkpointing for your training job. This may actually slow down the job by using extra compute to reduce memory. In other words, always compare key metrics like throughput, latency, and utilization before and after making changes.
 
-使用内置的性能分析器进行简单计时，例如 100 次迭代的平均迭代时间。
+使用内置的剖析器进行简单计时，例如 100 次迭代的平均迭代时间。
 
 > Use the built-in profilers for simple timing, such as average iteration time over 100 iterations.
 
@@ -194,7 +194,7 @@ _面向有效吞吐量与效率而设计_ 把有用吞吐量当作目标。在�
 
 ### 利用高带宽互连 (Leverage high-bandwidth interconnects)
 
-_利用高带宽互连_ 对于多 GPU 工作负载，使用带 NVLink/NVSwitch 的系统，例如 GB200/GB300 NVL72，而非仅有 PCIe 的连接。NVLink 5 提供高达 1.8 TB/s 的双向 GPU 到 GPU 带宽（超过 PCIe Gen5 的 14×），实现跨 GPU 近乎线性的扩展。NVLink Switch 域可通过二级交换机扩展，在一个 NVLink 域内连接多达 576 个 GPU。这使得分层集合通信（collective）得以尽可能长时间地留在 NVLink 上，再回退到机架间的 fabric。
+_利用高带宽互连_ 对于多 GPU 工作负载，使用带 NVLink/NVSwitch 的系统，例如 GB200/GB300 NVL72，而非仅有 PCIe 的连接。NVLink 5 提供高达 1.8 TB/s 的双向 GPU 到 GPU 带宽（超过 PCIe Gen5 的 14×），实现跨 GPU 近乎线性的扩展。NVLink Switch 域可通过二级交换机扩展，在一个 NVLink 域内连接多达 576 个 GPU。这使分层集合通信（collective）得以尽可能长时间地留在 NVLink 上，再回退到机架间的 fabric。
 
 > Use systems with NVLink/NVSwitch, such as GB200/GB300 NVL72, instead of PCIe-only connectivity for multi-GPU workloads. NVLink 5 provides up to 1.8 TB/s bidirectional GPU-to-GPU bandwidth (over 14x PCIe Gen5), enabling near-linear scaling across GPUs. NVLink Switch domains can be scaled with second-level switches to connect up to 576 GPUs in one NVLink domain. This enables hierarchical collectives that stay on NVLink as long as possible before falling back to the inter-rack fabric.
 
@@ -404,7 +404,7 @@ _在使用 MIG 配置时启用 GPU 持久化_ 启用持久化模式后，GPU 保
 
 ### 隔离系统任务 (Isolate system tasks)
 
-_隔离系统任务_ 在每台服务器上划出一个核心——或一小组核心——用于 OS 内务处理，例如中断处理与后台守护进程。这样，你喂饱 GPU 的主 CPU 线程就不会被打断。这可以通过 CPU 隔离或 cgroup 钉绑来实现。消除 OS 抖动能确保一致的吞吐量。
+_隔离系统任务_ 在每台服务器上划出一个核心——或一小组核心——用于 OS 内务处理，例如中断处理与后台守护进程。这样，你喂饱 GPU 的主 CPU 线程就不会被打断。这可以通过 CPU 隔离或 cgroup 钉绑实现。消除 OS 抖动能确保一致的吞吐量。
 
 > Dedicate a core-or small subset of cores-on each server for OS housekeeping, such as interrupt handling and background daemons. This way, your main CPU threads feeding the GPU are not interrupted. This can be done using CPU isolation or cgroup pinning. Eliminating OS jitter ensures consistent throughput.
 
@@ -658,7 +658,7 @@ _聚焦端到端吞吐量（例如每秒 token 数）_ 记住，如果你的数�
 
 > Remember that speeding up model compute doesn't help if your data pipeline cuts throughput in half. Always profile end-to-end, not just the training loop isolated. Use Nsight Systems and Nsight Compute to measure kernel timelines and stalls, or the PyTorch profiler for framework-level attribution. Then compare iteration time with synthetic versus real data to see how much overhead data loading introduces. Aim for less than 10% overhead from ideal. If it's more than that, invest time in pipeline optimization; it often yields large "free" speedups in training.
 
-## 性能分析、调试与监控 (Performance Profiling, Debugging, and Monitoring)
+## 剖析、调试与监控 (Performance Profiling, Debugging, and Monitoring)
 
 你无法优化你没有测量的东西；剖析能揭示你是受计算限制、受内存限制、受 I/O 限制还是受网络限制，从而让你对症下药。持续的遥测（telemetry）与回归测试能防止已有成果随着代码、驱动和数据的演进而被侵蚀。
 
@@ -1218,7 +1218,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 跨 GPU 和节点高效分片模型 (Shard models efficiently across GPUs and nodes)
 
-*跨 GPU 与节点高效地对模型分片* 对于太大而无法装入单块 GPU 内存的模型，采用模型并行推理技术，把模型划分到多块 GPU 甚至多台服务器上。这可以用张量并行来完成，即把每一层的权重与计算切分到各设备上；也可以用流水线并行，即把模型各层切成托管在不同 GPU 上的段，并让数据顺序流经它们。虽然模型分片会引入通信开销和一些额外延迟（因为数据必须在各分片之间流动），但它使得部署原本无法服务的万亿参数模型成为可能。确保 GPU 之间有高速互连（如 NVLink 或 InfiniBand）以使其可行，并在可能处让通信与计算重叠。关键在于均衡负载，使所有设备并行工作，且没有任何单个阶段成为瓶颈。
+*跨 GPU 与节点高效地对模型分片* 对于太大而无法装入单块 GPU 内存的模型，采用模型并行推理技术，把模型划分到多块 GPU 甚至多台服务器上。这可以用张量并行来完成，即把每一层的权重与计算切分到各设备上；也可以用流水线并行，即把模型各层切成托管在不同 GPU 上的段，并让数据顺序流经它们。虽然模型分片会引入通信开销和一些额外延迟（因为数据必须在各分片之间流动），但它使部署原本无法服务的万亿参数模型成为可能。确保 GPU 之间有高速互连（如 NVLink 或 InfiniBand）以使其可行，并在可能处让通信与计算重叠。关键在于均衡负载，使所有设备并行工作，且没有任何单个阶段成为瓶颈。
 
 > For models that are too large to fit into a single GPU's memory, employ model-parallel inference techniques by partitioning the model across multiple GPUs or even multiple servers. This can be done with tensor parallelism, in which it splits each layer's weights and computation across devices, or pipeline parallelism, which splits the model's layers into segments hosted on different GPUs and streams the data through them sequentially. While model sharding introduces communication overhead and some added latency as data must flow between shards, it enables deployment of trillion-parameter models that would otherwise be impossible to serve. Ensure high-speed interconnects, such as NVLink or InfiniBand, between GPUs to make this feasible, and overlap communication with computation where possible. The key is to balance the load so all devices work in parallel and no single stage becomes a bottleneck.
 
