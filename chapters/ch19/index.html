@@ -2147,7 +2147,7 @@
 <blockquote>
 <p>Here, we see that with FP8 activations, we get a memory reduction of ~50% from the baseline FP16 as expected by reducing the activation bit-width by 50%. Additionally, the quality loss measured here is negligible (&lt; 0.1%) for FP8 activations. (Note: quality impact with reduced precision is model-dependent and kernel-dependent. You should validate with your own data and workloads.)</p>
 </blockquote>
-<p>当内存是主要瓶颈时，INT4 权重 + FP8 激活的工作流可产生约 ~1.8× 的基线吞吐量。INT4 权重 + FP4 激活可将内存减少到基线的 20%。4 位目标。加速比约为 3.5×，这与相对 FP16 的理论峰值 4× 提升一致。</p>
+<p>当内存是主要瓶颈时，INT4 权重 + FP8 激活的工作流可产生约 1.8× 的基线吞吐量。INT4 权重 + FP4 激活可将内存减少到基线的 20%。4 位目标。加速比约为 3.5×，这与相对 FP16 的理论峰值 4× 提升一致。</p>
 <blockquote>
 <p>INT4 weight + FP8 activation workflows can produce about ~1.8× of the baseline throughput when memory is the main bottleneck. INT4 weights + FP4 activations can reduce memory down to 20% of the baseline. The speedup is around 3.5×, which is consistent with the theoretical peak 4× improvement over FP16.</p>
 </blockquote>
