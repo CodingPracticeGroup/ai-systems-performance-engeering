@@ -1237,7 +1237,7 @@
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">prompt</span> <span class="o">=</span> <span class="n">refine_prompt</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">verifier</span><span class="o">.</span><span class="n">feedback</span><span class="p">)</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="o">...</span>
 </span></code></pre></div>
-<p>这个反馈回路（feedback loop）为下一次核函数代码迭代所用的改进后 prompt 提供指导。该循环持续进行，直到代码满足给定标准为止，如图 20-3 所示。</p>
+<p>这个反馈回路（feedback loop）会为下一轮迭代所用的改进后提示词提供指导。该循环持续进行，直到代码满足给定标准为止，如图 20-3 所示。</p>
 <blockquote>
 <p>This feedback loop provides guidance for an improved prompt to use for the next kernel-code iteration. The loop continues until the code meets the given criteria, as shown in Figure 20-3.</p>
 </blockquote>
@@ -1264,7 +1264,7 @@
 <p>The following prompt was used:</p>
 <p><code>Please write a GPU attention kernel to support relative position encodings. Implement the relative positional encoding on the fly within the kernel. The complete code should be returned, including the necessary modifications. Use the following function to compute the relative positional encoding: def relative_positional(score, b, h, q_idx, kv_idx): return score + (q_idx - kv_idx) When implementing the kernel, keep in mind that a constant scaling factor 1.44269504 should be applied to the relative positional encoding due to qk_scale = sm_scale * 1.44269504. The PyTorch reference does not need to scale the relative positional encoding, but in the GPU kernel, use: qk = qk * qk_scale + rel_pos * 1.44269504 Please provide the complete updated kernel code that incorporates these changes, ensuring that the relative positional encoding is applied efficiently within the kernel operations.</code></p>
 </blockquote>
-<p>在这个 prompt 下，AI 生成了一个功能正确的注意力 CUDA 核函数。（注意 1.44269504 = 1/ln(2)。使用该值后，prompt 会在构造 qk 时相应地对相对位置项进行缩放。）除了正确性之外，所生成的核函数相比内置的 PyTorch FlexAttention API 还实现了 1.1–2.1× 的加速。图 20-4 展示了在因果掩码、长文档掩码等多种注意力模式下，生成的核函数与 PyTorch 优化过的 FlexAttention 之间的性能对比。</p>
+<p>在这个提示词下，AI 生成了一个功能正确的注意力 CUDA 核函数。（注意 1.44269504 = 1/ln(2)。使用该值后，提示词会在构造 qk 时相应地对相对位置项进行缩放。）除了正确性之外，所生成的核函数相比内置的 PyTorch FlexAttention API 还实现了 1.1–2.1× 的加速。图 20-4 展示了在因果掩码、长文档掩码等多种注意力模式下，生成的核函数与 PyTorch 优化过的 FlexAttention 之间的性能对比。</p>
 <blockquote>
 <p>With this prompt, the AI produced a functionally correct CUDA kernel for attention. (Note that 1.44269504 = 1/ln(2). Using this value, the prompt scales the relative-position term accordingly when forming qk. In addition to correctness, the generated kernel also achieved a 1.1-2.1x speedup over the built-in PyTorch FlexAttention API. Figure 20-4 shows the performance comparison between the generated kernel and PyTorch's optimized FlexAttention across various attention patterns, including causal masks and long-document masks.</p>
 </blockquote>
@@ -1622,7 +1622,7 @@
 <blockquote>
 <p>An often overlooked aspect of ultrascale training is infrastructure and networking. When you're talking about clusters of 10,000+ GPUs working on one model, the network fabric becomes as important as the GPUs themselves. Ethernet and InfiniBand technologies are advancing in terms of increased throughput and smarter adaptive routing techniques, etc.</p>
 </blockquote>
-<p>NVIDIA 的 Spectrum-X 是一个针对 AI 优化的基于以太网的结构（例如，RoCE、自适应路由、高双分带宽），可减少大规模训练和推理工作负载中的拥塞。</p>
+<p>NVIDIA 的 Spectrum-X 是一个针对 AI 优化的基于以太网的结构（例如，RoCE、自适应路由、高二分带宽（bisection bandwidth）），可减少大规模训练和推理工作负载中的拥塞。</p>
 <blockquote>
 <p>NVIDIA's Spectrum-X is an Ethernet-based fabric optimized for AI (e.g,. RoCE, adaptive routing, high bisection bandwidth) that reduces congestion in large-scale training and inference workloads.</p>
 </blockquote>

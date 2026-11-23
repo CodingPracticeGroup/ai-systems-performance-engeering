@@ -2248,7 +2248,7 @@
 <blockquote>
 <p>For instance, you could serve the same traffic with 6 GPUs (mixed prefill + decode) instead of 8 top-tier GPUs; you'd save about 25% hardware cost for that service. Thus, disaggregation lets you serve more users on the same hardware. This is crucial since GPU supply is often limited-especially for the latest GPUs.</p>
 </blockquote>
-<p>能源效率在某些地区（包括美国）也很重要，因为功率限制。Splitwise 通过在较低功率 GPU 上运行 decode 任务展示了更好的功率效率--速度略有下降。</p>
+<p>能源效率在某些地区（包括美国）也很重要，因为功率限制。Splitwise 通过在较低功率的 GPU 上运行 decode 任务，以轻微的降速为代价换来了更好的功率效率。</p>
 <blockquote>
 <p>Energy efficiency is also important in some regions, including the United States, due to power limits. Splitwise demonstrated better power efficiency by running decode tasks on lower-power GPUs-with a slight speed reduction.</p>
 </blockquote>
@@ -2466,11 +2466,11 @@
 <blockquote>
 <p>Modern CPUs are far slower than GPUs for neural network computations, but they come with other advantages like ample RAM, no contention for GPU memory bandwidth, and flexibility to handle tasks that GPUs might not handle as well, like extremely long sequences and nontransformer operations like tokenization, padding, etc.</p>
 </blockquote>
-<p>采用混合 prefill 策略时，一部分 prefill 计算在 CPU 上完成。一种场景是为超长提示词词词进行 CPU 卸载。设想一个来自大型文档附件、包含数万个 token 的提示词。即便是强大的 GPU，也可能因内存约束而难以处理如此大的提示词。</p>
+<p>采用混合 prefill 策略时，一部分 prefill 计算在 CPU 上完成。一种场景是为超长提示词进行 CPU 卸载。设想一个来自大型文档附件、包含数万个 token 的提示词。即便是强大的 GPU，也可能因内存约束而难以处理如此大的提示词。</p>
 <blockquote>
 <p>With a hybrid prefill strategy, part of the prefill computation is done on CPUs. One scenario is CPU offloading for superlong prompts. Consider a prompt with tens of thousands of tokens from a large document attachment. Even a powerful GPU might struggle to process such a large prompt due to memory constraints.</p>
 </blockquote>
-<p>在极长提示词词的情况下，系统可以选择在一个拥有大量 RAM 的 CPU worker 上执行模型的初始若干层，以容纳这条长序列。随后它会把中间结果流式传输到 GPU——或者，如果延迟不成问题，甚至在 CPU 上执行整个 prefill。之后 decode GPU 便从该 CPU worker 接收巨大的 KV 缓存。</p>
+<p>在极长提示词的情况下，系统可以选择在一个拥有大量 RAM 的 CPU worker 上执行模型的初始若干层，以容纳这条长序列。随后它会把中间结果流式传输到 GPU——或者，如果延迟不成问题，甚至在 CPU 上执行整个 prefill。之后 decode GPU 便从该 CPU worker 接收巨大的 KV 缓存。</p>
 <blockquote>
 <p>In the case of extremely long prompts, the system could choose to perform the initial layers of the model on a CPU worker with lots of RAM to hold the long sequence. It would then stream intermediate results to a GPU later-or even perform the entire prefill on the CPU if latency isn't an issue.</p>
 </blockquote>
@@ -2559,10 +2559,6 @@
 <p>这样做可以避免这样一种情形：请求在队列中滞留，最终耗时过长以致超出其延迟 SLO，并因占用稀缺的计算或内存带宽资源而拖慢所有其他请求。这再次印证了一个事实：返回一个快速的"太忙了"响应，胜过默默受理却最终未能兑现延迟保证。</p>
 <blockquote>
 <p>By doing so, you prevent a situation where the request sits in the queue and then takes so long that it surpasses its latency SLO and slows down all other requests by consuming scarce compute or memory bandwidth resources.</p>
-</blockquote>
-<p>这强化了一个事实：返回快速的"太忙"响应比静默接受然后未能满足延迟保证更好。</p>
-<blockquote>
-<p>This reinforces the fact that it's better to return a quick "too busy" response than to silently accept and then fail the latency guarantee.</p>
 </blockquote>
 <p>这类似于 Web 服务器在极端过载时卸载负载，以便用可接受的延迟继续服务其余请求——也就是那个令人头疼的 HTTP 503 错误。这好过让所有请求都超时。</p>
 <blockquote>
@@ -2930,7 +2926,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:00:48 UTC">2026年11月23日 05:00:48</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:18:59 UTC">2026年11月23日 05:18:59</span>
   </span>
 
     

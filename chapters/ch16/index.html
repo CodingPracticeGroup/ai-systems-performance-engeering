@@ -1839,7 +1839,7 @@
 <blockquote>
 <p>Consider a scenario in which host-side CPU utilization is spiking to 100% due to excessive tokenization or inference data preprocessing. This will limit how many concurrent streams the inference engine can handle. One fix might be to move the preprocessing to the GPU using a GPU-accelerated tokenizer library or a custom GPU kernel written in CUDA or OpenAI's Triton language.</p>
 </blockquote>
-<p>在部署新的库或核函数后，你应当对比部署前后的 CPU 利用率。如果看到 CPU 利用率下降、整体吞吐量上升，那么系统就不再受基于 CPU 的输入预处理所瓶颈约束了。</p>
+<p>在部署新的库或核函数后，你应当对比部署前后的 CPU 利用率。如果看到 CPU 利用率下降、整体吞吐量上升，那么系统就不再被基于 CPU 的输入预处理卡住瓶颈了。</p>
 <blockquote>
 <p>After deploying the new library or kernel, you should monitor CPU utilization before and after. If you see the CPU utilization decrease and overall throughput increase, then the system is no longer bottlenecked by the CPU-based input preprocessing.</p>
 </blockquote>
@@ -1867,7 +1867,7 @@
 <blockquote>
 <p>Modern LLM inference engines like vLLM and SGLang expose prefix-merge metrics natively. But if prefix-merging is not a first-class metric exported by your inference engine, you should instrument a custom counter for "prefix deduplicated tokens" to monitor its effectiveness.</p>
 </blockquote>
-<p>如果你发现前缀合并的表现不如预期，应当检查前缀匹配逻辑是否失效。调试时先从检查分词器差异入手。这是绝大多数前缀匹配问题的可能根因。</p>
+<p>如果你发现前缀合并的表现不如预期，应当检查前缀匹配逻辑是否失效。调试时应先检查是否存在分词器差异——这是绝大多数前缀匹配问题最可能的根因。</p>
 <blockquote>
 <p>If you see that prefix merging is not performing as expected, you should check if the prefix-matching logic is failing. Start the debugging process by checking if there are tokenizer differences. This is the likely cause of most prefix-matching issues.</p>
 </blockquote>
@@ -3170,7 +3170,7 @@
 <p>There's no substitute for warm, idle nodes that can immediately handle extra load on demand. The cost of losing end users may be higher than the cost of keeping a few replicas idle and ready to handle any extra, unexpected load.</p>
 </blockquote>
 <h3 id="memory">内存 (Memory)<a class="headerlink" href="#memory" title="Permanent link">&para;</a></h3>
-<p>优化资源利用率也延伸到内存。虽然 GPU 内存和内存带宽在某种程度上逐步增长，但模型大小和上下文长度呈指数级增长。因此，内存仍然是需要优化的宝贵资源--并在不久的将来仍将宝贵。</p>
+<p>优化资源利用率也延伸到内存。虽然 GPU 内存和内存带宽在某种程度上逐步增长，但模型大小和上下文长度呈指数级增长。因此，内存仍是需要优化的宝贵资源——而且在可预见的将来都会如此。</p>
 <blockquote>
 <p>Optimizing resource utilization also extends to memory. While GPU memory and memory bandwidth have been growing incrementally to some extent, model sizes and context lengths have been growing exponentially. As such, memory remains a precious resource to optimize-and will remain so for the foreseeable future.</p>
 </blockquote>
@@ -3249,7 +3249,7 @@
 <p>For many large models, 4-bit weight-only quantization using GPTQ can maintain over 99% of the FP16 model's accuracy. And it provides about 2x inference speedup and about 4x smaller model footprint. AWQ further improves the accuracy of 3-4 bit quantization. These techniques have been integrated into many AI frameworks, including Hugging Face Transformers, PyTorch, vLLM, and more. They support loading GPTQ and AWQ quantized models directly. Next, let's introduce the accuracy and performance trade-offs of using reduced-precision formats-and how to effectively and safely integrate quantization into serving workflows.</p>
 </blockquote>
 <h3 id="fp16-fp8-fp4-reducing-precision-from-fp16-to-fp8-and-fp4">从 FP16 降低精度到 FP8 和 FP4 (Reducing Precision from FP16 to FP8 and FP4)<a class="headerlink" href="#fp16-fp8-fp4-reducing-precision-from-fp16-to-fp8-and-fp4" title="Permanent link">&para;</a></h3>
-<p>最初，LLM 推理通过从 FP32 转移到 TF32、FP16 或 BF16 等精简精度格式获得了重大收益。例如，NVIDIA Tensor Core 在使用 FP16 与 FP32 相比时执行 2 倍的吞吐量。它通过将半精度乘加操作融合到专门的 Tensor Core 硬件流水线中来实现这一点，该流水线将数学性能翻倍--并且没有明显的精度损失。</p>
+<p>最初，LLM 推理通过从 FP32 转移到 TF32、FP16 或 BF16 等精简精度格式获得了重大收益。例如，使用 FP16 时，NVIDIA Tensor Core 能交出 FP32 两倍以上的吞吐量。它通过将半精度乘加操作融合到专门的 Tensor Core 硬件流水线中来实现这一点，该流水线将数学性能翻倍--并且没有明显的精度损失。</p>
 <blockquote>
 <p>Initially, LLM inference gained significant benefits from moving from FP32 to reduced-precision formats like TF32, FP16, or BF16. For instance, NVIDIA Tensor Cores perform 2x throughput when using FP16 compared to FP32. It achieves this by fusing half-precision multiply-add operations into specialized Tensor Core hardware pipelines that double math performance-with no noticeable accuracy loss.</p>
 </blockquote>
@@ -3332,7 +3332,7 @@
 <blockquote>
 <p>Quantizing activations along with weights can improve performance by using reduced precision for GEMM inputs-and potentially accumulators-using lower-precision values. This will reduce memory traffic for intermediate activations in attention-based KV caches and MLP layers.</p>
 </blockquote>
-<p>然而，激活分布可能随输入变化而大大变化。因此，激活量化在没有适当微调或校准的情况下有时可能具有挑战性。一个中间立场是带校准的 INT8 激活。这来自 NVIDIA 的 INT8 模式，它使用每张量校准，并在 TensorRT 中用于从代表性校准数据集生成的激活直方图中选择缩放因子。</p>
+<p>然而，激活分布可能随输入而大幅变化。因此，激活量化在没有适当微调或校准的情况下有时可能具有挑战性。一个中间立场是带校准的 INT8 激活。这来自 NVIDIA 的 INT8 模式，它使用每张量校准，并在 TensorRT 中用于从代表性校准数据集生成的激活直方图中选择缩放因子。</p>
 <blockquote>
 <p>However, activation distributions can vary greatly with input changes. As such, activation quantization can sometimes be challenging without proper fine-tuning or calibration. A middle ground is INT8 activation with calibration. This comes from NVIDIA's INT8 mode, which uses per-tensor calibration and selects scaling factors in TensorRT from activation histograms generated from a representative calibration dataset.</p>
 </blockquote>
@@ -3465,7 +3465,7 @@
 <blockquote>
 <p>When implementing prompt compression, make sure that key facts aren't lost. One approach is to have the model compress the prompt (e.g., generate a summary) and then verify the compressed prompt by asking the model questions about it. This way, your algorithm checks that key information is preserved in the compressed version of the prompt.</p>
 </blockquote>
-<p>这可以防止非常长的聊天产生过多延迟，并使模型专注于对话的最新部分。通过截断较早的轮次，你减少了有效提示词词长度 N，这将 prefill 自注意力工作从 N(N + 1) / 2（大致 O(N²)）减少到较短窗口的较小三角形成本。因此，虽然成本接近窗口大小的二次方，但较小的 N 对于非常长的对话产生显著差异。</p>
+<p>这可以防止非常长的聊天产生过多延迟，并使模型专注于对话的最新部分。通过截断较早的轮次，你减少了有效提示词长度 N，这将 prefill 自注意力工作从 N(N + 1) / 2（大致 O(N²)）减少到较短窗口的较小三角形成本。因此，虽然成本接近窗口大小的二次方，但较小的 N 对于非常长的对话产生显著差异。</p>
 <blockquote>
 <p>This prevents very long chats from incurring too much latency and keeps the model focused on the most recent part of the conversation. By truncating earlier turns, you reduce the effective prompt length N, which reduces prefill self-attention work from N(N + 1) / 2 (roughly O(N²)) to the smaller triangular cost of the shorter window. So while the cost is still quadratic in the window size, the smaller N makes a big difference for very long conversations.</p>
 </blockquote>
@@ -3776,7 +3776,7 @@
 <blockquote>
 <p>This two-stage approach can reduce overall average latency and compute usage-although individual requests may experience longer latencies if they're routed to both models due to lack of confidence in the small model's initial response. It's widely believed that many commercial AI services, such as ChatGPT, use this approach of routing simpler queries to smaller, faster models to reduce cost and latency.</p>
 </blockquote>
-<p>在实践中，将 60%的查询路由到 10 倍更小的模型可以显著降低推理计算成本--如果设计和调整得当，可能实现 5 倍的整体成本降低。这是因为昂贵的模型仅在需要时使用。</p>
+<p>在实践中，将 60%的查询路由到 10 倍更小的模型可以显著降低推理计算成本——如果设计和调优得当，整体成本甚至可能降低 5 倍。这是因为昂贵的模型仅在需要时使用。</p>
 <blockquote>
 <p>In practice, routing, say, 60% of queries to a 10x smaller model can cut your inference compute costs significantly-potentially a 5x overall cost reduction if designed and tuned properly. This is because the expensive model is used only when needed.</p>
 </blockquote>
@@ -3792,7 +3792,7 @@
 <blockquote>
 <p>One approach is to consider this a speculative problem, similar to speculative decoding described earlier. You can first run the smaller model in a draft mode and have it generate the answer with its confidence score. If confidence is high, just return the response. If not, call the bigger model.</p>
 </blockquote>
-<p>务必确保：当需要大语言模型时，小模型带来的额外延迟不会让用户等太久。在实践中，当你怀疑问题较难时，可以让小模型和大语言模型并行运行。这样就把小模型的延迟与大语言模型重叠了起来。这看似浪费且有违直觉，但对某些延迟敏感的用例而言，以额外计算为代价来把延迟维持在较低水平，是有益的。</p>
+<p>务必确保：当需要大语言模型时，小模型带来的额外延迟不会让用户等太久。在实践中，当你怀疑问题较难时，可以让小模型和大语言模型并行运行。这样，小模型的延迟就与大语言模型的执行重叠了起来。这看似浪费且有违直觉，但对某些延迟敏感的用例而言，以额外计算为代价来把延迟维持在较低水平，是有益的。</p>
 <blockquote>
 <p>Make sure that if the big model is needed, the additional latency of the small model doesn't make the user wait too long. In practice, you might run the small and large models in parallel when you suspect that the question is hard. This overlaps the small model's latency with the large model. This seems wasteful and counterintuitive, but it can be beneficial for some latency-sensitive use cases to keep latency low-at the expense of additional compute.</p>
 </blockquote>
@@ -4060,7 +4060,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:00:48 UTC">2026年11月23日 05:00:48</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:16:56 UTC">2026年11月23日 05:16:56</span>
   </span>
 
     

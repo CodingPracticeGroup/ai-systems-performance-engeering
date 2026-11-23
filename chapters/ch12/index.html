@@ -1535,7 +1535,7 @@
 <blockquote>
 <p>In Nsight Compute you'll see atomic_transactions plummet and your transactions-per-request collapse back toward 1.0. This proves that you've traded costly contention for sustained computation.</p>
 </blockquote>
-<p>在现代 GPU 上，L2 缓存原子操作异常快速，得益于很高的 L2 带宽，即便是 8 或 16 这样不大的批大小，也能消除大部分争用。话虽如此，务必要验证你没有只是把瓶颈转移到了别处。</p>
+<p>在现代 GPU 上，L2 原子操作快得惊人：得益于很高的 L2 带宽，即便是 8 或 16 这样不大的批大小，也能消除大部分争用。话虽如此，务必要验证你没有只是把瓶颈转移到了别处。</p>
 <blockquote>
 <p>With modern GPUs in which L2‐cache atomics are exceptionally fast, even a modest batch size of 8 or 16 can eliminate most contention due to the high L2 bandwidth. That said, always verify that you haven't simply shifted the bottleneck elsewhere.</p>
 </blockquote>
@@ -2147,7 +2147,7 @@
 <p>By chaining these tail launches, each token is processed start-to-finish on the device with virtually zero CPU overhead. And since the CPU never reenters the critical path, SMs remain fully utilized, per-token latency drops, and you can adapt to different sequence lengths and batch sizes on the fly. To do this, you simply update graph parameters or switch between prerecorded graphs.</p>
 </blockquote>
 <h3 id="conditional-graph-nodes">条件图节点 (Conditional Graph Nodes)<a class="headerlink" href="#conditional-graph-nodes" title="Permanent link">&para;</a></h3>
-<p>在传统的 CUDA Graph 中，每个节点及其依赖在捕获时就已固定，从而迫使任何决策逻辑退回主机端。条件图节点（conditional graph node）打破了这种僵硬——它将分支决策推迟给 GPU 自身，依据的是与节点关联的一个小小的"条件句柄"。</p>
+<p>在传统的 CUDA Graph 中，每个节点及其依赖在捕获时就已固定，从而迫使任何决策逻辑退回主机端。</p>
 <blockquote>
 <p>In a traditional CUDA Graph, every node and its dependencies are fixed at capture time, forcing any decision-making logic back to the host.</p>
 </blockquote>
@@ -2880,7 +2880,7 @@
 <p>NCCL and CUDA Graphs give us an efficient way to schedule collective communication alongside computation. However, not all multi-GPU communication is collective-sometimes we need more fine-grained or asynchronous sharing of data between GPUs. This is exactly where NVSHMEM, described earlier, can help.</p>
 </blockquote>
 <h3 id="n-gpu-pattern-for-n-gpu-scaling">N-GPU 扩展模式 (Pattern for N-GPU Scaling)<a class="headerlink" href="#n-gpu-pattern-for-n-gpu-scaling" title="Permanent link">&para;</a></h3>
-<p>无论你使用简单的对等拷贝、NCCL 环，还是 NVSHMEM 的单边原子操作，扩展到多 GPU 的模式始终相同。系统应当一次性分派核函数、把数据传输与计算做流水线化与重叠，并线性扩展——尤其是要让主机 CPU 离开关键路径。</p>
+<p>无论你使用简单的对等拷贝、NCCL 环，还是 NVSHMEM 的单边原子操作，扩展到多 GPU 的模式始终相同。</p>
 <blockquote>
 <p>Whether you're using simple peer copies, NCCL rings, or NVSHMEM one-sided atomics, the pattern of scaling to many GPUs is always the same.</p>
 </blockquote>
@@ -2968,7 +2968,7 @@
 <blockquote>
 <p>Achieving peak GPU performance hinges on weaving together computation and data movement with minimal overhead. Efficient orchestration streamlines complex workloads across CPU and GPU, ensuring neither side stalls the other. Here are some key takeaways from this chapter:</p>
 </blockquote>
-<p><em>用 L2 缓存原子队列做动态调度</em> 现代 GPU 上的 L2 缓存原子操作异常快。用快速的 L2 缓存原子操作配合批量自增，在 GPU 上平衡不规则工作负载。这种批量式的工作分配减少了争用（contention），并通过消除 warp 空闲间隙让 warp 保持忙碌。在极端不均衡的情况下它能显著提升吞吐，最高可达 ~2×，但通常在 10% 到 30% 之间。由于 L2 带宽很高，即便是 8 或 16 这样不大的 batch size 也能消除大部分争用。</p>
+<p><em>用 L2 缓存原子队列做动态调度</em> 现代 GPU 上的 L2 原子操作快得惊人。用快速的 L2 缓存原子操作配合批量自增，在 GPU 上平衡不规则工作负载。这种批量式的工作分配减少了争用（contention），并通过消除 warp 空闲间隙让 warp 保持忙碌。在极端不均衡的情况下它能显著提升吞吐，最高可达 ~2×，但通常在 10% 到 30% 之间。由于 L2 带宽很高，即便是 8 或 16 这样不大的 batch size 也能消除大部分争用。</p>
 <blockquote>
 <p><strong>Dynamic scheduling with L2-cache atomic queues</strong>：L2‐cache atomics on modern GPUs are exceptionally fast. Use fast L2-cache atomics with batched increments to balance irregular workloads on-GPU. This batched-work allocation reduces contention and keeps warps busy by eliminating warp idle gaps. It can significantly boost throughput up to ~2x in extreme imbalance cases but typically between 10% and 30%. Even a modest batch size of 8 or 16 can eliminate most contention due to the high L2 bandwidth.</p>
 </blockquote>
@@ -3035,7 +3035,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:00:48 UTC">2026年11月23日 05:00:48</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:04:24 UTC">2026年11月23日 05:04:24</span>
   </span>
 
     

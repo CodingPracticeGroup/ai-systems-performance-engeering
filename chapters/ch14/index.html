@@ -1790,7 +1790,7 @@
 <blockquote>
 <p>PrimTorch IR also helps with things like eliminating aliasing and mutation in the graph. It tries to convert operations into a form that does not perform in-place updates when possible since these can complicate optimization.</p>
 </blockquote>
-<p>PrimTorch IR 传递的输出是一个仅包含 aten IR 和 PrimTorch IR 操作的 FX 图。然后 FX 图准备好由后端进行降低。</p>
+<p>PrimTorch IR 传递的输出是一个仅包含 aten IR 和 PrimTorch IR 操作的 FX 图。随后，该 FX 图便准备好交给后端做下降（lowering）。</p>
 <blockquote>
 <p>The output of the PrimTorch IR pass is an FX Graph that contains only aten IR and PrimTorch IR operations. The FX Graph is then ready for lowering by the backend.</p>
 </blockquote>
@@ -2171,10 +2171,6 @@
 <blockquote>
 <p>In short, with these combined tools and debugging mechanisms, you can iteratively eliminate graph breaks and make sure your model and code are fully captured and optimized. The payoff is worth it, as a well-compiled model can significantly outperform its eager-execution counterpart-especially for large LLM architectures in which every bit of performance improvement will add up.</p>
 </blockquote>
-<p>虽然非常罕见，但<code>torch.compile</code>可能产生与即时模式相比数值不同的结果。如果你怀疑编译器中存在错误，在通知社区并创建 GitHub 问题之前，有一些策略可以验证和收集数据。</p>
-<blockquote>
-<p>While very rare, it's possible that torch.compile produces a result that is numerically different compared to eager mode. If you suspect a bug in the compiler, there are a few strategies to verify and collect data before notifying the community and creating a GitHub issue.</p>
-</blockquote>
 <h2 id="142-explaining-and-minimizing-graph-breaks">14.2 解释和最小化图断点 (Explaining and Minimizing Graph Breaks)<a class="headerlink" href="#142-explaining-and-minimizing-graph-breaks" title="Permanent link">&para;</a></h2>
 <p>在使用 torch.compile 时，诊断性能与正确性需要专门的工具。在本节中，我们将向你展示如何使用各种工具与最佳实践来调试并精确定位过多的图中断。这些工具包括 torch._dynamo.explain()、用于记录编译器决策的环境变量，以及调试所捕获的图与它们所生成核函数的最佳实践。</p>
 <blockquote>
@@ -2275,18 +2271,6 @@
 </span><span id="__span-12-15"><a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>  <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
 </span><span id="__span-12-16"><a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="nb">print</span><span class="p">(</span><span class="n">explanation</span><span class="p">)</span>
 </span></code></pre></div>
-<p>在使用<code>torch.compile</code>时，诊断性能和正确性需要专门的工具。在本节中，我们将向你展示如何使用各种工具和最佳实践来调试和精确定位过多的图断点。这些包括<code>torch._dynamo.explain()</code>、用于记录编译器决策的环境变量，以及调试捕获图和生成核函数的最佳实践。</p>
-<blockquote>
-<p>When using torch.compile, diagnosing performance and correctness requires specialized tools. In this section, we'll show you how to use various tools and best practices to debug and pinpoint excessive graph breaks. These include torch._dynamo.explain(), environment variables to log compiler decisions, and best practices for debugging both the captured graphs and the kernels that they generate.</p>
-</blockquote>
-<p>图断点发生在 TorchDynamo 无法继续将连续的操作序列捕获到单个图中时。当这种情况发生时，它会回退到这部分代码的即时执行。图断点是性能的大敌。每个断点意味着一个优化的图被缩短——并且引入了更多的 Python 开销。如果你编译一个模型并看到只有适度的加速，这可能是由于频繁的图断点阻止了大型融合图的形成。理想情况下，我们希望尽可能少的断点——理想情况下整个模型或整个训练步骤只有一个大图。涉及集合通信（例如 all-gather、reduce-scatter 等）的复杂图通常需要图断点。图 14-5 显示了 PyTorch 的 FSDP 策略中由于集合通信而产生的图断点。</p>
-<blockquote>
-<p>A graph break occurs when TorchDynamo cannot continue capturing a continuous sequence of operations into a single graph. When this happens, it falls back to eager execution for this part of the code. Graph breaks are the enemy of performance. Each break means an optimized graph is cut short-and more Python overhead is introduced. If you compile a model and see only modest speedups, it may be caused by frequent graph breaks that are preventing large, fused graphs. Ideally, we want as few breaks as possible-ideally one large graph for the whole model or whole training step. Complex graphs that involve collective communications (e.g., all-gather, reduce-scatter, etc.) often require graph breaks. Figure 14-5 shows the graph breaks in PyTorch's FSDP strategy due to collective communication.</p>
-</blockquote>
-<p>PyTorch 提供了<code>torch._dynamo.explain()</code>来帮助分析和调试图断点。当使用你的模型和示例输入调用此调试函数时，它将在 TorchDynamo 中运行模型，并返回一个报告，说明生成了多少个图、断点发生在哪里以及为什么会发生。</p>
-<blockquote>
-<p>PyTorch provides torch._dynamo.explain() to help analyze and debug graph breaks. When invoking this debugging function with your model and example inputs, it will run the model within TorchDynamo and return a report of how many graphs were generated, where the breaks occurred, and why they happened.</p>
-</blockquote>
 <p>如前所述，如果你的模型确实需要数据相关的分支，你可以把它们包在 torch.cond() 中。这会把"真"分支和"假"分支都捕获为图子例程，如下所示：</p>
 <blockquote>
 <p>As mentioned earlier, if your model truly needs data-dependent branches, you can wrap them in torch.cond(). This will capture both the "true" and "false" branches as graph subroutines, as shown here:</p>
@@ -2429,7 +2413,7 @@
 <blockquote>
 <p>Avoid in-place operations and unexpected mutations</p>
 </blockquote>
-<p><em>避免原地操作和意外的修改</em> TorchDynamo 可以借助一种名为 <em>functionalization（函数化）</em> 的机制处理某些修改，它会为追踪把原地操作转换为非原地操作。但某些原地操作仍可能导致图中断。如果你看到关于修改的中断原因，如"mutation on data"或"modifying a global"，请尝试重写该部分以避免原地操作。通常，如果"原地"正是问题所在，你只需把原地的 x.relu_() 重写为非原地的 x = x.relu() 即可避免图中断。</p>
+<p>TorchDynamo 可以借助一种名为 <em>functionalization（函数化）</em> 的机制处理某些修改，它会为追踪把原地操作转换为非原地操作。但某些原地操作仍可能导致图中断。如果你看到关于修改的中断原因，如"mutation on data"或"modifying a global"，请尝试重写该部分以避免原地操作。通常，如果"原地"正是问题所在，你只需把原地的 x.relu_() 重写为非原地的 x = x.relu() 即可避免图中断。</p>
 <blockquote>
 <p>TorchDynamo can handle some mutations using a mechanism called functionalization, which converts in-place operations to out-of-place for tracing. But certain in-place operations might still cause a graph break. If you see a break reason about mutation, such as "mutation on data" or "modifying a global," try to rewrite that part to avoid in-place operations. Often, you can simply rewrite in-place x.relu_() to out-of-place x = x.relu() to avoid a graph break if being in-place was causing the issue.</p>
 </blockquote>
@@ -3270,7 +3254,7 @@
 <blockquote>
 <p>A persistent kernel like this will usually outperform a sequence of smaller matmul kernels-especially when K is very large (e.g., &gt; 1,024). The trade-off is that one SM is occupied longer. But if the kernel can fully utilize the SM, this is often ideal.</p>
 </blockquote>
-<p>在前面的代码中，你可以在现代 GPU 上尝试增加 BLOCK_K，因为它们增加了片上内存，每个瓦片可以处理更多数据。但是，超过某一点后，寄存器压力可能会增加并导致寄存器溢出。因此，始终重要的是进行性能分析，为你的工作负载和硬件找到正确的平衡。</p>
+<p>在前面的代码中，你可以在现代 GPU 上尝试增加 BLOCK_K，因为它们增加了片上内存，每个瓦片可以处理更多数据。但是，超过某一点后，寄存器压力可能会增加并导致寄存器溢出。因此，务必多做剖析，为你的工作负载与硬件找到恰当的平衡。</p>
 <blockquote>
 <p>This Triton kernel computes a matrix multiplication (C = A * B) efficiently since each kernel launch does all the work by looping over the K dimension internally, instead of launching multiple kernels for each K chunk. This way, we pay the launch overhead only once, and warps stay busy until every tile is done. The following example tiles over K inside one launch but does not reuse the same thread block across multiple output tiles: ... Here, the kernel launches a 2-D grid over the MxN tiles and performs the full K-loop inside a single kernel launch. This reduces launch overhead and can increase utilization when K is large, but comes at the cost of holding resources longer in a single kernel. Each program (thread block) loads tiles of A and B into shared memory and computes a partial dot product of the tiles with tl.dot. Triton accumulates the results in FP32. And, on Blackwell, Triton lowers the tl.dot to tcgen05 and UMMA to engage the Tensor Cores. The Tensor Cores then accumulate results in specialized TMEM rather than general registers. It's best to express shared-memory-backed tile movement in Triton using tensor descriptors. For instance, desc=tl.make<em>tensor</em>descriptor(...). On modern GPUs, these tensor-descriptor calls map to TMA-based hardware operations using asynchronous, coalesced transfers. Triton will unroll/vectorize these loops and computations for efficiency. In addition, when dtypes and tile shapes are supported (e.g., FP16/BF16, or TF32 for FP32), Triton lowers tl.dot to Tensor Core instructions. Here is a simple Python wrapper that launches this Triton kernel: ... Here, we see that by doing the entire K-loop inside one kernel launch, we avoid launching multiple kernels per output tile. On modern GPUs, this approach can increase utilization when K is large-at the cost of holding resources for longer in a single kernel. You can combine this tiled approach with a persistent kernel. This would reuse the same thread block across multiple output tiles. The persistent kernel would use a 1-D grid and stride the tile index by tl.num<em>programs(0) as shown in this code block: ... This persistent approach aligns well with modern GPUs, which have relatively large register files, shared memory, and L2 cache. These can accommodate larger tile sizes (BLOCK</em>K). This means more of the K-loop can be unrolled per iteration. A persistent kernel like this will usually outperform a sequence of smaller matmul kernels-especially when K is very large (e.g., &gt; 1,024). The trade-off is that one SM is occupied longer. But if the kernel can fully utilize the SM, this is often ideal. In the preceding code, you can experiment with increasing BLOCK_K on modern GPUs since they have increased on-chip memory and can handle more data per tile. However, beyond a certain point, register pressure may increase and lead to register spilling. As such, it's always important to profile and find the right balance for your workload and hardware.</p>
 </blockquote>
@@ -3453,7 +3437,7 @@
 <blockquote>
 <p>In practice, you wrap critical sections of Triton code using the with proton.scope("name", metadata) Python context manager.</p>
 </blockquote>
-<p>在运行工作负载之前，使用 proton.start("matmul", hook="triton")激活分析器。</p>
+<p>在运行工作负载之前，用 proton.start("matmul", hook="triton")启动剖析器。</p>
 <blockquote>
 <p>Before running the workload, you activate the profiler with proton.start("matmul", hook="triton").</p>
 </blockquote>
@@ -3576,7 +3560,7 @@
 <blockquote>
 <p><strong>Follow Triton best practices</strong>: When writing Triton code, ensure memory accesses are coalesced, avoid bank conflicts in shared memory (pad if needed), mask tl.load() and tl.store() at boundaries, choose block and tile sizes that align with warp sizes (multiples of 32 threads), select tile sizes that fit into the L1/shared carve-out, and tune num<em>warps and num</em>stages settings with @triton.autotune([... triton.Config(num<em>warps=..., num</em>stages=...) ...], key=[...]). Use Triton's autotuner to find the best configuration if performance is critical. Start with num<em>warps ∈ {4,8} and num</em>stages ∈ {2,3,4}. Remember to check the Triton documentation and examples since many common patterns like FlashAttention have already been implemented and optimized by the community. At a minimum, these existing examples are a good starting point for your own implementation.</p>
 </blockquote>
-<p><em>缓存提示需谨慎</em> 某些形式的 PTX 加载（例如 DeepSeek 风格的非一致 + L1 不分配 + 256B L2 预取）是未有文档记载的，在某些硬件上甚至可能是未定义的。这可能会在不同驱动版本和硬件代际之间失效。优先使用 Triton 的 eviction<em>policy=（例如 evict</em>last）和 cache_modifier= 旋钮来提升可移植性。在迁移到不同的 CUDA 驱动和 GPU 代际时，记得进行剖析。避免引入相互冲突的缓存提示，因为这类问题极难调试。</p>
+<p><em>缓存提示需谨慎</em> 某些形式的 PTX 加载（例如 DeepSeek 风格的非一致 + L1 不分配 + 256B L2 预取）都没有文档记载，在某些硬件上甚至可能行为未定义。这可能会在不同驱动版本和硬件代际之间失效。优先使用 Triton 的 eviction<em>policy=（例如 evict</em>last）和 cache_modifier= 旋钮来提升可移植性。在迁移到不同的 CUDA 驱动和 GPU 代际时，记得进行剖析。避免引入相互冲突的缓存提示，因为这类问题极难调试。</p>
 <blockquote>
 <p><strong>Cache hint caution</strong>: Some forms of PTX loads (e.g., DeepSeek-style non-coherent + L1 no-allocate + 256B L2 prefetch) are undocumented and potentially undefined on certain hardware. This may break across driver versions and hardware generations. Prefer Triton's eviction<em>policy= (e.g., evict</em>last) and cache_modifier= knobs to improve portability. Remember to profile when migrating to different CUDA drivers and GPU generations. Avoid introducing conflicting cache hints, as these are extremely difficult to debug.</p>
 </blockquote>
@@ -3611,7 +3595,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:00:48 UTC">2026年11月23日 05:00:48</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:09:21 UTC">2026年11月23日 05:09:21</span>
   </span>
 
     

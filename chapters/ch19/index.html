@@ -1939,7 +1939,7 @@
 <blockquote>
 <p>Traditionally, the parallelization strategy—including a hybrid strategy of multiple parallelism techniques combined—is chosen and fixed upfront when the model is loaded. However, to maximize performance under dynamic workloads, modern inference engines can choose different parallelism strategies at runtime based on the characteristics of the input.</p>
 </blockquote>
-<p>高性能的自适应推理系统利用运行时指标来动态选择 TP、PP 或混合方案。关键因素包括 batch size、序列长度与内存利用率——以及响应延迟与吞吐量要求。例如，超长提示词词可能被路由到 TP + PP 实例，因为这会把层分散到多块 GPU 上，以避免内存不足（out-of-memory，OOM）错误。</p>
+<p>高性能的自适应推理系统利用运行时指标来动态选择 TP、PP 或混合方案。关键因素包括 batch size、序列长度与内存利用率——以及响应延迟与吞吐量要求。例如，超长提示词可能被路由到 TP + PP 实例，因为这会把层分散到多块 GPU 上，以避免内存不足（out-of-memory，OOM）错误。</p>
 <blockquote>
 <p>High-performance, adaptive inference systems use runtime metrics to choose TP, PP, or a hybrid approach on the fly. Key factors include batch size, sequence length, and memory utilization—as well as response latency and throughput requirements. For instance, very long prompts may be routed to a TP + PP instance since this spreads layers across GPUs to avoid out-of-memory (OOM) errors.</p>
 </blockquote>
@@ -2532,7 +2532,7 @@
 <blockquote>
 <p>This pseudo-C++ illustrates evaluating different thread block sizes for a kernel. It checks how many blocks per SM can run given their shared-memory usage. The kernel launch then adjusts the number of threads—or shared-memory use—accordingly. High-performance frameworks and inference engines automate this type of logic internally using the following set of steps:</p>
 </blockquote>
-<p><em>1. 测量负载</em> 检查下一次模型前向的当前输入维度（batch size B、序列长度 L 等）。</p>
+<p><strong>1. 测量负载</strong>：检查下一次模型前向的当前输入维度（batch size B、序列长度 L 等）。</p>
 <blockquote>
 <p><strong>Step 1: Measure workload</strong> - Inspect the current input dimensions (batch size <code>B</code>, sequence length <code>L</code>, etc.) for the next model forward.</p>
 </blockquote>
@@ -2540,15 +2540,15 @@
 <blockquote>
 <p><strong>Step 2: Select candidate kernels</strong> - Determine available kernel implementations for each component, such as standard attention or flash attention for the attention phase and an appropriate GEMM algorithm for the MLP phase.</p>
 </blockquote>
-<p><em>3. 估算或基准测试</em> 对每个候选项做一次快速试跑，即在样本数据上将每种算法执行若干次迭代。</p>
+<p><strong>3. 估算或基准测试</strong>：对每个候选项做一次快速试跑，即在样本数据上将每种算法执行若干次迭代。</p>
 <blockquote>
 <p><strong>Step 3: Estimate or benchmark</strong> - Run a quick run of each candidate by executing each algorithm for a few iterations on sample data.</p>
 </blockquote>
-<p><em>4. 选择最佳变体</em> 根据实测维度，选出执行时间最短——或吞吐量足够——的核函数。</p>
+<p><strong>4. 选择最佳变体</strong>：根据实测维度，选出执行时间最短——或吞吐量足够——的核函数。</p>
 <blockquote>
 <p><strong>Step 4: Choose best variant</strong> - Select the kernel with minimal execution time—or sufficient throughput—based on the measured dimensions.</p>
 </blockquote>
-<p><em>5. 缓存结果</em> 将该选择存入以输入维度或负载特征为键的查找表中。这样，若出现类似请求，无需重跑这些步骤即可知道最佳核函数。</p>
+<p><strong>5. 缓存结果</strong>：将该选择存入以输入维度或负载特征为键的查找表中。这样，若出现类似请求，无需重跑这些步骤即可知道最佳核函数。</p>
 <blockquote>
 <p><strong>Step 5: Cache result</strong> - Store the choice in a lookup table keyed by the input dimension or workload signature. This way, if a similar request appears, the best kernel is known without having to rerun these steps.</p>
 </blockquote>
@@ -3371,7 +3371,7 @@
 <blockquote>
 <p>A brute-force way to reduce memory fragmentation is to periodically reset the allocator's state. However, a more clever way is to use CUDA's stream- ordered caching allocator, <code>cudaMallocAsync</code> , which uses a similar concept internally by binning per allocation size up to a certain limit. But slab allocation takes it even further by never mixing sizes.</p>
 </blockquote>
-<p><code>cudaMallocAsync</code>的行为有点像 slab 分配器与伙伴系统的结合——它由 CUDA 驱动程序为你管理。这为你提供了自定义分配器的大部分好处，几乎没有努力——如果你愿意，这使其成为一直保持开启的绝佳默认内存分配器。</p>
+<p><code>cudaMallocAsync</code>的行为有点像 slab 分配器与伙伴系统的结合——它由 CUDA 驱动程序为你管理。这几乎不费什么力气，就能获得自定义分配器的大部分好处——如果你愿意，这使其成为一直保持开启的绝佳默认内存分配器。</p>
 <blockquote>
 <p><code>cudaMallocAsync</code> behaves somewhat like a slab allocator combined with a buddy system—and it's managed by the CUDA driver for you. This gives you most of the benefit of custom allocators with little effort—and makes it a great default memory allocator to leave on all the time, if you prefer.</p>
 </blockquote>
@@ -3636,7 +3636,7 @@
 <blockquote>
 <p>You can interleave large prefill requests with latency-sensitive decode tasks by slicing the prefill into small chunks and piggybacking decodes between them. This keeps all pipeline stages busy and minimizes idle "bubbles" in your GPU schedule.</p>
 </blockquote>
-<p>是所有现代 LLM 推理引擎都很好支持的一种模式，用于减少流水线气泡。它有效地对一个大任务（prefill）做时间切片，为小任务（decode）腾出空间，让它们在由分块所制造的流水线间隙中执行，如图 19-7 所示。</p>
+<p>这种分块夹带做法得到了所有现代 LLM 推理引擎的良好支持，可用于减少流水线气泡。它有效地对一个大任务（prefill）做时间切片，为小任务（decode）腾出空间，让它们在由分块所制造的流水线间隙中执行，如图 19-7 所示。</p>
 <blockquote>
 <p><em>Chunked prefill</em> is a well-supported pattern used by all modern LLM inference engines to reduce pipeline bubbles. It effectively time-slices a big task (prefill) to create room for small tasks (decode) to execute in the pipeline gaps created by the chunks, as shown in Figure 19-7.</p>
 </blockquote>
@@ -4308,7 +4308,7 @@
 <p>Switch between 8-bit and 4-bit floating point (FP8/FP4) during inference to balance speed and accuracy. You can also mix with 16-bit precision as needed. Use the Transformer Engine for FP8 in PyTorch since <code>torch.autocast()</code> does not support FP8 directly.</p>
 </blockquote>
 <h3 id="disaggregated-inference-pipeline">分解推理流水线 (Disaggregated inference pipeline)<a class="headerlink" href="#disaggregated-inference-pipeline" title="Permanent link">&para;</a></h3>
-<p><em>解耦式推理流水线</em> 将 prefill（提示处理）和 decode（生成）两个阶段分散到不同资源上，并基于实时因素（如 KV 缓存命中、队列深度和负载）进行上下文感知的请求路由。这样可以在处理长提示词时保持高吞吐——而不拖慢短提示响应。</p>
+<p>将 prefill（提示处理）和 decode（生成）两个阶段分散到不同资源上，并基于实时因素（如 KV 缓存命中、队列深度和负载）进行上下文感知的请求路由。这样可以在处理长提示词时保持高吞吐——而不拖慢短提示响应。</p>
 <blockquote>
 <p>Separate the prefill (prompt processing) and decode (generation) phases across resources, and context-aware request routing based on real-time factors like KV cache hits, queue depth, and load. This maintains high throughput with long prompts—without slowing down short-prompt responses.</p>
 </blockquote>
@@ -4318,7 +4318,7 @@
 <p>Perform on-the-fly decisions between data-parallel, tensor- parallel, pipeline-parallel, and hybrid execution combinations depending on input/output sequence lengths and model structure—including MoE routing. These decisions include replicating or sharding the model.</p>
 </blockquote>
 <h3 id="adaptive-decoding-and-scheduling">自适应解码和调度 (Adaptive decoding and scheduling)<a class="headerlink" href="#adaptive-decoding-and-scheduling" title="Permanent link">&para;</a></h3>
-<p><em>自适应解码与调度</em> 使用诸如推测解码、飞行中批次重塑和 token 级调度等技术来改善吞吐和延迟。这些技术已在 vLLM、SGLang 和 NVIDIA TensorRT-LLM 等引擎中实现，验证了它们在生产环境中的有效性。</p>
+<p>使用诸如推测解码、飞行中批次重塑和 token 级调度等技术来改善吞吐和延迟。这些技术已在 vLLM、SGLang 和 NVIDIA TensorRT-LLM 等引擎中实现，验证了它们在生产环境中的有效性。</p>
 <blockquote>
 <p>Use techniques, such as speculative decoding, in-flight batch reshaping, and token-level scheduling, to improve throughput and latency. These techniques are implemented in engines like vLLM, SGLang, and NVIDIA TensorRT-LLM. This validates their effectiveness in production settings.</p>
 </blockquote>
@@ -4328,7 +4328,7 @@
 <p>Utilize Grace CPU's memory with unified addressing to offload infrequently used KV cache pages to CPU or NVMe. Using APIs like <code>cudaMemAdvise</code> and <code>cudaMemPrefetchAsync</code> for optimal placement. Make sure to use GPUDirect Storage, if available. This will directly page data from NVMe to GPU memory when needed—bypassing the CPU.</p>
 </blockquote>
 <h3 id="profiling-driven-optimization">分析驱动的优化 (Profiling-driven optimization)<a class="headerlink" href="#profiling-driven-optimization" title="Permanent link">&para;</a></h3>
-<p><em>性能剖析驱动的优化</em> 使用像 NVML、Nsight Systems/Compute、NVTX 插桩和 Prometheus 指标这样的工具，在运行时识别瓶颈并自动应用计算图和核函数优化。用 AI 分析遥测数据，以检测异常和优化机会。</p>
+<p>使用像 NVML、Nsight Systems/Compute、NVTX 插桩和 Prometheus 指标这样的工具，在运行时识别瓶颈并自动应用计算图和核函数优化。用 AI 分析遥测数据，以检测异常和优化机会。</p>
 <blockquote>
 <p>Use tools like NVML, Nsight Systems/Compute, NVTX instrumentation, and Prometheus metrics to identify bottlenecks at runtime and automatically apply graph and kernel optimizations. Analyze telemetry using AI to detect anomalies and optimization opportunities.</p>
 </blockquote>
@@ -4379,7 +4379,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:00:48 UTC">2026年11月23日 05:00:48</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:20:38 UTC">2026年11月23日 05:20:38</span>
   </span>
 
     

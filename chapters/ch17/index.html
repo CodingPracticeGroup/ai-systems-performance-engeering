@@ -1367,7 +1367,7 @@
 <blockquote>
 <p>Batching many requests will improve throughput but will worsen TTFT since every request waits for the slowest prefill. It will also impact TPOT since the decode steps will get backlogged behind new-prompt prefills.</p>
 </blockquote>
-<p>单体推理系统必须在两者之间取舍：要么改善（降低）首 token 时延，代价是后续 token 生成变慢；要么改善（提高）每 token 吞吐量，却让新请求承受很高的初始延迟。在极端情况下，一个长提示词词可能完全占满 GPU，从而阻塞其他用户所有的提示词 prefill 工作。而一旦开始解码，逐个 token 的处理方式又会让 GPU 的核心在每次 token 生成之间处于空闲状态。</p>
+<p>单体推理系统必须在两者之间取舍：要么改善（降低）首 token 时延，代价是后续 token 生成变慢；要么改善（提高）每 token 吞吐量，却让新请求承受很高的初始延迟。在极端情况下，一个长提示词可能完全占满 GPU，从而阻塞其他用户所有的提示词 prefill 工作。而一旦开始解码，逐个 token 的处理方式又会让 GPU 的核心在每次 token 生成之间处于空闲状态。</p>
 <blockquote>
 <p>Monolithic inference systems must choose between improving (reducing) time to first token at the cost of slower subsequent token generation-or improving (increasing) per-token throughput while subjecting new requests to high initial latency. In extreme cases, one long prompt can completely tie up the GPU, which would block all other prompt prefill work for other users. And then, once decoding begins, the one-token-at-a-time processing would leave the GPU's cores idle between each token generation.</p>
 </blockquote>
@@ -1404,7 +1404,7 @@
 <blockquote>
 <p>For context, the MLPerf v5.0's (2025) inference benchmark for Llama2 70B (70 billion parameters) aimed for p99 (99<sup>th</sup> percentile) SLOs of ~450 ms TTFT and 40 ms TPOT latency. For Llama 3.1 405B (405 billion parameters), the benchmark aimed for ~6 seconds TTFT and 175 ms for TPOT. Specifically, these SLOs reflect p99 TTFT and p99 TPOT targets for Llama 2 Chat 70B and Llama 3.1 405B Instruct.</p>
 </blockquote>
-<p>设想这样一个场景：一个用户的请求带有极长的提示词，长度达数千个 token 量级——而另一个用户的请求提示词非常短。在没有分离式 prefill 与 decode 的情况下，如果这些请求大约在同一时间到达，长提示词词的 prefill 计算就会长时间阻塞 GPU。</p>
+<p>设想这样一个场景：一个用户的请求带有极长的提示词，长度达数千个 token 量级——而另一个用户的请求提示词非常短。在没有分离式 prefill 与 decode 的情况下，如果这些请求大约在同一时间到达，长提示词的 prefill 计算就会长时间阻塞 GPU。</p>
 <blockquote>
 <p>Consider a scenario in which one user's request has an extremely long prompt on the order of many thousands of tokens-and another user's request has a very short prompt. Without disaggregated prefill and decode, if these requests arrive around the same time, the long prompt's prefill computation will block the GPU for an extended period.</p>
 </blockquote>
@@ -1412,7 +1412,7 @@
 <blockquote>
 <p>Without disaggregation, the second request with the short prompt needs to wait an unnecessarily long time before even starting their decode. This is called interference since the prefill work for one request delays the decode work of another. Interference between prefill and decode is shown in Figure 17-1 in the context of continuous batching.</p>
 </blockquote>
-<p>在简单的 FIFO 调度策略下，长提示词词会放大所有人的尾延迟（tail latency）。一般而言，位于队列前端的长 prefill 或计算量大的 prefill，会阻塞排在其后的更短、更轻量的请求。这被称为<em>队头阻塞（head-of-line blocking）</em>，会导致利用率低下、延迟离群值以及终端用户的不满。</p>
+<p>在简单的 FIFO 调度策略下，长提示词会放大所有人的尾延迟（tail latency）。一般而言，位于队列前端的长 prefill 或计算量大的 prefill，会阻塞排在其后的更短、更轻量的请求。这被称为<em>队头阻塞（head-of-line blocking）</em>，会导致利用率低下、延迟离群值以及终端用户的不满。</p>
 <blockquote>
 <p>Under a simple FIFO scheduling strategy, long prompts can amplify tail latency for everyone. In general, long or compute-heavy prefills at the front of the queue will block shorter, lighter requests behind them. This is called head-of-line blocking, and it leads to poor utilization, latency outliers, and unhappy end users.</p>
 </blockquote>
@@ -1431,7 +1431,7 @@
 <p>Disaggregation has two primary advantages: reduced interference and phase-specific optimizations. Let's discuss each of these next.</p>
 </blockquote>
 <h4 id="reduced-interference">减少干扰 (Reduced interference)<a class="headerlink" href="#reduced-interference" title="Permanent link">&para;</a></h4>
-<p>在传统的单体推理服务器中，prefill 和解码阶段共享相同的 GPU 资源。这导致了资源争用和干扰。当长提示词词 prefill 占用 GPU 时，正在进行的解码任务必须等待。这导致解码延迟的巨大波动--通常称为"队头阻塞"。</p>
+<p>在传统的单体推理服务器中，prefill 和解码阶段共享相同的 GPU 资源。这导致了资源争用和干扰。当长提示词 prefill 占用 GPU 时，正在进行的解码任务必须等待。这导致解码延迟的巨大波动--通常称为"队头阻塞"。</p>
 <blockquote>
 <p>In a traditional monolithic inference server, prefill and decode phases share the same GPU resources. This leads to resource contention and interference. When a long-prompt prefill hogs the GPU, ongoing decode tasks must wait. This results in large variance in decode latency-often called "head-of-line blocking."</p>
 </blockquote>
@@ -1447,7 +1447,7 @@
 <blockquote>
 <p>With disaggregation, prefill tasks no longer contend with decode tasks on the same device. A busy decode worker, generating many tokens, won't prevent another user's prompt from being processed, and vice versa.</p>
 </blockquote>
-<p>为每个阶段配备专用资源，意味着一个长提示词词的计算不会阻塞另一个用户的 token 生成。在实践中，这带来了更可预测的延迟。图 17-2 展示了同置与分离式 prefill 和 decode 之间的对比。该实验在 DistServe 论文以及作者随后发布的博客文章中有更详细的描述。</p>
+<p>为每个阶段配备专用资源，意味着一个长提示词的计算不会阻塞另一个用户的 token 生成。在实践中，这带来了更可预测的延迟。图 17-2 展示了同置与分离式 prefill 和 decode 之间的对比。该实验在 DistServe 论文以及作者随后发布的博客文章中有更详细的描述。</p>
 <blockquote>
 <p>Dedicated resources for each stage mean a long prompt's computation won't block another user's token generation. In practice, this produces more predictable latency. Figure 17-2 shows the comparison between colocated and disaggregated prefill and decode. This experiment is described in more detail in the DistServe paper and subsequent blog post by the authors.</p>
 </blockquote>
@@ -1596,7 +1596,7 @@
 <blockquote>
 <p>In mixed parallelism deployments where prefill and decode use different TP layouts, you need to perform a layout transform on the decode side immediately after the NIXL read. This way, the KV pages match the decode kernel's expected layout. This transform is latency-insignificant compared to network transfer and avoids re-prefill.</p>
 </blockquote>
-<p>这种架构使每个阶段的扩展相互解耦。举例来说，如果你发现由于大量并发的长提示词词导致 prefill 成为吞吐量瓶颈，你可以增加更多 prefill 工作节点，以提升提示词处理能力。</p>
+<p>这种架构使每个阶段的扩展相互解耦。举例来说，如果你发现由于大量并发的长提示词导致 prefill 成为吞吐量瓶颈，你可以增加更多 prefill 工作节点，以提升提示词处理能力。</p>
 <blockquote>
 <p>This architecture decouples scaling for each phase. If you find that prefill is the throughput bottleneck due to many concurrent long prompts, for instance, you can add more prefill workers to increase prompt processing capacity.</p>
 </blockquote>
@@ -1648,7 +1648,7 @@
 <p>When tuning a disaggregated prefill cluster, you face a fundamental trade-off between minimizing the TTFT for each individual prompt and maximizing overall requests per second (RPS), or reducing TPOT, under heavy load. Disaggregated systems handle this trade-off by supporting different scheduling policies for a latency-first approach versus a throughput-first approach. Let's describe each of these approaches next:</p>
 </blockquote>
 <p><strong>延迟优先方法 (Latency-first approach)</strong></p>
-<p><em>延迟优先方法</em> 为降低 TTFT，prefill 节点应在提示词一到达时就立即处理——且几乎不做批处理。在这种模式下，你避免了等待其他请求来凑满一个批次。因此，每个提示词都会立即开始执行并尽快完成——前提是集群中有可用的 GPU。</p>
+<p>为降低 TTFT，prefill 节点应在提示词一到达时就立即处理——且几乎不做批处理。在这种模式下，你避免了等待其他请求来凑满一个批次。因此，每个提示词都会立即开始执行并尽快完成——前提是集群中有可用的 GPU。</p>
 <blockquote>
 <p>To reduce TTFT, prefill nodes should process prompts as soon as they arrive-and with little to no batching. In this mode, you avoid waiting for other requests to fill a batch. As such, every prompt starts execution immediately and finishes as fast as possible-assuming available GPUs in the cluster.</p>
 </blockquote>
@@ -1657,7 +1657,7 @@
 <p>The downside of this latency-first approach is lower GPU utilization since you are using small or no batches. As such, GPUs often sit idle, and your system will serve fewer concurrent requests for a given cluster size. In this case, you can either over-provision your prefill cluster capacity or use a tiny batch size of 1 to guarantee strict latency SLOs for your requests.</p>
 </blockquote>
 <p><strong>吞吐量优先方法 (Throughput-first approach)</strong></p>
-<p><em>吞吐量优先方法</em> 如果峰值吞吐量（或 RPS）与最小的 TPOT 是你的优先事项，你应把提示词批量组成更大的分组，以充分加载每块 GPU。通过把 8–32 个提示词累积进单个批次，你提高了算术强度，并让 GPU 计算单元保持繁忙。这会提升总体吞吐量。</p>
+<p>如果峰值吞吐量（或 RPS）与最小的 TPOT 是你的优先事项，你应把提示词批量组成更大的分组，以充分加载每块 GPU。通过把 8–32 个提示词累积进单个批次，你提高了算术强度，并让 GPU 计算单元保持繁忙。这会提升总体吞吐量。</p>
 <blockquote>
 <p>If peak throughput, or RPS, and minimal TPOT are your priorities, you should batch prompts into larger groups to fully load each GPU. By accumulating 8-32 prompts into a single batch, you raise arithmetic intensity and keep the GPU compute units busy. This will increase the overall throughput.</p>
 </blockquote>
@@ -1723,7 +1723,7 @@
 <blockquote>
 <p>Another option is to implement priority queues such that short prompts are scheduled on a separate fast lane with less batching. Long, batchable prompts go to a throughput-optimized queue. NVIDIA Dynamo supports latency classes in its scheduling. You can simulate this by tagging requests and setting different batching windows per class.</p>
 </blockquote>
-<p>关键要点是 prefill 工作器优先考虑快速周转。分离让我们可以做到这一点而不会损害解码性能，因为解码在另一组工作器上运行。我们可能会在低流量期间"浪费"一些 prefillGPU 周期，但我们在高峰流量期间保持低 TTFT。对于交互式服务来说，这是一个值得的权衡。</p>
+<p>关键要点是 prefill 工作器优先考虑快速周转。分离让我们可以做到这一点而不会损害解码性能，因为解码在另一组工作器上运行。我们可能会在低流量期间"浪费"一些 prefill GPU 周期，但我们在高峰流量期间保持低 TTFT。对于交互式服务来说，这是一个值得的权衡。</p>
 <blockquote>
 <p>The key takeaway is that prefill workers prioritize fast turnaround. Disaggregation lets us do this without harming decode performance, since decode runs on a separate set of workers. We might "waste" some prefill GPU cycles during low-traffic periods, but we maintain low TTFT during peak traffic. For interactive serving, this is a worthwhile trade-off.</p>
 </blockquote>
@@ -1810,7 +1810,7 @@
 <blockquote>
 <p>If new requests finish prefill and become ready while the decode is in progress, they will join the next batch without waiting an arbitrary long idle period. This is in contrast to static batching, which will wait to gather a full batch before decoding.</p>
 </blockquote>
-<p>如果某个序列因命中文本结束 token 或达到序列长度上限而完成，它会立即从后续批次中移除。如果某个序列尚未就绪——也许它是一个仍在 prefill 中处理的长提示词词——那么在它就绪之前不会被纳入。</p>
+<p>如果某个序列因命中文本结束 token 或达到序列长度上限而完成，它会立即从后续批次中移除。如果某个序列尚未就绪——也许它是一个仍在 prefill 中处理的长提示词——那么在它就绪之前不会被纳入。</p>
 <blockquote>
 <p>If a sequence finishes by hitting an end-of-text token or a sequence-length limit, it is removed from subsequent batches immediately. If a sequence is not yet ready-perhaps it's a long prompt still being processed in prefill-it won't be included until it becomes ready.</p>
 </blockquote>
@@ -1839,7 +1839,7 @@
 <p>Under low load, even if just one sequence is active, the decode worker can still produce a token immediately. It doesn't have to wait to fill a batch. In this case, the GPU would be underutilized at that moment, but the latency for that single sequence is still low. Thus, continuous batching handles both extremes: efficient at high concurrency and responsive at low concurrency. It's a good balance of high throughput and low latency.</p>
 </blockquote>
 <h4 id="grouping-variable-length-sequences">分组可变长度序列 (Grouping variable-length sequences)<a class="headerlink" href="#grouping-variable-length-sequences" title="Permanent link">&para;</a></h4>
-<p>需要精心的调度与批处理，以避免浪费计算与内存。将短提示词与长提示词词混在一批中会带来填充（padding）开销——相对于 token 数量，有时填充多达 50%。这会浪费稀缺的 GPU 与网络资源。</p>
+<p>需要精心的调度与批处理，以避免浪费计算与内存。将短提示词与长提示词混在一批中会带来填充（padding）开销——相对于 token 数量，有时填充多达 50%。这会浪费稀缺的 GPU 与网络资源。</p>
 <blockquote>
 <p>Handling variable-length sequences in LLM inference requires careful scheduling and batching to avoid wasted computation and memory. Mixing short and long prompts in one batch leads to padding overhead-sometimes up to 50% padding relative to the number of tokens. This wastes scarce GPU and network resources.</p>
 </blockquote>
@@ -1916,7 +1916,7 @@
 <p>These systems also layer external KV tiers using DRAM and NVMe. And they can schedule recomputation instead of loading from slow storage, if that's faster.</p>
 </blockquote>
 <p><strong>前缀缓存 (Prefix caching)</strong></p>
-<p>如果许多请求共享公共系统提示词词或对话历史，解码工作器可以缓存这些共享前缀的 KV。这避免了为每个请求重新计算它们。这类似于第 16 章讨论的 KV 缓存重用，但应用于解码工作器。</p>
+<p>如果许多请求共享公共系统提示词或对话历史，解码工作器可以缓存这些共享前缀的 KV。这避免了为每个请求重新计算它们。这类似于第 16 章讨论的 KV 缓存重用，但应用于解码工作器。</p>
 <blockquote>
 <p>If many requests share a common system prompt or conversation history, the decode worker can cache the KV of these shared prefixes. This avoids recomputing them for each request. This is similar to the KV cache reuse discussed in Chapter 16 but applied to the decode worker.</p>
 </blockquote>
@@ -1994,7 +1994,7 @@
 <tr>
 <td>提示词长度 (Prompt length)</td>
 <td>输入提示词中的 token 数（在任何前缀缓存之后）。</td>
-<td>长提示词词⇒更多计算→如果长度超过阈值则卸载 prefill。短提示词⇒本地进行。</td>
+<td>长提示词⇒更多计算→如果长度超过阈值则卸载 prefill。短提示词⇒本地进行。</td>
 </tr>
 <tr>
 <td>前缀缓存命中 (Prefix cache hit)</td>
@@ -2036,7 +2036,7 @@
 <p>We don't want to waste time offloading trivial prompts. The overhead of remote execution, even if small, isn't worth it for a five-token prompt, for instance, since the decode GPU can handle that quickly on its own. Offloading is reserved for heavy prompts in which the decode GPU would otherwise be tied up for a long time.</p>
 </blockquote>
 <p><strong>缓存命中 (Cache hits)</strong></p>
-<p><em>前缀缓存</em> 现代推理系统通常会实现一个 KV 缓存，用于存储先前所见上下文的 KV 对，例如对话中较早的轮次或反复出现的样板系统提示词词。如果一个新请求的提示词具有与已处理过的提示词重叠的长前缀，那么 decode 工作节点可能已经在内存中持有该前缀的 KV 数据。在这种情况下，它只需为缓存未命中的部分计算提示词的剩余部分。</p>
+<p><em>前缀缓存</em> 现代推理系统通常会实现一个 KV 缓存，用于存储先前所见上下文的 KV 对，例如对话中较早的轮次或反复出现的样板系统提示词。如果一个新请求的提示词具有与已处理过的提示词重叠的长前缀，那么 decode 工作节点可能已经在内存中持有该前缀的 KV 数据。在这种情况下，它只需为缓存未命中的部分计算提示词的剩余部分。</p>
 <blockquote>
 <p>Modern inference systems often implement a KV cache that can store the KV pairs for previously seen context, such as earlier turns of a conversation or repeated boilerplate system prompts. If a new request's prompt has a long prefix that overlaps with a prompt that has already been processed, the decode worker may already have that prefix's KV data in memory. In that case, it needs to compute only the remainder of the prompt for the cache-miss portion.</p>
 </blockquote>
@@ -2044,12 +2044,12 @@
 <blockquote>
 <p>If the remaining part is short, the benefit of offloading is reduced. Also, if the entire prompt is already cached due to a complete prefix hit, then no prefill computation is needed at all. The decode can proceed immediately using the cached state.</p>
 </blockquote>
-<p>路由器通过有效考虑有效提示词词长度 = (prompt<em>length - prefix</em>cached_length) 来考虑这一点。大的前缀命中不仅减少了所需的计算，还意味着大量 KV 数据必须传输到 prefill 工作器并返回，这是毫无意义的。因此，此类请求保持本地并利用缓存。</p>
+<p>路由器通过有效考虑有效提示词长度 = (prompt<em>length - prefix</em>cached_length) 来考虑这一点。大的前缀命中不仅减少了所需的计算，还意味着大量 KV 数据必须传输到 prefill 工作器并返回，这是毫无意义的。因此，此类请求保持本地并利用缓存。</p>
 <blockquote>
 <p>The router takes this into account by effectively considering effective prompt length = (prompt<em>length - prefix</em>cached_length). A large prefix hit not only reduces compute needed but also means a lot of KV data would have to be transferred to a prefill worker and back, which is pointless. Hence, such requests are kept local and leverage the cache.</p>
 </blockquote>
 <p><strong>prefill 队列深度 (Prefill queue depth)</strong></p>
-<p>这本质上衡量 prefill 工作器集群的负载。如果 prefill 工作器被许多等待的任务淹没，向它们发送另一个任务可能比帮助更有损 TTFT，因为请求只会坐在队列中。在这种情况下，解码工作器被指示在本地处理 prefill，而不是增加 prefill 集群的队列。</p>
+<p>这本质上衡量 prefill 工作器集群的负载。如果 prefill 工作器被许多等待的任务淹没，再向它们发送一个任务，对 TTFT 而言可能弊大于利，因为请求只会排在队列里干等。在这种情况下，解码工作器被指示在本地处理 prefill，而不是增加 prefill 集群的队列。</p>
 <blockquote>
 <p>This essentially measures the load of the prefill worker cluster. If the prefill workers are overwhelmed with many tasks waiting, sending yet another task their way could hurt TTFT more than it helps since the request would just sit in the queue. In those cases, decode workers are instructed to handle the prefill locally instead of adding to the prefill cluster's queue.</p>
 </blockquote>
@@ -2470,11 +2470,11 @@
 <blockquote>
 <p>The techniques covered in this chapter, from high-speed RDMA transfers of KV cache to dynamic routing algorithms and QoS policies, have proven to be essential components for large-scale production inference workloads. Here are the key takeaways:</p>
 </blockquote>
-<p><strong>消除 prefill-解码干扰以改善延迟 (Eliminate prefill-decode interference to improve latency)</strong>：分离 prefill 和解码阶段可消除干扰和队头阻塞。这产生更紧密的延迟分布，因为长提示词词不会延迟较短提示词。这也让每个阶段更可靠地满足其延迟 SLO。</p>
+<p><strong>消除 prefill-解码干扰以改善延迟 (Eliminate prefill-decode interference to improve latency)</strong>：分离 prefill 和解码阶段可消除干扰和队头阻塞。这产生更紧密的延迟分布，因为长提示词不会延迟较短提示词。这也让每个阶段更可靠地满足其延迟 SLO。</p>
 <blockquote>
 <p><strong>Eliminate prefill-decode interference to improve latency</strong>: Separating prefill and decode phases removes interference and head-of-line blocking. This yields tighter latency distributions since long prompts won't delay shorter prompts. This also lets each phase meet its latency SLO reliably.</p>
 </blockquote>
-<p><em>独立优化每个阶段</em> prefill（提示词处理）是计算受限的，得益于最大化并行度与高 FLOPS。它偏好高算力 GPU 以及 FP8/FP4 降精度等技术来最小化 TTFT。decode（token 生成）是访存受限的，得益于高内存带宽 GPU 以及连续批处理等技术来最大化每 token 吞吐量。分离允许为每个阶段设置不同的硬件与并行配置，而固定的、一刀切的配置做不到这一点。</p>
+<p><em>独立优化每个阶段</em> prefill（提示词处理）是计算受限的，能从最大化并行度与高 FLOPS 中获益。它偏好高算力 GPU 以及 FP8/FP4 降精度等技术来最小化 TTFT。decode（token 生成）是访存受限的，得益于高内存带宽 GPU 以及连续批处理等技术来最大化每 token 吞吐量。分离允许为每个阶段设置不同的硬件与并行配置，而固定的、一刀切的配置做不到这一点。</p>
 <blockquote>
 <p><strong>Optimize each phase independently</strong>: Prefill (prompt processing) is compute bound and benefits from maximum parallelism and high FLOPS. It prefers high-compute GPUs and techniques like FP8/FP4 reduced precision to minimize TTFT. Decode (token generation) is memory bound and benefits from high-memory bandwidth GPUs and techniques like continuous batching to maximize throughput per token. Disaggregation allows different hardware and parallelism settings for each phase. A fixed, one-size-fits-all configuration does not allow this.</p>
 </blockquote>
@@ -2525,7 +2525,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:00:48 UTC">2026年11月23日 05:00:48</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:17:47 UTC">2026年11月23日 05:17:47</span>
   </span>
 
     

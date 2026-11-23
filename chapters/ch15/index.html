@@ -1621,7 +1621,7 @@
 <p>Speculative decoding accelerates the decode process by pregenerating multiple tokens in a single batch. In parallel, it then verifies that the tokens are correct. This reduces the sequential nature of standard token-by-token autoregressive decoding. We'll cover speculative decoding in a bit.</p>
 </blockquote>
 <h3 id="prefill-prefill-decode-interference">prefill-解码干扰 (Prefill-Decode Interference)<a class="headerlink" href="#prefill-prefill-decode-interference" title="Permanent link">&para;</a></h3>
-<p>传统上，LLM 推理系统会把这两个阶段共置（colocate）在同一批节点上，并简单地把所有计算批处理（batch）在一起。然而，这种朴素做法会导致通常所说的 <em>prefill-decode 干扰</em>。例如，一个长提示词词的 prefill 可能会占用 GPU，从而延误其他请求对时延敏感的 decode 工作——反之亦然。</p>
+<p>传统上，LLM 推理系统会把这两个阶段共置（colocate）在同一批节点上，并简单地把所有计算批处理（batch）在一起。然而，这种朴素做法会导致通常所说的 <em>prefill-decode 干扰</em>。例如，一个长提示词的 prefill 可能会占用 GPU，从而延误其他请求对时延敏感的 decode 工作——反之亦然。</p>
 <blockquote>
 <p>Traditionally, LLM inference systems colocate these two stages on the same nodes and simply batch all computations together. However, this naive approach leads to what's commonly called prefill-decode interference. For instance, a long prompt prefill can occupy the GPU and delay time-sensitive decoding work for other requests-and vice versa.</p>
 </blockquote>
@@ -1697,7 +1697,7 @@
 <p>When the fabric or virtualization layer prevents direct peer access, NIXL can fall back to host-staged paths, which are nonoptimal. Always validate end-to-end KV transfer time on your deployment.</p>
 </blockquote>
 <h3 id="kubernetes-prefill-deploying-disaggregated-prefill-and-decode-with-kubernetes">使用 Kubernetes 部署分离式 prefill 和解码 (Deploying Disaggregated Prefill and Decode with Kubernetes)<a class="headerlink" href="#kubernetes-prefill-deploying-disaggregated-prefill-and-decode-with-kubernetes" title="Permanent link">&para;</a></h3>
-<p>在高级部署中，像 Kubernetes 这样的集群编排系统可以根据负载与输入特征，动态地调整 GPU 池的分配——或分别对各池进行扩缩容。例如，如果大量用户带着超长提示词词词与相对较短的输出到来（例如长文档摘要类用例），Kubernetes 可以临时调整分配，让 prefill 池使用更多 GPU，这会减少分配给 decode 阶段的 GPU 数量。</p>
+<p>在高级部署中，像 Kubernetes 这样的集群编排系统可以根据负载与输入特征，动态地调整 GPU 池的分配——或分别对各池进行扩缩容。例如，如果大量用户带着超长提示词与相对较短的输出到来（例如长文档摘要类用例），Kubernetes 可以临时调整分配，让 prefill 池使用更多 GPU，这会减少分配给 decode 阶段的 GPU 数量。</p>
 <blockquote>
 <p>In an advanced deployment, a cluster orchestration system like Kubernetes can dynamically shift the GPU pool allocations-or scale the pools out separately-based on load and input characteristics. For instance, if many users arrive with superlong prompts and relatively small outputs (e.g., large-document summarization use cases), Kubernetes can temporarily shift the allocation to use more GPUs in the prefill pool. This will decrease the number of GPUs allocated to the decode phase.</p>
 </blockquote>
@@ -1713,7 +1713,7 @@
 <blockquote>
 <p>In modern inference deployments, all nodes can perform both prefill and decode functionality since they all share the same runtime and code base (e.g., vLLM, SGLang, NVIDIA Dynamo, etc.). It's up to the cluster orchestrator to assign them a specific role, either prefill or decode, statically upon startup-and dynamically throughout the worker's lifecycle.</p>
 </blockquote>
-<p>总体而言，分离式 prefill/decode 架构为高吞吐、低延迟的 LLM 服务奠定了基础。不过它确实引入了复杂性，因为中间数据必须被传输和管理——对于一个长提示词词的 KV 缓存来说，其量级可达数 GB。而且调度也更为复杂，但在超大规模下，高效利用硬件所带来的收益是十分显著的。</p>
+<p>总体而言，分离式 prefill/decode 架构为高吞吐、低延迟的 LLM 服务奠定了基础。不过它确实引入了复杂性，因为中间数据必须被传输和管理——对于一个长提示词的 KV 缓存来说，其量级可达数 GB。而且调度也更为复杂，但在超大规模下，高效利用硬件所带来的收益是十分显著的。</p>
 <blockquote>
 <p>Overall, a disaggregated prefill/decode architecture provides a foundation for high-throughput, low-latency LLM serving. It does introduce complexity, however, as intermediate data must be transferred and managed-on the order of a few gigabytes for the KV cache of a long prompt. And scheduling is more involved, but the benefits of utilizing hardware efficiently are significant at ultra scale.</p>
 </blockquote>
@@ -1983,7 +1983,7 @@
 <blockquote>
 <p>Context parallelism excels at prefill for very long inputs by slicing a document into segments, allocating segments across multiple GPUs, and processing each segment concurrently. This reduces prompt-processing time roughly in half for every doubling of GPUs-with only a bit of overhead for cross-segment attention at the boundaries.</p>
 </blockquote>
-<p>简而言之，虽然 CP 无法加速逐 token 串行的 decode 阶段，但它能缩短超长提示词词的 TTFT。做法是把注意力 KV 缓存分布到多个设备上，让每块 GPU 只存储自己那一段的缓存。CP 还能让你处理超出单块 GPU 内存容量的上下文。</p>
+<p>简而言之，虽然 CP 无法加速逐 token 串行的 decode 阶段，但它能缩短超长提示词的 TTFT。做法是把注意力 KV 缓存分布到多个设备上，让每块 GPU 只存储自己那一段的缓存。CP 还能让你处理超出单块 GPU 内存容量的上下文。</p>
 <blockquote>
 <p>In short, while CP doesn't speed up the sequential, token-by-token decode phase, it can shorten TTFT for extremely long prompts. It does this by distributing the attention KV cache across devices such that each GPU stores only its segment's cache. CP also lets you handle contexts larger than what a single GPU can fit into memory.</p>
 </blockquote>
@@ -2411,7 +2411,7 @@
 <blockquote>
 <p>Your inference system can use these insights to adjust the expert gating probabilities and dynamically reassign experts to different GPUs. It can also spawn additional expert replica instances, etc. This helps to rebalance the load by adjusting the expert gating algorithm, modifying expert placement, or creating/removing expert replicas.</p>
 </blockquote>
-<p>在推理时动态派生新的专家副本并不简单。这种方法需要预先预留的容量，或为这些专家提供快速的模型加载。这是一种高级优化技术。"</p>
+<p>在推理时动态派生新的专家副本并不简单。这种方法需要预先预留的容量，或为这些专家提供快速的模型加载。这是一种高级优化技术。</p>
 <blockquote>
 <p>Dynamically spawning new expert replicas at inference time is nontrivial. This approach requires pre-provisioned capacity or rapid model loading for those experts. This is an advanced optimization technique.</p>
 </blockquote>
@@ -2452,7 +2452,7 @@
 <blockquote>
 <p>Serving massive LLMs to billions of end users requires optimizations at every stage of the inference pipeline. The following are some key takeaways from this chapter:</p>
 </blockquote>
-<p>***** 把提示词 prefill 与 decode 两个阶段拆分到独立的 GPU 池上，可以消除相互干扰。这让你能够同时实现低首 token 时延和高每秒 token 数，而不必以牺牲一者来换取另一者。这是大规模 LLM 服务的一项基础性技术。</p>
+<p><strong>分离（disaggregation），兼顾时延与吞吐</strong>：把提示词 prefill 与 decode 两个阶段拆分到独立的 GPU 池上，可以消除相互干扰。这让你能够同时实现低首 token 时延和高每秒 token 数，而不必以牺牲一者来换取另一者。这是大规模 LLM 服务的一项基础性技术。</p>
 <blockquote>
 <p>Disaggregate to optimize both latency and throughput. Splitting the prompt prefill and decode stages onto separate GPU pools eliminates interference. This lets you achieve low time-to-first-token and high tokens-per-second simultaneously, instead of trading one for the other. It's a foundational technique for large-scale LLM serving.</p>
 </blockquote>
@@ -2460,7 +2460,7 @@
 <blockquote>
 <p>Use hybrid parallelism for massive models. No single parallelism strategy is sufficient for multi-trillion-parameter models. Combine tensor, pipeline, expert, and data parallelism as needed. For example, shard layers across GPUs (TP/PP) to fit the model in memory, use expert parallelism for MoE layers to scale model capacity, and add data-parallel replicas to meet throughput demands. The optimal mix is hardware-dependent. Always profile and tune your configuration for your workload.</p>
 </blockquote>
-<p><em><strong>缓解顺序解码瓶颈</strong></em> 先进的解码方法可以极大地加速生成。当接受率针对任务调优后，配合快速草稿模型的双模型投机解码通常能带来约 2–3× 的加速。EAGLE-2 报告在某些任务上可达最高 3.5× 加速（比 EAGLE-1 多 20%–40%），同时保持目标分布。Medusa 的实现在针对目标工作负载训练和验证后，报告相较非投机解码可达最高 3.6× 加速。这些技术在提升 token 级并行性和算术强度的同时，在标准验证下保持大语言模型的输出分布。总的来说，其结果是在不重新训练主模型输出的前提下获得更快的响应。这表明投机解码是一种保质技术。</p>
+<p><strong>缓解顺序解码瓶颈</strong>：先进的解码方法可以极大地加速生成。当接受率针对任务调优后，配合快速草稿模型的双模型投机解码通常能带来约 2–3× 的加速。EAGLE-2 报告在某些任务上可达最高 3.5× 加速（比 EAGLE-1 多 20%–40%），同时保持目标分布。Medusa 的实现在针对目标工作负载训练和验证后，报告相较非投机解码可达最高 3.6× 加速。这些技术在提升 token 级并行性和算术强度的同时，在标准验证下保持大语言模型的输出分布。总的来说，其结果是在不重新训练主模型输出的前提下获得更快的响应。这表明投机解码是一种保质技术。</p>
 <blockquote>
 <p>Mitigate sequential decoding bottlenecks. Advanced decoding methods can greatly accelerate generation. Two-model speculative decoding with a fast draft model often delivers about a 2-3x speedup when acceptance rates are tuned for the task. EAGLE-2 reports up to 3.5x speedup (20%-40% more than EAGLE-1) on some tasks while preserving the target distribution. Medusa implementations report up to 3.6x speedup over nonspeculative decoding when trained and validated for the target workload. These techniques increase token-level parallelism and arithmetic intensity while preserving the large model's output distribution under standard verification. Overall, the result is faster responses without retraining the main model's output. This shows that speculative decoding is a quality-preserving technique.</p>
 </blockquote>
@@ -2519,7 +2519,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:58:13 UTC">2026年11月23日 04:58:13</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:18:59 UTC">2026年11月23日 05:18:59</span>
   </span>
 
     
