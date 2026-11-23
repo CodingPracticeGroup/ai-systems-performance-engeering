@@ -2781,11 +2781,11 @@
 <blockquote>
 <p>Figure 6-16. Automatic page migrations with CPU-GPU Unified Memory</p>
 </blockquote>
-<p><img alt="图6-17 使用cudaMemPrefetchAsync()通过NVLink-C2C从CPU流式传输数据到GPU" src="../assets/images/ch06/fig06_342_1.png" /></p>
+<p><img alt="图6-17 使用cudaMemPrefetchAsync()通过NVLink-C2C从CPU流式传输数据到GPU" src="../../assets/images/ch06/fig06_341_1.png" /></p>
 <blockquote>
 <p>Figure 6-17. Streaming data from CPU to GPU over NVLink-C2C with cudaMemPrefetchAsync()</p>
 </blockquote>
-<p><img alt="图6-18 指定&quot;首选位置&quot;告诉CUDA驱动程序数据主要如何使用（例如，对于主要只读的工作负载使用ReadMostly）" src="../assets/images/ch06/fig06_344_1.png" /></p>
+<p><img alt="图6-18 指定&quot;首选位置&quot;告诉CUDA驱动程序数据主要如何使用（例如，对于主要只读的工作负载使用ReadMostly）" src="../../assets/images/ch06/fig06_343_1.png" /></p>
 <blockquote>
 <p>Figure 6-18. Specifying "preferred location" to tell the CUDA driver how the data is mostly used (e.g., ReadMostly for largely read-only workloads)</p>
 </blockquote>
@@ -3341,7 +3341,7 @@
 <blockquote>
 <p>Compare this to the GPU's ridge point of 10 FLOPs per byte (10 FLOPs = ~80 TFLOPs / 8 TB/s). This floating-point addition kernel's ridge point of 0.083 is orders of magnitude lower on the left side of the roofline (memory-bound side). This is more than 100x below that threshold, so it cannot keep the arithmetic logic units (ALUs) busy. This kernel is memory bound, with performance dominated by memory stalls rather than computation. Figure 6-21 shows a representative roofline model for Blackwell, including peak compute performance (horizontal line at ~80 FLOPs/sec) and peak memory bandwidth (diagonal line corresponding to 8 TB/s).</p>
 </blockquote>
-<p><img alt="图6-21 Blackwell级GPU的Roofline模型（~80 TFLOPs/sec FP32，~8 TB/s HBM3e），显示内核的点和~10 FLOPs/byte算术强度脊" src="../assets/images/ch06/fig06_364_1.png" /></p>
+<p><img alt="图6-21 Blackwell级GPU的Roofline模型（~80 TFLOPs/sec FP32，~8 TB/s HBM3e），显示内核的点和~10 FLOPs/byte算术强度脊" src="../../assets/images/ch06/fig06_363_1.png" /></p>
 <blockquote>
 <p>Figure 6-21. Roofline model for a Blackwell-class GPU (~80 TFLOPs/sec FP32, ~8 TB/s HBM3e) showing our kernel's point and the ~10 FLOPs/byte arithmetic intensity ridge</p>
 </blockquote>
@@ -3537,7 +3537,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年3月11日 01:10:07 UTC">2026年3月11日 01:10:07</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 01:45:02 UTC">2026年11月23日 01:45:02</span>
   </span>
 
     
