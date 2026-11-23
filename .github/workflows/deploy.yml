@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - fix/translation-review
   workflow_dispatch:
 
 permissions:
