@@ -2676,7 +2676,7 @@
 <blockquote>
 <p>Also, when measuring performance, using CUDA Graphs can mask the overhead of launching kernels, which might not be desired in some benchmarks. So this mode allows maximal kernel optimization without CUDA Graphs. This will help maintain flexibility and allow you to debug any issues that CUDA Graphs might introduce (or mask), such as shape-dependent control flow or occasional allocator readdressing during graph capture. Use this mode when input sizes vary each iteration-or for debugging issues that might be masked by the use of CUDA Graphs.</p>
 </blockquote>
-<p>对大多数使用场景，default 模式是个不错的起点。它旨在以最小的麻烦带来可观的提速。如果你发现模型仍然不够快，且能容忍更长的编译时间，可以尝试 reduce-overhead 和 max-autotune，以期获得更好的融合核函数——尤其当你的模型由可自动调优的大型 matmul 操作主导时。max-autotune 有时会在某些模型上让延迟变差。务必针对你特定的工作负载和硬件对不同模式进行剖析。</p>
+<p>对大多数使用场景，default 模式是个不错的起点。它旨在以最小的麻烦带来可观的提速。如果你发现模型仍然不够快，且能容忍更长的编译时间，可以尝试 reduce-overhead 和 max-autotune，以期获得更好的融合核函数——尤其当你的模型由可自动调优的大型 matmul 操作主导时。max-autotune 有时会在某些模型上让延迟变差。务必针对你特定的工作负载和硬件剖析不同模式。</p>
 <blockquote>
 <p>For most use cases, the default mode is a good start. It's meant to give sizable speedups with minimal hassle. If you find that your model still isn't fast enough and you can tolerate longer compilation, try reduce-overhead and max-autotune for potentially better fused kernels-especially if your model is dominated by large matmul operations that can be autotuned. max-autotune can sometimes regress latency on some models. Be sure to profile the different modes for your specific workload and hardware.</p>
 </blockquote>
