@@ -1890,7 +1890,7 @@
 <blockquote>
 <p>And remember to always weigh the cost of new hardware against the efficiency gains. There are times when upgrading to newer GPUs with more memory and FLOPS will be more cost-effective than scaling out a fleet of older GPUs.</p>
 </blockquote>
-<p>增加专家数量可以提高您的吞吐量上限--但前提是您还改进专家路由和调度以管理额外的全对全通信。否则，简单的扩展可能只是将瓶颈转移到网络上。</p>
+<p>增加专家数量可以提高你的吞吐量上限--但前提是你还改进专家路由和调度以管理额外的全对全通信。否则，简单的扩展可能只是将瓶颈转移到网络上。</p>
 <blockquote>
 <p>Increasing the expert count can raise your throughput ceiling-but only if you also improve expert routing and scheduling to manage the extra all-to-all communication. Otherwise, naive scaling may simply shift the bottleneck to the network.</p>
 </blockquote>
@@ -1911,7 +1911,7 @@
 <blockquote>
 <p>For ongoing monitoring in production, it's common to use Prometheus to collect metrics from each GPU compute node-as well as Grafana dashboards to visualize them. Key GPU metrics to track include GPU utilization (percent of time the SMs are busy), GPU memory usage, copy engine utilization, PCIe and NVLink throughput, and GPU temperature and power (e.g., throttling). Note: Low-level counters such as L1 and L2 activity, occupancy, and instruction throughput can be collected with Nsight Compute or CUPTI rather than DCGM and Prometheus.</p>
 </blockquote>
-<p><code>cudaMemPool</code>指标和异步分配器统计信息在监控内存碎片时很有帮助。这些应该集成到您的监控中，因为这将大大有助于调试生产中的系统性能问题。</p>
+<p><code>cudaMemPool</code>指标和异步分配器统计信息在监控内存碎片时很有帮助。这些应该集成到你的监控中，因为这将大大有助于调试生产中的系统性能问题。</p>
 <blockquote>
 <p>The <code>cudaMemPool</code> metrics and asynchronous allocator statistics are helpful when monitoring memory fragmentation. These should be integrated into your monitoring, as this will greatly facilitate debugging system performance issues in production.</p>
 </blockquote>
@@ -2027,7 +2027,7 @@
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// 使用C API的NVTX注释的示例C++代码片段。</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nvtx3/nvToolsExt.h&gt;</span><span class="w">   </span><span class="c1">// 或 &lt;nvToolsExt.h&gt;</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"my_model.hpp"</span><span class="w">         </span><span class="c1">// 您的模型的C++接口</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">"my_model.hpp"</span><span class="w">         </span><span class="c1">// 你的模型的C++接口</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1">// 保持调用点整洁的小辅助函数。</span>
@@ -2303,7 +2303,7 @@
 </blockquote>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>compute-sanitizer --tool memcheck your_binary
 </span></code></pre></div>
-<p>如果一个 GPU 的利用率比其他 GPU 低得多，可能是由于静默的 NCCL 通信失败或未捕获的错误导致它退出了 NCCL 通信组。您可以通过在日志中查找<code>WARN NCCL_COMM_FAILURE</code>来检查 NCCL 错误代码。它提供非常详细的错误日志。</p>
+<p>如果一个 GPU 的利用率比其他 GPU 低得多，可能是由于静默的 NCCL 通信失败或未捕获的错误导致它退出了 NCCL 通信组。你可以通过在日志中查找<code>WARN NCCL_COMM_FAILURE</code>来检查 NCCL 错误代码。它提供非常详细的错误日志。</p>
 <blockquote>
 <p>If one GPU has much lower utilization than others, it could be due to a silent NCCL communication failure or uncaught error that caused it to drop out of the NCCL communication group. You can check for NCCL error codes by looking for <code>WARN NCCL_COMM_FAILURE</code> in the logs. It provides very detailed error logs.</p>
 </blockquote>
@@ -2315,7 +2315,7 @@
 <blockquote>
 <p>Use the NCCL test suite to debug all-reduce and all-to-all performance and correctness issues. You can also use <code>ncclCommGetAsyncError</code> and <code>ncclCommAbort</code> to detect and handle asynchronous communication errors. Consider enabling NCCL's IB GID tracing and using NVSwitch system telemetry to detect interconnect-level issues.</p>
 </blockquote>
-<p>您应该在 Prometheus 的警报管理器中设置警报，以检测异常模式，如"GPU 利用率 &lt; 10%持续至少 60 秒"、"内存使用超过 W%阈值"、"NVLink 错误率 &gt; X"、"PCIe 重播超过 Y 阈值"、"温度超过 Z 度"等。</p>
+<p>你应该在 Prometheus 的警报管理器中设置警报，以检测异常模式，如"GPU 利用率 &lt; 10%持续至少 60 秒"、"内存使用超过 W%阈值"、"NVLink 错误率 &gt; X"、"PCIe 重播超过 Y 阈值"、"温度超过 Z 度"等。</p>
 <blockquote>
 <p>You should set up alerts in Prometheus's Alertmanager to detect anomalous patterns like "GPU utilization &lt; 10% for at least 60 seconds", "memory usage exceeds W% threshold", "NVLink error rate &gt; X", "PCIe replay exceeds Y threshold", "temperature exceeds Z degrees", etc.</p>
 </blockquote>
@@ -2473,7 +2473,7 @@
 </tbody>
 </table>
 </blockquote>
-<p>您还需要设置硬件错误计数器和警报。例如，如果报告 ECC 错误或 NVLink 重试，请立即警报，因为这些可能迅速降低性能或导致掉线。当 GPU 或其互连静默断开连接时，会发生掉线。例如，NVLink 可能掉线--或者 GPU 可能在致命错误后"掉线"。</p>
+<p>你还需要设置硬件错误计数器和警报。例如，如果报告 ECC 错误或 NVLink 重试，请立即警报，因为这些可能迅速降低性能或导致掉线。当 GPU 或其互连静默断开连接时，会发生掉线。例如，NVLink 可能掉线--或者 GPU 可能在致命错误后"掉线"。</p>
 <blockquote>
 <p>You also want to set up hardware error counters and alerts. For instance, alert immediately if ECC errors or NVLink retries are reported, as these can quickly degrade performance or cause dropouts. Dropouts happen when a GPU or its interconnect silently disconnects. For example, an NVLink might drop-or a GPU might "drop out" after a fatal error.</p>
 </blockquote>
@@ -2485,15 +2485,15 @@
 <blockquote>
 <p>Consider an NCCL failure scenario. You might get an alert that one node's GPU utilization is near 0% while others are at 90%. You can start debugging by checking the node logs and finding which node is generating NCCL errors.</p>
 </blockquote>
-<p>这种主动监控和警报让您可以更快地捕获这些问题，找到失败的节点，并开始将其恢复正常。在这种情况下，您可能需要重新初始化 NCCL 通信器或执行完整的节点重启（只需确保节点在重启后重新加入 NCCL 组）。</p>
+<p>这种主动监控和警报让你可以更快地捕获这些问题，找到失败的节点，并开始将其恢复正常。在这种情况下，你可能需要重新初始化 NCCL 通信器或执行完整的节点重启（只需确保节点在重启后重新加入 NCCL 组）。</p>
 <blockquote>
 <p>This proactive monitoring and alerting lets you catch these issues faster, find the failed node, and start bringing it back to health. In this case, you might need to reinitialize the NCCL communicator or perform a full node restart (just make sure the node rejoins the NCCL group after restart).</p>
 </blockquote>
-<p>您可以通过为 NCCL 错误增加一个"NCCL Error"计数器来更快地捕获这些问题。此外，您的推理服务器可以记录 NCCL 错误，这些错误将自动被 Fluentd 或 AWS CloudWatch 抓取并转换为计数器。</p>
+<p>你可以通过为 NCCL 错误增加一个"NCCL Error"计数器来更快地捕获这些问题。此外，你的推理服务器可以记录 NCCL 错误，这些错误将自动被 Fluentd 或 AWS CloudWatch 抓取并转换为计数器。</p>
 <blockquote>
 <p>You can catch these issues even faster by adding an "NCCL Error" counter for NCCL errors. Additionally, your inference server can log NCCL errors, which will automatically be scraped by Fluentd or AWS CloudWatch and converted to counters.</p>
 </blockquote>
-<p>然后，您可以在 Grafana 中将错误计数器图表叠加在每个节点的 GPU 利用率图表上。这将把 NCCL 错误与 GPU 利用率下降相关联，以便您可以更快地识别和修复失败的节点。</p>
+<p>然后，你可以在 Grafana 中将错误计数器图表叠加在每个节点的 GPU 利用率图表上。这将把 NCCL 错误与 GPU 利用率下降相关联，以便你可以更快地识别和修复失败的节点。</p>
 <blockquote>
 <p>Then, you can overlay error counter charts on per-node GPU utilization charts in Grafana. This will correlate NCCL errors with GPU utilization drops so you can identify and fix failed nodes faster.</p>
 </blockquote>
@@ -2505,7 +2505,7 @@
 <blockquote>
 <p>Optimizations should not be considered successful until verified by actual metrics that show increased throughput, reduced latency, improved utilization, etc. Given the complexity of modern AI inference systems, a rigorous measurement-driven approach to system performance tuning is essential.</p>
 </blockquote>
-<p>简而言之，您应该结合应用级计数器、从 Fluentd 或 AWS CloudWatch 自动抓取的日志计数器和低级系统指标。这种类型的全栈遥测提供了在峰值性能下运行和优化生产工作负载的多节点 LLM 推理系统所需的可见性。您应该将指标、计数器和日志视为系统行为的真实事实。</p>
+<p>简而言之，你应该结合应用级计数器、从 Fluentd 或 AWS CloudWatch 自动抓取的日志计数器和低级系统指标。这种类型的全栈遥测提供了在峰值性能下运行和优化生产工作负载的多节点 LLM 推理系统所需的可见性。你应该将指标、计数器和日志视为系统行为的真实事实。</p>
 <blockquote>
 <p>In short, you should combine application-level counters, log counters automatically scraped from Fluentd or AWS CloudWatch, and low-level system metrics. This type of full-stack telemetry provides the visibility needed to run and optimize multinode LLM inference systems serving production workloads at peak performance. You should treat metrics, counters, and logs as the ground truth of system behavior.</p>
 </blockquote>
@@ -2567,7 +2567,7 @@
 <blockquote>
 <p>Dynamic batching adds a little latency at low RPS (requests per second) since it waits for other requests to join the batch. This slightly increases latency at low RPS. However, at moderate to high RPS, the latency is amortized and becomes negligible compared to the queuing delay that would occur if we ran all requests one by one. As a result, batching reduces overall latency, including tail latency.</p>
 </blockquote>
-<p>您应该使用 Grafana 等工具绘制延迟百分位数与负载的关系图来验证改进。使用批处理时，您通常会看到整体 p50 延迟保持平稳--甚至下降--随着吞吐量的增加。这种情况会持续到一个拐点。记下这个拐点并保持在此值以下。</p>
+<p>你应该使用 Grafana 等工具绘制延迟百分位数与负载的关系图来验证改进。使用批处理时，你通常会看到整体 p50 延迟保持平稳--甚至下降--随着吞吐量的增加。这种情况会持续到一个拐点。记下这个拐点并保持在此值以下。</p>
 <blockquote>
 <p>You should verify improvements by plotting latency percentiles versus load using tools like Grafana. With batching, you'll typically see overall p50 latency stay flat-or even drop-as throughput increases. This continues up to a knee in the curve. Note this knee and stay below it.</p>
 </blockquote>
@@ -2696,7 +2696,7 @@
 <blockquote>
 <p>Specifically, during the decode phase, generating one token at a time can underutilize the GPU-especially when operating on a single text sequence. This is because the workload is relatively small and requires a lot of memory movement relative to the amount of computation.</p>
 </blockquote>
-<p>为了解决这种低效问题，推理引擎可以交错来自不同用户请求的多个解码任务。例如，如果 10 个用户同时解码不同的序列，您不能简单地将它们批处理成一个大型矩阵乘法。这是因为每个序列可能有不同的长度。这将阻止 GPU 执行高效的矩阵操作，而需要大量的填充。</p>
+<p>为了解决这种低效问题，推理引擎可以交错来自不同用户请求的多个解码任务。例如，如果 10 个用户同时解码不同的序列，你不能简单地将它们批处理成一个大型矩阵乘法。这是因为每个序列可能有不同的长度。这将阻止 GPU 执行高效的矩阵操作，而需要大量的填充。</p>
 <blockquote>
 <p>To address this inefficiency, inference engines can interleave multiple decoding tasks from different user requests. For instance, if 10 users are decoding different sequences simultaneously, you can't simply batch them into one large matrix multiplication. This is because each sequence might have different lengths. This would prevent the GPU from performing efficient matrix operations and require significant padding.</p>
 </blockquote>
@@ -2745,7 +2745,7 @@
 <blockquote>
 <p>When prompts are very long, you can split them into chunks and interleave prefill and decode work. This is called stall-free scheduling or chunked prefill.</p>
 </blockquote>
-<p>考虑一个 20K token 的提示。通过将提示分成 5K token 的块，您可以减少每次迭代的最大停顿，并将每次迭代的工作限制在固定数量的 token。这提供了可预测的每次迭代延迟。表 16-5 显示了不同块大小的分块 prefill 的成本。</p>
+<p>考虑一个 20K token 的提示。通过将提示分成 5K token 的块，你可以减少每次迭代的最大停顿，并将每次迭代的工作限制在固定数量的 token。这提供了可预测的每次迭代延迟。表 16-5 显示了不同块大小的分块 prefill 的成本。</p>
 <blockquote>
 <p>Consider a 20K-token prompt. By splitting the prompt into 5K-token chunks, you reduce the maximum stall per iteration and cap the work per iteration to a fixed number of tokens. This provides predictable per-iteration latency. Table 16-5 shows the cost of chunked prefill with different chunk sizes.</p>
 </blockquote>
@@ -2823,7 +2823,7 @@
 <blockquote>
 <p>In self-attention, the number of QK dot products for a sequence of length N is triangular, approximately N(N + 1) / 2. This is the number of Q x K dot product operations per layer per head. This cost is quadratic in N (O(N²)). So for N = 20,000, this is about 200 million operations. Chunking doesn't reduce this total. Chunking only changes when the work becomes available to the decoder. The benefit of chunked prefill is latency smoothing and improved overlapping, not fewer total attention dot product operations.</p>
 </blockquote>
-<p>prefill 自注意力每层每头执行 N(N + 1) / 2 个 Q x K 点积。这个成本是 N 的二次方，O(N²)。请注意，分块和流水线 prefill 只改变重叠和延迟；它们不改变注意力工作的总量。减少总注意力成本的唯一方法是减少有效上下文或使用局部或稀疏注意力。例如，您可以使用固定注意力窗口 W 将成本降低到 O(NW)。</p>
+<p>prefill 自注意力每层每头执行 N(N + 1) / 2 个 Q x K 点积。这个成本是 N 的二次方，O(N²)。请注意，分块和流水线 prefill 只改变重叠和延迟；它们不改变注意力工作的总量。减少总注意力成本的唯一方法是减少有效上下文或使用局部或稀疏注意力。例如，你可以使用固定注意力窗口 W 将成本降低到 O(NW)。</p>
 <blockquote>
 <p>Prefill self-attention performs N(N + 1) / 2 Q x K dot products per layer per head. This cost is quadratic in N, O(N²). Note that chunking and pipelining prefill only change overlapping and latency; they don't change the total amount of attention work. The only way to reduce total attention cost is to reduce the effective context or use local or sparse attention. For example, you can use a fixed attention window W to reduce the cost to O(NW).</p>
 </blockquote>
@@ -2956,7 +2956,7 @@
 <blockquote>
 <p>As we've seen repeatedly throughout this book, overlapping communication and computation is critical for inference performance of large models distributed across many GPUs. The massive high bandwidth of systems like GB200/GB300 NVL72 (up to ~130 TB/s intra-rack aggregate GPU-to-GPU NVLink bandwidth) means that overlapping is even more effective since data transfers are fast enough that compute is less likely to starve. However, even with NVL72, it's essential to use multiple CUDA streams and nonblocking collective operations. This will allow you to perform communication-compute overlap to hide latency and keep all 72 GPUs busy-even at these speeds.</p>
 </blockquote>
-<p>在实践中，您希望启用 NCCL 的 GPUDirect RDMA 支持--并使用 NCCL 的组调用来重叠多个小 all-reduce 操作。此外，考虑使用 SHARP（在具有合适交换机的 InfiniBand 上可用）将归约操作卸载到网络结构。这种优化可以提高某些结构和拓扑的吞吐量。在一些测试中，它显示大型 all-to-all 通信的吞吐量提高了约 10%-20%。</p>
+<p>在实践中，你希望启用 NCCL 的 GPUDirect RDMA 支持--并使用 NCCL 的组调用来重叠多个小 all-reduce 操作。此外，考虑使用 SHARP（在具有合适交换机的 InfiniBand 上可用）将归约操作卸载到网络结构。这种优化可以提高某些结构和拓扑的吞吐量。在一些测试中，它显示大型 all-to-all 通信的吞吐量提高了约 10%-20%。</p>
 <blockquote>
 <p>In practice, you want to enable NCCL's GPUDirect RDMA support-and use NCCL's group calls to overlap multiple small all-reduce operations. Also, consider using SHARP (available on InfiniBand with suitable switches) to offload reduction operations to the network fabric. This optimization can improve throughput for certain architectures and topologies. In some tests, it showed about 10%-20% throughput improvement for large all-to-all communications.</p>
 </blockquote>
@@ -2972,7 +2972,7 @@
 <blockquote>
 <p>Remember to use page-locked host buffers for transfers over PCIe or NIC. This way, the CUDA driver can DMA directly and overlap with computation.</p>
 </blockquote>
-<p>然后，您只在需要数据时使用 CUDA 事件同步。这可以防止 GPU 在 I/O 上空闲。这样，数据传输将使用非阻塞 CUDA 调用（例如锁页内存）和 CUDA 流，使 GPU 不会在这些操作上停顿。在具有全双工 NVLink 带宽的现代 GPU 上，这种重叠可以很大程度上隐藏通信延迟。但是，您应该在特定工作负载上通过剖析来验证这一点。</p>
+<p>然后，你只在需要数据时使用 CUDA 事件同步。这可以防止 GPU 在 I/O 上空闲。这样，数据传输将使用非阻塞 CUDA 调用（例如锁页内存）和 CUDA 流，使 GPU 不会在这些操作上停顿。在具有全双工 NVLink 带宽的现代 GPU 上，这种重叠可以很大程度上隐藏通信延迟。但是，你应该在特定工作负载上通过剖析来验证这一点。</p>
 <blockquote>
 <p>Then, you synchronize with CUDA events only when you need the data. This prevents the GPU from idling on I/O. This way, data transfers use nonblocking CUDA calls (e.g., pinned memory) and CUDA streams to keep the GPU from stalling on these operations. On modern GPUs with full-duplex NVLink bandwidth, this overlap can largely hide communication latency. However, you should verify this with profiling on your specific workload.</p>
 </blockquote>
@@ -2988,11 +2988,11 @@
 <blockquote>
 <p>By the time experts finish the first batch, the second batch's data has already arrived at the destination GPU-and they can proceed without waiting. This requires careful scheduling of NCCL calls relative to compute kernels.</p>
 </blockquote>
-<p>例如，您可以使用 CUDA 事件来发出批次一半完成的信号。此时，您可以为该部分数据启动 NCCL all-to-all--而下一部分完成计算。</p>
+<p>例如，你可以使用 CUDA 事件来发出批次一半完成的信号。此时，你可以为该部分数据启动 NCCL all-to-all--而下一部分完成计算。</p>
 <blockquote>
 <p>For example, you can use a CUDA event to signal that half of a batch is complete. At that point, you can launch an NCCL all-to-all for that portion of data-while the next portion finishes computing.</p>
 </blockquote>
-<p>您可以使用 CUDA 图来捕获这些异步模式并减少启动开销。结果是提高了 GPU 利用率，因为 GPU 花费更少的时间空闲等待通信。</p>
+<p>你可以使用 CUDA 图来捕获这些异步模式并减少启动开销。结果是提高了 GPU 利用率，因为 GPU 花费更少的时间空闲等待通信。</p>
 <blockquote>
 <p>You can use CUDA graphs to capture these asynchronous patterns and reduce launch overhead. The result is improved GPU utilization since the GPU spends less time idle waiting for communication.</p>
 </blockquote>
@@ -3020,7 +3020,7 @@
 <blockquote>
 <p>GPUDirect RDMA eliminates staging through host memory, allowing the NIC DMA engine to access GPU memory directly. The CPU posts work requests, but the data path bypasses the CPU. This frees up CPU cores for other tasks.</p>
 </blockquote>
-<p>考虑一个使用 InfiniBand 在两个 NVL72 机架之间进行 MoE 层 all-to-all 通信的实际例子。如果您通过首先执行 all-to-all 然后计算来同步执行此操作，GPU 利用率可能在没有重叠的情况下保持较低。但是，通过将 all-to-all 通信批次与计算重叠，您可以显著提高 GPU 利用率。</p>
+<p>考虑一个使用 InfiniBand 在两个 NVL72 机架之间进行 MoE 层 all-to-all 通信的实际例子。如果你通过首先执行 all-to-all 然后计算来同步执行此操作，GPU 利用率可能在没有重叠的情况下保持较低。但是，通过将 all-to-all 通信批次与计算重叠，你可以显著提高 GPU 利用率。</p>
 <blockquote>
 <p>Consider a real-world example using InfiniBand for MoE layer all-to-all communication between two NVL72 racks. If you do this synchronously by first performing the all-to-all and then compute, GPU utilization might remain low without overlap. But by overlapping the all-to-all communication batches with computation, you can significantly improve GPU utilization.</p>
 </blockquote>
@@ -3032,7 +3032,7 @@
 <blockquote>
 <p>Essentially, each GPU starts computing the output for tokens it already has local experts for-while receiving the remaining tokens from other nodes. By the time it finishes the first batch, the second batch has already arrived and can be computed immediately.</p>
 </blockquote>
-<p>这种优化相当底层，涉及 NCCL 组和 CUDA 流之间的 CUDA 事件同步，但它产生值得的吞吐量改进和更平滑的延迟。在实践中，您首先将 NCCL all-to-all 作为 NCCL 组的一部分启动，而不等待完成。然后立即启动下一个计算核函数。确保使用 CUDA 事件检查完成。</p>
+<p>这种优化相当底层，涉及 NCCL 组和 CUDA 流之间的 CUDA 事件同步，但它产生值得的吞吐量改进和更平滑的延迟。在实践中，你首先将 NCCL all-to-all 作为 NCCL 组的一部分启动，而不等待完成。然后立即启动下一个计算核函数。确保使用 CUDA 事件检查完成。</p>
 <blockquote>
 <p>This optimization is fairly low-level and involves CUDA event synchronization between NCCL groups and CUDA streams, but it yields worthwhile throughput improvements and smoother latency. In practice, you first launch the NCCL all-to-all as part of an NCCL group without waiting for completion. Then immediately launch the next compute kernel. Make sure to check for completion using CUDA events.</p>
 </blockquote>
@@ -3044,7 +3044,7 @@
 <blockquote>
 <p>This pattern of nonblocking streaming to the client is employed in all modern LLM inference engines. They use separate threads to send token updates to clients via SSE/WebSockets.</p>
 </blockquote>
-<p>如果您自己实现流式输出，请确保使用线程安全队列或锁将生成的 token 移交给网络线程。您不希望在此移交中引入同步问题。这些问题可能非常难以识别和调试。</p>
+<p>如果你自己实现流式输出，请确保使用线程安全队列或锁将生成的 token 移交给网络线程。你不希望在此移交中引入同步问题。这些问题可能非常难以识别和调试。</p>
 <blockquote>
 <p>If you're implementing streaming output yourself, make sure to use thread-safe queues or locks to hand off generated tokens to the network thread. You don't want to introduce synchronization issues in this handoff. These issues can be very hard to identify and debug.</p>
 </blockquote>
@@ -3060,7 +3060,7 @@
 <blockquote>
 <p>Efficient LLM inference systems take full advantage of these capabilities.</p>
 </blockquote>
-<p>简而言之，只要可能就重叠通信和计算。否则，扩展到许多 GPU--即使使用 NVLink/NVSwitch--也无法达到峰值硬件性能。这些优化对最终用户来说几乎是不可见的，因为模型输出没有变化。但是，这些对于从推理集群中挤出每一点性能并让用户回到您的应用程序至关重要。</p>
+<p>简而言之，只要可能就重叠通信和计算。否则，扩展到许多 GPU--即使使用 NVLink/NVSwitch--也无法达到峰值硬件性能。这些优化对最终用户来说几乎是不可见的，因为模型输出没有变化。但是，这些对于从推理集群中挤出每一点性能并让用户回到你的应用程序至关重要。</p>
 <blockquote>
 <p>In short, overlap communication and computation whenever possible. Otherwise, scaling to many GPUs-even with NVLink/NVSwitch-won't achieve peak hardware performance. These optimizations are nearly invisible to the end user since the model output hasn't changed. However, these are critical to squeeze every bit of performance from the inference cluster and keep users coming back to your application.</p>
 </blockquote>
@@ -3069,7 +3069,7 @@
 <blockquote>
 <p>The ultimate goal of performance tuning is to keep the GPU as busy as possible doing useful work like matrix multiplications-while minimizing any idle and underutilized GPU resources. Many of the techniques described earlier, including batching, parallelism, and overlapping, aim to achieve near 100% GPU utilization.</p>
 </blockquote>
-<p>GPU 利用率百分比--特别是有效利用率或有效吞吐量（goodput）--是一个需要持续监控的重要性能指标。虽然您希望推动 100%的有效利用率，但您需要确保没有违反 SLO，如延迟。在某些时候，您可能会达到收益递减的点。</p>
+<p>GPU 利用率百分比--特别是有效利用率或有效吞吐量（goodput）--是一个需要持续监控的重要性能指标。虽然你希望推动 100%的有效利用率，但你需要确保没有违反 SLO，如延迟。在某些时候，你可能会达到收益递减的点。</p>
 <blockquote>
 <p>GPU utilization percentage-specifically effective utilization or goodput-is an important performance metric to monitor continuously. While you want to push for 100% effective utilization, you need to ensure that SLOs like latency aren't being violated. At some point, you may hit a point of diminishing returns.</p>
 </blockquote>
@@ -3085,7 +3085,7 @@
 <blockquote>
 <p>We could try to reach 100% by putting more requests into larger batches, but this would slow down individual queries. It's often helpful to plot a throughput versus latency curve by testing various batch sizes. In this chart, there's usually a sharp "knee" where throughput gains start to cost too much latency.</p>
 </blockquote>
-<p>要找到吞吐量-延迟曲线的最佳点，首先开启完全并发和尽可能多的重叠，这样您知道硬件可以保持忙碌。然后逐渐增加批次大小，直到达到最大资源利用率。此时，测量单查询延迟并稍微缩减（例如从 16 减到 8）以满足您的响应时间目标。</p>
+<p>要找到吞吐量-延迟曲线的最佳点，首先开启完全并发和尽可能多的重叠，这样你知道硬件可以保持忙碌。然后逐渐增加批次大小，直到达到最大资源利用率。此时，测量单查询延迟并稍微缩减（例如从 16 减到 8）以满足你的响应时间目标。</p>
 <blockquote>
 <p>To find the sweet spot on the throughput-latency curve, first turn on full concurrency and as much overlapping as possible so you know the hardware can be kept busy. Then gradually increase batch size until you hit maximum resource utilization. At that point, measure single-query latency and back off slightly (e.g., from 16 to 8) to meet your response time goals.</p>
 </blockquote>
@@ -3093,7 +3093,7 @@
 <blockquote>
 <p>It's recommended to monitor p95 and p99 tail latencies along with p50 median latency. This is because small jitter and uneven batch padding can create long-tail outliers visible at p95/p99. In large clusters serving many requests, even 0.1% outliers can happen frequently. Therefore, p99-or even p99.9-may be more important than p50 for measuring user experience. Also, long-tail latency often forces overprovisioning to meet aggressive SLOs. So reducing tail latency has direct cost benefits.</p>
 </blockquote>
-<p>一个好的经验法则是将批次大小上限设置为略低于提供峰值吞吐量的批次大小。团队通常以峰值吞吐量的 90%为目标，称为余量缓冲。这是因为全速运行可能导致不可预测的延迟峰值。例如，如果将批次大小增加到 16 个请求开始给少数请求增加一点延迟，您应该将批次限制减少到 8。这将提供更一致的延迟，并且只会略微减少吞吐量。</p>
+<p>一个好的经验法则是将批次大小上限设置为略低于提供峰值吞吐量的批次大小。团队通常以峰值吞吐量的 90%为目标，称为余量缓冲。这是因为全速运行可能导致不可预测的延迟峰值。例如，如果将批次大小增加到 16 个请求开始给少数请求增加一点延迟，你应该将批次限制减少到 8。这将提供更一致的延迟，并且只会略微减少吞吐量。</p>
 <blockquote>
 <p>A good rule of thumb is to cap batch size slightly below the batch size that gives peak throughput. Teams often target 90% of peak throughput, known as a headroom buffer. This is because running at full speed can lead to unpredictable latency spikes. For example, if increasing batch size to 16 requests starts adding a bit of latency to a few requests, you should reduce the batch limit to 8. This will provide more consistent latency and only slightly reduce throughput.</p>
 </blockquote>
@@ -3106,31 +3106,31 @@
 <p>It's important to remember that running GPUs at a constant 100% can cause throttling due to hitting power and thermal limits. Sometimes running at 90% with efficient kernels can outperform running at 100% with throttling. Next, let's discuss GPU power and thermal constraints-a characteristic that CPU-based application developers and systems engineers don't often consider.</p>
 </blockquote>
 <h3 id="power-and-thermal-constraints">功耗和热量约束 (Power and Thermal Constraints)<a class="headerlink" href="#power-and-thermal-constraints" title="Permanent link">&para;</a></h3>
-<p>另一个需要考虑的维度是功耗和热量约束。持续以 100%运行 GPU 如果冷却不足将导致热量节流。现代 GPU 系统采用液冷以减少热量节流并维持性能。如果您运行较旧的气冷系统，请注意降频。</p>
+<p>另一个需要考虑的维度是功耗和热量约束。持续以 100%运行 GPU 如果冷却不足将导致热量节流。现代 GPU 系统采用液冷以减少热量节流并维持性能。如果你运行较旧的气冷系统，请注意降频。</p>
 <blockquote>
 <p>Another dimension to consider is power and thermal constraints. Running GPUs at 100% continuously will cause thermal throttling if cooling is insufficient. Modern GPU systems employ liquid cooling to reduce thermal throttling and maintain performance. If you're running older air-cooled systems, be aware of downclocking.</p>
 </blockquote>
-<p>您可以在 GPU 利用率高时使用 nvidia-smi 或 DCGM 监控降频。具体来说，DCGM 通过 DCGM<em>FI</em>DEV<em>CLOCK</em>THROTTLE_REASONS 暴露 XID 节流原因。当 GPU 正在功耗节流时，nvidia-smi 将显示"Pwr Throttle"标志。</p>
+<p>你可以在 GPU 利用率高时使用 nvidia-smi 或 DCGM 监控降频。具体来说，DCGM 通过 DCGM<em>FI</em>DEV<em>CLOCK</em>THROTTLE_REASONS 暴露 XID 节流原因。当 GPU 正在功耗节流时，nvidia-smi 将显示"Pwr Throttle"标志。</p>
 <blockquote>
 <p>You can monitor downclocking using nvidia-smi or DCGM when GPU utilization is high. Specifically, DCGM exposes XID throttle reasons through DCGM<em>FI</em>DEV<em>CLOCK</em>THROTTLE_REASONS. When a GPU is power throttling, nvidia-smi will show a "Pwr Throttle" flag.</p>
 </blockquote>
-<p>您也可能达到板上的功耗限制--特别是在 boost 时钟下。现代 GPU 在 boost 下消耗显著更多的功率，因此您应该监控 GPU 是否因达到功耗限制而降频。如果发生这种情况，您将体验到不太理想的 GPU 性能。始终监控 DCGM 的 DCGM<em>FI</em>DEV<em>POWER</em>USAGE 指标，并在其超过正常范围时发出警报。</p>
+<p>你也可能达到板上的功耗限制--特别是在 boost 时钟下。现代 GPU 在 boost 下消耗显著更多的功率，因此你应该监控 GPU 是否因达到功耗限制而降频。如果发生这种情况，你将体验到不太理想的 GPU 性能。始终监控 DCGM 的 DCGM<em>FI</em>DEV<em>POWER</em>USAGE 指标，并在其超过正常范围时发出警报。</p>
 <blockquote>
 <p>You can also hit the power limit on the board-especially at boost clocks. Modern GPUs consume significantly more power at boost, so you should monitor if GPUs are downclocking due to hitting power limits. If this happens, you'll experience less-than-ideal GPU performance. Always monitor DCGM's DCGM<em>FI</em>DEV<em>POWER</em>USAGE metric and alert if it exceeds normal ranges.</p>
 </blockquote>
-<p>如果您的 GPU 持续达到功耗限制，考虑启用 Dynamic Boost 模式--或稍微降频--以避免可能导致延迟飙升的热量节流。</p>
+<p>如果你的 GPU 持续达到功耗限制，考虑启用 Dynamic Boost 模式--或稍微降频--以避免可能导致延迟飙升的热量节流。</p>
 <blockquote>
 <p>If your GPUs are consistently hitting power limits, consider enabling Dynamic Boost mode-or slightly downclocking-to avoid thermal throttling that could cause latency spikes.</p>
 </blockquote>
-<p>要在软件中解决这些约束，您可以通过添加微小的批次间延迟来稍微缓解利用率。您也可以限制并发。</p>
+<p>要在软件中解决这些约束，你可以通过添加微小的批次间延迟来稍微缓解利用率。你也可以限制并发。</p>
 <blockquote>
 <p>To address these constraints in software, you can slightly ease utilization by adding tiny inter-batch delays. You can also cap concurrency.</p>
 </blockquote>
-<p>现代 GPU 还支持时钟上限。因此，与其添加延迟，您可以使用 nvidia-smi -lgc 或类似命令略微限制 GPU 时钟，以防止达到热量限制。这只会略微减少吞吐量--并提供更一致的性能。</p>
+<p>现代 GPU 还支持时钟上限。因此，与其添加延迟，你可以使用 nvidia-smi -lgc 或类似命令略微限制 GPU 时钟，以防止达到热量限制。这只会略微减少吞吐量--并提供更一致的性能。</p>
 <blockquote>
 <p>Modern GPUs also support capping clocks. So instead of adding delays, you can use nvidia-smi -lgc or similar commands to slightly limit GPU clocks to prevent hitting thermal limits. This only slightly reduces throughput-and provides more consistent performance.</p>
 </blockquote>
-<p>从硬件角度来看，如果冷却已经足够，您可以尝试改善冷却或提高功耗限制。要增加功耗上限，使用 nvidia-smi -pl 或调整 GPU boost 设置。</p>
+<p>从硬件角度来看，如果冷却已经足够，你可以尝试改善冷却或提高功耗限制。要增加功耗上限，使用 nvidia-smi -pl 或调整 GPU boost 设置。</p>
 <blockquote>
 <p>From a hardware perspective, if cooling is already adequate, you can try improving cooling or increasing power limits. To increase the power cap, use nvidia-smi -pl or adjust GPU boost settings.</p>
 </blockquote>
@@ -3139,7 +3139,7 @@
 <p>These are reminders that pushing real-world systems to their limits can cause unexpected side effects that greatly impact performance. It's advisable to include a "boost-off" flag in your inference engine to dynamically apply software workarounds when the system detects performance degradation due to throttling caused by power or thermal constraints. This will run the system in a slightly underutilized and cooler state until stability and performance are fully restored.</p>
 </blockquote>
 <h3 id="error-handling">错误处理 (Error Handling)<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h3>
-<p>虽然通常不与性能相关联，但高效处理错误很重要。完全利用的推理系统处理过多错误峰值的空间更小--特别是因为错误处理可能不是您系统中最优的代码路径。</p>
+<p>虽然通常不与性能相关联，但高效处理错误很重要。完全利用的推理系统处理过多错误峰值的空间更小--特别是因为错误处理可能不是你系统中最优的代码路径。</p>
 <blockquote>
 <p>While not typically associated with performance, handling errors efficiently is important. A fully utilized inference system has less headroom to handle excess error spikes-especially since error handling may not be the most optimized code path in your system.</p>
 </blockquote>
@@ -3151,7 +3151,7 @@
 <blockquote>
 <p>Additionally, it's advisable to implement backpressure. This means if errors surge, you can start rejecting new requests-or reduce batch size-to give the system some room to recover.</p>
 </blockquote>
-<p>在大规模下，建议构建一些余量，添加一些主要空闲的额外副本。这些可以作为错误或其他意外情况激增的缓冲区。虽然自动扩展可能是您想到的降低成本的第一个选项，但请记住自动扩展需要时间来配置新资源。</p>
+<p>在大规模下，建议构建一些余量，添加一些主要空闲的额外副本。这些可以作为错误或其他意外情况激增的缓冲区。虽然自动扩展可能是你想到的降低成本的第一个选项，但请记住自动扩展需要时间来配置新资源。</p>
 <blockquote>
 <p>At scale, it's advisable to build in some headroom by adding extra replicas that are mostly idle. These can serve as a buffer for errors or other unexpected spikes. While autoscaling might be the first option that comes to mind for reducing costs, remember that autoscaling takes time to provision new resources.</p>
 </blockquote>
@@ -3168,7 +3168,7 @@
 <blockquote>
 <p>Optimizing resource utilization also extends to memory. While GPU memory and memory bandwidth have been growing incrementally to some extent, model sizes and context lengths have been growing exponentially. As such, memory remains a precious resource to optimize-and will remain so for the foreseeable future.</p>
 </blockquote>
-<p>因此，您希望有效利用 GPU 内存和内存带宽。内存通常由模型权重和 KV 缓存填充。在推理过程中，最好始终将模型权重保留在 GPU HBM 中。如果您将内存分页进出 CPU DRAM 或 NVMe 存储，您将产生额外的页面错误和传输延迟。</p>
+<p>因此，你希望有效利用 GPU 内存和内存带宽。内存通常由模型权重和 KV 缓存填充。在推理过程中，最好始终将模型权重保留在 GPU HBM 中。如果你将内存分页进出 CPU DRAM 或 NVMe 存储，你将产生额外的页面错误和传输延迟。</p>
 <blockquote>
 <p>As such, you want to make effective use of GPU memory and memory bandwidth. Memory is typically filled by model weights and KV cache. During inference, it's best to always keep model weights in GPU HBM. If you page memory in and out of CPU DRAM or NVMe storage, you'll incur additional page faults and transfer latency.</p>
 </blockquote>
@@ -3180,7 +3180,7 @@
 <blockquote>
 <p>Compression is an effective technique to reduce memory usage in inference systems. Particularly for KV cache, which is generated by the prefill phase of every query entering the system.</p>
 </blockquote>
-<p>由于 KV 缓存的大小随查询数量和输入大小而扩展，您应该考虑 KV 缓存压缩和量化。KV 缓存压缩/量化意味着如果模型可以容忍精度损失，则存储降低精度的键和值。而且，虽然不理想，KV 缓存卸载是很少使用的 KV 缓存数据的一个选项。</p>
+<p>由于 KV 缓存的大小随查询数量和输入大小而扩展，你应该考虑 KV 缓存压缩和量化。KV 缓存压缩/量化意味着如果模型可以容忍精度损失，则存储降低精度的键和值。而且，虽然不理想，KV 缓存卸载是很少使用的 KV 缓存数据的一个选项。</p>
 <blockquote>
 <p>Since the size of KV cache scales with the number of queries and input size, you should consider KV cache compression and quantization. KV cache compression/quantization means storing keys and values at reduced precision if the model can tolerate the accuracy loss. And, while not ideal, KV cache offloading is an option for rarely used KV cache data.</p>
 </blockquote>
@@ -3193,11 +3193,11 @@
 <blockquote>
 <p>For example, vLLM's PagedAttention uses a managed memory pool of KV cache to offload to CPU memory and NVMe storage. Similarly, SGLang's RadixAttention uses a tree-structured cache that can lazily evict least-used prefixes. NVIDIA Dynamo has similar KV cache offloading and memory management mechanisms.</p>
 </blockquote>
-<p>如果没有良好的 KV 缓存分配器，当不同长度的请求流经系统时，您可能会出现过度的内存碎片（例如约 20%-30%）。这将限制您在遇到 OOM 错误之前可以处理多少请求。记得使用具有大池大小的分配器，如前面章节所讨论的。</p>
+<p>如果没有良好的 KV 缓存分配器，当不同长度的请求流经系统时，你可能会出现过度的内存碎片（例如约 20%-30%）。这将限制你在遇到 OOM 错误之前可以处理多少请求。记得使用具有大池大小的分配器，如前面章节所讨论的。</p>
 <blockquote>
 <p>Without a good KV cache allocator, you can experience excessive memory fragmentation (e.g., around 20%-30%) as requests of varying lengths flow through the system. This will limit how many requests you can handle before hitting OOM errors. Remember to use an allocator with a large pool size, as discussed in earlier chapters.</p>
 </blockquote>
-<p>采用适当的内存分页策略可以将碎片减少到可容忍的几个百分点。这意味着您可以将更多上下文打包到 GPU 中，并在不崩溃系统的情况下保持高利用率。</p>
+<p>采用适当的内存分页策略可以将碎片减少到可容忍的几个百分点。这意味着你可以将更多上下文打包到 GPU 中，并在不崩溃系统的情况下保持高利用率。</p>
 <blockquote>
 <p>With proper memory paging strategies, fragmentation can be reduced to a tolerable few percent. This means you can pack more context into the GPU and maintain high utilization without crashing the system.</p>
 </blockquote>
@@ -3213,7 +3213,7 @@
 <blockquote>
 <p>The trade-off is some additional data transfer latency if the context becomes active again and needs to be paged in. However, this overhead is typically small compared to total request latency.</p>
 </blockquote>
-<p>内存利用率和计算利用率密切相关。如果内存管理不善，您将浪费内存，并且无法用更多并发任务充分利用 GPU。通过将尽可能多的相关数据保留在 GPU 上，系统可以服务大量并发请求。</p>
+<p>内存利用率和计算利用率密切相关。如果内存管理不善，你将浪费内存，并且无法用更多并发任务充分利用 GPU。通过将尽可能多的相关数据保留在 GPU 上，系统可以服务大量并发请求。</p>
 <blockquote>
 <p>Memory utilization and compute utilization are closely related. If memory is managed poorly, you'll waste memory and won't be able to fully utilize the GPU with more concurrent tasks. By keeping as much relevant data on the GPU as possible, the system can serve a large number of concurrent requests.</p>
 </blockquote>
@@ -3251,7 +3251,7 @@
 <blockquote>
 <p>FP8 reduces precision further to 8-bit floating point. Compared to FP16/BF16, this halves the memory footprint. And it doubles Tensor Core math throughput again, since GPUs perform twice as many 8-bit multiply-add operations per cycle compared to 16-bit operations.</p>
 </blockquote>
-<p>虽然您可以通过使用 torch.set<em>float32</em>matmul_precision("high")在 PyTorch 中获得适度的加速，但您希望充分利用 NVIDIA Transformer Engine (TE)提供的 8 位和 4 位精度支持。TE 作为库提供 FP8 和 FP4 核函数，允许现有代码以最小的更改使用这些精简精度。</p>
+<p>虽然你可以通过使用 torch.set<em>float32</em>matmul_precision("high")在 PyTorch 中获得适度的加速，但你希望充分利用 NVIDIA Transformer Engine (TE)提供的 8 位和 4 位精度支持。TE 作为库提供 FP8 和 FP4 核函数，允许现有代码以最小的更改使用这些精简精度。</p>
 <blockquote>
 <p>While you can get modest speedups in PyTorch by using torch.set<em>float32</em>matmul_precision("high"), you want to take full advantage of the 8-bit and 4-bit precision support provided by NVIDIA Transformer Engine (TE). TE provides FP8 and FP4 kernels as a library, allowing existing code to use these reduced precisions with minimal changes.</p>
 </blockquote>
@@ -3350,11 +3350,11 @@
 <blockquote>
 <p>In practice, quantization-aware fine-tuning for LLMs is computationally expensive and not always feasible. However, smaller calibration datasets (e.g., 1,000 prompts) can be used with techniques like percentile clipping or LMS (loss-aware quantization) to fine-tune quantization scales without full retraining.</p>
 </blockquote>
-<p>值得注意的是，您应该格外小心地平衡压缩和模型鲁棒性之间的权衡。量化可能会放大某些错误。例如，如果模型刚刚达到某些事实知识的阈值，量化可能会使其出错。</p>
+<p>值得注意的是，你应该格外小心地平衡压缩和模型鲁棒性之间的权衡。量化可能会放大某些错误。例如，如果模型刚刚达到某些事实知识的阈值，量化可能会使其出错。</p>
 <blockquote>
 <p>It's worth noting that you should be extra careful about balancing the trade-off between compression and model robustness. Quantization can amplify certain errors. For instance, if the model just barely meets the threshold for some factual knowledge, quantization might push it into error.</p>
 </blockquote>
-<p>始终在下游任务上验证，因为 PTQ 做出的假设可能会错过微妙的分布变化。因此，在使用精简精度量化模型时，您应该进行广泛的 A/B 测试响应，以确保您的评估显示质量或安全性没有回归。如果您看到回归，您应该将模型保持在较高精度--或尝试以量化形式进行轻微微调以恢复性能。</p>
+<p>始终在下游任务上验证，因为 PTQ 做出的假设可能会错过微妙的分布变化。因此，在使用精简精度量化模型时，你应该进行广泛的 A/B 测试响应，以确保你的评估显示质量或安全性没有回归。如果你看到回归，你应该将模型保持在较高精度--或尝试以量化形式进行轻微微调以恢复性能。</p>
 <blockquote>
 <p>Always validate on downstream tasks, as the assumptions made by PTQ may miss subtle distribution shifts. Therefore, when using reduced-precision quantized models, you should do extensive A/B testing of responses to ensure your evaluations show no regression in quality or safety. If you see regression, you should keep the model at higher precision-or try light fine-tuning in quantized form to recover performance.</p>
 </blockquote>
@@ -3450,15 +3450,15 @@
 <blockquote>
 <p>Many production chatbots like ChatGPT automatically perform prompt compression to stay within context length limits-and to speed up overall processing. This is a must-have feature for long-running conversations.</p>
 </blockquote>
-<p>为此，您可以运行小型 LLM--或传统的基于规则的系统--将对话的最旧部分总结为简短摘要。通常的策略是：当对话超过最大上下文长度的 75%时，总结最旧的 25%消息。然后，此摘要将被添加到对话的较新部分之前。这成为继续进行的新提示。</p>
+<p>为此，你可以运行小型 LLM--或传统的基于规则的系统--将对话的最旧部分总结为简短摘要。通常的策略是：当对话超过最大上下文长度的 75%时，总结最旧的 25%消息。然后，此摘要将被添加到对话的较新部分之前。这成为继续进行的新提示。</p>
 <blockquote>
 <p>To do this, you can run a small LLM-or a traditional rule-based system-to summarize the oldest parts of the conversation into a short summary. A common strategy is: when the conversation exceeds 75% of the maximum context length, summarize the oldest 25% of messages. This summary is then prepended to the newer parts of the conversation. This becomes the new prompt to continue with.</p>
 </blockquote>
-<p>在实现提示压缩时，请确保没有丢失关键事实。一种方法是让模型压缩提示词（例如，生成摘要），然后通过向模型询问有关压缩提示词的问题来验证压缩的提示。这样，您的算法检查压缩版本的提示中是否保留了关键信息。</p>
+<p>在实现提示压缩时，请确保没有丢失关键事实。一种方法是让模型压缩提示词（例如，生成摘要），然后通过向模型询问有关压缩提示词的问题来验证压缩的提示。这样，你的算法检查压缩版本的提示中是否保留了关键信息。</p>
 <blockquote>
 <p>When implementing prompt compression, make sure that key facts aren't lost. One approach is to have the model compress the prompt (e.g., generate a summary) and then verify the compressed prompt by asking the model questions about it. This way, your algorithm checks that key information is preserved in the compressed version of the prompt.</p>
 </blockquote>
-<p>这可以防止非常长的聊天产生过多延迟，并使模型专注于对话的最新部分。通过截断较早的轮次，您减少了有效提示词词长度 N，这将 prefill 自注意力工作从 N(N + 1) / 2（大致 O(N²)）减少到较短窗口的较小三角形成本。因此，虽然成本接近窗口大小的二次方，但较小的 N 对于非常长的对话产生显著差异。</p>
+<p>这可以防止非常长的聊天产生过多延迟，并使模型专注于对话的最新部分。通过截断较早的轮次，你减少了有效提示词词长度 N，这将 prefill 自注意力工作从 N(N + 1) / 2（大致 O(N²)）减少到较短窗口的较小三角形成本。因此，虽然成本接近窗口大小的二次方，但较小的 N 对于非常长的对话产生显著差异。</p>
 <blockquote>
 <p>This prevents very long chats from incurring too much latency and keeps the model focused on the most recent part of the conversation. By truncating earlier turns, you reduce the effective prompt length N, which reduces prefill self-attention work from N(N + 1) / 2 (roughly O(N²)) to the smaller triangular cost of the shorter window. So while the cost is still quadratic in the window size, the smaller N makes a big difference for very long conversations.</p>
 </blockquote>
@@ -3512,7 +3512,7 @@
 <p>Replacing long system prompts with special tokens and metadata is more of a training consideration. But if it reduces prompt size and reduces prefill overhead, it can provide significant inference speedups at scale. At scale, this directly translates to less compute required per query-and more cost savings.</p>
 </blockquote>
 <h3 id="prefix-caching">前缀缓存 (Prefix Caching)<a class="headerlink" href="#prefix-caching" title="Permanent link">&para;</a></h3>
-<p>通常，对 LLM 的多个请求在其输入中共享公共前缀，因为许多查询可能以相同的系统提示词开始。您可以计算一次模型对相同前缀的输出，并为后续请求重用相同的 KV 缓存，而不是每次都重新计算。</p>
+<p>通常，对 LLM 的多个请求在其输入中共享公共前缀，因为许多查询可能以相同的系统提示词开始。你可以计算一次模型对相同前缀的输出，并为后续请求重用相同的 KV 缓存，而不是每次都重新计算。</p>
 <blockquote>
 <p>Often, multiple requests to an LLM share a common prefix in their inputs since many queries may start with the same system prompt. Instead of recomputing every time, you can compute the model's output for the identical prefix once and reuse the same KV cache for subsequent requests.</p>
 </blockquote>
@@ -3528,7 +3528,7 @@
 <blockquote>
 <p>vLLM implements prefix caching (enable<em>prefix</em>caching=True) to avoid recomputation. It first identifies if the first N tokens of an incoming prompt match a prefix in the cache from a previous request-or an earlier request in the same session. If so, vLLM avoids the expensive attention recomputation for those N tokens-just copying the data from the cached KV to the new context. Make sure you have prefix caching enabled-and with sufficient memory allocation.</p>
 </blockquote>
-<p>像 vLLM 这样的推理引擎可以自动将传入查询分组为微批次，以实现高 GPU 利用率，将开销分摊到许多请求，并使用连续批处理等保持低延迟。确保如果您不直接使用 vLLM 等推理引擎，您会在堆栈中寻找使用前缀共享的方法。</p>
+<p>像 vLLM 这样的推理引擎可以自动将传入查询分组为微批次，以实现高 GPU 利用率，将开销分摊到许多请求，并使用连续批处理等保持低延迟。确保如果你不直接使用 vLLM 等推理引擎，你会在堆栈中寻找使用前缀共享的方法。</p>
 <blockquote>
 <p>Inference engines like vLLM can automatically group incoming queries into microbatches for high GPU utilization, amortizing overhead across many requests and keeping latency low with techniques like continuous batching. Make sure that if you're not using an inference engine like vLLM directly, you're looking for ways to use prefix sharing in your stack.</p>
 </blockquote>
@@ -3544,7 +3544,7 @@
 <blockquote>
 <p>Specifically, with prefix caching, the first query will compute the transformer state for the document portion, and for subsequent queries, the model can jump straight to processing the "Question 1: ...", "Question 2: ..." parts since the document's content matches the prefix found in the KV cache.</p>
 </blockquote>
-<p>使用前缀缓存，您的推理引擎可以产生接近线性的加速。例如，如果您在一个文档上提出 10 个单独的问题，这些将使用前缀缓存比不使用快大约 10 倍处理，因为长文档的注意力只计算一次而不是 10 次。</p>
+<p>使用前缀缓存，你的推理引擎可以产生接近线性的加速。例如，如果你在一个文档上提出 10 个单独的问题，这些将使用前缀缓存比不使用快大约 10 倍处理，因为长文档的注意力只计算一次而不是 10 次。</p>
 <blockquote>
 <p>With prefix caching, your inference engine can achieve near-linear speedups. For instance, if you ask 10 separate questions on one document, these would be processed approximately 10x faster with prefix caching than without, since the attention over the long document is computed once instead of 10 times.</p>
 </blockquote>
@@ -3552,7 +3552,7 @@
 <blockquote>
 <p>Another application of prefix caching is chat sessions, since the conversation history is a common prefix for each new "turn" in a "multi-turn" chat session. When an end user sends a new message, the earlier messages form a growing prefix.</p>
 </blockquote>
-<p>优化的推理系统保留上一轮的 KV 缓存，并仅为新用户消息计算 KV。这就是大多数聊天模型如 ChatGPT 所做的，如果您在轮次之间不重置对话。</p>
+<p>优化的推理系统保留上一轮的 KV 缓存，并仅为新用户消息计算 KV。这就是大多数聊天模型如 ChatGPT 所做的，如果你在轮次之间不重置对话。</p>
 <blockquote>
 <p>Optimized inference systems retain the KV cache from the previous turn and only compute the KV for the new user message. This is what most chat models like ChatGPT do if you don't reset the conversation between turns.</p>
 </blockquote>
@@ -3568,7 +3568,7 @@
 <blockquote>
 <p>To implement this yourself, you can hash the conversation history. This gives you a consistent key to look up in the cache. However, you must manage memory carefully, as storing entire KV caches for many conversations can use up GPU memory very quickly. vLLM's paging helps by paging inactive caches out to CPU memory-or disk-and paging them back into GPU memory on cache hits.</p>
 </blockquote>
-<p>您还可以跨多个请求去重提示词的部分--甚至在单个请求内。在这里，去重指的是组合相同的子提示以仅计算一次它们的 transformer 状态。例如，如果两个用户几乎同时发送完全相同的提示前缀，系统可以合并两个提示并仅处理一次。</p>
+<p>你还可以跨多个请求去重提示词的部分--甚至在单个请求内。在这里，去重指的是组合相同的子提示以仅计算一次它们的 transformer 状态。例如，如果两个用户几乎同时发送完全相同的提示前缀，系统可以合并两个提示并仅处理一次。</p>
 <blockquote>
 <p>You can also deduplicate portions of prompts across multiple requests-or even within a single request. Here, deduplication refers to combining identical sub-prompts to compute their transformer state only once. For example, if two users send the exact same prompt prefix at nearly the same time, the system could merge the two prompts and process them only once.</p>
 </blockquote>
@@ -3576,7 +3576,7 @@
 <blockquote>
 <p>This can also happen within a single request if the input has repeated sequences. This is more common in training, which uses techniques like memoized decoding to deduplicate repeated text. In inference, getting long repeated input sequences within the same request is rare but possible.</p>
 </blockquote>
-<p>如果您的工作负载在同一前缀上有许多重复查询，您应该为缓存分配更多内存以最大化命中。相反，如果前缀很少重用，您应该使用较小的缓存--甚至完全禁用前缀缓存。始终在生产中测量前缀命中率并相应调整。</p>
+<p>如果你的工作负载在同一前缀上有许多重复查询，你应该为缓存分配更多内存以最大化命中。相反，如果前缀很少重用，你应该使用较小的缓存--甚至完全禁用前缀缓存。始终在生产中测量前缀命中率并相应调整。</p>
 <blockquote>
 <p>If your workload has many repeated queries on the same prefix, you should allocate more memory for caching to maximize hits. Conversely, if prefixes are rarely reused, you should use a smaller cache-or even disable prefix caching entirely. Always measure prefix hit rates in production and adjust accordingly.</p>
 </blockquote>
@@ -3771,7 +3771,7 @@
 <blockquote>
 <p>In practice, routing, say, 60% of queries to a 10x smaller model can cut your inference compute costs significantly-potentially a 5x overall cost reduction if designed and tuned properly. This is because the expensive model is used only when needed.</p>
 </blockquote>
-<p>维护多个模型和路由系统是工程开销，因为您需要监控的不仅仅是一个模型的性能，还有第二个模型、两个模型之间的相互作用以及路由系统。只有在您的流量量和成本结构使其值得时才追求这一点。</p>
+<p>维护多个模型和路由系统是工程开销，因为你需要监控的不仅仅是一个模型的性能，还有第二个模型、两个模型之间的相互作用以及路由系统。只有在你的流量量和成本结构使其值得时才追求这一点。</p>
 <blockquote>
 <p>Maintaining multiple models and routing systems is engineering overhead since you need to monitor not just one model's performance, but the second model, the interaction between the two models, and the routing system. Only pursue this if your traffic volume and cost structure make it worthwhile.</p>
 </blockquote>
@@ -3848,7 +3848,7 @@
 <blockquote>
 <p>Humans can read anywhere from 200 to 300 words per minute, which translates to approximately 4-7 tokens per second-or up to 13 tokens per second for faster readers. Maintaining this pace of streaming response is ideal. Given that every performance decision comes down to trade-offs, this is an important metric to consider when making optimization choices, planning capacity, etc.</p>
 </blockquote>
-<p>监控系统的 token 吞吐量与此人类阅读速率对比很重要。例如，如果您发现系统由于模型延迟仅以 2 个 token/秒流式传输，那就是进一步优化的信号。</p>
+<p>监控系统的 token 吞吐量与此人类阅读速率对比很重要。例如，如果你发现系统由于模型延迟仅以 2 个 token/秒流式传输，那就是进一步优化的信号。</p>
 <blockquote>
 <p>It's important to monitor your system's token throughput against this human reading rate. For instance, if you find your system is streaming at only 2 tokens per second due to model latency, that's a signal for further optimization.</p>
 </blockquote>
@@ -3961,7 +3961,7 @@
 <blockquote>
 <p>Ironically, debouncing and request coalescing can create more latency, frustrate the "rage" user segment even more, and cause them to click even more! In this case, it's helpful if the UI disables the input while a request is in flight. This can prevent double-clicking at the UI level. But it's also good to have server-side protection in place, as well.</p>
 </blockquote>
-<p>现代推理负载均衡器支持防抖间隔。使用适度的间隔（例如 2-5 毫秒），并在批处理效率和增加的延迟之间找到良好的权衡。下次您在 ChatGPT 中提交内容时，注意防抖延迟。既然您知道了它，是不是有点烦人？！</p>
+<p>现代推理负载均衡器支持防抖间隔。使用适度的间隔（例如 2-5 毫秒），并在批处理效率和增加的延迟之间找到良好的权衡。下次你在 ChatGPT 中提交内容时，注意防抖延迟。既然你知道了它，是不是有点烦人？！</p>
 <blockquote>
 <p>Modern inference load balancers support debouncing intervals. Use a moderate interval (e.g., 2-5 ms) and find a good trade-off between batching efficiency and added latency. Next time you submit something in ChatGPT, notice the debouncing delay. Now that you know about it, isn't it a bit annoying?!</p>
 </blockquote>
@@ -4003,7 +4003,7 @@
 <blockquote>
 <p><strong>Monitoring and observability</strong>: Implement robust monitoring for deployed inference services. Track key metrics such as latency percentiles, throughput, GPU utilization, and memory usage in real time to detect regressions or resource saturation early. Use logging and tracing to get visibility into per-request processing and identify hotspots or anomalies in a large-scale workload.</p>
 </blockquote>
-<p><strong>调试和迭代调优</strong>：通过采用系统化的调试工作流程，您可以快速解决性能和正确性问题--即使跨数万个节点。这样，当意外峰值发生时（例如吞吐量下降或延迟增加），您可以轻松地从高级症状深入到底层问题。</p>
+<p><strong>调试和迭代调优</strong>：通过采用系统化的调试工作流程，你可以快速解决性能和正确性问题--即使跨数万个节点。这样，当意外峰值发生时（例如吞吐量下降或延迟增加），你可以轻松地从高级症状深入到底层问题。</p>
 <blockquote>
 <p><strong>Debugging and iterative tuning</strong>: By adopting a systematic debugging workflow, you can resolve performance and correctness issues quickly-even across tens of thousands of nodes. This way, when an unexpected spike occurs (e.g., decrease in throughput or increase in latency), you can easily drill down from the high-level symptom to the low-level issue.</p>
 </blockquote>
@@ -4050,7 +4050,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:44:50 UTC">2026年11月23日 04:44:50</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
   </span>
 
     

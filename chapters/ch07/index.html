@@ -1590,7 +1590,7 @@
 <blockquote>
 <p>It's worth noting that CUDA, as of this writing, does not provide a built-in 8-float aggregate CUDA vector type (e.g., eight combined float32s) in its <vector_types.h>. You can define your own struct of 8 float values, then load it as two float4 values per thread. You would use 32-byte alignment on the type with alignas(32). This way, the pointer value is a multiple of 32 bytes. Global memory vector instructions on modern GPUs typically load 16 bytes per thread (Hopper) or 32 bytes per thread (Blackwell). In the case of Hopper's 16 bytes per thread, an 8-float aggregate load will compile into two 16-byte loads per thread to include all 32 bytes. Blackwell, on the other hand, would compile into a single 32-byte load per thread when using proper 32-byte aligned data.</p>
 </blockquote>
-<p>使用每线程 32 字节加载（例如 8 个 float x 每 float 4 字节），warp 移动 1,024 字节（1,024 字节 = 每 warp32 个线程 x 每线程 32 字节）。这通常映射到 8 x 128 字节行，因为每行由四个 32 字节扇区组成。使用每线程 16 字节加载（例如四个 float4），warp 移动 512 字节（512 字节 = 每 warp32 个线程 x 每线程 16 字节）或 4 x 128 字节行。当基础指针和每线程跨步自然对齐时，硬件合并器将通道访问组合成完整的行，避免分裂扇区。这种对硬件特性的理解对于实现峰值吞吐量至关重要。因此，对于 Blackwell 上的 256 位加载，您应该强制执行 32 字节对齐以保持峰值性能。</p>
+<p>使用每线程 32 字节加载（例如 8 个 float x 每 float 4 字节），warp 移动 1,024 字节（1,024 字节 = 每 warp32 个线程 x 每线程 32 字节）。这通常映射到 8 x 128 字节行，因为每行由四个 32 字节扇区组成。使用每线程 16 字节加载（例如四个 float4），warp 移动 512 字节（512 字节 = 每 warp32 个线程 x 每线程 16 字节）或 4 x 128 字节行。当基础指针和每线程跨步自然对齐时，硬件合并器将通道访问组合成完整的行，避免分裂扇区。这种对硬件特性的理解对于实现峰值吞吐量至关重要。因此，对于 Blackwell 上的 256 位加载，你应该强制执行 32 字节对齐以保持峰值性能。</p>
 <blockquote>
 <p>With 32-byte per-thread loads (e.g., 8 floats x 4 bytes per float), a warp moves 1,024 bytes (1,024 bytes = 32 threads per warp x 32 bytes per thread). This typically maps to 8 x 128-byte lines since each line consists of four 32-byte sectors. With 16-byte per-thread loads (e.g., four float4s), a warp moves 512 bytes (512 bytes = 32 threads per warp x 16 bytes per thread) or 4 x 128-byte lines. When the base pointer and per-thread stride are naturally aligned, the hardware coalescer combines lane accesses into full lines and avoids split sectors. This type of mechanical sympathy is crucial to achieving peak throughput. Therefore, for 256-bit loads on Blackwell, you should enforce 32-byte alignment to maintain peak performance.</p>
 </blockquote>
@@ -2383,7 +2383,7 @@
 <blockquote>
 <p>For instance, Blackwell GPUs provide up to 228 KB of allocatable shared memory per SM. This can easily accommodate a 64 x 64 tile of 4-byte floats in which each A and B tile requires 16 KB (16,384 bytes = 64 x 64 floats x 4 bytes per float). However, in addition to shared-memory usage, you need to budget for the additional registers per thread.</p>
 </blockquote>
-<p>每个 Blackwell SM 总共提供最多 64K 寄存器（每个 32 位），每线程最多 255 个寄存器。当您启动一个 32 x 32 线程块（1,024 个线程）来计算 64 x 64 分块时，每个线程处理一个 2 x 2 子分块，产生 4 个输出。</p>
+<p>每个 Blackwell SM 总共提供最多 64K 寄存器（每个 32 位），每线程最多 255 个寄存器。当你启动一个 32 x 32 线程块（1,024 个线程）来计算 64 x 64 分块时，每个线程处理一个 2 x 2 子分块，产生 4 个输出。</p>
 <blockquote>
 <p>Each Blackwell SM provides up to 64K registers (32-bit each) in total with a per-thread maximum of 255 registers. When you launch a 32 x 32 thread block (1,024 threads) to compute a 64 x 64 tile, each thread handles a 2 x 2 subtile, which produces 4 outputs.</p>
 </blockquote>
@@ -2480,7 +2480,7 @@
 <blockquote>
 <p>Here, multiple threads are accessing the same memory bank, which will cause conflicts and impact performance. A classic example of bank conflicts is a naive matrix transpose using a 32 x 32 shared-memory tile. If 32 threads each read tile[i][threadIdx.x], such that the same column index (threadIdx.x) is read across different rows (i), all 32 threads in a warp will each access a memory address located in the same shared-memory bank, resulting in a 32-way bank conflict.</p>
 </blockquote>
-<p>具体来说，在矩阵转置期间，您通过保持列索引不变（<code>threadIdx.x</code>）并跨线程变化行索引（i）来读取行主序分块的同一列。由于每行在内存中相隔 128 字节（32 列 x 每列 4 字节 = 128 字节），访问的内存地址将相差精确的 128 字节倍数。</p>
+<p>具体来说，在矩阵转置期间，你通过保持列索引不变（<code>threadIdx.x</code>）并跨线程变化行索引（i）来读取行主序分块的同一列。由于每行在内存中相隔 128 字节（32 列 x 每列 4 字节 = 128 字节），访问的内存地址将相差精确的 128 字节倍数。</p>
 <blockquote>
 <p>Specifically, during a matrix transpose, you read the same column of a row-major tile by keeping the column index constant (threadIdx.x) and varying the row index (i) across threads. Since each row is separated in memory by 128 bytes (32 columns x 4 bytes per column = 128 bytes), the memory addresses accessed will differ by exactly 128-byte multiples.</p>
 </blockquote>
@@ -2511,7 +2511,7 @@
 <blockquote>
 <p>When this happens, the hardware must serialize what should have been 32 parallel reads into a sequence of single-bank accesses. In Nsight Compute (Shared Memory section), you'll see bank-conflict counts increase and shared memory efficiency decrease. Meanwhile, shared memory throughput is only a fraction of its expected bandwidth. In Nsight Systems, you'll see warps stalled for long periods on bank conflicts instead of doing useful work.</p>
 </blockquote>
-<p>Bank 冲突强制本应并行的片上共享内存访问一个接一个地重放，消除了您期望从缓冲获得的任何加速，并往往产生令人失望的、低于预期的性能。如果您的核函数没有按预期加速，bank 冲突是一个可能的原因。</p>
+<p>Bank 冲突强制本应并行的片上共享内存访问一个接一个地重放，消除了你期望从缓冲获得的任何加速，并往往产生令人失望的、低于预期的性能。如果你的核函数没有按预期加速，bank 冲突是一个可能的原因。</p>
 <blockquote>
 <p>Bank conflicts force what should have been parallel on-chip shared-memory accesses to replay one after another, wiping out any speedup you expected from buffering and often resulting in disappointing, lower-than-expected performance. If your kernel is not accelerating as expected, bank conflicts are a likely culprit.</p>
 </blockquote>
@@ -2760,7 +2760,7 @@
 <blockquote>
 <p>Imagine you need to sum the 32 per-thread partial results within a single warp. The naive shared-memory approach would have each thread write its value into a shared array, call a synchronization barrier, and then read and accumulate all 32 entries. This risks bank conflicts and adds additional synchronization overhead.</p>
 </blockquote>
-<p>使用<code>__shfl_sync</code>，您可以完全在寄存器中执行树形归约。例如，让我们使用一个名为<code>__shfl_down_sync</code>的便捷变体来执行蝴蝶式归约，使每个线程读取由偏移一定通道数的另一个线程持有的值，如下所示：</p>
+<p>使用<code>__shfl_sync</code>，你可以完全在寄存器中执行树形归约。例如，让我们使用一个名为<code>__shfl_down_sync</code>的便捷变体来执行蝴蝶式归约，使每个线程读取由偏移一定通道数的另一个线程持有的值，如下所示：</p>
 <blockquote>
 <p>Using __shfl<em>sync, you can perform a tree reduction entirely in registers. For example, let's use a convenient variant called __shfl</em>down_sync to perform a butterfly-style reduction that has each thread read the value held by another thread offset by a certain number of lanes, as shown here:</p>
 </blockquote>
@@ -3049,7 +3049,7 @@
 <blockquote>
 <p>While texture reference and surface reference APIs are deprecated, texture object and surface object APIs remain supported and are appropriate for access patterns with two- or three-dimensional locality. However, for most AI workloads involving 1D data, using the read-only data cache with constant memory is much simpler and preferred.</p>
 </blockquote>
-<p>总之，将只读数据标记为<code>const __restrict__</code>以利用低延迟只读缓存，减少 DRAM 流量并提高 SM 活跃度。当您的访问模式具有常规缓存可能无法最佳处理的 2D/3D 局部性时，考虑纹理或表面内存。这些技术共同消除内存停顿、提高缓存利用率，并为内存受限的核函数释放显著的性能提升。</p>
+<p>总之，将只读数据标记为<code>const __restrict__</code>以利用低延迟只读缓存，减少 DRAM 流量并提高 SM 活跃度。当你的访问模式具有常规缓存可能无法最佳处理的 2D/3D 局部性时，考虑纹理或表面内存。这些技术共同消除内存停顿、提高缓存利用率，并为内存受限的核函数释放显著的性能提升。</p>
 <blockquote>
 <p>In summary, mark read-only data as const <strong>restrict</strong> to leverage the low-latency read-only cache, reduce DRAM traffic, and boost SM active percentages. Consider texture or surface memory when your access pattern has 2D/3D locality that regular caching may not handle optimally. Together, these techniques eliminate memory stalls, improve cache utilization, and unlock significant performance gains for memory-bound kernels.</p>
 </blockquote>
@@ -3062,12 +3062,12 @@
 <blockquote>
 <p>For example, on Blackwell, the full DRAM round-trip time is on the order of hundreds of cycles before any computation even begins. To hide that latency, we need to overlap data transfers with computation. This overlap hides much of the DRAM latency.</p>
 </blockquote>
-<p>CUDA 的 Pipeline API 与张量内存加速器（TMA）硬件引擎将此理念提升到线程块级别。您可以让 TMA 引擎异步地将整个 tile 从全局内存获取到共享内存，而不是让每个 warp 使用 SM 的加载和存储（LD/ST）单元从全局内存获取数据，如图 7-7 所示。</p>
+<p>CUDA 的 Pipeline API 与张量内存加速器（TMA）硬件引擎将此理念提升到线程块级别。你可以让 TMA 引擎异步地将整个 tile 从全局内存获取到共享内存，而不是让每个 warp 使用 SM 的加载和存储（LD/ST）单元从全局内存获取数据，如图 7-7 所示。</p>
 <blockquote>
 <p>CUDA's Pipeline API with the Tensor Memory Accelerator (TMA) hardware engine takes this concept to the thread-block level. Instead of having each warp use the SM's load and store (LD/ST) units to fetch data from global memory, you can have the TMA engine asynchronously fetch entire tiles from global memory into shared memory, as shown in Figure 7-7.</p>
 </blockquote>
 <p><img alt="图7-7. TMA异步从全局HBM获取数据到共享内存" src="../../assets/images/ch07/fig07_430_1.png" /></p>
-<p>要启动 TMA 传输，您可以调用<code>cuda::memcpy_async()</code>。在现代 GPU 架构上，<code>cuda::memcpy_async()</code>与<code>cuda::pipeline</code>暴露了用于全局到共享异步传输的硬件引擎。这包括可用时的 TMA。这将使用 TMA 的片上 DMA 引擎执行异步批量数据传输。这在 CUDA 中实现如下：</p>
+<p>要启动 TMA 传输，你可以调用<code>cuda::memcpy_async()</code>。在现代 GPU 架构上，<code>cuda::memcpy_async()</code>与<code>cuda::pipeline</code>暴露了用于全局到共享异步传输的硬件引擎。这包括可用时的 TMA。这将使用 TMA 的片上 DMA 引擎执行异步批量数据传输。这在 CUDA 中实现如下：</p>
 <blockquote>
 <p>To initiate a TMA transfer, you can call cuda::memcpy<em>async(). On modern GPU architectures, cuda::memcpy</em>async() with cuda::pipeline exposes the hardware engine for global-to-shared asynchronous transfers. This includes TMA when available. This performs asynchronous bulk data transfers using TMA's on-chip DMA engine. This is implemented in CUDA as follows:</p>
 </blockquote>
@@ -3085,7 +3085,7 @@
 <blockquote>
 <p>By using TMA to implement double-buffering, the SM's load/store units are now free to do real work since TMA's DMA engine moves data for us in the background. Effectively, data movement becomes asynchronous, and the SM's warps compute on the previous tile while TMA streams in the next chunk of data. This overlap hides the 800-cycle DRAM latency.</p>
 </blockquote>
-<p>具体来说，TMA 能够在全局内存和共享内存之间执行 1D-5D 批量复制和任意跨步，而不会阻塞 SM 指令流水线。通过将这些传输从 SM 卸载到 TMA，您的核函数发出的 LD/ST 指令大大减少，消除了额外的同步，并让 warp 调度器几乎每个周期都用于有用的计算而不是等待内存。</p>
+<p>具体来说，TMA 能够在全局内存和共享内存之间执行 1D-5D 批量复制和任意跨步，而不会阻塞 SM 指令流水线。通过将这些传输从 SM 卸载到 TMA，你的核函数发出的 LD/ST 指令大大减少，消除了额外的同步，并让 warp 调度器几乎每个周期都用于有用的计算而不是等待内存。</p>
 <blockquote>
 <p>Specifically, TMA is capable of performing 1D-5D bulk copies and arbitrary strides between global memory and shared memory without blocking the SM instruction pipeline. By offloading these transfers from the SM to TMA, your kernel issues far fewer LD/ST instructions, eliminates extra synchronization, and lets the warp scheduler use almost every cycle for useful computation instead of waiting on memory.</p>
 </blockquote>
@@ -3318,7 +3318,7 @@
 <blockquote>
 <p>For almost all cases, you should write your CUDA kernels with the highest-level and most-recent APIs available for global-to-shared tiling. This includes the CUDA Pipeline API (<code>cuda::memcpy_async</code>). These APIs and libraries are constantly improving and will transparently leverage the latest hardware features like TMA for bulk, strided, and 2D/3D transfers. In addition, they enable advanced performance optimization features like multicast with thread block clusters. When using these APIs, you get all of this "for free"-without requiring code changes.</p>
 </blockquote>
-<p>总之，当内存访问限制核函数性能时，通过结合仔细的 tiling、双缓冲和 TMA 驱动的异步预取来卸载和重叠数据移动。通过在共享内存中暂存 tile 并使用<code>cuda::memcpy_async</code>配合<code>pipe.producer_commit</code>和<code>pipe.consumer_wait</code>，您将合并的多维 DMA 传输移交给 TMA，卸载全局到共享内存的传输。</p>
+<p>总之，当内存访问限制核函数性能时，通过结合仔细的 tiling、双缓冲和 TMA 驱动的异步预取来卸载和重叠数据移动。通过在共享内存中暂存 tile 并使用<code>cuda::memcpy_async</code>配合<code>pipe.producer_commit</code>和<code>pipe.consumer_wait</code>，你将合并的多维 DMA 传输移交给 TMA，卸载全局到共享内存的传输。</p>
 <blockquote>
 <p>In summary, when memory access limits kernel performance, offload and overlap data movement by combining careful tiling, double-buffering, and TMA-driven asynchronous prefetch. By staging tiles in shared memory and using cuda::memcpy<em>async with pipe.producer</em>commit and pipe.consumer_wait, you hand off coalesced, multidimensional DMA transfers to TMA, offloading global-to-shared-memory transfers.</p>
 </blockquote>
@@ -3327,7 +3327,7 @@
 <p>Offloading memory transfers using TMA helps relieve pressure on the SM load/store units and helps keep the compute pipeline full. As a result, the SM focuses on computation while shared-memory traffic uses the on-chip TMA path. On Blackwell's massive-bandwidth HBM3e fabric, these techniques are essential for hiding DRAM latency, sustaining peak throughput, and transforming memory-bound kernels into near-compute-bound workhorses.</p>
 </blockquote>
 <h2 id="key-takeaways">关键要点 (Key Takeaways)<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
-<p>优化 GPU 上的内存访问模式--通过合并、数据重用和异步传输--可以将核函数从内存受限转变为接近硬件峰值能力。对代码进行小的更改以更好地与 GPU 架构对齐（例如正确的线程分组、使用共享内存、避免 bank 冲突）可以产生巨大的性能提升。以下是本章的关键要点：</p>
+<p>优化 GPU 上的内存访问模式--通过合并、数据重用和异步传输--可以将核函数从内存受限转变为接近硬件峰值能力。对代码做些小改动以更好地与 GPU 架构对齐（例如正确的线程分组、使用共享内存、避免 bank 冲突）可以产生巨大的性能提升。以下是本章的关键要点：</p>
 <blockquote>
 <p>Optimizing memory access patterns on the GPU-through coalescing, data reuse, and asynchronous transfers-can transform a kernel from memory-bound to near-peak hardware capability. Small changes to code to better align with GPU architecture (e.g., correct thread grouping, using shared memory, avoiding bank conflicts) can yield massive performance gains. Here are the key takeaways from this chapter:</p>
 </blockquote>
@@ -3335,7 +3335,7 @@
 <blockquote>
 <p>Global Memory Coalescing</p>
 </blockquote>
-<p>当每个 warp 的访问落在尽可能少的 128 字节缓存行中时，就实现了合并。安排您的数据和线程索引，使每个 warp 的线程读取连续的 4 字节字，让硬件将它们融合为几个 128 字节事务。合并的内存加载最大化有效的 DRAM 带宽或全局内存加载效率，并将每请求平均扇区数降至最佳的 4.0 值。使用现代版本的 Nsight Compute 时，您还可以使用<code>sm__sass_data_bytes_mem_*</code>计数器和<code>gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed</code>来分析和优化内存合并。</p>
+<p>当每个 warp 的访问落在尽可能少的 128 字节缓存行中时，就实现了合并。安排你的数据和线程索引，使每个 warp 的线程读取连续的 4 字节字，让硬件将它们融合为几个 128 字节事务。合并的内存加载最大化有效的 DRAM 带宽或全局内存加载效率，并将每请求平均扇区数降至最佳的 4.0 值。使用现代版本的 Nsight Compute 时，你还可以使用<code>sm__sass_data_bytes_mem_*</code>计数器和<code>gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed</code>来分析和优化内存合并。</p>
 <blockquote>
 <p>Coalescing is achieved when each warp's accesses land in as few 128-byte cache lines as possible. Arrange your data and thread indices so that threads in each warp read contiguous 4-byte words, letting the hardware fuse them into a few 128-byte transactions. Coalesced memory loads maximize effective DRAM bandwidth or global memory load efficiency and bring average sectors per request down to the optimal 4.0 value. With modern versions of Nsight Compute, you can also use sm<strong>sass<em>data</em>bytes<em>mem</em>* counters and gpu</strong>dram<em>throughput.avg.pct</em>of<em>peak</em>sustained_elapsed to analyze and optimize memory coalescing.</p>
 </blockquote>
@@ -3351,7 +3351,7 @@
 <blockquote>
 <p>Avoid Bank Conflicts</p>
 </blockquote>
-<p>填充您的共享内存数组（例如，使行为 33 个 float 宽以适应 32 线程的 warp），以便没有两个线程在同一周期命中同一个 bank。消除 bank 冲突可恢复完整的共享内存吞吐量。尝试 swizzling 以获得比填充更节省内存的实现。</p>
+<p>填充你的共享内存数组（例如，使行为 33 个 float 宽以适应 32 线程的 warp），以便没有两个线程在同一周期命中同一个 bank。消除 bank 冲突可恢复完整的共享内存吞吐量。尝试 swizzling 以获得比填充更节省内存的实现。</p>
 <blockquote>
 <p>Pad your shared-memory arrays (e.g., make rows 33 floats wide to accommodate a warp of 32 threads) so that no two threads hit the same bank in the same cycle. Eliminating bank conflicts restores full shared-memory throughput. Experiment with swizzling for a more memory-efficient implementation than padding.</p>
 </blockquote>
@@ -3400,11 +3400,11 @@
 <p>Rely on Nsight Compute metrics such as global memory load efficiency, average sectors per request, shared-memory bank conflicts, SM active %, warp stall reasons, and more. Also, look at Nsight Systems timelines to visualize overlap and stalls, pinpoint bottlenecks, and verify each optimization.</p>
 </blockquote>
 <h2 id="conclusion">结论 (Conclusion)<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
-<p>现在您的内存访问流水线已经通过合并的全局内存加载、无冲突的 tiling、向量化获取、只读缓存和 TMA 驱动的预取全面运转，您已经消除了最大的数据移动瓶颈，释放了 SM 以全速运行。</p>
+<p>现在你的内存访问流水线已经通过合并的全局内存加载、无冲突的 tiling、向量化获取、只读缓存和 TMA 驱动的预取全面运转，你已经消除了最大的数据移动瓶颈，释放了 SM 以全速运行。</p>
 <blockquote>
 <p>Now that your memory access pipeline is fully primed with coalesced global memory loads, conflict-free tiling, vectorized fetches, read-only caching, and TMA-driven prefetching, you've eliminated the biggest data-movement bottlenecks and unleashed the SM to run at full speed.</p>
 </blockquote>
-<p>在本章中，我们依靠 Nsight Compute 和 Nsight Systems 来准确揭示 warp 在何处因数据而饥饿。我们还使用它们逐步确认每个优化确实减少了停顿、消除了浪费的事务并提高了持续带宽。每当您调整新核函数时，这些工具仍然是您的指路明灯。</p>
+<p>在本章中，我们依靠 Nsight Compute 和 Nsight Systems 来准确揭示 warp 在何处因数据而饥饿。我们还使用它们逐步确认每个优化确实减少了停顿、消除了浪费的事务并提高了持续带宽。每当你调整新核函数时，这些工具仍然是你的指路明灯。</p>
 <blockquote>
 <p>In this chapter, we relied on Nsight Compute and Nsight Systems to reveal exactly where warps were starving for data. We also used them to confirm step-by-step that each optimization actually reduced stalls, eliminated wasted transactions, and increased sustained bandwidth. These tools remain your guiding light whenever you tune a new kernel.</p>
 </blockquote>
@@ -3434,7 +3434,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:44:50 UTC">2026年11月23日 04:44:50</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
   </span>
 
     

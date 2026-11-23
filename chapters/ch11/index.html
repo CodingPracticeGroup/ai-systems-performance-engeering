@@ -1450,7 +1450,7 @@
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream1</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">);</span>
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="n">cudaStreamCreateWithFlags</span><span class="p">(</span><span class="o">&amp;</span><span class="n">stream2</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamNonBlocking</span><span class="p">);</span>
 </span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="c1">// 2) 定义您的网格/块大小</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="c1">// 2) 定义你的网格/块大小</span>
 </span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span>
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="n">dim3</span><span class="w"> </span><span class="nf">block</span><span class="p">(</span><span class="mi">256</span><span class="p">);</span>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
@@ -1816,11 +1816,11 @@
 <blockquote>
 <p>In the context of LLM training and inference, this is particularly valuable because variable‐length sequences often produce scratch‐buffer size fluctuations. If batch N has 512 tokens per sequence and batch N+1 has 1,024 tokens, your attention module will need more space for batch N+1 than batch N, so reusing batch N's allocation is not sufficient. With cudaMallocAsync(), you can enqueue a single, nonblocking allocation for the larger buffer without dragging all other streams to a stop.</p>
 </blockquote>
-<p>此外，典型 LLM 的自回归逐令牌生成（又称解码）阶段使用不断增长的键/值缓存。每个生成的令牌需要将新的 KV 对追加到每个序列的缓冲区。随着缓冲区的增长，您需要重新分配或扩展临时区域。</p>
+<p>此外，典型 LLM 的自回归逐令牌生成（又称解码）阶段使用不断增长的键/值缓存。每个生成的令牌需要将新的 KV 对追加到每个序列的缓冲区。随着缓冲区的增长，你需要重新分配或扩展临时区域。</p>
 <blockquote>
 <p>Additionally, a typical LLM's autoregressive token‐by‐token generation (aka decoding) phase uses a growing key/value cache. Each generated token requires appending new KV pairs to a per‐sequence buffer. As the buffer grows, you need to reallocate or extend the scratch region.</p>
 </blockquote>
-<p>cudaMallocAsync(...)允许您在运行注意力核函数的同一个流中执行此操作。同时，上游数据加载和下游结果复制操作继续在其自己的流中并行进行。</p>
+<p>cudaMallocAsync(...)允许你在运行注意力核函数的同一个流中执行此操作。同时，上游数据加载和下游结果复制操作继续在其自己的流中并行进行。</p>
 <blockquote>
 <p>cudaMallocAsync(...) lets you do this in the same stream that runs the attention kernel. Meanwhile, upstream data‐loading and downstream result‐copying operations continue making progress in parallel, running in their own streams.</p>
 </blockquote>
@@ -1956,11 +1956,11 @@
 <blockquote>
 <p><strong>Explicit streams (created with cudaStreamCreateWithFlags())</strong> - Explicit streams are independent queues that only synchronize when you explicitly insert dependencies using cudaStreamWaitEvent(), for instance.</p>
 </blockquote>
-<p>以下是一些最佳实践，可帮助指导您使用默认流和显式（非默认）流：</p>
+<p>以下是一些最佳实践，可帮助指导你使用默认流和显式（非默认）流：</p>
 <blockquote>
 <p>Here are some best practices to help guide your use of default and explicit (nondefault) streams:</p>
 </blockquote>
-<p><strong>除非您打算序列化所有 GPU 工作，否则不要将性能关键核函数启动到流 0（传统默认流）中</strong>：即使一个偶然的核函数或复制进入流 0 也会停止每个其他活动流。例如，较旧的 CUDA API 可能隐式使用流 0。例如，在没有显式流的情况下调用 CUDA 驱动程序 API 时，您可能会使用传统流。这是迁移到较新 API 或始终指定流的另一个原因。</p>
+<p><strong>除非你打算序列化所有 GPU 工作，否则不要将性能关键核函数启动到流 0（传统默认流）中</strong>：即使一个偶然的核函数或复制进入流 0 也会停止每个其他活动流。例如，较旧的 CUDA API 可能隐式使用流 0。例如，在没有显式流的情况下调用 CUDA 驱动程序 API 时，你可能会使用传统流。这是迁移到较新 API 或始终指定流的另一个原因。</p>
 <blockquote>
 <p><strong>Never launch performance‐critical kernels into stream 0 (legacy default) unless you intend to serialize all GPU work</strong> - Even one stray kernel or copy into stream 0 will stall every other active stream. Older CUDA APIs, for example, might implicitly use stream 0. For example, when calling CUDA driver APIs without an explicit stream, you will likely use the legacy stream. This is another reason to migrate to newer APIs or always specify streams.</p>
 </blockquote>
@@ -1972,11 +1972,11 @@
 <blockquote>
 <p><strong>Create and manage explicit, nondefault streams</strong> - Explicit streams are a best practice since they allow overlapping kernels and memory copies. Always pass a nondefault cudaStream_t to &lt;&lt;&lt;...&gt;&gt;&gt;(), cudaMemcpyAsync(), or cudaMallocAsync(). This guarantees that no implicit default‐stream synchronization will interfere with your pipelined workflow.</p>
 </blockquote>
-<p><strong>使用 cudaStreamWaitEvent()协调细粒度依赖关系，而不是 cudaStreamSynchronize()</strong>：您应该使用流事件而不是在默认流上使用 cudaStreamSynchronize()。仅在明确定义的全局点（例如，模型训练 epoch 的结束）调用 cudaStreamSynchronize()，以避免停止不相关的流。</p>
+<p><strong>使用 cudaStreamWaitEvent()协调细粒度依赖关系，而不是 cudaStreamSynchronize()</strong>：你应该使用流事件而不是在默认流上使用 cudaStreamSynchronize()。仅在明确定义的全局点（例如，模型训练 epoch 的结束）调用 cudaStreamSynchronize()，以避免停止不相关的流。</p>
 <blockquote>
 <p><strong>Use cudaStreamWaitEvent() to coordinate fine‐grained dependencies instead of cudaStreamSynchronize()</strong> - You should use stream events rather than cudaStreamSynchronize() on the default stream. Call cudaStreamSynchronize() only at well‐defined global points (e.g., the end of a model-training epoch) to avoid stalling unrelated streams.</p>
 </blockquote>
-<p><strong>明确您的流标志</strong>：如果您启用 PTDS，请在任何 CUDA 调用之前设置设备标志。否则，您仍处于传统默认流模式。任何对流 0 的提及都会创建一个全局屏障。</p>
+<p><strong>明确你的流标志</strong>：如果你启用 PTDS，请在任何 CUDA 调用之前设置设备标志。否则，你仍处于传统默认流模式。任何对流 0 的提及都会创建一个全局屏障。</p>
 <blockquote>
 <p><strong>Be explicit about your stream flags</strong> - If you enable PTDS, set the device flags before any CUDA call. Otherwise, you remain in the legacy default‐stream mode. Any mention of stream 0 will create a global barrier.</p>
 </blockquote>
@@ -1988,7 +1988,7 @@
 <blockquote>
 <p>To avoid these invisible stalls, don't put performance-critical kernels or copies into stream 0. Instead, create your own named streams using cudaStreamCreateWithFlags and launch everything into those streams so they can run independently.</p>
 </blockquote>
-<p>如果您的程序有多个 CPU 线程--每个线程发出自己的 GPU 工作--您还应该启用每线程默认流。启用 PTDS 后，每个线程的"默认"流不再与其他线程的默认流同步--或与流 0 同步。</p>
+<p>如果你的程序有多个 CPU 线程--每个线程发出自己的 GPU 工作--你还应该启用每线程默认流。启用 PTDS 后，每个线程的"默认"流不再与其他线程的默认流同步--或与流 0 同步。</p>
 <blockquote>
 <p>If your program has multiple CPU threads-each issuing their own GPU work-you should also enable per-thread default streams. With PTDS turned on, each thread's "default" stream no longer synchronizes with other threads' defaults-or with stream 0.</p>
 </blockquote>
@@ -2128,7 +2128,7 @@
 </span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="c1">// 向量化复制的对齐/大小保护</span>
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">    </span><span class="k">static_assert</span><span class="p">((</span><span class="n">TILE_SIZE</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="p">(</span><span class="mi">32</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">4</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
 </span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">                  </span><span class="s">"TILE_SIZE must be multiple of 128 for float4 vectorization"</span><span class="p">);</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="c1">// 如果您无法保证16B对齐或大小，</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">    </span><span class="c1">// 如果你无法保证16B对齐或大小，</span>
 </span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">    </span><span class="c1">// 使用回退4B循环处理尾部/不规则边缘。</span>
 </span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
 </span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="c1">// 每个块三个warp：0加载，1计算，2存储。</span>
@@ -2677,7 +2677,7 @@
 <blockquote>
 <p>In short, these combined techniques make sure that memory latency is hidden at both the grid level and the host‐to‐device level. This drives hardware utilization close to peak on modern GPUs-and maximizes throughput for LLM workloads.</p>
 </blockquote>
-<p>在许多情况下，内存层次结构瓶颈如 DRAM 带宽和模型并行通信如 NCCL all-reduce 将主导工作负载。因此，一旦您的核函数接近饱和 HBM 带宽，并且您的流已经隐藏了 CPU → GPU 延迟，通过在其上添加 warp 专门化--然后再在其上添加线程块集群--获得的额外百分之几的 SM 利用率很少能证明高昂的工程成本是合理的。在实践中，大多数现实世界的 LLM 训练和推理工作负载从前面介绍的更简单设计中受益匪浅，例如双缓冲核函数或使用 CUDA 流的两阶段流水线。</p>
+<p>在许多情况下，内存层次结构瓶颈如 DRAM 带宽和模型并行通信如 NCCL all-reduce 将主导工作负载。因此，一旦你的核函数接近饱和 HBM 带宽，并且你的流已经隐藏了 CPU → GPU 延迟，通过在其上添加 warp 专门化--然后再在其上添加线程块集群--获得的额外百分之几的 SM 利用率很少能证明高昂的工程成本是合理的。在实践中，大多数现实世界的 LLM 训练和推理工作负载从前面介绍的更简单设计中受益匪浅，例如双缓冲核函数或使用 CUDA 流的两阶段流水线。</p>
 <blockquote>
 <p>In many scenarios, memory-hierarchy bottlenecks like DRAM bandwidth and model‐parallel communication like NCCL all‐reduce will dominate the workload. So once your kernel is close to saturating the HBM bandwidth and your streams already hide CPU → GPU latency, the additional few percent of SM utilization that you'd get by adding warp specialization on top of that-and then adding thread block clusters on top of that-rarely justifies the steep engineering cost. In practice, most real-world LLM training and inference workloads benefit sufficiently from simpler designs presented earlier, such as double-buffered kernels or two-stage pipelines with CUDA streams.</p>
 </blockquote>
@@ -2686,7 +2686,7 @@
 <blockquote>
 <p>When training or serving LLMs across multiple GPUs, CUDA streams let you overlap local compute, peer-to-peer transfers, collective communication, data preparation, and memory management so that no device idles. For instance, suppose you split a transformer model across two GPUs such that GPU 0 handles layers 0-3 and GPU B handles layers 4-7.</p>
 </blockquote>
-<p>在 GPU A 上，您可能会写：</p>
+<p>在 GPU A 上，你可能会写：</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// GPU A上的流0：计算层0-3</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">myTransformerLayers0to3</span><span class="o">&lt;&lt;&lt;</span><span class="n">gridA</span><span class="p">,</span><span class="w"> </span><span class="n">blockA</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream0_A</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="n">inputActivationsA</span><span class="p">,</span><span class="w"> </span><span class="n">outputActivationsA</span><span class="p">);</span>
@@ -2704,7 +2704,7 @@
 <blockquote>
 <p>Meanwhile, on the CPU, you have already decoded or prepared the next microbatch (N+1) and issued a cudaMemcpyAsync into a pinned host buffer. This way, by the time GPU A's stream 0 finishes the forward pass for batch N, the CPU-to-GPU copy for batch N+1 can begin immediately without waiting.</p>
 </blockquote>
-<p>同时，您调用 cudaStreamWaitEvent(stream1<em>A, eventA, 0)以确保 stream1</em>A 在启动直接 NVLink/PCIe 复制到 GPU B 内存之前等待 outputActivationsA 准备好，如下所示：</p>
+<p>同时，你调用 cudaStreamWaitEvent(stream1<em>A, eventA, 0)以确保 stream1</em>A 在启动直接 NVLink/PCIe 复制到 GPU B 内存之前等待 outputActivationsA 准备好，如下所示：</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// GPU A上的流1：等待层计算完成，然后复制到GPU B</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream1_A</span><span class="p">,</span><span class="w"> </span><span class="n">eventA</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">cudaMemcpyPeerAsync</span><span class="p">(</span>
@@ -2715,14 +2715,14 @@
 <blockquote>
 <p>At the same time, you call cudaStreamWaitEvent(stream1<em>A, eventA, 0) to ensure that stream1</em>A waits until outputActivationsA is ready before launching the direct NVLink/PCIe copy into GPU B's memory, as shown here:</p>
 </blockquote>
-<p>一旦您记录 eventA，GPU A 的 stream0 可以立即启动批次 N+1 的下一个前向核函数，使用 cudaMemcpyAsync 将其输入从固定主机缓冲区复制到设备内存，而不会阻塞。在 GPU B 上，您在复制开始或结束时记录一个匹配的事件：</p>
+<p>一旦你记录 eventA，GPU A 的 stream0 可以立即启动批次 N+1 的下一个前向核函数，使用 cudaMemcpyAsync 将其输入从固定主机缓冲区复制到设备内存，而不会阻塞。在 GPU B 上，你在复制开始或结束时记录一个匹配的事件：</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// GPU A上的流1：对等复制开始后，记录eventFromA</span>
 </span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">cudaEventRecord</span><span class="p">(</span><span class="n">eventFromA</span><span class="p">,</span><span class="w"> </span><span class="n">stream1_A</span><span class="p">);</span>
 </span></code></pre></div>
 <blockquote>
 <p>As soon as you record eventA, GPU A's stream0 can immediately launch the next forward kernel for batch N+1, using cudaMemcpyAsync to copy its inputs from the pinned host buffer into device memory without blocking. On GPU B, you record a matching event when the copy begins or ends:</p>
 </blockquote>
-<p>然后在 GPU B 上，您等待数据到达并运行层 4-7，如下所示：</p>
+<p>然后在 GPU B 上，你等待数据到达并运行层 4-7，如下所示：</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">// GPU B上的流1：等待数据到达，然后运行层4-7</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream1_B</span><span class="p">,</span><span class="w"> </span><span class="n">eventFromA</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">myTransformerLayers4to7</span><span class="o">&lt;&lt;&lt;</span><span class="n">gridB</span><span class="p">,</span><span class="w"> </span><span class="n">blockB</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream1_B</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span>
@@ -2767,7 +2767,7 @@
 <blockquote>
 <p>In this ring all-reduce, each GPU sends chunk i to its neighbor (k → k+1) while receiving chunk i-1 from its other neighbor (k-1 → k), using device kernels to move and reduce chunks over NVLink or PCIe.</p>
 </blockquote>
-<p>通过对这些分块的发送和接收进行流水线处理，NCCL 使 NVLink 完全饱和。当块 i 从 GPU 0 → GPU 1 遍历时，块 i-1 从 GPU 1 → GPU 2 移动，依此类推。这最小化了空闲间隙。在代码中，您会看到类似以下内容：</p>
+<p>通过对这些分块的发送和接收进行流水线处理，NCCL 使 NVLink 完全饱和。当块 i 从 GPU 0 → GPU 1 遍历时，块 i-1 从 GPU 1 → GPU 2 移动，依此类推。这最小化了空闲间隙。在代码中，你会看到类似以下内容：</p>
 <blockquote>
 <p>By pipelining these chunked sends and receives, NCCL keeps NVLink fully saturated. While chunk i traverses from GPU 0 → GPU 1, chunk i−1 moves GPU 1 → GPU 2, and so on. This minimizes idle gaps. In code, you would see something like the following:
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1">// 在每个GPU上的高优先级通信流中：</span>
@@ -2823,7 +2823,7 @@
 <blockquote>
 <p>Peer‐to‐peer transfers launched using cudaMemcpyPeerAsync run entirely on the GPU's copy engines, so they consume only DRAM‐to‐DRAM bandwidth and no SM cycles. Collective operations such as all-reduce, on the other hand, are implemented as device kernels that use a small number of SMs while driving interconnect bandwidth toward the peak.</p>
 </blockquote>
-<p>同时，用于激活或混合精度梯度的临时缓冲区被异步分配和释放，以避免全局停顿。例如，在每个 GPU 的计算流内，您将调用以下代码：</p>
+<p>同时，用于激活或混合精度梯度的临时缓冲区被异步分配和释放，以避免全局停顿。例如，在每个 GPU 的计算流内，你将调用以下代码：</p>
 <blockquote>
 <p>Meanwhile, temporary buffers for activations or mixed-precision gradients are allocated and freed asynchronously to avoid global stalls. For example, inside each GPU's compute stream, you would call the following code:
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">cudaMallocAsync</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tempBuffer</span><span class="p">,</span><span class="w"> </span><span class="n">tempBytes</span><span class="p">,</span><span class="w"> </span><span class="n">computeStream</span><span class="p">);</span>
@@ -2844,7 +2844,7 @@
 <blockquote>
 <p>After you enqueue the forward pass, backward pass, P2P copies, NCCL all-reduce, memory free, and event-wait operations for a single iteration, you can capture an execution chain (e.g., training or inference iteration) into a single CUDA Graph.</p>
 </blockquote>
-<p>具体来说，当您调用 cudaStreamBeginCapture 时，您加入流的每个操作（例如，核函数启动、计算、通信、数据传输、事件等）都作为节点插入图中。这可以包括 ncclAllReduce()、cudaMemcpyAsync、cudaMemcpyPeerAsync、cudaMallocAsync、cudaFreeAsync、cudaEventRecord、cudaStreamWaitEvent--以及它们的依赖关系。您使用 cudaStreamEndCapture(stream, &amp;graph)结束捕获。代码如下所示：</p>
+<p>具体来说，当你调用 cudaStreamBeginCapture 时，你加入流的每个操作（例如，核函数启动、计算、通信、数据传输、事件等）都作为节点插入图中。这可以包括 ncclAllReduce()、cudaMemcpyAsync、cudaMemcpyPeerAsync、cudaMallocAsync、cudaFreeAsync、cudaEventRecord、cudaStreamWaitEvent--以及它们的依赖关系。你使用 cudaStreamEndCapture(stream, &amp;graph)结束捕获。代码如下所示：</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">cudaStreamBeginCapture</span><span class="p">(</span><span class="n">streamA</span><span class="p">,</span><span class="w"> </span><span class="n">cudaStreamCaptureModeGlobal</span><span class="p">);</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
 </span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">computeGradientsLayer1</span><span class="o">&lt;&lt;&lt;</span><span class="p">...</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">streamA</span><span class="o">&gt;&gt;&gt;</span><span class="p">(...);</span>
@@ -3350,7 +3350,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:44:50 UTC">2026年11月23日 04:44:50</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
   </span>
 
     

@@ -1694,7 +1694,7 @@
 <blockquote>
 <p>NVTX markers are injected into code using either CUDA C++, PyTorch, or any C++ or Python library that supports NVIDIA GPUs (e.g., OpenAI Triton, PyCUDA, CuPy, cuTile, cuTe, CUTLASS, etc.). Most libraries already inject NVTX markers on your behalf for critical regions of code, such as "train<em>step", "forward", "backward", "optimizer</em>step", etc.</p>
 </blockquote>
-<p>但您也可以自己注入它们，例如在 PyTorch 中使用<code>torch.profiler.record_function()</code>和<code>torch.cuda.nvtx.range_push()</code>。</p>
+<p>但你也可以自己注入它们，例如在 PyTorch 中使用<code>torch.profiler.record_function()</code>和<code>torch.cuda.nvtx.range_push()</code>。</p>
 <blockquote>
 <p>But you can also inject them yourself using torch.profiler.record<em>function() and torch.cuda.nvtx.range</em>push() in PyTorch, for instance.</p>
 </blockquote>
@@ -1822,7 +1822,7 @@
 <blockquote>
 <p>TorchEval (PyTorch's Metrics Library)</p>
 </blockquote>
-<p>另一个项目 TorchEval 让您在统一的界面中记录和监控模型吞吐量、延迟和质量指标以及训练和评估指标。TorchEval 是 PyTorch 的官方指标库，为端到端性能和质量指标提供简单的 API。该库使插入训练循环和在分布式环境中集成变得容易。</p>
+<p>另一个项目 TorchEval 让你在统一的界面中记录和监控模型吞吐量、延迟和质量指标以及训练和评估指标。TorchEval 是 PyTorch 的官方指标库，为端到端性能和质量指标提供简单的 API。该库使插入训练循环和在分布式环境中集成变得容易。</p>
 <blockquote>
 <p>Another project, TorchEval, lets you log and monitor model throughput, latency, and quality metrics alongside training and evaluation metrics-all within a unified interface. TorchEval is PyTorch's official metrics library and provides a simple API for end-to-end performance and quality metrics. This library makes it easy to plug into training loops and integrate across distributed environments.</p>
 </blockquote>
@@ -2408,7 +2408,7 @@
 <blockquote>
 <p>The compiler observes our model's forward pass and identifies many opportunities to fuse consecutive operations, such as elementwise activations, layer norms, etc. It generates fused kernels for those operations-and also for parts of the backward pass. The result is significantly fewer kernel launches and less CPU overhead per iteration.</p>
 </blockquote>
-<p>编译步骤确实会引入一些开销--对于非常大的模型可能需要几秒甚至几分钟--但这个成本在长时间训练作业或重复推理运行中会被摊销。幸运的是，TorchInductor 缓存编译的核函数，因此后续运行不需要再次支付编译成本。PyTorch 社区也在不断努力改进编译/启动性能，允许您保存和重用跨运行的编译产物。</p>
+<p>编译步骤确实会引入一些开销--对于非常大的模型可能需要几秒甚至几分钟--但这个成本在长时间训练作业或重复推理运行中会被摊销。幸运的是，TorchInductor 缓存编译的核函数，因此后续运行不需要再次支付编译成本。PyTorch 社区也在不断努力改进编译/启动性能，允许你保存和重用跨运行的编译产物。</p>
 <blockquote>
 <p>The compile step does introduce some overhead on the order of seconds-or even minutes for very large models-but this cost is amortized over long training jobs or repeated inference runs. Fortunately, TorchInductor caches compiled kernels so that subsequent runs don't pay the compile cost again. The PyTorch community is also continuously working to improve compile/startup performance by allowing you to save and reuse compiled artifacts across runs.</p>
 </blockquote>
@@ -2926,7 +2926,7 @@
 <blockquote>
 <p>Besides data loading, CUDA streams are useful in a lot of different contexts. Let's discuss how they're used in MoE models.</p>
 </blockquote>
-<p>CUDA 事件是同步流的轻量级机制。您可以在一个流中记录事件，然后让另一个流等待该事件。这允许精确控制不同流之间的依赖关系，而不会阻塞整个 GPU。</p>
+<p>CUDA 事件是同步流的轻量级机制。你可以在一个流中记录事件，然后让另一个流等待该事件。这允许精确控制不同流之间的依赖关系，而不会阻塞整个 GPU。</p>
 <blockquote>
 <p>CUDA events are a lightweight mechanism for synchronizing streams. You can record an event in one stream and then have another stream wait for that event. This allows precise control over dependencies between different streams without blocking the entire GPU.</p>
 </blockquote>
@@ -2995,7 +2995,7 @@
 <blockquote>
 <p>Always make sure you are launching on the intended stream. Accidentally using the default stream, for example, can reintroduce unnecessary serialization. This is easy to mess up, so it's worth repeating again.</p>
 </blockquote>
-<p>在实践中，transformer 模型层是顺序依赖的，因此您不能随意并行运行层。然而，在 MoE 架构中，不同的专家可以在单独的 CUDA 流上并发运行，因为它们的计算是独立的。</p>
+<p>在实践中，transformer 模型层是顺序依赖的，因此你不能随意并行运行层。然而，在 MoE 架构中，不同的专家可以在单独的 CUDA 流上并发运行，因为它们的计算是独立的。</p>
 <blockquote>
 <p>In practice, transformer-model layers are sequentially dependent, so you can't arbitrarily run layers in parallel. However, in an MoE architecture, different experts can run concurrently on separate CUDA streams since their computations are independent.</p>
 </blockquote>
@@ -3003,11 +3003,11 @@
 <blockquote>
 <p>Each expert processes a distinct segment of the input. At the join point, the expert outputs are aggregated. It's essential that each expert writes only to its assigned slice of the output tensor. If two experts accidentally write to overlapping memory regions, this will introduce a race condition, which can corrupt the results—or trigger synchronization issues caused by the nondeterministic order of writes from the experts.</p>
 </blockquote>
-<p>为避免此类问题，您应确保使用适当的流级同步（例如，流事件）并验证内存是否跨专家核函数干净分区。通过在专家执行和输出聚合之间强制执行这种分离，您将在不牺牲并行性的情况下保持正确性。</p>
+<p>为避免此类问题，你应确保使用适当的流级同步（例如，流事件）并验证内存是否跨专家核函数干净分区。通过在专家执行和输出聚合之间强制执行这种分离，你将在不牺牲并行性的情况下保持正确性。</p>
 <blockquote>
 <p>To avoid such issues, you should make sure to use proper stream-level synchronization (e.g., stream events) and verify that memory is cleanly partitioned across expert kernels. By enforcing this separation between expert execution and output aggregation, you will maintain correctness without sacrificing parallelism.</p>
 </blockquote>
-<p>NVIDIA 的计算清理工具可以检测 CUDA 代码中的并发和同步问题，包括竞争条件和死锁。此外，您可以设置<code>CUDA_LAUNCH_BLOCKING=1</code>以强制同步核函数执行。这将通过使核函数执行确定性的方式浮出水面排序和依赖错误。这将揭示输出是否在完全生成之前被消耗。</p>
+<p>NVIDIA 的计算清理工具可以检测 CUDA 代码中的并发和同步问题，包括竞争条件和死锁。此外，你可以设置<code>CUDA_LAUNCH_BLOCKING=1</code>以强制同步核函数执行。这将通过使核函数执行确定性的方式浮出水面排序和依赖错误。这将揭示输出是否在完全生成之前被消耗。</p>
 <blockquote>
 <p>NVIDIA's Compute Sanitizer can detect concurrency and synchronization issues in CUDA code, including race conditions and deadlocks. Also, you can set <code>CUDA_LAUNCH_BLOCKING=1</code> to force synchronous kernel execution. This will surface ordering and dependency bugs by making kernel execution deterministic. This will reveal if outputs are being consumed before they're fully produced.</p>
 </blockquote>
@@ -3027,11 +3027,11 @@
 <blockquote>
 <p>In short, CUDA streams help to squeeze extra performance out of your hardware by overlapping work across multiple kernels, stages, or requests. They require careful synchronization to avoid race conditions. But, when used correctly, they can hide latency and keep a GPU more fully utilized.</p>
 </blockquote>
-<p>建议在引入并发时持续分析您的代码。并记住，100%利用率的顺序执行实际上可能比引入资源争用的并行执行表现更好。不过，流通常可以让您利用 GPU 的其他部分，否则这些部分将处于空闲状态。找到正确的平衡很重要。</p>
+<p>建议在引入并发时持续分析你的代码。并记住，100%利用率的顺序执行实际上可能比引入资源争用的并行执行表现更好。不过，流通常可以让你利用 GPU 的其他部分，否则这些部分将处于空闲状态。找到正确的平衡很重要。</p>
 <blockquote>
 <p>It's recommended to continuously profile your code when introducing concurrency. And keep in mind that sequential execution at 100% utilization may actually perform better than parallel execution that introduces resource contention. Often, though, streams let you utilize parts of the GPU that would otherwise sit idle. Finding the right balance is important.</p>
 </blockquote>
-<p>始终确保您在预期的流上启动。例如，意外使用默认流可能会重新引入不必要的序列化。这很容易搞砸，所以值得重复。</p>
+<p>始终确保你在预期的流上启动。例如，意外使用默认流可能会重新引入不必要的序列化。这很容易搞砸，所以值得重复。</p>
 <blockquote>
 <p>Always make sure you are launching on the intended stream. Accidentally using the default stream, for example, can reintroduce unnecessary serialization. This is easy to mess up, so it's worth repeating again.</p>
 </blockquote>
@@ -3045,7 +3045,7 @@
 <p>We've seen in earlier chapters that CUDA Graphs eliminate per-iteration launch overhead, reduce CPU launch overhead, and eliminate tiny idle gaps between kernels. And removing even the smallest idle gaps leads to higher effective utilization-and more consistent iteration times. Now let's show how to use them in PyTorch.</p>
 </blockquote>
 <h3 id="capturing-the-graph">捕获图 (Capturing the Graph)<a class="headerlink" href="#capturing-the-graph" title="Permanent link">&para;</a></h3>
-<p>要使用 CUDA 图，首先需要预热 GPU 以确保所有内存分配和核函数编译已完成。然后，您可以使用<code>torch.cuda.graph()</code>捕获操作序列。</p>
+<p>要使用 CUDA 图，首先需要预热 GPU 以确保所有内存分配和核函数编译已完成。然后，你可以使用<code>torch.cuda.graph()</code>捕获操作序列。</p>
 <p>PyTorch 提供了 torch.cuda.CUDAGraph API 来捕获并重放（graph replay）CUDA Graphs。一般的使用模式是：首先通过正常运行几次迭代来对模型进行预热，以初始化所有必要的数据和内存分配。接着，你创建一个 CUDAGraph 对象，以及一条专用的、非默认的 CUDA 流来隔离此次捕获。</p>
 <blockquote>
 <p>PyTorch provides a torch.cuda.CUDAGraph API to capture and replay CUDA Graphs. The general usage pattern is to first warm up the model by running a few iterations normally to initialize all necessary data and allocations. Next, you create a CUDAGraph object and a dedicated, nondefault CUDA stream to isolate the capture.</p>
@@ -3093,7 +3093,7 @@
 </span><span id="__span-16-13"><a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>    <span class="n">static_output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">static_input</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="replaying-the-graph">重放图 (Replaying the Graph)<a class="headerlink" href="#replaying-the-graph" title="Permanent link">&para;</a></h3>
-<p>一旦图被捕获，您可以通过将新数据复制到预分配的输入张量并调用<code>g.replay()</code>来重放它。</p>
+<p>一旦图被捕获，你可以通过将新数据复制到预分配的输入张量并调用<code>g.replay()</code>来重放它。</p>
 <blockquote>
 <p>Once the graph is captured, you can replay it by copying new data into the preallocated input tensor and calling g.replay().</p>
 </blockquote>
@@ -3123,7 +3123,7 @@
 <blockquote>
 <p><strong>Avoid memory allocation during graph capture</strong></p>
 </blockquote>
-<p>您不能在图捕获期间动态分配 GPU 内存。所有需要的张量都应在预热步骤期间预先分配。如果您的图需要临时缓冲区，请使用 PyTorch 的图感知缓存分配器。</p>
+<p>你不能在图捕获期间动态分配 GPU 内存。所有需要的张量都应在预热步骤期间预先分配。如果你的图需要临时缓冲区，请使用 PyTorch 的图感知缓存分配器。</p>
 <blockquote>
 <p>You cannot dynamically allocate GPU memory during graph capture. All needed tensors should be preallocated during a warm-up step. If your graph needs temporary buffers, use PyTorch's graph-aware caching allocator.</p>
 </blockquote>
@@ -3131,7 +3131,7 @@
 <blockquote>
 <p><strong>Keep the graph structure fixed</strong></p>
 </blockquote>
-<p>捕获的图不能更改操作序列、张量形状或内存大小。如果您的工作负载有偶尔的形状变化，一种策略是为每个预期的输入大小捕获多个图，然后在运行时选择适当的图。</p>
+<p>捕获的图不能更改操作序列、张量形状或内存大小。如果你的工作负载有偶尔的形状变化，一种策略是为每个预期的输入大小捕获多个图，然后在运行时选择适当的图。</p>
 <blockquote>
 <p>Captured graphs cannot change the sequence of operations, tensor shapes, or memory sizes. If your workload has occasional shape changes, one strategy is to capture multiple graphs for each expected input size, then select the appropriate graph at runtime.</p>
 </blockquote>
@@ -3147,7 +3147,7 @@
 <blockquote>
 <p><strong>Plan for memory reuse</strong></p>
 </blockquote>
-<p>图被捕获后，您不能释放或重新分配该图使用的任何张量--或更改它们的任何大小。最好通过使用您预期的最大批次大小进行捕获来预留比需要更多的容量。</p>
+<p>图被捕获后，你不能释放或重新分配该图使用的任何张量--或更改它们的任何大小。最好通过使用你预期的最大批次大小进行捕获来预留比需要更多的容量。</p>
 <blockquote>
 <p>Once a graph is captured, you can't free or reallocate any tensors used by that graph-or change any of their sizes. It's best to reserve more capacity than you need by capturing with your anticipated maximum batch size.</p>
 </blockquote>
@@ -3156,7 +3156,7 @@
 <blockquote>
 <p>Large models can be limited by GPU memory capacity and memory bandwidth. In addition, inefficient memory usage, such as memory fragmentation, can hurt performance even when HBM capacity is sufficient. You can address memory issues on multiple fronts, including memory allocator tuning, activation checkpointing, memory offloading, and input pipeline optimization.</p>
 </blockquote>
-<p>PyTorch 还在<code>torch.profiler</code>中内置了内存分析器，通过启用<code>profile_memory=True</code>来使用。您可以使用它来找出哪些操作分配了大量内存--并尝试首先解决这些操作，如图 13-5 中的 PyTorch 内存可视化工具生成的可视化所示。</p>
+<p>PyTorch 还在<code>torch.profiler</code>中内置了内存分析器，通过启用<code>profile_memory=True</code>来使用。你可以使用它来找出哪些操作分配了大量内存--并尝试首先解决这些操作，如图 13-5 中的 PyTorch 内存可视化工具生成的可视化所示。</p>
 <blockquote>
 <p>PyTorch also includes a built-in memory profiler in torch.profiler, enabled with profile_memory=True. You can use it to find out which operations are allocating a lot of memory-and try to address those operations first, as visualized in the visualization generated by PyTorch's memory visualizer in Figure 13-5.</p>
 </blockquote>
@@ -3173,7 +3173,7 @@
 <blockquote>
 <p>Memory fragmentation occurs when GPU memory gets split into many noncontiguous free blocks over time. This makes it hard to allocate large tensors even when enough total memory remains free. In MoE models, this is especially problematic since the number of tokens routed to each expert can vary with each batch. Consequently, each expert's output activation tensors may be different sizes from iteration to iteration.</p>
 </blockquote>
-<p>您可以使用环境变量调整 PyTorch 的分配器配置来调整其行为：</p>
+<p>你可以使用环境变量调整 PyTorch 的分配器配置来调整其行为：</p>
 <blockquote>
 <p>You can adjust PyTorch's allocator configuration using an environment variable to tune its behavior. Here is an example:</p>
 </blockquote>
@@ -3199,7 +3199,7 @@
 <blockquote>
 <p>It's worth noting that you don't have to checkpoint everything. You can just focus on the largest layers. A common strategy is checkpointing only the transformer blocks, which hold a massive number of activations, but not checkpointing the smaller layers like layer norms and embedding layers. This produces the most memory savings with minimal recompute overhead.</p>
 </blockquote>
-<p>使用 FSDP 时，您还可以启用自动检查点，它将为您递归地对多个层应用检查点。</p>
+<p>使用 FSDP 时，你还可以启用自动检查点，它将为你递归地对多个层应用检查点。</p>
 <blockquote>
 <p>When using FSDP, you can also enable automated checkpointing, which will recursively apply checkpointing to multiple layers for you.</p>
 </blockquote>
@@ -3219,7 +3219,7 @@
 <blockquote>
 <p>Offloading Parameters to CPU and NVMe</p>
 </blockquote>
-<p>除了检查点之外，您还可以卸载一些不需要主动存储在 GPU 上的模型参数。例如，MoE 模型有一些较少访问的专家层可以卸载到 CPU 内存--并仅在需要时将它们传输到 GPU。</p>
+<p>除了检查点之外，你还可以卸载一些不需要主动存储在 GPU 上的模型参数。例如，MoE 模型有一些较少访问的专家层可以卸载到 CPU 内存--并仅在需要时将它们传输到 GPU。</p>
 <blockquote>
 <p>Beyond checkpointing, you can also offload some model parameters that don't need to be actively stored on the GPU. For instance, MoE models have some less-accessed expert layers that can be offloaded to CPU memory-and transferred to the GPU only when needed.</p>
 </blockquote>
@@ -3295,11 +3295,11 @@
 <blockquote>
 <p>Pluggable Memory Allocators and Cross-GPU Data Transfers</p>
 </blockquote>
-<p>PyTorch 支持可插拔内存分配器，允许您使用自定义内存分配策略。这对于需要特定内存管理模式的专用工作负载非常有用。</p>
+<p>PyTorch 支持可插拔内存分配器，允许你使用自定义内存分配策略。这对于需要特定内存管理模式的专用工作负载非常有用。</p>
 <blockquote>
 <p>PyTorch supports pluggable memory allocators, allowing you to use custom memory allocation strategies. This is useful for specialized workloads that require specific memory management patterns.</p>
 </blockquote>
-<p>使用<code>torch.cuda.MemPool</code>，您还可以通过注册自定义库（共享对象或.so）来创建自己的内存分配器。此外，您可以在同一个 PyTorch 应用程序中混合使用不同的 CUDA 内存分配器。</p>
+<p>使用<code>torch.cuda.MemPool</code>，你还可以通过注册自定义库（共享对象或.so）来创建自己的内存分配器。此外，你可以在同一个 PyTorch 应用程序中混合使用不同的 CUDA 内存分配器。</p>
 <blockquote>
 <p>Using torch.cuda.MemPool, you can also create your own memory allocator by registering custom libraries (shared objects or .sos). Furthermore, you can mix different CUDA memory allocators within the same PyTorch application.</p>
 </blockquote>
@@ -3307,7 +3307,7 @@
 <blockquote>
 <p>Enabling Peer-to-Peer DMA and UCX</p>
 </blockquote>
-<p>在多 GPU 系统中使用流水线并行时，您通常希望使用最快的点对点（P2P）连接将激活直接从一个 GPU 移动到下一个 GPU--并避免往返和主机 CPU 资源。PyTorch 会在进程中的张量跨设备移动时自动探测并启用对等访问。</p>
+<p>在多 GPU 系统中使用流水线并行时，你通常希望使用最快的点对点（P2P）连接将激活直接从一个 GPU 移动到下一个 GPU--并避免往返和主机 CPU 资源。PyTorch 会在进程中的张量跨设备移动时自动探测并启用对等访问。</p>
 <blockquote>
 <p>When using pipeline parallelism in multi-GPU systems, you often want to use the fastest peer-to-peer (P2P) connections to move activations directly from one GPU to the next-and avoid round trips and host CPU resources. PyTorch automatically probes and enables peer access when tensors are moved across devices within a process.</p>
 </blockquote>
@@ -3325,7 +3325,7 @@
 <blockquote>
 <p>With the model's memory and compute taken care of, let's turn to the data input pipeline. A common source of inefficiency is the GPU sitting idle waiting for data. PyTorch's DataLoader supports spawning multiple worker threads or processes that load and preprocess data (e.g., text tokenization) in parallel while the model trains. Make sure to specify pin_memory=True so that host CPU memory to GPU device transfers use page-locked (pinned) memory.</p>
 </blockquote>
-<p>如果您不固定内存，您可能会看到数据加载器进程中的 CPU 利用率高，而训练进程中的 GPU 利用率低。这是双重糟糕的。这些非理想的利用率可以通过 htop 和 Nsight Systems 等工具观察到。您会看到 CPU 线程忙于执行数据加载，而 GPU 处于空闲状态。</p>
+<p>如果你不固定内存，你可能会看到数据加载器进程中的 CPU 利用率高，而训练进程中的 GPU 利用率低。这是双重糟糕的。这些非理想的利用率可以通过 htop 和 Nsight Systems 等工具观察到。你会看到 CPU 线程忙于执行数据加载，而 GPU 处于空闲状态。</p>
 <blockquote>
 <p>If you don't pin memory, you may see high CPU utilization in the data loader process and low GPU utilization in the training process. This is doubly bad. These nonideal utilizations can be observed with tools like htop and Nsight Systems. You'll see CPU threads busy doing data loading while the GPU sits idle.</p>
 </blockquote>
@@ -3529,7 +3529,7 @@
 <blockquote>
 <p>Prefer dtype=torch.bfloat16 on modern GPUs because BF16 keeps the FP32 exponent range and normally does not require gradient scaling. If you must train in FP16, enable torch.cuda.amp.GradScaler and verify no overflow/underflow in logs. BF16 generally avoids scaling on modern GPU Tensor Cores.</p>
 </blockquote>
-<p><strong>融合小操作</strong>：许多模型计算涉及长序列的小型逐元素或矩阵操作。这些小操作每个都会产生额外的内存读/写和启动开销。使用<code>torch.profiler</code>发现连续许多小（例如，&lt; 1 ms）操作。如果您看到像 linear → gelu → dropout 这样的模式，考虑用融合模块替换它或依赖<code>torch.compile</code>来融合它。</p>
+<p><strong>融合小操作</strong>：许多模型计算涉及长序列的小型逐元素或矩阵操作。这些小操作每个都会产生额外的内存读/写和启动开销。使用<code>torch.profiler</code>发现连续许多小（例如，&lt; 1 ms）操作。如果你看到像 linear → gelu → dropout 这样的模式，考虑用融合模块替换它或依赖<code>torch.compile</code>来融合它。</p>
 <blockquote>
 <p><strong>Fuse small operations</strong>：Many model computations involve long sequences of small elementwise or matrix operations. These small operations each incur extra memory reads/writes and launch overhead. Use torch.profiler to spot many small (e.g., &lt; 1 ms) operations in a row. If you see a pattern like linear → gelu → dropout, consider replacing it with a fused module or relying on torch.compile to fuse it. And, for any operations that it misses, consider writing custom fused kernels. Each custom fusion can save a few percent. Together, these small "last mile" gains will add up.</p>
 </blockquote>
@@ -3553,7 +3553,7 @@
 <blockquote>
 <p><strong>Optimize multi-GPU and multinode communication</strong>：Distributed training often hits a ceiling due to communication overhead if not managed properly. Use optimized PyTorch distributed implementations like DDP, which overlaps communication with computation by default. Tune the gradient bucket<em>cap</em>mb to find the optimal bucket size for overlap. Larger buckets (e.g., 50 MB instead of the default 25 MB) can reduce per-message overhead and better overlap if your network can handle it.</p>
 </blockquote>
-<p><strong>监控网络带宽</strong>：如果已达到最大值，您可以探索激活压缩技术以减少带宽使用。确保将 all-reduce 集合与反向计算重叠，以便隐藏通信时间。对于多节点，考虑拓扑并将频繁通信的进程放在同一节点或交换机上以减少延迟。</p>
+<p><strong>监控网络带宽</strong>：如果已达到最大值，你可以探索激活压缩技术以减少带宽使用。确保将 all-reduce 集合与反向计算重叠，以便隐藏通信时间。对于多节点，考虑拓扑并将频繁通信的进程放在同一节点或交换机上以减少延迟。</p>
 <blockquote>
 <p><strong>Monitor network bandwidth</strong>：If it's maxed out, you can explore activation compression techniques to reduce bandwidth usage. Be sure to overlap the all-reduce collective with backward computation so you can hide the communication time. For multinode, consider the topology and place processes that frequently communicate on the same node or switch to reduce latency.</p>
 </blockquote>
@@ -3561,11 +3561,11 @@
 <blockquote>
 <p><strong>Avoid "bit rot" over time</strong>：It's easy for performance to regress due to ongoing code changes, framework updates, and new application features. For instance, a minor refactoring might introduce an unexpected synchronization, or a PyTorch upgrade might change an operation's implementation. Treat performance as a first-class metric and set up continuous integration tests, dashboards, and alerts to monitor performance. Every code commit (or daily/weekly run) should include a quick performance benchmark to catch performance regressions.</p>
 </blockquote>
-<p><strong>每当硬件更改时更新基线</strong>：如果您从 B200 移动到 GB300，例如，确保重新建立性能基线和阈值。新硬件将更好地或更差地处理某些模式。重新校准并相应调整警报。</p>
+<p><strong>每当硬件更改时更新基线</strong>：如果你从 B200 移动到 GB300，例如，确保重新建立性能基线和阈值。新硬件将更好地或更差地处理某些模式。重新校准并相应调整警报。</p>
 <blockquote>
 <p><strong>Update your baselines whenever hardware changes</strong>：If you move from the B200 to the GB300, for example, make sure to reestablish your performance baseline and thresholds. New hardware will handle certain patterns better or worse. Recalibrate and adjust your alerts accordingly.</p>
 </blockquote>
-<p><strong>使用 TorchBench 或自定义计时脚本等工具在自动化工作流中</strong>：关注来自 PyTorch 每夜性能基准测试的外部信号（在公共 HUD 回归仪表板中报告）--特别是对于与您类似的模型。如果 PyTorch 中发生一般回归，您将在升级之前知道。每当检测到减速时，立即调查，确定根本原因（例如，您的代码或上游更改），缓解它（例如，恢复或调整代码），并向上游报告（例如，PyTorch、Triton、NVIDIA 等），以便各自的社区可以解决问题并从修复中受益。</p>
+<p><strong>使用 TorchBench 或自定义计时脚本等工具在自动化工作流中</strong>：关注来自 PyTorch 每夜性能基准测试的外部信号（在公共 HUD 回归仪表板中报告）--特别是对于与你类似的模型。如果 PyTorch 中发生一般回归，你将在升级之前知道。每当检测到减速时，立即调查，确定根本原因（例如，你的代码或上游更改），缓解它（例如，恢复或调整代码），并向上游报告（例如，PyTorch、Triton、NVIDIA 等），以便各自的社区可以解决问题并从修复中受益。</p>
 <blockquote>
 <p><strong>Use tools like TorchBench or custom timing scripts in automated workflows</strong>：Keep an eye on external signals from PyTorch's nightly performance benchmarks (reported in the public HUD regressions dashboard)-especially for models similar to yours. If a general regression happens in PyTorch, you'll know before upgrading. Whenever a slowdown is detected, investigate immediately, identify the root cause (e.g., your code or an upstream change), mitigate it (e.g., revert or adapt the code), and report it upstream (e.g., PyTorch, Triton, NVIDIA, etc.) so the respective community can address the issue and benefit from the fix. Also, maintain correctness tests for your optimizations so you don't silently break accuracy. By making performance-regression testing part of your workflow, your speedup will last the test of time.</p>
 </blockquote>
@@ -3608,7 +3608,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:44:50 UTC">2026年11月23日 04:44:50</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
   </span>
 
     

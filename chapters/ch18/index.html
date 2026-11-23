@@ -1742,7 +1742,7 @@
 <blockquote>
 <p>These kernel-level advancements are highly technical and leverage the full power of the GPU, network, and memory. These software optimizations can significantly improve decode performance-even on the same hardware.</p>
 </blockquote>
-<p>在设计超大规模系统时，如果可能，您应该整合这些优化的核函数。务必使用带有基于硬件的 CUDA 跟踪的 Nsight Systems 验证重叠和核函数效率。此外，使用 Nsight Compute 获取特定的内存和链路指标。</p>
+<p>在设计超大规模系统时，如果可能，你应该整合这些优化的核函数。务必使用带有基于硬件的 CUDA 跟踪的 Nsight Systems 验证重叠和核函数效率。此外，使用 Nsight Compute 获取特定的内存和链路指标。</p>
 <blockquote>
 <p>When designing an ultrascale system, you should incorporate these optimized kernels, if possible. Be sure to verify overlap and kernel efficiency using Nsight Systems with hardware-based CUDA traces. Additionally, use Nsight Compute for specific memory and link metrics.</p>
 </blockquote>
@@ -2064,7 +2064,7 @@
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nt">pd_role</span><span class="p">:</span><span class="w"> </span><span class="s">"sender"</span><span class="w">              </span><span class="c1"># 此实例发送KV数据</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">pd_proxy_host</span><span class="p">:</span><span class="w"> </span><span class="s">"decode-host"</span><span class="w">   </span><span class="c1"># PD代理/解码协调器</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nt">pd_proxy_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7500</span><span class="w">            </span><span class="c1"># 代理/解码器上的控制平面端口</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># 根据您计划传输的KV调整缓冲区大小</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># 根据你计划传输的KV调整缓冲区大小</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># FP8/FP4 KV应该会显著缩小它</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="nt">pd_buffer_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1073741824</span><span class="w">     </span><span class="c1"># 1 GiB传输缓冲区大小</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="nt">pd_buffer_device</span><span class="p">:</span><span class="w"> </span><span class="s">"cuda"</span><span class="w">       </span><span class="c1"># 缓冲区保持在GPU内存中</span>
@@ -2084,7 +2084,7 @@
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nt">pd_peer_host</span><span class="p">:</span><span class="w"> </span><span class="s">"0.0.0.0"</span><span class="w">        </span><span class="c1"># NIXL对等端的绑定地址</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="nt">pd_peer_init_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7300</span><span class="w">        </span><span class="c1"># NIXL握手/控制端口</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="nt">pd_peer_alloc_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7400</span><span class="w">       </span><span class="c1"># NIXL分配/数据端口</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="nt">pd_buffer_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1073741824</span><span class="w">     </span><span class="c1"># 1 GiB（与发送方匹配，除非您计划分片）</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="nt">pd_buffer_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1073741824</span><span class="w">     </span><span class="c1"># 1 GiB（与发送方匹配，除非你计划分片）</span>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="nt">pd_buffer_device</span><span class="p">:</span><span class="w"> </span><span class="s">"cuda"</span><span class="w">       </span><span class="c1"># 将缓冲区保持在GPU内存中</span>
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="nt">nixl_backends</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">UCX</span><span class="p p-Indicator">]</span><span class="w">           </span><span class="c1"># UCX后端足以用于分离</span>
 </span></code></pre></div>
@@ -2238,7 +2238,7 @@
 <blockquote>
 <p>These results confirm that disaggregation isn't just about speed. It's also about efficiency and doing more with less. When deploying inference in a cloud environment, this can save millions of dollars in GPU time for large inference services that support millions or billions of end users.</p>
 </blockquote>
-<p>例如，您可以用 6 个 GPU（prefill + decode 混合）而不是 8 个顶级 GPU 来满足相同的流量；您可以为该服务节省约 25%的硬件成本。因此，分离让您在相同硬件上服务更多用户。这至关重要，因为 GPU 供应通常有限--特别是对于最新的 GPU。</p>
+<p>例如，你可以用 6 个 GPU（prefill + decode 混合）而不是 8 个顶级 GPU 来满足相同的流量；你可以为该服务节省约 25%的硬件成本。因此，分离让你在相同硬件上服务更多用户。这至关重要，因为 GPU 供应通常有限--特别是对于最新的 GPU。</p>
 <blockquote>
 <p>For instance, you could serve the same traffic with 6 GPUs (mixed prefill + decode) instead of 8 top-tier GPUs; you'd save about 25% hardware cost for that service. Thus, disaggregation lets you serve more users on the same hardware. This is crucial since GPU supply is often limited-especially for the latest GPUs.</p>
 </blockquote>
@@ -2250,11 +2250,11 @@
 <blockquote>
 <p>By assigning prefill and decode tasks to different hardware types, you can choose where and how to run each phase to improve performance and reduce cost. Disaggregation allows this flexibility since the phases are independent.</p>
 </blockquote>
-<p>简而言之，Splitwise、HexGen-2 和相关异构部署研究的评估表明，除了纯速度外，分离还可以用于成本优化。通过将硬件与工作负载匹配，您可以显著降低每查询成本，同时在固定预算内提高性能。</p>
+<p>简而言之，Splitwise、HexGen-2 和相关异构部署研究的评估表明，除了纯速度外，分离还可以用于成本优化。通过将硬件与工作负载匹配，你可以显著降低每查询成本，同时在固定预算内提高性能。</p>
 <blockquote>
 <p>In short, evaluations from Splitwise, HexGen-2, and related heterogeneous deployment studies show that disaggregation can be used for cost optimization beyond just raw speed. By matching hardware to the workload, you can significantly reduce per-query cost while improving performance within a fixed budget.</p>
 </blockquote>
-<p>对于大型服务，这对于保持其经济可行性至关重要。权衡包括更多的系统复杂性，因为您必须管理多种 GPU 类型。并且您将在集群配置灵活性和跨 prefill 和 decode 任务动态重新分配 GPU 方面受到限制，因为 GPU 的能力不匹配。但在许多情况下，为每个阶段使用不同的硬件可能值得效率收益。</p>
+<p>对于大型服务，这对于保持其经济可行性至关重要。权衡包括更多的系统复杂性，因为你必须管理多种 GPU 类型。并且你将在集群配置灵活性和跨 prefill 和 decode 任务动态重新分配 GPU 方面受到限制，因为 GPU 的能力不匹配。但在许多情况下，为每个阶段使用不同的硬件可能值得效率收益。</p>
 <blockquote>
 <p>For large services, this is crucial for keeping them economically viable. The trade-offs include more system complexity since you must manage multiple GPU types. And you'll be limited in cluster configuration flexibility and dynamically redistributing GPUs across prefill and decode tasks since GPU capabilities don't match. But in many cases, using different hardware for each phase can be worth the efficiency gains.</p>
 </blockquote>
@@ -2287,7 +2287,7 @@
 <blockquote>
 <p>Disaggregation makes it possible to mix these approaches and use TP for one phase and PP for another-or use different degrees of each technique.</p>
 </blockquote>
-<p>例如，您可以运行 prefill 时 TP=8 以跨越 8 个 GPU 并最小化提示延迟。然后您可以运行 decode 时 TP=1，或单个 GPU，以最大化每 token 吞吐量并最小化步骤延迟。这样，每个阶段的吞吐量和延迟可以单独调优，如图 18-7 所示。</p>
+<p>例如，你可以运行 prefill 时 TP=8 以跨越 8 个 GPU 并最小化提示延迟。然后你可以运行 decode 时 TP=1，或单个 GPU，以最大化每 token 吞吐量并最小化步骤延迟。这样，每个阶段的吞吐量和延迟可以单独调优，如图 18-7 所示。</p>
 <blockquote>
 <p>For instance, you can run prefill with TP=8 to span 8 GPUs and minimize prompt latency. You can then run decode with TP=1, or a single GPU, to maximize per-token throughput and minimize step latency. In this way, each phase's throughput and latency can be tuned separately, as shown in Figure 18-7.</p>
 </blockquote>
@@ -2920,7 +2920,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:44:50 UTC">2026年11月23日 04:44:50</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
   </span>
 
     

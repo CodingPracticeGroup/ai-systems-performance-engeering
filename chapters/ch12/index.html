@@ -1686,7 +1686,7 @@
 </span><span id="__span-2-64"><a id="__codelineno-2-64" name="__codelineno-2-64" href="#__codelineno-2-64"></a>
 </span><span id="__span-2-65"><a id="__codelineno-2-65" name="__codelineno-2-65" href="#__codelineno-2-65"></a><span class="w">    </span><span class="c1">// 重置全局计数器</span>
 </span><span id="__span-2-66"><a id="__codelineno-2-66" name="__codelineno-2-66" href="#__codelineno-2-66"></a><span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">zero</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-</span><span id="__span-2-67"><a id="__codelineno-2-67" name="__codelineno-2-67" href="#__codelineno-2-67"></a><span class="w">    </span><span class="c1">// 如果您重复调用此核函数（例如，在循环中），</span>
+</span><span id="__span-2-67"><a id="__codelineno-2-67" name="__codelineno-2-67" href="#__codelineno-2-67"></a><span class="w">    </span><span class="c1">// 如果你重复调用此核函数（例如，在循环中），</span>
 </span><span id="__span-2-68"><a id="__codelineno-2-68" name="__codelineno-2-68" href="#__codelineno-2-68"></a><span class="w">    </span><span class="c1">// 在每次启动之前将'globalIndex'重置为0。</span>
 </span><span id="__span-2-69"><a id="__codelineno-2-69" name="__codelineno-2-69" href="#__codelineno-2-69"></a><span class="w">    </span><span class="n">cudaMemcpyToSymbol</span><span class="p">(</span><span class="n">globalIndex</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">zero</span><span class="p">,</span><span class="w"> </span>
 </span><span id="__span-2-70"><a id="__codelineno-2-70" name="__codelineno-2-70" href="#__codelineno-2-70"></a><span class="w">        </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="p">));</span>
@@ -1812,7 +1812,7 @@
 <blockquote>
 <p>The CUDA driver can then launch the CUDA Graph with cudaGraphLaunch() every iteration. Because the CUDA driver knows the entire dependency graph in advance, it replays the prebuilt stream sequence directly on the GPU. This incurs minimal launch overhead.</p>
 </blockquote>
-<p><code>cudaGraphExecUpdate</code>（下一节讨论）允许对捕获的图进行有限更改，用于大小、维度或指针在迭代之间变化的场景。如果输入的大小变化，这很有用，因为您只需更新图的节点参数，而不是为每个新输入大小重新捕获整个新图。</p>
+<p><code>cudaGraphExecUpdate</code>（下一节讨论）允许对捕获的图进行有限更改，用于大小、维度或指针在迭代之间变化的场景。如果输入的大小变化，这很有用，因为你只需更新图的节点参数，而不是为每个新输入大小重新捕获整个新图。</p>
 <blockquote>
 <p>cudaGraphExecUpdate, discussed in the next section, allows limited changes to a captured graph for scenarios where sizes, dimensions, or pointers change between iterations. This is useful if the size of the inputs varies since you can just update the graph's node parameters instead of recapturing a whole new graph for each new input size.</p>
 </blockquote>
@@ -1992,7 +1992,7 @@
 <blockquote>
 <p>Once you've recorded a CUDA Graph, you don't need to throw it away just because some launch parameters change. Instead of recapturing, you call the graph-update API to update grid/block dimensions, pointer addresses, or kernel parameters directly in the existing graph. The graph-update API includes cudaGraphExecUpdate and the lower-level cudaGraphExecKernelNodeSetParams.</p>
 </blockquote>
-<p><code>cudaGraphExecUpdate</code>允许您用相同形状的新节点交换核函数节点。例如，您可以换入不同的融合核函数实现--只要它的形状相同。CUDA 运行时将验证您的调整，并让您立即重放修改后的图。这避免了完全捕获的成本。</p>
+<p><code>cudaGraphExecUpdate</code>允许你用相同形状的新节点交换核函数节点。例如，你可以换入不同的融合核函数实现--只要它的形状相同。CUDA 运行时将验证你的调整，并让你立即重放修改后的图。这避免了完全捕获的成本。</p>
 <blockquote>
 <p>cudaGraphExecUpdate lets you swap a kernel node with a new one of the same shape. For example, you can swap in a different fused kernel implementation-as long as it's the same shape. The CUDA runtime will validate your tweaks and let you replay the modified graph immediately. This avoids the cost of a full capture.</p>
 </blockquote>
@@ -2934,15 +2934,15 @@
 <blockquote>
 <p>If your kernel is compute bound but not reaching peak FLOPS due to launch overhead or idle periods, focus on reducing launch overhead. As we've learned, you can do this by fusing operations into a single kernel, using persistent kernels, capturing CUDA Graphs, or performing device-side launches. This keeps the ALUs fed.</p>
 </blockquote>
-<p>如果您的核函数位于两个 roof 之下，既不是完全内存受限也不是计算受限，那么尝试增加并发。并行运行多个核函数和流。这将更好地利用您的所有系统资源。</p>
+<p>如果你的核函数位于两个 roof 之下，既不是完全内存受限也不是计算受限，那么尝试增加并发。并行运行多个核函数和流。这将更好地利用你的所有系统资源。</p>
 <blockquote>
 <p>If your kernel lies under both roofs, neither fully memory bound nor compute bound, then try increasing concurrency. Run multiple kernels and streams in parallel. This will better utilize all your system resources.</p>
 </blockquote>
-<p>有了这个定量指导，您可以为您的核函数选择正确的编排策略，而不是一次尝试所有技巧。只需记住验证每个优化是否使您更接近硬件的真正潜力。始终在应用优化后进行测量。</p>
+<p>有了这个定量指导，你可以为你的核函数选择正确的编排策略，而不是一次尝试所有技巧。只需记住验证每个优化是否使你更接近硬件的真正潜力。始终在应用优化后进行测量。</p>
 <blockquote>
 <p>With this quantitative guidance, you can choose the right orchestration strategy for your kernels instead of trying every trick at once. Just remember to verify that each optimization brings you closer to the hardware's true potential. Always measure after applying optimizations.</p>
 </blockquote>
-<p>roofline 模型指导预期，但实际性能测量--包括计算吞吐量、实现的占用率、内存吞吐量等--将讲述完整的故事。roofline 分析结合迭代和持续的剖析将验证您选择的优化策略是否真正有效。</p>
+<p>roofline 模型指导预期，但实际性能测量--包括计算吞吐量、实现的占用率、内存吞吐量等--将讲述完整的故事。roofline 分析结合迭代和持续的剖析将验证你选择的优化策略是否真正有效。</p>
 <blockquote>
 <p>The roofline model guides expectations, but actual performance measurements-including compute throughput, achieved occupancy, memory throughput, and so on-will tell the full story. Roofline analysis combined with iterative and continuous profiling will verify that your chosen optimization strategy is truly effective.</p>
 </blockquote>
@@ -2975,7 +2975,7 @@
 <blockquote>
 <p><strong>Roofline-guided choices</strong>：Let the roofline chart drive your strategy. If your kernel is memory bound, focus on overlap and reducing data movement with asynchronous memcopies and mixed precision like FP8/FP4. If it's compute bound but underachieving due to overhead, use launch-reduction techniques like kernel fusion, persistent kernels, and CUDA Graphs to approach the compute ceiling. For kernels in-between, increase concurrency by running multiple operations in parallel to utilize all hardware units. Always verify with profiling that the chosen optimization moves the needle.</p>
 </blockquote>
-<p>通过将这些技术编织在一起--动态分派、协作核函数、图捕获/重放和 GPU 原生内存共享--您创建了饱和 GPU 集群每个部分用于超大规模 AI 工作负载的流水线。</p>
+<p>通过将这些技术编织在一起--动态分派、协作核函数、图捕获/重放和 GPU 原生内存共享--你创建了饱和 GPU 集群每个部分用于超大规模 AI 工作负载的流水线。</p>
 <blockquote>
 <p>By weaving these techniques together-dynamic dispatch, cooperative kernels, graph capture/replay, and GPU-native memory sharing-you create pipelines that saturate every part of the GPU cluster for ultrascale AI workloads.</p>
 </blockquote>
@@ -3018,7 +3018,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:08:14 UTC">2026年11月23日 04:08:14</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
   </span>
 
     

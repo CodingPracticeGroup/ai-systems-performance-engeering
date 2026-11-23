@@ -1480,7 +1480,7 @@
 <blockquote>
 <p>Similarly, loop unrolling, discussed in the previous section, allows a single thread to perform more calculations on each loaded data element, but at the cost of more register usage. Too much fusion can increase per-thread register pressure and reduce occupancy, so there's a trade-off.</p>
 </blockquote>
-<p>请务必对融合后的核函数进行剖析。如果寄存器占用变得过高并开始溢出（spilling）到本地内存，融合带来的收益可能会被额外的内存流量所抵消。不过，如果你找到了恰当的平衡点，就能提高每移动一字节所做的 FLOPS，而当内存带宽是限制因素时这是有益的。</p>
+<p>请务必剖析融合后的核函数。如果寄存器占用变得过高并开始溢出（spilling）到本地内存，融合带来的收益可能会被额外的内存流量所抵消。不过，如果你找到了恰当的平衡点，就能提高每移动一字节所做的 FLOPS，而当内存带宽是限制因素时这是有益的。</p>
 <blockquote>
 <p>Always profile fused kernels. If register usage becomes excessive and starts spilling to local memory, the benefits of fusion might be offset by the additional memory traffic. If you find the right balance, however, you can improve the FLOPS per byte moved, and this is beneficial if memory bandwidth is a limiting factor.</p>
 </blockquote>
@@ -1723,7 +1723,7 @@
 <blockquote>
 <p>Modern NVIDIA GPUs implement reduced‐precision computations like TF32, FP16, FP8, FP4, and INT8 in Tensor Cores. Each SM in Blackwell has a 256 KB on-chip TMEM dedicated to Tensor Core data. It also has a specialized TMA unit that asynchronously copies tiles between global memory and shared memory. Tensor Core instructions (e.g., tcgen05.mma) then move operands and accumulators between shared memory and TMEM implicitly. This design feeds the Tensor Cores at high throughput and minimizes stalls. Blackwell's TMEM-based accumulators help to reduce register pressure relative to previous GPU generations which accumulated directly in registers.</p>
 </blockquote>
-<p>当正确使用时，这些功能可以通过将算术强度（每字节 FLOPS）提高 2 倍、4 倍甚至 8 倍，将曾经内存受限、张量密集的核函数转变为完全计算受限的核函数。您可以通过监控 Nsight Compute 中的屋顶线图和停顿统计来验证影响。Nsight Compute 的光速分析显示内存受限停顿原因，如"Memory Throttle"和缓存未命中。当使用低精度格式的 Tensor Core 时，这些将显著下降。Nsight Compute 集成了屋顶线图来交叉检查算术强度是否增加以将核函数推向计算屋顶。</p>
+<p>当正确使用时，这些功能可以通过将算术强度（每字节 FLOPS）提高 2 倍、4 倍甚至 8 倍，将曾经内存受限、张量密集的核函数转变为完全计算受限的核函数。你可以通过监控 Nsight Compute 中的屋顶线图和停顿统计来验证影响。Nsight Compute 的光速分析显示内存受限停顿原因，如"Memory Throttle"和缓存未命中。当使用低精度格式的 Tensor Core 时，这些将显著下降。Nsight Compute 集成了屋顶线图来交叉检查算术强度是否增加以将核函数推向计算屋顶。</p>
 <blockquote>
 <p>When used correctly, these features can transform a once memory‐bound, tensor‐heavy kernel into a fully compute‐bound one by raising arithmetic intensity (FLOPS per byte) by 2x, 4x, or even 8x. You can verify the impact by monitoring the Roofline chart and Stall Stats in Nsight Compute. Nsight Compute's Speed of Light analysis shows memory-bound stall reasons such as "Memory Throttle" and cache misses. These will drop significantly when using Tensor Cores with lower precision formats. And Nsight Compute integrates a Roofline chart to cross-check if arithmetic intensity increased to push your kernel toward the compute roof.</p>
 </blockquote>
@@ -1748,7 +1748,7 @@
 <blockquote>
 <p>High-level APIs like CUTLASS handle all of this complexity for you automatically. Use CUTLASS and other high-level libraries when possible as CUTLASS uses the tcgen05.* PTX instructions, which implement the Tensor Core matrix operations and memory load/store interfaces.</p>
 </blockquote>
-<p>每当您使用 CUDA MMA 内建函数或 CUTLASS GEMM 启动 Tensor Core MMA 操作时，实现通过共享内存和 TMEM 管理操作数移动。TMA 在全局内存和共享内存之间流式传输块，Tensor Core 指令在共享内存和 TMEM 之间隐式移动操作数。</p>
+<p>每当你使用 CUDA MMA 内建函数或 CUTLASS GEMM 启动 Tensor Core MMA 操作时，实现通过共享内存和 TMEM 管理操作数移动。TMA 在全局内存和共享内存之间流式传输块，Tensor Core 指令在共享内存和 TMEM 之间隐式移动操作数。</p>
 <blockquote>
 <p>Whenever you launch a Tensor Core MMA operation using CUDA MMA intrinsics or a CUTLASS GEMM, the implementation manages operand movement through shared memory and TMEM. TMA streams tiles between global memory and shared memory, and Tensor Core instructions move operands between shared memory and TMEM implicitly.</p>
 </blockquote>
@@ -2069,7 +2069,7 @@
 </span><span id="__span-8-26"><a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">    </span><span class="n">C_d</span><span class="p">,</span><span class="w"> </span><span class="n">ldc</span><span class="w">                  </span><span class="c1">// C pointer + leading dimension</span>
 </span><span id="__span-8-27"><a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="p">);</span>
 </span></code></pre></div>
-<p>当您编译并运行此代码时，CUTLASS 自动执行几项关键操作。首先，CUTLASS 选择块来平衡寄存器压力、共享内存容量和 Tensor Core 利用率。在现代 GPU 上，TMEM 与共享内存和 L1 并存。CUTLASS 在共享内存中暂存块，并使用与 TMEM 交互的 Tensor Core 指令存储累加器数据。块形状是根据经验和每个核函数选择的。例如，它可能选择 128 x 128 或 256 x 128 等块大小。这些将适合 TMEM 的每个 SM 256 KB 缓冲区，并在整个 Tensor Core 计算期间保持在片上。</p>
+<p>当你编译并运行此代码时，CUTLASS 自动执行几项关键操作。首先，CUTLASS 选择块来平衡寄存器压力、共享内存容量和 Tensor Core 利用率。在现代 GPU 上，TMEM 与共享内存和 L1 并存。CUTLASS 在共享内存中暂存块，并使用与 TMEM 交互的 Tensor Core 指令存储累加器数据。块形状是根据经验和每个核函数选择的。例如，它可能选择 128 x 128 或 256 x 128 等块大小。这些将适合 TMEM 的每个 SM 256 KB 缓冲区，并在整个 Tensor Core 计算期间保持在片上。</p>
 <blockquote>
 <p>When you compile and run this code, CUTLASS does several key things automatically. First, CUTLASS selects tiles to balance register pressure, shared memory capacity, and Tensor Core utilization. On modern GPUs, TMEM exists alongside shared memory and L1. CUTLASS stages tiles in shared memory and uses Tensor Core instructions that interact with TMEM to store accumulator data. The tile shapes are chosen empirically and per-kernel. For instance, it may select tile sizes such as 128 x 128 or 256 x 128. These would fit into TMEM's 256 KB per-SM buffer and would remain on‐chip throughout the Tensor Core computation.</p>
 </blockquote>
@@ -2248,7 +2248,7 @@
 <blockquote>
 <p>Nsight Compute can help inform assembly tuning. By inspecting the "SASS throughput" metrics and the "Warp Stall Reasons," you might identify a lot of stalls due to memory dependencies. You could attempt to reorder the loads as mentioned earlier.</p>
 </blockquote>
-<p>更改后，您希望看到更少的"Stall Memory Dependency"--以及可能更高的指令发射率，以实现每周期执行更多指令。请注意，汇编调整是劳动密集型的--并且可能降低代码可移植性。</p>
+<p>更改后，你希望看到更少的"Stall Memory Dependency"--以及可能更高的指令发射率，以实现每周期执行更多指令。请注意，汇编调整是劳动密集型的--并且可能降低代码可移植性。</p>
 <blockquote>
 <p>After your change, you'd hope to see less "Stall Memory Dependency"-and perhaps higher instruction issue rate for more instructions executed per cycle. Note that assembly tweaking is labor-intensive-and can reduce code portability.</p>
 </blockquote>
@@ -2362,7 +2362,7 @@
 <blockquote>
 <p><strong>Increase arithmetic intensity with tiling and fusion</strong>：To elevate FLOPS per byte transferred, stage data into shared memory and registers using multilevel tiling. Load a 32 x 32 submatrix into SMEM, for instance, so that each element is reused across many FMAs. Combine consecutive kernels by fusing elementwise operations so intermediate results stay on‐chip. Utilize software prefetching through asynchronous memory loading with the CUDA Pipeline API's cuda::memcpy_async to overlap data movement with computation. This will hide DRAM latencies.</p>
 </blockquote>
-<p><strong>利用混合精度、Tensor Core 和 Transformer Engine</strong>：从 FP32 降到 TF32/BF16/FP16/FP8/FP4 将权重流量减少 2 倍到 8 倍。这相应地提高算术强度。在 PyTorch 中，您可以使用<code>torch.set_float32_matmul_precision('high')</code>和<code>torch.cuda.amp</code>启用混合精度。在现代 GPU 上，TMEM 和 TMA 引擎将块流式传输到 Tensor Core。现代 GPU 还提供 Transformer Engine 来专门为 AI 工作负载利用这些低精度。这可以进一步提高吞吐量。</p>
+<p><strong>利用混合精度、Tensor Core 和 Transformer Engine</strong>：从 FP32 降到 TF32/BF16/FP16/FP8/FP4 将权重流量减少 2 倍到 8 倍。这相应地提高算术强度。在 PyTorch 中，你可以使用<code>torch.set_float32_matmul_precision('high')</code>和<code>torch.cuda.amp</code>启用混合精度。在现代 GPU 上，TMEM 和 TMA 引擎将块流式传输到 Tensor Core。现代 GPU 还提供 Transformer Engine 来专门为 AI 工作负载利用这些低精度。这可以进一步提高吞吐量。</p>
 <blockquote>
 <p><strong>Leverage mixed precision, Tensor Cores, and Transformer Engine</strong>：Dropping from FP32 to TF32/BF16/FP16/FP8/FP4 cuts weight traffic by 2x to 8x. This boosts arithmetic intensity accordingly. In PyTorch, you can use torch.set<em>float32</em>matmul_precision('high') and torch.cuda.amp to enable mixed precision. On modern GPUs, the TMEM and TMA engines stream tiles to Tensor Cores. Modern GPUs also provide a Transformer Engine to utilize these lower precisions specifically for AI workloads. This can further increase throughput.</p>
 </blockquote>
@@ -2370,7 +2370,7 @@
 <blockquote>
 <p><strong>Utilize CUTLASS for high‐performance GEMM and fused kernels</strong>：Rather than hand‐coding MMA loops, instantiate CUTLASS GEMM templates to automatically manage double buffering, TMEM staging, and Tensor Core pipelines. This will produce a kernel that performs within a few percent of a hand‐tuned kernel. High‐level frameworks like cuBLAS and TorchInductor already rely on CUTLASS. Customizations are needed only when you require nonstandard layouts or unique fusion patterns.</p>
 </blockquote>
-<p><strong>PyTorch 特定最佳实践</strong>：优先使用内置张量操作，如<code>torch.matmul</code>、融合注意力和嵌套张量，因为 PyTorch 通常随时间从 CUDA 继承 Tensor Core 和其他硬件优化。如果您为 PyTorch 编写自定义核函数扩展，沿用相同策略：最小化寄存器使用、对齐数据以进行合并内存加载、并针对 Tensor Core。这确保您的核函数与原生核函数持平。</p>
+<p><strong>PyTorch 特定最佳实践</strong>：优先使用内置张量操作，如<code>torch.matmul</code>、融合注意力和嵌套张量，因为 PyTorch 通常随时间从 CUDA 继承 Tensor Core 和其他硬件优化。如果你为 PyTorch 编写自定义核函数扩展，沿用相同策略：最小化寄存器使用、对齐数据以进行合并内存加载、并针对 Tensor Core。这确保你的核函数与原生核函数持平。</p>
 <blockquote>
 <p><strong>PyTorch‐specific best practices</strong>：Favor built‐in tensor operations such as torch.matmul, fused attention, and nested tensors since PyTorch typically inherits Tensor Core and other hardware optimizations from CUDA over time. And if you write custom kernel extensions for PyTorch, carry over the same strategies: minimize register usage, align data for coalesced memory loads, and target Tensor Cores. This makes sure your kernels are at parity with native kernels.</p>
 </blockquote>
@@ -2421,7 +2421,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:44:50 UTC">2026年11月23日 04:44:50</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
   </span>
 
     

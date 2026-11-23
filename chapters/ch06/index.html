@@ -1593,7 +1593,7 @@
 | Maximum threads per thread block | 1,024 threads | blockDim.x * blockDim.y * blockDim.z ≤ 1024. |
 | Maximum warps per thread block | 32 warps | (1,024 threads / 32 threads-per-warp) = 32 warps max per block. |</p>
 </blockquote>
-<p>我们已经讨论了 32 个线程的 warp 大小限制，这鼓励我们选择 32 线程倍数的块维度来创建"完整 warp"并避免未充分利用的 warp。请注意，每个块最多可以有 1,024 个线程，相应地，一个块最多只能包含 32 个 warp。这些限制会影响您的占用率，因为一旦调度了一个块，每个 SM 可以同时容纳有限数量的 warp 和块。</p>
+<p>我们已经讨论了 32 个线程的 warp 大小限制，这鼓励我们选择 32 线程倍数的块维度来创建"完整 warp"并避免未充分利用的 warp。请注意，每个块最多可以有 1,024 个线程，相应地，一个块最多只能包含 32 个 warp。这些限制会影响你的占用率，因为一旦调度了一个块，每个 SM 可以同时容纳有限数量的 warp 和块。</p>
 <blockquote>
 <p>We've discussed the 32-thread warp size limit, which encourages us to pick block dimensions in multiples of 32 threads to create "full warps" and avoid underutilized warps. Note that each block can have at most 1,024 threads, and correspondingly, a block can contain at most 32 warps. These limits affect your occupancy since each SM can hold a finite number of warps and blocks at once once a block is scheduled.</p>
 </blockquote>
@@ -1669,16 +1669,16 @@
 | Maximum blocks in X, Y, or Z | X: 2,147,483,647 blocks<br>Y: 65,535 blocks<br>Z: 65,535 blocks | A 3D grid can be as large as 2,147,483,647 x 65,535 x 65,535 blocks. |
 | Maximum concurrent grids (kernels) | 128 grids | Up to 128 kernels can execute concurrently on one device (i.e., 128 grids resident at once). |</p>
 </blockquote>
-<p>虽然了解理论网格限制很好，但您通常会受到前面显示的线程/块/每 SM 限制的约束。如果您确实需要在一个维度中超过 65,535 个块，您可以启动 2D 或 3D 网格将工作分配到多个核函数启动（多启动）。我们在后面的章节中展示了一个示例。在实践中，在达到其他资源限制之前，很少会达到网格大小限制。</p>
+<p>虽然了解理论网格限制很好，但你通常会受到前面显示的线程/块/每 SM 限制的约束。如果你确实需要在一个维度中超过 65,535 个块，你可以启动 2D 或 3D 网格将工作分配到多个核函数启动（多启动）。我们在后面的章节中展示了一个示例。在实践中，在达到其他资源限制之前，很少会达到网格大小限制。</p>
 <blockquote>
 <p>While it's good to know the theoretical grid limits, you'll typically be constrained by the thread/block/per-SM limits shown earlier. If you do need to exceed 65,535 blocks in one dimension, you can launch 2D or 3D grids to spread the work over multiple kernel launches (multi-kernel launches). We show an example in a later chapter. In practice, you'll rarely hit grid-size limits before hitting other resource limits.</p>
 </blockquote>
 <h3 id="631-cuda-gpu-cuda-gpu-backward-and-forward-compatibility-model">6.3.1 CUDA GPU 向后和向前兼容模型 (CUDA GPU Backward and Forward Compatibility Model)<a class="headerlink" href="#631-cuda-gpu-cuda-gpu-backward-and-forward-compatibility-model" title="Permanent link">&para;</a></h3>
-<p>CUDA 的核心优势之一是其向前和向后兼容模型。今天编译的核函数通常可以在未来的 GPU 代上无需修改运行--只要您在二进制文件中包含 PTX 以实现向前兼容。如果您仅为单个架构发布 SASS（例如 Hopper 的 sm<em>90 或 Blackwell 的 sm</em>100）而没有 PTX，该二进制文件将无法在更新的架构上向前运行。特定于系列的目标如 sm<em>100f 或 compute</em>100f 将可移植性限制在同一特性系列的设备。最好发布包含通用 cubin/PTX 和所需的特定系列 cubin（例如优化等）的 fatbin。</p>
+<p>CUDA 的核心优势之一是其向前和向后兼容模型。今天编译的核函数通常可以在未来的 GPU 代上无需修改运行--只要你在二进制文件中包含 PTX 以实现向前兼容。如果你仅为单个架构发布 SASS（例如 Hopper 的 sm<em>90 或 Blackwell 的 sm</em>100）而没有 PTX，该二进制文件将无法在更新的架构上向前运行。特定于系列的目标如 sm<em>100f 或 compute</em>100f 将可移植性限制在同一特性系列的设备。最好发布包含通用 cubin/PTX 和所需的特定系列 cubin（例如优化等）的 fatbin。</p>
 <blockquote>
 <p>One of CUDA's key strengths is its forward and backward compatibility model. Kernels compiled today can often run unmodified on future GPU generations-as long as you include PTX in your binary for forward compatibility. If you ship SASS only for a single architecture (e.g., sm<em>90 for Hopper or sm</em>100 for Blackwell) without PTX, that binary will not run forward on newer architectures. Family-specific targets like sm<em>100f or compute</em>100f limit portability to devices within the same feature family. It's best to ship a fatbin that includes generic cubin/PTX and any specific family cubins you need (e.g., for optimizations, etc.).</p>
 </blockquote>
-<p>您可以通过在加载时设置 CUDA<em>FORCE</em>PTX_JIT=1 来强制 PTX JIT 编译来验证兼容性，以 JIT 编译 PTX 并缓存结果。如果您的二进制文件缺少 PTX，核函数启动将失败。这迫使您使用 PTX 支持重新构建。此兼容模型是大型 CUDA 生态系统的基础。它允许您从单个代码库同时针对传统和尖端硬件。</p>
+<p>你可以通过在加载时设置 CUDA<em>FORCE</em>PTX_JIT=1 来强制 PTX JIT 编译来验证兼容性，以 JIT 编译 PTX 并缓存结果。如果你的二进制文件缺少 PTX，核函数启动将失败。这迫使你使用 PTX 支持重新构建。此兼容模型是大型 CUDA 生态系统的基础。它允许你从单个代码库同时针对传统和尖端硬件。</p>
 <blockquote>
 <p>You can verify compatibility by setting CUDA<em>FORCE</em>PTX_JIT=1 at load time to force PTX JIT compilation to JIT-compile the PTX and cache the result. If your binary lacks PTX, kernel launches will fail. This forces you to rebuild with PTX support. This compatibility model underpins the large CUDA ecosystem. It allows you to target both legacy and cutting-edge hardware from a single codebase.</p>
 </blockquote>
@@ -1768,7 +1768,7 @@
 <blockquote>
 <p>This code is not fully optimized. We will optimize performance as we continue through the book. But this gives you a simple, complete template to start building your own CUDA kernels.</p>
 </blockquote>
-<p>在这里，我们传递核函数输入参数<code>d_input</code>和<code>N</code>，它们可以在核函数函数内部访问以进行处理。处理是在许多线程之间并行共享的。这是设计使然。</p>
+<p>在这里，我们传递核函数输入参数<code>d_input</code>和<code>N</code>，它们可以在核函数内部访问。处理是在许多线程之间并行共享的。这是设计使然。</p>
 <blockquote>
 <p>Here, we pass the kernel input arguments d_input and N, which can be accessed inside the kernel function for processing. The processing is shared in parallel across many threads. This is by design.</p>
 </blockquote>
@@ -1828,7 +1828,7 @@
 <blockquote>
 <p>This design keeps the GPU's pipelines and interconnects fully occupied, but it requires you to explicitly synchronize and poll for errors on the host-typically using cudaGetLastError() and cudaDeviceSynchronize() immediately after kernel launch. This way, you can catch failures as soon as possible.</p>
 </blockquote>
-<p>您会在很多 CUDA 核函数中看到边界检查。如果您没看到它，您应该理解为什么它不在那里。它可能以某种形式存在--或者 CUDA 核函数开发人员可以以某种方式保证非法内存访问错误永远不会发生。</p>
+<p>你会在很多 CUDA 核函数中看到边界检查。如果你没看到它，你应该理解为什么它不在那里。它可能以某种形式存在--或者 CUDA 核函数开发人员可以以某种方式保证非法内存访问错误永远不会发生。</p>
 <blockquote>
 <p>You will see boundary checks in many CUDA kernels. If you don't see it, you should understand why it's not there. It may exist in some form-or the CUDA kernel developer can guarantee in some way that illegal memory access errors will never occur.</p>
 </blockquote>
@@ -1919,7 +1919,7 @@
 </ul>
 </blockquote>
 <ul>
-<li><strong>延迟隐藏</strong>：每个 SM 需要数百个线程来隐藏 DRAM 和指令延迟停顿。如果您在一个容量为 2,048 个线程的 SM 上启动 8 个 256 线程的块，您可以使流水线保持忙碌而不会过度订阅。</li>
+<li><strong>延迟隐藏</strong>：每个 SM 需要数百个线程来隐藏 DRAM 和指令延迟停顿。如果你在一个容量为 2,048 个线程的 SM 上启动 8 个 256 线程的块，你可以使流水线保持忙碌而不会过度订阅。</li>
 </ul>
 <blockquote>
 <ul>
@@ -1944,7 +1944,7 @@
 <blockquote>
 <p>Starting with threadsPerBlock = 256, you can adjust up or down (128, 512, etc.) based on your kernel's register and shared-memory requirements and occupancy characteristics.</p>
 </blockquote>
-<p>对于<code>blocksPerGrid</code>，您可以基于<code>N</code>个输入元素和<code>threadsPerBlock</code>的值来确定。例如，<code>blocksPerGrid</code>通常设置为<code>(N + threadsPerBlock - 1) / threadsPerBlock</code>来向上取整，以便在<code>N</code>不是<code>threadsPerBlock</code>的精确倍数时覆盖所有元素。这是一个常见的选择，保证每个输入元素都由一个线程覆盖。以下是显示计算的代码：</p>
+<p>对于<code>blocksPerGrid</code>，你可以基于<code>N</code>个输入元素和<code>threadsPerBlock</code>的值来确定。例如，<code>blocksPerGrid</code>通常设置为<code>(N + threadsPerBlock - 1) / threadsPerBlock</code>来向上取整，以便在<code>N</code>不是<code>threadsPerBlock</code>的精确倍数时覆盖所有元素。这是一个常见的选择，保证每个输入元素都由一个线程覆盖。以下是显示计算的代码：</p>
 <blockquote>
 <p>For blocksPerGrid, you can determine it based on N input elements and the value of threadsPerBlock. For example, blocksPerGrid is typically set to (N + threadsPerBlock - 1) / threadsPerBlock to round up and cover all elements when N is not an exact multiple of threadsPerBlock. This is a common choice that guarantees every input element is covered by a thread. The following code shows the calculation:</p>
 </blockquote>
@@ -2016,7 +2016,7 @@
 <p>This is the same kernel as before, but with blocksPerGrid and threadsPerBlock computed dynamically based on the size of N. Note the familiar if (idx &lt; N) boundary check. This ensures that any "extra" threads in the last block that fall outside N will do nothing-without causing an illegal memory address error. Next, let's explore multidimensional inputs, such as 2D images and 3D volumes.</p>
 </blockquote>
 <h2 id="66-2d-3d-2d-and-3d-kernel-inputs">6.6 2D 和 3D 核函数输入 (2D and 3D Kernel Inputs)<a class="headerlink" href="#66-2d-3d-2d-and-3d-kernel-inputs" title="Permanent link">&para;</a></h2>
-<p>当您的输入数据自然存在于二维中（例如图像）时，您可以启动 2D 块的 2D 网格。例如，以下核函数使用 16 x 16 维度的线程块处理一个 1,024 x 1,024 的二维矩阵，总共 256 个线程：</p>
+<p>当你的输入数据自然存在于二维中（例如图像）时，你可以启动 2D 块的 2D 网格。例如，以下核函数使用 16 x 16 维度的线程块处理一个 1,024 x 1,024 的二维矩阵，总共 256 个线程：</p>
 <blockquote>
 <p>When your input data naturally exists in two dimensions (e.g., images), you can launch a 2D grid of 2D blocks. For example, the following kernel processes a 1,024 x 1,024 2D matrix using thread blocks of 16 x 16 dimensions, totaling 256 threads:</p>
 </blockquote>
@@ -2079,7 +2079,7 @@
 </span><span id="__span-3-57"><a id="__codelineno-3-57" name="__codelineno-3-57" href="#__codelineno-3-57"></a><span class="w">    </span><span class="n">cudaStreamDestroy</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
 </span><span id="__span-3-58"><a id="__codelineno-3-58" name="__codelineno-3-58" href="#__codelineno-3-58"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>这里再次展示了完整的核函数（设备）和调用（主机）代码。这种模式通过使用<code>dim3(x, y, z)</code>作为<code>blocksPerGrid</code>和<code>threadsPerBlock</code>可以推广到 3D，让您可以将体积数据直接映射到 GPU 的线程层次结构。</p>
+<p>这里再次展示了完整的核函数（设备）和调用（主机）代码。这种模式通过使用<code>dim3(x, y, z)</code>作为<code>blocksPerGrid</code>和<code>threadsPerBlock</code>可以推广到 3D，让你可以将体积数据直接映射到 GPU 的线程层次结构。</p>
 <blockquote>
 <p>Here again is the complete kernel (device) and invocation (host) code. This pattern can be generalized to 3D by using dim3(x, y, z) for blocksPerGrid and threadsPerBlock, letting you map volumetric data directly to the GPU's thread hierarchy.</p>
 </blockquote>
@@ -2178,7 +2178,7 @@
 <blockquote>
 <p>Here, operand B is sourced from SMEM. Operand A is in TMEM (although it may be in SMEM, as well). The accumulator is in TMEM, as well. Tiles flow from global memory to SMEM through L2 cache using TMA (e.g., cuda::memcpy_async). Operands move between SMEM and TMEM implicitly through Tensor Core instructions such as unified matrix-multiply-accumulate (UMMA) and tcgen05.mma.</p>
 </blockquote>
-<p>表 6-5 展示了 Blackwell GPU 各级内存及其特性。随后对内存层级的每一级进行说明。</p>
+<p>表 6-5 展示了 Blackwell GPU 各级内存及其特性。随后逐级展开说明。</p>
 <blockquote>
 <p>Table 6-5 shows the different levels of memory and their characteristics for the Blackwell GPU. A description of each level of the memory hierarchy follows.</p>
 </blockquote>
@@ -2261,7 +2261,7 @@
 <blockquote>
 <p>Here, you can see why maximizing data reuse in registers, shared memory, and L1/L2 caches-and minimizing reliance on global memory and local memory (which is backed by global memory)-is critical for high-throughput GPU kernels. What follows is more detail on each level of the hierarchy:</p>
 </blockquote>
-<p><strong>寄存器</strong>：在 Blackwell 上，每个线程从寄存器文件开始其旅程，这是一个小型片上 SM SRAM 阵列，保存每个线程的局部变量，基本上没有额外延迟。每个 SM 容纳 64K 个 32 位寄存器（共 256 KB），但硬件最多暴露每线程 255 个寄存器。因为读写在单周期内完成，几乎不与其他任何东西竞争，寄存器带宽可以达到每 SM 每秒数十 TB。但是，如果您的核函数需要更多寄存器--无论是通过许多线程局部变量还是编译器临时变量--溢出会进入本地内存，映射到片外 DRAM，并产生数百到超过一千周期的延迟。此本地内存如图 6-12 所示。</p>
+<p><strong>寄存器</strong>：在 Blackwell 上，每个线程从寄存器文件开始其旅程，这是一个小型片上 SM SRAM 阵列，保存每个线程的局部变量，基本上没有额外延迟。每个 SM 容纳 64K 个 32 位寄存器（共 256 KB），但硬件最多暴露每线程 255 个寄存器。因为读写在单周期内完成，几乎不与其他任何东西竞争，寄存器带宽可以达到每 SM 每秒数十 TB。但是，如果你的核函数需要更多寄存器--无论是通过许多线程局部变量还是编译器临时变量--溢出会进入本地内存，映射到片外 DRAM，并产生数百到超过一千周期的延迟。此本地内存如图 6-12 所示。</p>
 <blockquote>
 <p><strong>Registers</strong>: On Blackwell, each thread begins its journey with the register file, a small on-chip SM SRAM array that holds per-thread local variables with essentially no extra latency. Each SM houses 64K 32-bit registers (256 KB total), but the hardware exposes at most 255 registers per thread. Because reads and writes complete in a single cycle and contend with almost nothing else, register bandwidth can reach tens of TB per second per SM. However, if your kernel needs more registers-whether through many thread-local variables or compiler temporaries-spilling occurs into local memory, which maps to off-chip DRAM and incurs hundreds to over a thousand cycles of latency. This local memory is shown in Figure 6-12.</p>
 </blockquote>
@@ -2269,7 +2269,7 @@
 <blockquote>
 <p>Figure 6-12. Local memory per thread</p>
 </blockquote>
-<p><strong>共享内存和 L1 数据缓存</strong>：再往上一级是统一的 L1/数据缓存和共享内存块。这是每个 SM 256 KB 的片上 SRAM，您可以使用<code>cudaFuncSetAttribute()</code>配合<code>cudaFuncAttributePreferredSharedMemoryCarveout</code>在像 Blackwell 这样具有统一 L1/纹理/共享内存的架构上动态分割用户管理的共享内存（每块最多 228 KB）。每个块的最大动态共享内存为 227 KB（CUDA 每块保留 1KB），每 SM 可分配的共享内存总量也受此限制约束。这里的访问成本大约 20-30 周期，但如果您设计线程块避免 bank 冲突，可以实现每秒 TB 级的吞吐量。线程块共享内存如图 6-13 所示。</p>
+<p><strong>共享内存和 L1 数据缓存</strong>：再往上一级是统一的 L1/数据缓存和共享内存块。这是每个 SM 256 KB 的片上 SRAM，你可以使用<code>cudaFuncSetAttribute()</code>配合<code>cudaFuncAttributePreferredSharedMemoryCarveout</code>在像 Blackwell 这样具有统一 L1/纹理/共享内存的架构上动态分割用户管理的共享内存（每块最多 228 KB）。每个块的最大动态共享内存为 227 KB（CUDA 每块保留 1KB），每 SM 可分配的共享内存总量也受此限制约束。这里的访问成本大约 20-30 周期，但如果你设计线程块避免 bank 冲突，可以实现每秒 TB 级的吞吐量。线程块共享内存如图 6-13 所示。</p>
 <blockquote>
 <p><strong>Shared Memory and L1 Data Cache</strong>: One level up is the unified L1/data cache and shared-memory block. This is 256 KB of on-chip SRAM per SM, and you can dynamically partition user-managed shared memory (up to 228 KB per block) using cudaFuncSetAttribute() with cudaFuncAttributePreferredSharedMemoryCarveout on architectures like Blackwell that have unified L1/texture/shared memory. The maximum dynamic shared memory per block is 227 KB (CUDA reserves 1KB per block), and the total amount of shared memory allocatable per SM is also subject to this limit. Access costs around 20-30 cycles here, but if you design your thread blocks to avoid bank conflicts, you can achieve TB/s-level throughput. Thread-block shared memory is shown in Figure 6-13.</p>
 </blockquote>
@@ -2330,7 +2330,7 @@
 <blockquote>
 <p>On traditional PCIe or early NVLink systems, these migrations occur at relatively low bandwidth-often making on-demand transfers slower than manual cudaMemcpy. But on Grace Hopper and Grace Blackwell superchips, the NVLink-C2C fabric provides up to ~900 GB/s bandwidth between the CPU's HBM and the GPU's HBM3e. As a result, page-fault-driven migrations are closer to device-native speeds-although they still carry nonzero latency.</p>
 </blockquote>
-<p>也就是说，核函数启动期间的任何意外页面错误都会在运行时将所需页面移动到位时停顿 GPU。为了避免这些"意外"停顿，您可以使用<code>cudaMemPrefetchAsync()</code>提前预取内存，如图 6-17 所示。</p>
+<p>也就是说，核函数启动期间的任何意外页面错误都会在运行时将所需页面移动到位时停顿 GPU。为了避免这些"意外"停顿，你可以使用<code>cudaMemPrefetchAsync()</code>提前预取内存，如图 6-17 所示。</p>
 <blockquote>
 <p>That said, any unexpected page faults during kernel launch will stall the GPU while the runtime moves the required pages into place. To avoid these "surprise" stalls, you can use cudaMemPrefetchAsync() to prefetch memory ahead of time, as shown in Figure 6-17.</p>
 </blockquote>
@@ -2358,7 +2358,7 @@
 <blockquote>
 <p>Figure 6-18. Specifying "preferred location" to tell the CUDA driver how the data is mostly used (e.g., ReadMostly for largely read-only workloads)</p>
 </blockquote>
-<p>您还可以调用以下代码让第二个 GPU 映射这些页面而不在启动时触发迁移：</p>
+<p>你还可以调用以下代码让第二个 GPU 映射这些页面而不在启动时触发迁移：</p>
 <blockquote>
 <p>You can also call the following to let a second GPU map those pages without triggering migrations at launch:</p>
 </blockquote>
@@ -2664,7 +2664,7 @@
 <blockquote>
 <p>We use nsys to reveal where time is being spent and whether the GPU is starved or blocked. Then we use ncu to explain why the kernel executed the way it did-likely due to poor occupancy, etc.</p>
 </blockquote>
-<p>如果您只运行 nsys，可能会错过细粒度的核函数低效问题。如果您只运行 ncu，您不会知道您的核函数是否被足够快地馈送数据，例如。表 6-6 展示了统一的结果。</p>
+<p>如果你只运行 nsys，可能会错过细粒度的核函数低效问题。如果你只运行 ncu，你不会知道你的核函数是否被足够快地馈送数据，例如。表 6-6 展示了统一的结果。</p>
 <blockquote>
 <p>If you only run nsys, you might miss fine-grained kernel inefficiencies. If you only run ncu, you won't know if your kernels were being fed data fast enough, for example. Table 6-6 shows the consolidated results.</p>
 </blockquote>
@@ -2712,7 +2712,7 @@
 <blockquote>
 <p>In the sequential case, there is only one warp, with only one thread working on a single SM. That's why we see low GPU utilization of 1.5%, whereas in the parallel case, many SMs are running multiple active warps. This increases warp execution efficiency from 3.1% to 100% because all 32 threads in the warp are doing useful work during each instruction. This raises GPU utilization from 1.5% to 95%.</p>
 </blockquote>
-<p>这个示例说明了为什么在 GPU 上足够的并行性至关重要。无论每个线程有多快，您都需要大量线程来利用 GPU 的吞吐量潜力。</p>
+<p>这个示例说明了为什么在 GPU 上足够的并行性至关重要。无论每个线程有多快，你都需要大量线程来利用 GPU 的吞吐量潜力。</p>
 <blockquote>
 <p>This example illustrates why sufficient parallelism on the GPU is critical. No matter how fast each thread is, you need many threads to exploit the GPU's throughput potential.</p>
 </blockquote>
@@ -2796,7 +2796,7 @@
 <blockquote>
 <p>Increasing occupancy must be balanced against per-thread resource limits. You want to avoid register spilling (if you force too many threads such that they run out of registers and spill to local memory, causing slow memory accesses).</p>
 </blockquote>
-<p>您还可以使用 CUDA 占用率 API 在运行时确定最佳启动配置。例如，<code>cudaOccupancyMaxPotentialBlockSize()</code>将计算为给定核函数产生最高占用率的块大小，考虑其寄存器和共享内存使用情况。本质上，<code>cudaOccupancyMaxPotentialBlockSize</code>可以自动调整您的块大小以获得最佳占用率，如下所示：</p>
+<p>你还可以使用 CUDA 占用率 API 在运行时确定最佳启动配置。例如，<code>cudaOccupancyMaxPotentialBlockSize()</code>将计算为给定核函数产生最高占用率的块大小，考虑其寄存器和共享内存使用情况。本质上，<code>cudaOccupancyMaxPotentialBlockSize</code>可以自动调整你的块大小以获得最佳占用率，如下所示：</p>
 <blockquote>
 <p>You can also use the CUDA occupancy API to determine the best launch configuration at runtime. For example, cudaOccupancyMaxPotentialBlockSize() will compute the block size that yields the highest occupancy for a given kernel, taking into account its register and shared-memory usage. Essentially, cudaOccupancyMaxPotentialBlockSize can auto-tune your block size for best occupancy, as shown below:</p>
 </blockquote>
@@ -2936,7 +2936,7 @@
 <blockquote>
 <p>As a result, Blackwell has an architectural advantage for memory-bound workloads like transformer-based token generation. Weights are stored in compressed 4-bit or 2-bit schemes and decompressed on the fly by hardware when loaded, converting to FP16/FP32 for higher-precision aggregation and computation. This demonstrates how lower precision can reduce the amount of data transferred, increase a kernel's arithmetic intensity, and improve overall memory throughput for the workload.</p>
 </blockquote>
-<p>对于内存密集型工作负载，目标是将核函数的操作点在 roofline 上向右推，以增加其算术强度并更接近成为计算密集型。通过更接近计算密集型状态，您的核函数可以更好地利用 GPU 的全部浮点算力。</p>
+<p>对于内存密集型工作负载，目标是将核函数的操作点在 roofline 上向右推，以增加其算术强度并更接近成为计算密集型。通过更接近计算密集型状态，你的核函数可以更好地利用 GPU 的全部浮点算力。</p>
 <blockquote>
 <p>For memory-bound workloads, the goal is to push the kernel's operating point to the right on the roofline to increase its arithmetic intensity and get closer to being compute bound. By getting closer to compute bound, your kernel can better utilize the GPU's full floating-point compute power.</p>
 </blockquote>
@@ -2956,15 +2956,15 @@
 <blockquote>
 <p>Then you can use Nsight Systems for an overall timeline view showing GPU idle gaps, overlap with CPU work, and PCIe/NVLink transfers. Together they give you both the why (which stalls and which resources) and the when (how those stalls fit into the application's overall execution).</p>
 </blockquote>
-<p>关键在于借助 Nsight Compute 和 Nsight Systems 两者的指标，迭代地进行剖析并识别内存热点。你应当在可疑代码周围添加 NVTX 区域，放大观察时间线行为，并利用反馈优化。</p>
+<p>关键在于借助 Nsight Compute 和 Nsight Systems 两者的指标，迭代剖析并识别内存热点。你应当在可疑代码周围添加 NVTX 区域，放大观察时间线行为，并利用反馈优化。</p>
 <blockquote>
 <p>The key is to iteratively profile and identify memory hotspots using metrics from Nsight Compute and Nsight Systems. You should add NVTX ranges around suspicious code, zoom in on timeline behavior, and use the feedback to optimize.</p>
 </blockquote>
-<p>例如，您可以使用 NVTX 将区域标记为"内存复制"或"核函数执行"，并在 Nsight Systems 时间线中看到它们。这对于确认主机-设备传输与计算的重叠非常有用，如前所述。</p>
+<p>例如，你可以使用 NVTX 将区域标记为"内存复制"或"核函数执行"，并在 Nsight Systems 时间线中看到它们。这对于确认主机-设备传输与计算的重叠非常有用，如前所述。</p>
 <blockquote>
 <p>For example, you can use NVTX to label regions as "memory copy" or "kernel execution" and see them in the Nsight Systems timeline. This is useful for confirming overlap of host-device transfers with computation, as discussed earlier.</p>
 </blockquote>
-<p>例如，要验证重叠，您可以使用 NVTX 标记标记数据传输和核函数调用的开始/结束。Nsight Systems 将在时间线上显示这些 NVTX 范围，使查看重叠变得容易。使用异步内存复制（<code>cudaMemcpyAsync</code>），数据传输与 GPU 上的核函数执行重叠（见图 6-22），比较同步和异步内存传输。</p>
+<p>例如，要验证重叠，你可以使用 NVTX 标记标记数据传输和核函数调用的开始/结束。Nsight Systems 将在时间线上显示这些 NVTX 范围，使查看重叠变得容易。使用异步内存复制（<code>cudaMemcpyAsync</code>），数据传输与 GPU 上的核函数执行重叠（见图 6-22），比较同步和异步内存传输。</p>
 <blockquote>
 <p>For example, to verify overlap, you can use NVTX markers to mark the start/end of data transfers and kernel calls. Nsight Systems will display these NVTX ranges on the timeline, making it easy to see the overlap. With asynchronous memory copies (cudaMemcpyAsync), data transfers overlap with kernel execution on the GPU (see Figure 6-22), comparing synchronous and asynchronous memory transfers.</p>
 </blockquote>
@@ -2980,7 +2980,7 @@
 <blockquote>
 <p>Without using pinned (page-locked) memory, the cudaMemcpyAsync transfer cannot overlap with kernel execution. This is a common performance issue.</p>
 </blockquote>
-<p>当您怀疑核函数数据饥饿时，首先在 Nsight Compute 和 Nsight Systems 下运行它。在 Nsight Compute 中，您将看到全局加载效率指标下降。这表明您的 DRAM 请求没有得到足够快的满足。同时，Nsight Systems 时间线将揭示核函数启动之间的空闲段，因为 GPU 等待数据传输。</p>
+<p>当你怀疑核函数数据饥饿时，首先在 Nsight Compute 和 Nsight Systems 下运行它。在 Nsight Compute 中，你将看到全局加载效率指标下降。这表明你的 DRAM 请求没有得到足够快的满足。同时，Nsight Systems 时间线将揭示核函数启动之间的空闲段，因为 GPU 等待数据传输。</p>
 <blockquote>
 <p>When you suspect a kernel is data starved, first run it under Nsight Compute and Nsight Systems. In Nsight Compute, you'll see global load efficiency metrics drop. This indicates that your DRAM requests aren't being satisfied fast enough. Meanwhile, the Nsight Systems timeline will reveal idle segments between kernel launches as the GPU waits for data transfers.</p>
 </blockquote>
@@ -2988,7 +2988,7 @@
 <blockquote>
 <p>Once you've applied the memory hierarchy optimizations from this chapter, those idle gaps will nearly disappear, and Nsight Compute will show memory pipeline utilization percentages climbing toward peak. You'll also see a corresponding jump in end-to-end kernel throughput.</p>
 </blockquote>
-<p>每次更改后都要进行测量。分析工具将确认优化是否真正减少了内存停顿。</p>
+<p>每次更改后都要测量。分析工具将确认优化是否真正减少了内存停顿。</p>
 <blockquote>
 <p>Always measure after each change. Profiling tools will confirm if an optimization actually reduces memory stalls or not.</p>
 </blockquote>
@@ -3062,11 +3062,11 @@
 <blockquote>
 <p>However, maximizing occupancy doesn't guarantee the best performance in every case. If threads have sufficient instruction-level parallelism (ILP)-or other resources are the bottleneck-GPUs can often achieve very high throughput at moderate or even low occupancy.</p>
 </blockquote>
-<p>虽然更高的占用率有助于隐藏延迟，但在某些情况下，减少活动线程数量将为其他线程释放寄存器。这允许每个线程进行更多计算--最终提高吞吐量。始终对不同占用率级别进行基准测试，为您的工作负载和硬件找到最佳设置。</p>
+<p>虽然更高的占用率有助于隐藏延迟，但在某些情况下，减少活动线程数量将为其他线程释放寄存器。这允许每个线程进行更多计算--最终提高吞吐量。始终对各种占用率级别做基准测试，为你的工作负载和硬件找到最佳设置。</p>
 <blockquote>
 <p>While higher occupancy helps hide latency, in some cases, reducing the number of active threads will free up registers for other threads. This allows more computation per thread-and ultimately improves throughput. Always benchmark different occupancy levels to find the optimal setting for your workload and hardware.</p>
 </blockquote>
-<p>掌握了这些基础知识和分析技术，您现在可以深入探讨针对性优化，如避免 warp 分支发散、利用 GPU 内存层次结构以及异步预取内存。我们还将深入探讨 TMA，它处理批量内存传输并释放 GPU 专注于有用的工作并增加计算吞吐量。</p>
+<p>掌握了这些基础知识和分析技术，你现在可以深入探讨针对性优化，如避免 warp 分支发散、利用 GPU 内存层次结构以及异步预取内存。我们还将深入探讨 TMA，它处理批量内存传输并释放 GPU 专注于有用的工作并增加计算吞吐量。</p>
 <blockquote>
 <p>With these fundamentals and profiling techniques under your belt, you're now ready to dive into targeted optimizations like avoiding warp divergence, exploiting the GPU memory hierarchy, and asynchronously prefetching memory. We'll also dive deep into TMA, which handles bulk memory transfers and frees the GPU to focus on useful work and increase compute throughput.</p>
 </blockquote>
@@ -3092,7 +3092,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:44:50 UTC">2026年11月23日 04:44:50</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
   </span>
 
     
