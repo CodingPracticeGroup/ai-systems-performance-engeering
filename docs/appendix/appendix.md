@@ -864,13 +864,13 @@ _使用 PyTorch 编译器_ 善用 PyTorch 的 torch.compile，通过 TorchInduct
 
 ### 为动态形状做规划 (Plan for dynamic shapes)
 
-_为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\torch._dynamo.mark_dynamic() 标注动态维度，或用 torch.export() 导出形状多态（shape-polymorphic）的图，然后再编译。用带 "fail_on_recompile" 的 torch.compiler.set_stance() 以及 torch.\torch._dynamo.error_on_graph_break() 来控制重编译行为，从而在测试与 CI 中暴露有问题的形状抖动（shape churn）。在可能处使用静态形状，以便启用 CUDA Graphs 来降低每次迭代的 CPU 开销。
+_为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch._dynamo.mark_dynamic() 标注动态维度，或用 torch.export() 导出形状多态（shape-polymorphic）的图，然后再编译。用带 "fail_on_recompile" 的 torch.compiler.set_stance() 以及 torch._dynamo.error_on_graph_break() 来控制重编译行为，从而在测试与 CI 中暴露有问题的形状抖动（shape churn）。在可能处使用静态形状，以便启用 CUDA Graphs 来降低每次迭代的 CPU 开销。
 
 > If your input sizes vary, use torch._dynamo.mark_dynamic() to annotate dynamic dimensions or export shape-polymorphic graphs with torch.export(), and then compile. Control recompilation behavior with torch.compiler.set_stance() using "fail_on_recompile" and torch._dynamo.error_on_graph_break() to surface problematic shape churn in testing and CI. Use static shapes where possible to enable CUDA Graphs to reduce per-iteration CPU overhead.
 
 ### 利用 Triton 核函数配合 torch.compile (Leverage Triton kernels using torch.compile)
 
-*借助* torch.compile *使用 Triton 核函数* 如果 PyTorch 没能很好地融合某个运算，可以考虑用 Triton 编写一个自定义 GPU 核函数并将其集成进来。PyTorch 让你能方便地用 torch.library.triton_op 注册自定义 GPU 核函数。
+**借助 torch.compile 使用 Triton 核函数**：如果 PyTorch 没能很好地融合某个运算，可以考虑用 Triton 编写一个自定义 GPU 核函数并将其集成进来。PyTorch 让你能方便地用 torch.library.triton_op 注册自定义 GPU 核函数。
 
 > If PyTorch doesn't fuse an operation well, consider writing a custom GPU kernel in Triton and integrating it. PyTorch makes it easy to register a custom GPU kernel with torch.library.triton_op.
 
