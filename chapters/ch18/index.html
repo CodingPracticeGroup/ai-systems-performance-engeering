@@ -1681,7 +1681,7 @@
 <blockquote>
 <p>Building on FlashMLA, researchers at Stanford introduced ThunderMLA, a completely fused attention decode "megakernel" that focuses on decoding and scheduling (rather than fusing the full feed-forward block.) This "megakernel" reduces launch overhead and tail effects by combining multiple kernel launches into one-as well as consolidating intermediate memory writes. ThunderMLA reports 20-35% faster decode throughput compared to FlashMLA across different workloads.</p>
 </blockquote>
-<p>ThunderMLA 的核心思想是：当 decode 不同长度的序列时，采用细粒度调度与融合运算，可以避免这样一种尾部效应——某些序列较早完成，而其他序列让 GPU 部分空闲。即便某些 decode 流较早完成，ThunderMLA 也能让 GPU 保持繁忙。它通过用融合方式动态打包并处理剩余的流来实现这一点。</p>
+<p>ThunderMLA 的核心思想是：当 decode 不同长度的序列时，采用细粒度调度与融合运算，可以避免这样一种尾部效应——某些序列较早完成，而其他序列让 GPU 部分空闲。即便某些 decode 流较早完成，ThunderMLA 也能让 GPU 保持繁忙。它通过用融合方式动态打包并处理剩余的流实现这一点。</p>
 <blockquote>
 <p>The key idea of ThunderMLA is that when decoding sequences of different lengths, using fine-grained scheduling and fused operations can avoid the tail effect in which some sequences finish earlier while others leave the GPU partially idle. ThunderMLA keeps the GPU busy even if some decode streams complete earlier. It does this by dynamically packing and processing the remaining streams using its fused approach.</p>
 </blockquote>
@@ -1730,7 +1730,7 @@
 <blockquote>
 <p>With FlexDecoding, developers have full Python-level flexibility for custom attention sparsity patterns. This is particularly useful for MoE model inference. FlexDecoding allows you to achieve near-optimal performance without requiring you to write any custom CUDA kernels. Essentially, it allows arbitrary attention patterns to be optimized similarly to dense attention patterns. This becomes even more valuable as new inference techniques emerge.</p>
 </blockquote>
-<p>其中许多能力——例如用于 decode 的融合注意力，以及对 PyTorch 嵌套锯齿张量（NJT）批处理的支持——都已在核心 PyTorch 库中提供。这使得对于典型模式而言，自定义融合变得不那么必要。</p>
+<p>其中许多能力——例如用于 decode 的融合注意力，以及对 PyTorch 嵌套锯齿张量（NJT）批处理的支持——都已在核心 PyTorch 库中提供。这使对于典型模式而言，自定义融合变得不那么必要。</p>
 <blockquote>
 <p>Many of these capabilities, such as fused attention for decoding and support for PyTorch's nested jagged tensors (NJT) batching, are available in the core PyTorch library. This makes custom fusion less necessary for typical patterns.</p>
 </blockquote>
@@ -1853,7 +1853,7 @@
 <p>In short, a disaggregated KV cache pool trades memory (or colder storage) for compute. By storing a larger KV cache, the system can avoid recomputing KV data in many scenarios. This approach leverages the fact that reusing data-even from DRAM or SSD-is often cheaper than repeatedly recomputing large attention matrix multiplications with quadratic time complexity, O(N²).</p>
 </blockquote>
 <h3 id="kv-kv-cache-reuse-and-prefix-sharing">KV 缓存重用和前缀共享 (KV Cache Reuse and Prefix Sharing)<a class="headerlink" href="#kv-kv-cache-reuse-and-prefix-sharing" title="Permanent link">&para;</a></h3>
-<p>如前所述，对于共享同一公共前缀的提示词，跨请求复用已缓存的 KV 数据是有益的。这种场景相当常见，表现为多轮对话、共享系统提示以及附带文档。</p>
+<p>如前所述，对于共享同一公共前缀的提示词，跨请求复用已缓存的 KV 数据是有益的。这种场景相当常见，表现为多轮对话、共享系统提示词以及附带文档。</p>
 <blockquote>
 <p>As mentioned, it's beneficial to reuse cached KV data across requests for prompts that share a common prefix. This scenario arises fairly often in the form of multiturn conversations, shared system prompts, and attached documents.</p>
 </blockquote>
@@ -1869,7 +1869,7 @@
 <blockquote>
 <p>vLLM implements automatic prefix caching using a global hash table of KV "pages" using its PagedAttention mechanism. Here, each unique 16-token block of context has a hash. If a new request needs a prefix that matches a stored block (by hash), it can directly copy those KV tensors instead of recomputing.</p>
 </blockquote>
-<p>如果同一个上下文再次出现，系统就从内存中提供它。本质上，它把一个上下文的 KV 视为可复用的数据，可以通过哈希按内容查找。实现通常会维护一棵全局"提示树（prompt tree）"来管理这些已缓存的上下文，并在必要时将其逐出。这会针对最频繁复用的前缀进行优化。</p>
+<p>如果同一个上下文再次出现，系统就从内存中提供它。本质上，它把一个上下文的 KV 视为可复用的数据，可以通过哈希按内容查找。实现通常会维护一棵全局"提示树（prompt tree）"来管理这些已缓存的上下文，并在必要时将其逐出。这会针对最频繁复用的前缀优化。</p>
 <blockquote>
 <p>If the same context appears again, the system serves it from memory. In essence, it treats the KV of a context as reusable data that can be looked up by content using hashing. Implementations typically maintain a global "prompt tree" to manage these cached contexts and evict them when necessary. This optimizes for the most frequently reused prefixes.</p>
 </blockquote>
@@ -2022,7 +2022,7 @@
 <blockquote>
 <p><strong>Decode-side pull</strong>: Alternatively, the decode worker can RDMA-read directly from the prefill GPU's memory when it's ready to begin decoding. Either push or pull achieves the same end result (no CPU copies). Some implementations might prefer push to offload coordination to the sender; others prefer pull for the receiver to control timing.</p>
 </blockquote>
-<p><em>共享内存（IPC）缓冲区</em> 如果 prefill 与 decode 恰好在同一台机器上（同一服务器中的不同 GPU），它们可能使用 CUDA 进程间通信来共享一个内存句柄，甚至一个 PCIe bar，实际上就是在同一主机上用 NVLink 或 NVSwitch 进行拷贝。这是零拷贝传输的本地变体，无需经过网络。</p>
+<p><em>共享内存（IPC）缓冲区</em> 如果 prefill 与 decode 恰好在同一台机器上（同一服务器中的不同 GPU），它们可能使用 CUDA 进程间通信来共享一个内存句柄，甚至一个 PCIe bar，实际上就是在同一主机上用 NVLink 或 NVSwitch 拷贝。这是零拷贝传输的本地变体，无需经过网络。</p>
 <blockquote>
 <p><strong>Shared-memory (IPC) buffer</strong>: If prefill and decode happen to be on the same machine (different GPUs in one server), they might use CUDA interprocess communication to share a memory handle or even a PCIe bar, effectively copying using NVLink or NVSwitch on the same host. This is a local variant of zero-copy transfer without going over the network.</p>
 </blockquote>
@@ -2042,7 +2042,7 @@
 <blockquote>
 <p>Be careful to avoid fragmentation and overhead when sending KV cache data. For instance, vLLM's PagedAttention stores the KV cache in fixed-size token blocks, commonly 16 tokens per block. The KV blocks are relatively small (although the bytes per block scale with the number of heads, head dimension, number of layers, and dtype.) Naively sending thousands of small KV pages over RDMA would incur excessive overhead since each transfer has fixed latency and protocol overhead. This would lead to poor bandwidth utilization.</p>
 </blockquote>
-<p>现代 LLM 引擎支持多种页大小，例如每块 8、16、32、64 或 128 tokens。较大的页大小可以在通过 RDMA 搬运 KV 时降低传输开销，因为更大的归并缓冲区和更少的工作队列元素（work queue elements，WQEs）会提升持续链路吞吐量。在可能的情况下，为每次 RDMA 写入归并 ≥ 128-token 的页。务必将传输重叠到一条专用的 CUDA 流上。优先使用非阻塞流并使用事件栅栏（event fences）。始终用 Nsight Systems 等工具进行性能分析以确认重叠效果。LMCache 报告称，一个 7.5k-token 的 KV 在 RDMA 上经过归并后从 ~20 ms → ~8 ms。</p>
+<p>现代 LLM 引擎支持多种页大小，例如每块 8、16、32、64 或 128 tokens。较大的页大小可以在通过 RDMA 搬运 KV 时降低传输开销，因为更大的归并缓冲区和更少的工作队列元素（work queue elements，WQEs）会提升持续链路吞吐量。在可能的情况下，为每次 RDMA 写入归并 ≥ 128-token 的页。务必将传输重叠到一条专用的 CUDA 流上。优先使用非阻塞流并使用事件栅栏（event fences）。始终用 Nsight Systems 等工具进行剖析以确认重叠效果。LMCache 报告称，一个 7.5k-token 的 KV 在 RDMA 上经过归并后从 ~20 ms → ~8 ms。</p>
 <blockquote>
 <p>Modern LLM engines support multiple page sizes, such as 8, 16, 32, 64, or 128 tokens per block. Larger page sizes can reduce transfer overhead when moving KV over RDMA because sustained link throughput improves with larger collated buffers and fewer work queue elements (WQEs). When possible, collate ≥ 128-token pages per RDMA write. Make sure to overlap the transfer on a dedicated CUDA stream. Prefer nonblocking streams and use event fences. Always profile with tools like Nsight Systems to confirm overlap. LMCache reports ~20 ms → ~8 ms for a 7.5k-token KV after collation on RDMA.</p>
 </blockquote>
@@ -2088,7 +2088,7 @@
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="nt">pd_buffer_device</span><span class="p">:</span><span class="w"> </span><span class="s">"cuda"</span><span class="w">       </span><span class="c1"># 将缓冲区保持在GPU内存中</span>
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="nt">nixl_backends</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">UCX</span><span class="p p-Indicator">]</span><span class="w">           </span><span class="c1"># UCX后端足以用于分离</span>
 </span></code></pre></div>
-<p>这一配置使得 prefill 能够将 KV 缓存直接写入 decode GPU 的内存——每次传输最多 1 GB——且无需 CPU 介入。两端都将传输缓冲区保留在 GPU 内存中，以实现零拷贝操作。</p>
+<p>这一配置使 prefill 能够将 KV 缓存直接写入 decode GPU 的内存——每次传输最多 1 GB——且无需 CPU 介入。两端都将传输缓冲区保留在 GPU 内存中，以实现零拷贝操作。</p>
 <blockquote>
 <p>This configuration allows the prefill to write the KV cache directly into the decode GPU's memory-up to 1 GB per transfer-with no CPU intervention. Both sides keep the transfer buffer in GPU memory for zero-copy operation.</p>
 </blockquote>
@@ -2283,7 +2283,7 @@
 <blockquote>
 <p>The decode phase, on the other hand, is sequential and latency-sensitive per step. Using too many GPUs for one decode can actually hurt time-per-output-token (TPOT) latency, also called inter-token latency (ITL). This is because each token step would require additional multi-GPU communication overhead. As such, the potential for speedup is limited since there's only one token's worth of compute to split at a time (or a few tokens, if using speculative decoding).</p>
 </blockquote>
-<p>分离使得混合这些方法成为可能：为一个阶段使用 TP、为另一个阶段使用 PP——或对每种技术使用不同的程度。例如，你可以用 TP=8 运行 prefill 以横跨 8 块 GPU 并最小化提示词延迟。然后你可以用 TP=1（即单块 GPU）运行 decode，以最大化每 token 吞吐量并最小化每步延迟。通过这种方式，每个阶段的吞吐量与延迟都可以分别调优，如图 18-7 所示。</p>
+<p>分离使混合这些方法成为可能：为一个阶段使用 TP、为另一个阶段使用 PP——或对每种技术使用不同的程度。例如，你可以用 TP=8 运行 prefill 以横跨 8 块 GPU 并最小化提示词延迟。然后你可以用 TP=1（即单块 GPU）运行 decode，以最大化每 token 吞吐量并最小化每步延迟。通过这种方式，每个阶段的吞吐量与延迟都可以分别调优，如图 18-7 所示。</p>
 <blockquote>
 <p>Disaggregation makes it possible to mix these approaches and use TP for one phase and PP for another-or use different degrees of each technique.</p>
 </blockquote>
@@ -2356,7 +2356,7 @@
 <td>上下文并行</td>
 <td>CP</td>
 <td>1</td>
-<td>将整个上下文保持在单个 GPU 上（无上下文级分区），当它适合内存时进行优化。</td>
+<td>将整个上下文保持在单个 GPU 上（无上下文级分区），当它适合内存时优化。</td>
 </tr>
 <tr>
 <td>数据并行</td>
@@ -2459,11 +2459,11 @@
 <blockquote>
 <p>Modern CPUs are far slower than GPUs for neural network computations, but they come with other advantages like ample RAM, no contention for GPU memory bandwidth, and flexibility to handle tasks that GPUs might not handle as well, like extremely long sequences and nontransformer operations like tokenization, padding, etc.</p>
 </blockquote>
-<p>采用混合 prefill 策略时，一部分 prefill 计算在 CPU 上完成。一种场景是为超长提示词进行 CPU 卸载。设想一个来自大型文档附件、包含数万个 token 的提示词。即便是强大的 GPU，也可能因内存约束而难以处理如此大的提示词。</p>
+<p>采用混合 prefill 策略时，一部分 prefill 计算在 CPU 上完成。一种场景是为超长提示词词词进行 CPU 卸载。设想一个来自大型文档附件、包含数万个 token 的提示词。即便是强大的 GPU，也可能因内存约束而难以处理如此大的提示词。</p>
 <blockquote>
 <p>With a hybrid prefill strategy, part of the prefill computation is done on CPUs. One scenario is CPU offloading for superlong prompts. Consider a prompt with tens of thousands of tokens from a large document attachment. Even a powerful GPU might struggle to process such a large prompt due to memory constraints.</p>
 </blockquote>
-<p>在极长提示词的情况下，系统可以选择在一个拥有大量 RAM 的 CPU worker 上执行模型的初始若干层，以容纳这条长序列。随后它会把中间结果流式传输到 GPU——或者，如果延迟不成问题，甚至在 CPU 上执行整个 prefill。之后 decode GPU 便从该 CPU worker 接收巨大的 KV 缓存。</p>
+<p>在极长提示词词的情况下，系统可以选择在一个拥有大量 RAM 的 CPU worker 上执行模型的初始若干层，以容纳这条长序列。随后它会把中间结果流式传输到 GPU——或者，如果延迟不成问题，甚至在 CPU 上执行整个 prefill。之后 decode GPU 便从该 CPU worker 接收巨大的 KV 缓存。</p>
 <blockquote>
 <p>In the case of extremely long prompts, the system could choose to perform the initial layers of the model on a CPU worker with lots of RAM to hold the long sequence. It would then stream intermediate results to a GPU later-or even perform the entire prefill on the CPU if latency isn't an issue.</p>
 </blockquote>
@@ -2650,7 +2650,7 @@
 <blockquote>
 <p>It's possible reduce cold-start latency for inference engines by using cuda-checkpoint to restore prewarmed GPU memory rather than recompiling graphs and reloading weights on every start.</p>
 </blockquote>
-<p>做检查点可能会损害延迟，但至少请求能够完成。prefill 节点在完成计算并把 KV 数据发送给某个 decode worker 或 KV 缓存池之后再失败，影响就较小，因为此时 KV 数据已经离开了失败的节点。但如果 prefill worker 在处理某个提示词期间失败，该提示词任务就需要在另一个 prefill 节点上重试。架构应当优雅地处理这类故障，使得一个节点的失败不会丢弃整个请求，也不会造成大范围的级联延迟。</p>
+<p>做检查点可能会损害延迟，但至少请求能够完成。prefill 节点在完成计算并把 KV 数据发送给某个 decode worker 或 KV 缓存池之后再失败，影响就较小，因为此时 KV 数据已经离开了失败的节点。但如果 prefill worker 在处理某个提示词期间失败，该提示词任务就需要在另一个 prefill 节点上重试。架构应当优雅地处理这类故障，使一个节点的失败不会丢弃整个请求，也不会造成大范围的级联延迟。</p>
 <blockquote>
 <p>Checkpointing can hurt latency, but at least the request can complete. Prefill node failure is less impactful after it finishes computing and sending the KV data to either a decode worker or the KV cache pool since the KV data is off the failed node. But if the prefill worker fails during a prompt, the prompt task needs to be retried on another prefill node. The architecture should handle these types of failures gracefully so that one node's failure doesn't drop the entire request or cause large cascaded delays.</p>
 </blockquote>
@@ -2679,7 +2679,7 @@
 <blockquote>
 <p>With a purely static configuration, if the workload mix changes and you require a more prompt-heavy or generation-heavy split, the fixed ratio will become suboptimal. The optimal balance of prefill and decode capacity will shift over time. At one moment, many new requests arrive, and you want a heavy prefill split. Later on, you may have many long, ongoing reasoning generations, and you want a heavy decode split.</p>
 </blockquote>
-<p>自适应调度（adaptive scheduling）与负载均衡（load balancing）机制旨在持续微调系统，使得任一阶段都不会成为瓶颈。这样就能在变化的条件下维持高有效吞吐量。</p>
+<p>自适应调度（adaptive scheduling）与负载均衡（load balancing）机制旨在持续微调系统，使任一阶段都不会成为瓶颈。这样就能在变化的条件下维持高有效吞吐量。</p>
 <blockquote>
 <p>Adaptive scheduling and load-balancing mechanisms aim to continuously tune the system so that neither phase becomes a bottleneck. This keeps goodput high under changing conditions.</p>
 </blockquote>
@@ -2803,7 +2803,7 @@
 <blockquote>
 <p>Specifically, if the system predicts it doesn't have enough capacity to handle a new request within SLO, it will reject that request rather than accept the request and potentially violate the SLO. This is a form of dynamic load shedding rather than scaling, but it aims to prevent overload.</p>
 </blockquote>
-<p>我们在上一节已经介绍过 Mooncake 的早期拒绝方法。这里的要点在于：适应既可以发生在供给侧，通过增加更多资源或重新分配资源来实现——也可以发生在需求侧，通过限流或拒绝部分请求来实现。</p>
+<p>我们在上一节已经介绍过 Mooncake 的早期拒绝方法。这里的要点在于：适应既可以发生在供给侧，通过增加更多资源或重新分配资源实现——也可以发生在需求侧，通过限流或拒绝部分请求实现。</p>
 <blockquote>
 <p>We already covered Mooncake's early rejection approach in the previous section. The point here is that adaptation can happen on the supply side by adding more resources or reallocating them-as well as on the demand side by throttling or rejecting some requests.</p>
 </blockquote>
@@ -2844,7 +2844,7 @@
 <blockquote>
 <p><strong>Instance "flip" mechanism</strong>: The TetriInfer paper describes an "instance flip" in which some nodes can flip roles if needed. This requires that the model be loaded, sharded, and quantized properly to handle both roles.</p>
 </blockquote>
-<p><em>为弹性而无状态</em> Arrow 利用无状态实例。因此，worker 上不存储任何长期存活的会话状态。这样，它们就能被自由地重新分配。活跃请求的 KV 缓存使得在 decode 节点处于 token 生成中途时把它翻转为 prefill 变得复杂，因此你往往不得不等到 decode 完成其任务后再切换角色。</p>
+<p><em>为弹性而无状态</em> Arrow 利用无状态实例。因此，worker 上不存储任何长期存活的会话状态。这样，它们就能被自由地重新分配。活跃请求的 KV 缓存使在 decode 节点处于 token 生成中途时把它翻转为 prefill 变得复杂，因此你往往不得不等到 decode 完成其任务后再切换角色。</p>
 <blockquote>
 <p><strong>Statelessness for elasticity</strong>: Arrow leverages stateless instances. As such, no long-lived session state is stored on the worker. This way, they can be reassigned freely. The KV cache of active requests complicates flipping a decode node to prefill if it's mid-token-generation, so you often have to wait until the decode finishes its task before switching roles.</p>
 </blockquote>

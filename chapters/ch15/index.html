@@ -1621,7 +1621,7 @@
 <p>Speculative decoding accelerates the decode process by pregenerating multiple tokens in a single batch. In parallel, it then verifies that the tokens are correct. This reduces the sequential nature of standard token-by-token autoregressive decoding. We'll cover speculative decoding in a bit.</p>
 </blockquote>
 <h3 id="prefill-prefill-decode-interference">prefill-解码干扰 (Prefill-Decode Interference)<a class="headerlink" href="#prefill-prefill-decode-interference" title="Permanent link">&para;</a></h3>
-<p>传统上，LLM 推理系统会把这两个阶段共置（colocate）在同一批节点上，并简单地把所有计算批处理（batch）在一起。然而，这种朴素做法会导致通常所说的 <em>prefill-decode 干扰</em>。例如，一个长提示词的 prefill 可能会占用 GPU，从而延误其他请求对时延敏感的 decode 工作——反之亦然。</p>
+<p>传统上，LLM 推理系统会把这两个阶段共置（colocate）在同一批节点上，并简单地把所有计算批处理（batch）在一起。然而，这种朴素做法会导致通常所说的 <em>prefill-decode 干扰</em>。例如，一个长提示词词的 prefill 可能会占用 GPU，从而延误其他请求对时延敏感的 decode 工作——反之亦然。</p>
 <blockquote>
 <p>Traditionally, LLM inference systems colocate these two stages on the same nodes and simply batch all computations together. However, this naive approach leads to what's commonly called prefill-decode interference. For instance, a long prompt prefill can occupy the GPU and delay time-sensitive decoding work for other requests-and vice versa.</p>
 </blockquote>
@@ -1650,7 +1650,7 @@
 <blockquote>
 <p>By dedicating separate GPU pools, the system keeps both prefill and decode pipelines busy in parallel. In practice, disaggregation has been shown to significantly improve throughput under strict latency constraints. Some studies show that large gains are possible, but results range from moderate improvements to several times higher goodput once the prefill and decode stages are separated. The results greatly depend on the workload and network fabric.</p>
 </blockquote>
-<p>这种分离使得每个阶段都能针对吞吐量或延迟被独立优化和扩展。prefill 可以在 prefill GPU 上被激进地批处理，以在不拖累 decode 性能（例如增加 decode 延迟）的前提下最大化吞吐量。此外，有了独立的集群，我们就能为每个阶段单独调优并行设置、实例数量与调度策略。</p>
+<p>这种分离使每个阶段都能针对吞吐量或延迟被独立优化和扩展。prefill 可以在 prefill GPU 上被激进地批处理，以在不拖累 decode 性能（例如增加 decode 延迟）的前提下最大化吞吐量。此外，有了独立的集群，我们就能为每个阶段单独调优并行设置、实例数量与调度策略。</p>
 <blockquote>
 <p>This separation allows each stage to be optimized and scaled independently for throughput or latency. Prefills can be batched aggressively on the prefill GPUs to maximize throughput without burdening the decode performance (e.g., increased decode latency). Also, with separate clusters we can tune parallelism settings, instance counts, and scheduling policies specific to each phase.</p>
 </blockquote>
@@ -1697,7 +1697,7 @@
 <p>When the fabric or virtualization layer prevents direct peer access, NIXL can fall back to host-staged paths, which are nonoptimal. Always validate end-to-end KV transfer time on your deployment.</p>
 </blockquote>
 <h3 id="kubernetes-prefill-deploying-disaggregated-prefill-and-decode-with-kubernetes">使用 Kubernetes 部署分离式 prefill 和解码 (Deploying Disaggregated Prefill and Decode with Kubernetes)<a class="headerlink" href="#kubernetes-prefill-deploying-disaggregated-prefill-and-decode-with-kubernetes" title="Permanent link">&para;</a></h3>
-<p>在高级部署中，像 Kubernetes 这样的集群编排系统可以根据负载与输入特征，动态地调整 GPU 池的分配——或分别对各池进行扩缩容。例如，如果大量用户带着超长提示词与相对较短的输出到来（例如长文档摘要类用例），Kubernetes 可以临时调整分配，让 prefill 池使用更多 GPU，这会减少分配给 decode 阶段的 GPU 数量。</p>
+<p>在高级部署中，像 Kubernetes 这样的集群编排系统可以根据负载与输入特征，动态地调整 GPU 池的分配——或分别对各池进行扩缩容。例如，如果大量用户带着超长提示词词词与相对较短的输出到来（例如长文档摘要类用例），Kubernetes 可以临时调整分配，让 prefill 池使用更多 GPU，这会减少分配给 decode 阶段的 GPU 数量。</p>
 <blockquote>
 <p>In an advanced deployment, a cluster orchestration system like Kubernetes can dynamically shift the GPU pool allocations-or scale the pools out separately-based on load and input characteristics. For instance, if many users arrive with superlong prompts and relatively small outputs (e.g., large-document summarization use cases), Kubernetes can temporarily shift the allocation to use more GPUs in the prefill pool. This will decrease the number of GPUs allocated to the decode phase.</p>
 </blockquote>
@@ -1713,7 +1713,7 @@
 <blockquote>
 <p>In modern inference deployments, all nodes can perform both prefill and decode functionality since they all share the same runtime and code base (e.g., vLLM, SGLang, NVIDIA Dynamo, etc.). It's up to the cluster orchestrator to assign them a specific role, either prefill or decode, statically upon startup-and dynamically throughout the worker's lifecycle.</p>
 </blockquote>
-<p>总体而言，分离式 prefill/decode 架构为高吞吐、低延迟的 LLM 服务奠定了基础。不过它确实引入了复杂性，因为中间数据必须被传输和管理——对于一个长提示词的 KV 缓存来说，其量级可达数 GB。而且调度也更为复杂，但在超大规模下，高效利用硬件所带来的收益是十分显著的。</p>
+<p>总体而言，分离式 prefill/decode 架构为高吞吐、低延迟的 LLM 服务奠定了基础。不过它确实引入了复杂性，因为中间数据必须被传输和管理——对于一个长提示词词的 KV 缓存来说，其量级可达数 GB。而且调度也更为复杂，但在超大规模下，高效利用硬件所带来的收益是十分显著的。</p>
 <blockquote>
 <p>Overall, a disaggregated prefill/decode architecture provides a foundation for high-throughput, low-latency LLM serving. It does introduce complexity, however, as intermediate data must be transferred and managed-on the order of a few gigabytes for the KV cache of a long prompt. And scheduling is more involved, but the benefits of utilizing hardware efficiently are significant at ultra scale.</p>
 </blockquote>
@@ -1812,7 +1812,7 @@
 <blockquote>
 <p>One must be mindful that beyond a certain scale, however, TP efficiency drops-especially when using it across nodes or racks running over InfiniBand or Ethernet. In practice, it's best to use TP for intranode communication-or between nodes in an NVLink domain.</p>
 </blockquote>
-<p>像 NVIDIA GB200/GB300 NVL72 这样的现代多 GPU 机架，允许在更大规模上使用 TP 而不至于耗尽互连带宽。NVLink Switch 将 NVLink 域跨机架扩展到每个 NVL72 的 72 块 GPU。NVLink Switch System 能够把一个 all-to-all、全连接的 NVLink 架构扩展到最多 8 个机架、即 576 块 GPU（576 GPU = 8 机架 * 72 GPU/机架）。这使得大规模并行策略不仅能在单个 NVL72 内部使用，还能跨多个机架使用。例如，在 8 机架拓扑中，你可以利用跨 8 机架的 576 块 GPU 扩展到 576 路张量并行（576 GPU = 8 机架 × 72 GPU/机架）。</p>
+<p>像 NVIDIA GB200/GB300 NVL72 这样的现代多 GPU 机架，允许在更大规模上使用 TP 而不至于耗尽互连带宽。NVLink Switch 将 NVLink 域跨机架扩展到每个 NVL72 的 72 块 GPU。NVLink Switch System 能够把一个 all-to-all、全连接的 NVLink 架构扩展到最多 8 个机架、即 576 块 GPU（576 GPU = 8 机架 * 72 GPU/机架）。这使大规模并行策略不仅能在单个 NVL72 内部使用，还能跨多个机架使用。例如，在 8 机架拓扑中，你可以利用跨 8 机架的 576 块 GPU 扩展到 576 路张量并行（576 GPU = 8 机架 × 72 GPU/机架）。</p>
 <blockquote>
 <p>Modern multi-GPU racks like NVIDIA's GB200/GB300 NVL72 allow TP to be used at a much larger scale without saturating interconnect bandwidth. NVLink Switch extends the NVLink domain across the rack to 72 GPUs per NVL72. NVLink Switch Systems can scale an all-to-all, fully connected NVLink fabric across up to 8 racks, or 576 GPUs (576 GPUs = 8 racks * 72 GPUs per rack). This enables large-scale parallelism strategies, not just inside a single NVL72 but also across multiple racks. For instance, in an 8-rack topology, you can increase to 576-way tensor parallelism using the 576 GPUs across 8 racks (576 GPUs = 8 racks x 72 GPUs per rack.)</p>
 </blockquote>
@@ -1825,7 +1825,7 @@
 <blockquote>
 <p>Pipeline parallelism (PP) partitions the model layer-wise across different GPUs. For example, in a 60-layer transformer-based model, GPU 0 might hold layers 1-20, GPU 1 holds layers 21-40, and GPU 2 holds layers 41-60.</p>
 </blockquote>
-<p>在处理一段 token 序列时，数据依次流经各 GPU：GPU 0 计算第 1–20 层，然后把它的中间激活传给 GPU 1 计算第 21–40 层，以此类推。这使得深到无法装入单个加速器的模型得以被分布。</p>
+<p>在处理一段 token 序列时，数据依次流经各 GPU：GPU 0 计算第 1–20 层，然后把它的中间激活传给 GPU 1 计算第 21–40 层，以此类推。这使深到无法装入单个加速器的模型得以被分布。</p>
 <blockquote>
 <p>When processing a sequence of tokens, the data flows through the GPUs in sequence such that GPU 0 computes layers 1-20, then passes its intermediate activations to GPU 1 for layers 21-40, and so on. This allows models that are too deep to fit on one accelerator to be distributed.</p>
 </blockquote>
@@ -1862,7 +1862,7 @@
 <blockquote>
 <p>For instance, if an MoE layer has 16 experts and we have 4 GPUs, each GPU could host 4 experts. During inference, when a token arrives at that MoE layer, its internal gating network will choose the top two experts, for instance, for that token. The token's data is then sent to whichever GPUs own those two experts for processing. Then the results are combined back to generate the next token, as shown in Figure 15-6.</p>
 </blockquote>
-<p>实现这一点需要一种 all-to-all 通信模式，使得 token（严格来说是它们的激活向量）在 GPU 之间被动态打乱，从而让每个 token 落到其被分配专家所在的 GPU 上。在每个专家为其分配到的 token 计算出输出之后，会再执行一次 all-to-all，把各 token 的输出按原始顺序返回。</p>
+<p>实现这一点需要一种 all-to-all 通信模式，使 token（严格来说是它们的激活向量）在 GPU 之间被动态打乱，从而让每个 token 落到其被分配专家所在的 GPU 上。在每个专家为其分配到的 token 计算出输出之后，会再执行一次 all-to-all，把各 token 的输出按原始顺序返回。</p>
 <blockquote>
 <p>Implementing this requires an all-to-all communication pattern such that tokens (technically, their activation vectors) are dynamically shuffled between GPUs so that each token lands on the GPU of its assigned expert. After each expert computes its output for its assigned tokens, another all-to-all is performed to return the token outputs back to their original order.</p>
 </blockquote>
@@ -1870,11 +1870,11 @@
 <blockquote>
 <p>Implementing this requires an all-to-all communication pattern such that tokens (technically, their activation vectors) are dynamically shuffled between GPUs so that each token lands on the GPU of its assigned expert. After each expert computes its output for its assigned tokens, another all-to-all is performed to return the token outputs back to their original order.</p>
 </blockquote>
-<p>这种动态路由在每个 MoE 层都引入了一个通信密集的步骤。如果不加以精心优化，它可能成为性能瓶颈——尤其是随着专家/GPU 数量的增加。好处在于，专家并行使得模型总容量能够随 GPU 数量近乎线性地扩展。</p>
+<p>这种动态路由在每个 MoE 层都引入了一个通信密集的步骤。如果不加以精心优化，它可能成为性能瓶颈——尤其是随着专家/GPU 数量的增加。好处在于，专家并行使模型总容量能够随 GPU 数量近乎线性地扩展。</p>
 <blockquote>
 <p>This dynamic routing introduces a communication-heavy step at each MoE layer. This can become a performance bottleneck if not carefully optimized-especially as the number of experts/GPUs increases. The upside is that expert parallelism allows the total model capacity to scale almost linearly with the number of GPUs.</p>
 </blockquote>
-<p>设想一个拥有 100 个专家、分布在 100 块 GPU 上的 MoE。如果每个 token 只激活两个专家，那么每 token 的计算量就与一个较小的稠密模型相当。因此，正是专家并行使得某些超大 MoE 模型得以被服务，因为模型权重被分片到众多 GPU 上——每块 GPU 在任一层只处理一小部分 token。</p>
+<p>设想一个拥有 100 个专家、分布在 100 块 GPU 上的 MoE。如果每个 token 只激活两个专家，那么每 token 的计算量就与一个较小的稠密模型相当。因此，正是专家并行使某些超大 MoE 模型得以被服务，因为模型权重被分片到众多 GPU 上——每块 GPU 在任一层只处理一小部分 token。</p>
 <blockquote>
 <p>Consider an MoE with 100 experts distributed across 100 GPUs. If each token activates only two experts, the compute per token is similar to a smaller dense model. As such, expert parallelism is what allows some massive MoE models to be served at all since the model weights are sharded across many GPUs-and each GPU handles only a fraction of the tokens at any given layer.</p>
 </blockquote>
@@ -1988,7 +1988,7 @@
 <blockquote>
 <p>Context parallelism excels at prefill for very long inputs by slicing a document into segments, allocating segments across multiple GPUs, and processing each segment concurrently. This reduces prompt-processing time roughly in half for every doubling of GPUs-with only a bit of overhead for cross-segment attention at the boundaries.</p>
 </blockquote>
-<p>简而言之，虽然 CP 无法加速逐 token 串行的 decode 阶段，但它能缩短超长提示的 TTFT。做法是把注意力 KV 缓存分布到多个设备上，让每块 GPU 只存储自己那一段的缓存。CP 还能让你处理超出单块 GPU 内存容量的上下文。</p>
+<p>简而言之，虽然 CP 无法加速逐 token 串行的 decode 阶段，但它能缩短超长提示词词的 TTFT。做法是把注意力 KV 缓存分布到多个设备上，让每块 GPU 只存储自己那一段的缓存。CP 还能让你处理超出单块 GPU 内存容量的上下文。</p>
 <blockquote>
 <p>In short, while CP doesn't speed up the sequential, token-by-token decode phase, it can shorten TTFT for extremely long prompts. It does this by distributing the attention KV cache across devices such that each GPU stores only its segment's cache. CP also lets you handle contexts larger than what a single GPU can fit into memory.</p>
 </blockquote>
@@ -2240,7 +2240,7 @@
 <blockquote>
 <p>OpenAI's function-calling API, for example, relies on well-structured output formats to determine which function to call-as well as the functions' inputs and outputs. These constraints are designed to match the function's API signature and are simply nonnegotiable at the application level.</p>
 </blockquote>
-<p>受约束解码改变了模型的 token 选择过程，使得在每一步只允许有效的 token。这可能简单到只是提供一份允许的 token 列表——也可能复杂到嵌入一套形式语法，并用一个状态机来过滤掉无效的 token。</p>
+<p>受约束解码改变了模型的 token 选择过程，使在每一步只允许有效的 token。这可能简单到只是提供一份允许的 token 列表——也可能复杂到嵌入一套形式语法，并用一个状态机来过滤掉无效的 token。</p>
 <blockquote>
 <p>Constrained decoding alters the model's token-selection process so that, at each step, only valid tokens are allowed. This might be as simple as supplying a list of allowed tokens-or as sophisticated as embedding a formal grammar and using a state machine to filter out invalid tokens.</p>
 </blockquote>
@@ -2436,7 +2436,7 @@
 <blockquote>
 <p>Dynamic routing strategies target two core objectives: reduce routing overhead and evenly distribute work across expert GPUs. Achieving low overhead depends on utilizing high-bandwidth interconnects, overlapping data transfers with computation, and minimizing redundant data movement with co-location and intelligent scheduling.</p>
 </blockquote>
-<p>负载均衡可以通过简单的 top-1 或 top-2 门控、或更高级的容量感知门控来实现。也可以通过动态复制和专家重分配来实现。组合使用这些技术很常见，以最大限度的计算和最小的通信延迟让 GPU 保持繁忙。</p>
+<p>负载均衡可以通过简单的 top-1 或 top-2 门控、或更高级的容量感知门控来实现。也可以通过动态复制和专家重分配实现。组合使用这些技术很常见，以最大限度的计算和最小的通信延迟让 GPU 保持繁忙。</p>
 <blockquote>
 <p>Load balancing is achieved using simple top-1 or top-2 gating or more advanced capacity-aware gates. It can also be achieved using dynamic replication and expert reassignment. Using a combination of these techniques is common to keep the GPUs busy with maximum computations and minimal communication delays.</p>
 </blockquote>
@@ -2453,7 +2453,7 @@
 <p>Advanced inference engines can dynamically bypass certain expert computations, turn off underutilized experts, or use caching to skip experts for certain tokens. This further reduces latency. These techniques build on the concepts described in this chapter.</p>
 </blockquote>
 <h2 id="_3">关键要点<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<p>向数十亿终端用户提供超大 LLM 服务，需要在推理流水线的每个阶段进行优化。以下是本章的一些关键要点：</p>
+<p>向数十亿终端用户提供超大 LLM 服务，需要在推理流水线的每个阶段优化。以下是本章的一些关键要点：</p>
 <blockquote>
 <p>Serving massive LLMs to billions of end users requires optimizations at every stage of the inference pipeline. The following are some key takeaways from this chapter:</p>
 </blockquote>

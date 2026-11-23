@@ -1724,7 +1724,7 @@
 <blockquote>
 <p>Here, each warp repeatedly pulls the next batch base index from that global counter. The first thread (if (lane==0)) of each warp, called the warp leader, performs an atomic add to get the starting index of this contiguous block using base=atomicAdd(&amp;globalIndex, warpSize). It then broadcasts this base to the rest of its warp using __shfl_sync(__activemask(), base, 0), as described earlier in the chapter.</p>
 </blockquote>
-<p>换句话说，不再是每个线程被绑定到一个固定的元素索引，现在每个 warp 都从一个共享计数器中抓取一个连续的任务块。然后它用 idx = base + lane 进行计算。</p>
+<p>换句话说，不再是每个线程被绑定到一个固定的元素索引，现在每个 warp 都从一个共享计数器中抓取一个连续的任务块。然后它用 idx = base + lane 计算。</p>
 <blockquote>
 <p>In other words, instead of each thread being tied to a fixed element index, every warp now grabs a contiguous block of tasks from a shared counter. It then computes using idx = base + lane.</p>
 </blockquote>
@@ -2761,7 +2761,7 @@
 </span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>对于需要尽可能低抖动的场景，例如一次紧凑的多 GPU 集合操作或一次同步的模型并行步骤，你可以启动一个使用 NVSHMEM 并横跨所有 GPU 的协作核函数，方法是用 nvshmemx<em>collective</em>launch() 在 GPU 0 和 GPU 1 上同时启动发送方与接收方核函数。这使得它们无需任何主机介入即可使用 NVSHMEM 进行协调。然后，你可以使用 NVSHMEM 的设备端屏障，如下所示：</p>
+<p>对于需要尽可能低抖动的场景，例如一次紧凑的多 GPU 集合操作或一次同步的模型并行步骤，你可以启动一个使用 NVSHMEM 并横跨所有 GPU 的协作核函数，方法是用 nvshmemx<em>collective</em>launch() 在 GPU 0 和 GPU 1 上同时启动发送方与接收方核函数。这使它们无需任何主机介入即可使用 NVSHMEM 进行协调。然后，你可以使用 NVSHMEM 的设备端屏障，如下所示：</p>
 <blockquote>
 <p>For scenarios that require the lowest possible jitter, such as a tight multi-GPU collective or synchronous model-parallel step, you can launch one cooperative kernel using NVSHMEM and spanning all GPUs by using nvshmemx<em>collective</em>launch() to start the sender and received kernels on GPU 0 and GPU 1 simultaneously. This allows the to coordinate using NVSHMEM without any host intervention. Then, you can use NVSHMEM's device-side barriers, as shown here:</p>
 </blockquote>
@@ -2918,7 +2918,7 @@
 <blockquote>
 <p>Likewise, persistent kernels, thread block clusters, and device‐initiated CUDA Graphs don't change your intensity number, but they reduce idle gaps caused by repeated launches. This pushes your kernel's performance closer to the flat compute ceiling.</p>
 </blockquote>
-<p>许多真实工作负载落在两者之间。它们既不是强访存受限，也不是强计算受限。在这些情况下，并发是你的好帮手。通过并行启动若干中等强度的核函数——无论是用流、并发的图，还是多个持久化核函数——你把它们组合起来，使得聚合吞吐点在两个坐标轴上都处于更高位置。这更好地利用了设备的资源。</p>
+<p>许多真实工作负载落在两者之间。它们既不是强访存受限，也不是强计算受限。在这些情况下，并发是你的好帮手。通过并行启动若干中等强度的核函数——无论是用流、并发的图，还是多个持久化核函数——你把它们组合起来，使聚合吞吐点在两个坐标轴上都处于更高位置。这更好地利用了设备的资源。</p>
 <blockquote>
 <p>Many real workloads fall in between. They are neither strongly memory bound nor compute bound. In those cases, concurrency is your friend. By launching several modest‐intensity kernels in parallel-whether using streams, concurrent graphs, or multiple persistent kernels-you're combining them so that the aggregate throughput point sits higher on both axes. This better utilizes the device's resources.</p>
 </blockquote>
@@ -2942,7 +2942,7 @@
 <blockquote>
 <p>With this quantitative guidance, you can choose the right orchestration strategy for your kernels instead of trying every trick at once. Just remember to verify that each optimization brings you closer to the hardware's true potential. Always measure after applying optimizations.</p>
 </blockquote>
-<p>roofline 模型指导预期，但实际性能测量--包括计算吞吐量、实现的占用率、内存吞吐量等--将讲述完整的故事。roofline 分析结合迭代和持续的性能分析将验证您选择的优化策略是否真正有效。</p>
+<p>roofline 模型指导预期，但实际性能测量--包括计算吞吐量、实现的占用率、内存吞吐量等--将讲述完整的故事。roofline 分析结合迭代和持续的剖析将验证您选择的优化策略是否真正有效。</p>
 <blockquote>
 <p>The roofline model guides expectations, but actual performance measurements-including compute throughput, achieved occupancy, memory throughput, and so on-will tell the full story. Roofline analysis combined with iterative and continuous profiling will verify that your chosen optimization strategy is truly effective.</p>
 </blockquote>

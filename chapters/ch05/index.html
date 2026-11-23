@@ -1569,7 +1569,7 @@
 <blockquote>
 <p>Figure 5-1. VAST Data's network architecture with GDS versus without GDS</p>
 </blockquote>
-<p>在左侧，我们看到传统的分级（staged）DMA，它经由主机内存进行拷贝。右侧则是使用 GDS 的直接 GPU 拉取，它绕过了主机内存拷贝并降低了 CPU 利用率。VAST 的一份报告测得，在 NVIDIA Ampere A100 GPU 上读吞吐量提升 20%，而在 Hopper H100 GPU 上提升 30% 以上——这得益于其更高的 NIC 带宽和更重的 CPU 负担。</p>
+<p>在左侧，我们看到传统的分级（staged）DMA，它经由主机内存拷贝。右侧则是使用 GDS 的直接 GPU 拉取，它绕过了主机内存拷贝并降低了 CPU 利用率。VAST 的一份报告测得，在 NVIDIA Ampere A100 GPU 上读吞吐量提升 20%，而在 Hopper H100 GPU 上提升 30% 以上——这得益于其更高的 NIC 带宽和更重的 CPU 负担。</p>
 <blockquote>
 <p>Here on the left, we see traditional staged DMA that copies through host memory. On the right is a direct GPU pull using GDS that bypasses host memory copies and reduces CPU utilization. A report by VAST measured a 20% read-throughput boost on an NVIDIA Ampere A100 GPU and a 30%+ increase on a Hopper H100 GPU due to its higher NIC bandwidth and greater CPU burden.</p>
 </blockquote>
@@ -1691,7 +1691,7 @@
 <p>In this example, using GDS (Storage → GPU) increased read throughput from 8.0 GB/s to 9.6 GB/s and reduced latency from 1.25 ms to 1.00 ms. This translates to ~20% improvement in both throughput (higher) and latency (lower).</p>
 </blockquote>
 <h2 id="57-deepseek-fire-flyer-deepseeks-fire-flyer-file-system">5.7 DeepSeek 的 Fire-Flyer 文件系统 (DeepSeek's Fire-Flyer File System)<a class="headerlink" href="#57-deepseek-fire-flyer-deepseeks-fire-flyer-file-system" title="Permanent link">&para;</a></h2>
-<p>DeepSeek 从头创建了一个名为 Fire-Flyer 文件系统（3FS）的自定义开源文件系统。这源于他们观察到 AI 工作负载执行大量随机读取。这些随机读取使得传统的读取数据缓存对 LLM 训练和推理工作负载无效--甚至适得其反。通过消除缓存并采用直接文件 I/O，3FS 确保每个请求直接到达 NVMe SSD 设备，避免浪费的缓存管理。这种方法类似于优先考虑直接存储访问的现代 HPC 文件系统。因此，3FS 最小化了读取期间的核函数页面缓存参与和主机内存复制。</p>
+<p>DeepSeek 从头创建了一个名为 Fire-Flyer 文件系统（3FS）的自定义开源文件系统。这源于他们观察到 AI 工作负载执行大量随机读取。这些随机读取使传统的读取数据缓存对 LLM 训练和推理工作负载无效--甚至适得其反。通过消除缓存并采用直接文件 I/O，3FS 确保每个请求直接到达 NVMe SSD 设备，避免浪费的缓存管理。这种方法类似于优先考虑直接存储访问的现代 HPC 文件系统。因此，3FS 最小化了读取期间的核函数页面缓存参与和主机内存复制。</p>
 <blockquote>
 <p>DeepSeek created a custom, open source filesystem called Fire-Flyer File System (3FS) from the ground up. It was born out of their observation that AI workloads perform massive numbers of random reads. These random reads make conventional read data caching ineffective-and even counterproductive-for LLM training and inference workloads. By eliminating caching and employing direct file I/O, 3FS ensures that every request goes straight to the NVMe SSD device and avoids wasteful cache management. This approach is similar to modern HPC filesystems that prioritize direct storage access. As such, 3FS minimizes kernel page-cache involvement and host memory copies during reads.</p>
 </blockquote>
@@ -1801,7 +1801,7 @@
 <blockquote>
 <p>Another option to improve performance is to store data compressed on the filesystem or object store-and decompress them on the fly. Examples include images (JPEGs) and compressed text (Arrow and Parquet). This can save I/O bandwidth at the cost of some extra CPU or GPU cycles. However, if I/O is the bottleneck and the CPUs and GPUs are idle, this is a reasonable trade-off.</p>
 </blockquote>
-<p>许多数据流水线已经在这样做了，所以你只需验证一下压缩比，并确保你在流水线的每一个步骤都在使用它。关键是找到一个平衡点，使得解压这一步不会成为瓶颈。</p>
+<p>许多数据流水线已经在这样做了，所以你只需验证一下压缩比，并确保你在流水线的每一个步骤都在使用它。关键是找到一个平衡点，使解压这一步不会成为瓶颈。</p>
 <blockquote>
 <p>Many data pipelines are already doing this, so you'll just want to verify the compression ratio and make sure you're using it at every step in the pipeline. The key is to find a balance such that the decompression step doesn't become the bottleneck.</p>
 </blockquote>

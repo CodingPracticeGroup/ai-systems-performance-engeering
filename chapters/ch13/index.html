@@ -691,7 +691,7 @@
   <a href="#nvtx-nvtx-markers-and-profiling-tools" class="md-nav__link">
     <span class="md-ellipsis">
       
-        NVTX 标记和性能分析工具 (NVTX Markers and Profiling Tools)
+        NVTX 标记和剖析工具 (NVTX Markers and Profiling Tools)
       
     </span>
   </a>
@@ -1290,7 +1290,7 @@
   <a href="#nvtx-nvtx-markers-and-profiling-tools" class="md-nav__link">
     <span class="md-ellipsis">
       
-        NVTX 标记和性能分析工具 (NVTX Markers and Profiling Tools)
+        NVTX 标记和剖析工具 (NVTX Markers and Profiling Tools)
       
     </span>
   </a>
@@ -1660,7 +1660,7 @@
   
 
 
-<h1 id="13-pytorch-profiling-tuning-and-scaling-pytorch">第 13 章 PyTorch 性能分析、调优和扩展 (Profiling, Tuning, and Scaling PyTorch)<a class="headerlink" href="#13-pytorch-profiling-tuning-and-scaling-pytorch" title="Permanent link">&para;</a></h1>
+<h1 id="13-pytorch-profiling-tuning-and-scaling-pytorch">第 13 章 PyTorch 剖析、调优和扩展 (Profiling, Tuning, and Scaling PyTorch)<a class="headerlink" href="#13-pytorch-profiling-tuning-and-scaling-pytorch" title="Permanent link">&para;</a></h1>
 <p>AI 训练与推理流水线可能在每一层都遭遇性能瓶颈（bottleneck），包括 Python 解释器开销（overhead）、CPU 主机侧的数据加载停顿、CUDA 核函数利用不足，以及 GPU 设备内存争用。要做到有效优化，你需要借助覆盖整个系统的多种工具，在技术栈的多个层次上进行剖析（profiling）。</p>
 <blockquote>
 <p>AI training and inference pipelines can suffer from performance bottlenecks at every layer, including Python interpreter overhead, CPU host-side data-loading stalls, CUDA kernel underutilization, and GPU device-memory contention. To optimize effectively, you need to profile at multiple levels of the stack using multiple tools that cover the entire system.</p>
@@ -1677,7 +1677,7 @@
 <blockquote>
 <p>Throughout the chapter, we emphasize performance trade-offs and quantitative examples that focus on kernel execution times, hardware utilization metrics, memory footprint, data loading efficiency, and overall cost-efficiency of scaling. By the end of this chapter, you should have an understanding of how to implement an effective, holistic approach to profiling and tuning PyTorch workloads across the entire stack.</p>
 </blockquote>
-<h2 id="nvtx-nvtx-markers-and-profiling-tools">NVTX 标记和性能分析工具 (NVTX Markers and Profiling Tools)<a class="headerlink" href="#nvtx-nvtx-markers-and-profiling-tools" title="Permanent link">&para;</a></h2>
+<h2 id="nvtx-nvtx-markers-and-profiling-tools">NVTX 标记和剖析工具 (NVTX Markers and Profiling Tools)<a class="headerlink" href="#nvtx-nvtx-markers-and-profiling-tools" title="Permanent link">&para;</a></h2>
 <p>要全面把握性能全貌，就必须在多个层次上进行剖析，并使用覆盖整个系统的工具。从业者与性能工程师有一套通用工具和最佳实践，用于在系统技术栈的所有层次上执行全局性剖析。</p>
 <blockquote>
 <p>To capture a holistic view of performance, it's important to profile at multiple levels and use tools that cover the entire system. There exists a set of common tools and best practices used by practitioners and performance engineers to perform holistic profiling across all the layers in the system stack.</p>
@@ -1702,7 +1702,7 @@
 <blockquote>
 <p>Now that we've described how to annotate interesting sections of your code using NVTX markers, let's discuss the tools that can ingest, align, and visualize these markers. Common profiling tools are summarized in Table 13-1 along with their scope, key features, and typical use cases. This table can help you choose the right tool for each stage of your optimization journey.</p>
 </blockquote>
-<p><strong>表 13-1. 性能分析和可视化工具摘要</strong></p>
+<p><strong>表 13-1. 剖析和可视化工具摘要</strong></p>
 <table>
 <thead>
 <tr>
@@ -1739,7 +1739,7 @@
 </tr>
 <tr>
 <td>Linux perf</td>
-<td>CPU 性能分析和系统事件</td>
+<td>CPU 剖析和系统事件</td>
 <td>CPU 周期/指令/缓存采样、火焰图、off-CPU（睡眠）分析</td>
 <td>识别 Python 开销（解释器时间、GIL 争用）、CPU 端数据加载瓶颈或主机 OS 调度问题</td>
 </tr>
@@ -1753,7 +1753,7 @@
 <td>Chrome trace/Perfetto</td>
 <td>离线追踪查看（基于 Web）</td>
 <td>标准追踪格式的 Web UI、高级过滤（Perfetto SQL 引擎）、易于追踪共享</td>
-<td>无需专用软件检查追踪。适用于性能仪表板或性能分析数据的远程协作</td>
+<td>无需专用软件检查追踪。适用于性能仪表板或剖析数据的远程协作</td>
 </tr>
 <tr>
 <td>TorchEval (metrics)</td>
@@ -1763,8 +1763,8 @@
 </tr>
 <tr>
 <td>ExecuTorch</td>
-<td>移动、嵌入式和边缘设备的部署运行时，具有轻量级性能分析钩子和导出工具</td>
-<td>模型导出、性能分析、调试、内存分析、可视化</td>
+<td>移动、嵌入式和边缘设备的部署运行时，具有轻量级剖析钩子和导出工具</td>
+<td>模型导出、剖析、调试、内存分析、可视化</td>
 <td>用于在受限平台上运行 PyTorch 模型并收集运行时指标，如移动、嵌入式和边缘设备，包括 Meta 眼镜等</td>
 </tr>
 </tbody>
@@ -1772,7 +1772,7 @@
 <blockquote>
 <p>Table 13-1. Summary of profiling and visualization tools</p>
 </blockquote>
-<p>以下是表 13-1 中每个性能分析工具的详细描述：</p>
+<p>以下是表 13-1 中每个剖析工具的详细描述：</p>
 <blockquote>
 <p>Here is a detailed description of each profiling tool in Table 13-1:</p>
 </blockquote>
@@ -2898,7 +2898,7 @@
 <blockquote>
 <p>By using events smartly, you keep the multiple GPUs working in parallel as much as possible. Next is an example of using CUDA events to synchronize two streams, <code>stream1</code> and <code>stream2</code> in PyTorch:</p>
 </blockquote>
-<p>在这段代码中，我们在 stream1 上某些工作结束时记录一个事件。随后，在 stream2 上启动工作之前，我们调用 stream2.wait_event(event)。这会插入一个依赖关系，使得 stream2 在 stream1 执行到那一点并触发事件之前，不会执行它的下一个核函数。事件适合用来在流之间调度轻量级的依赖关系，因为它们避免了那种会让所有流的执行都停顿的重量级全局同步。</p>
+<p>在这段代码中，我们在 stream1 上某些工作结束时记录一个事件。随后，在 stream2 上启动工作之前，我们调用 stream2.wait_event(event)。这会插入一个依赖关系，使 stream2 在 stream1 执行到那一点并触发事件之前，不会执行它的下一个核函数。事件适合用来在流之间调度轻量级的依赖关系，因为它们避免了那种会让所有流的执行都停顿的重量级全局同步。</p>
 <blockquote>
 <p>In this code, we record an event at the end of some work on <code>stream1</code>. Later, before launching work on <code>stream2</code>, we call <code>stream2.wait_event(event)</code>. This inserts a dependency such that <code>stream2</code> will not execute its next kernel until the event is signaled by <code>stream1</code> reaching that point. Events are useful for scheduling lightweight dependencies between streams, as they avoid heavy, global synchronizations that will stall all stream execution.</p>
 </blockquote>
@@ -3169,7 +3169,7 @@
 <blockquote>
 <p>PyTorch uses a caching memory allocator to manage CUDA memory. By default, it adapts to allocation patterns by splitting and reclaiming GPU memory blocks on demand. However, certain workload patterns with variable-size memory allocations can lead to memory fragmentation.</p>
 </blockquote>
-<p>当 GPU 内存随时间被分割成许多不连续的空闲块时，就会发生内存碎片。这使得即使有足够的总内存保持空闲，也很难分配大型张量。在 MoE 模型中，这尤其成问题，因为路由到每个专家的 token 数量可能随每个批次变化。因此，每个专家的输出激活张量可能在每次迭代中大小不同。</p>
+<p>当 GPU 内存随时间被分割成许多不连续的空闲块时，就会发生内存碎片。这使即使有足够的总内存保持空闲，也很难分配大型张量。在 MoE 模型中，这尤其成问题，因为路由到每个专家的 token 数量可能随每个批次变化。因此，每个专家的输出激活张量可能在每次迭代中大小不同。</p>
 <blockquote>
 <p>Memory fragmentation occurs when GPU memory gets split into many noncontiguous free blocks over time. This makes it hard to allocate large tensors even when enough total memory remains free. In MoE models, this is especially problematic since the number of tokens routed to each expert can vary with each batch. Consequently, each expert's output activation tensors may be different sizes from iteration to iteration.</p>
 </blockquote>
@@ -3346,7 +3346,7 @@
 <blockquote>
 <p>FSDP with torch.compile</p>
 </blockquote>
-<p>PyTorch 的 FSDP 并行策略会将模型参数、梯度和优化器状态分片到多块 GPU 上。它在前向传播期间执行一次 all-gather 集合通信，在反向传播期间执行一次 reduce-scatter。相比使用 DDP，这使得更大的模型能够装入 GPU 内存。</p>
+<p>PyTorch 的 FSDP 并行策略会将模型参数、梯度和优化器状态分片到多块 GPU 上。它在前向传播期间执行一次 all-gather 集合通信，在反向传播期间执行一次 reduce-scatter。相比使用 DDP，这使更大的模型能够装入 GPU 内存。</p>
 <blockquote>
 <p>PyTorch's FSDP parallelism strategy shards model parameters, gradients, and optimizer states across GPUs. It performs all-gather collectives during the forward pass and reduce-scatter during the backward pass. This allows larger models to fit in GPU memory relative to using DDP.</p>
 </blockquote>
@@ -3489,7 +3489,7 @@
 <blockquote>
 <p>PyTorch's relative simplicity and high level of abstraction can sometimes lead to a false sense of performance safety. As such, it's surprisingly easy to introduce subtle performance bugs during development. Here is a summary of common PyTorch performance pitfalls-and how to address them:</p>
 </blockquote>
-<p><strong>保持性能分析优先的方法</strong>：在超大规模下，瓶颈可能隐藏在任何层--Python 开销、PyTorch 框架调度、CPU 数据加载停顿、GPU 核函数效率低下、内存问题等。仅依靠直觉往往会错过真正的热点。使用多种工具的整体性能分析策略来捕获每个级别的性能。</p>
+<p><strong>保持剖析优先的方法</strong>：在超大规模下，瓶颈可能隐藏在任何层--Python 开销、PyTorch 框架调度、CPU 数据加载停顿、GPU 核函数效率低下、内存问题等。仅依靠直觉往往会错过真正的热点。使用多种工具的整体剖析策略来捕获每个级别的性能。</p>
 <blockquote>
 <p><strong>Maintain a profiling-first approach</strong>：At ultrascale, bottlenecks can hide at any layer-Python overhead, PyTorch framework scheduling, CPU data-loading stalls, GPU kernel inefficiencies, memory issues, etc. Relying on intuition alone often misses the true hotspots. Use a holistic profiling strategy with multiple tools (as we did in this chapter) to capture performance at every level.</p>
 </blockquote>
@@ -3509,7 +3509,7 @@
 <blockquote>
 <p><strong>Avoid synchronization pitfalls</strong>：PyTorch is designed for usability, which means it's easy to inadvertently write code that forces synchronization between CPU and GPU. For example, calling tensor.item() on a CUDA tensor to retrieve a Python value will synchronize the GPU. Use torch.cuda.Stream.wait<em>stream() with stream events instead of forcing synchronizations when coordinating between streams. Similarly, transferring data from GPU to CPU without using non</em>blocking=True will cause a synchronization. Use asynchronous transfers and let the profilers guide you to any hidden synchronizations.</p>
 </blockquote>
-<p><strong>避免使用 time.time()进行 Python 端性能分析，因为这会隐式同步</strong>：使用<code>time.time()</code>对 GPU 代码块计时包括同步。最好使用<code>torch.cuda.Event(enable_timing=True)</code>对 GPU 代码计时，而不会产生额外的同步。</p>
+<p><strong>避免使用 time.time()进行 Python 端剖析，因为这会隐式同步</strong>：使用<code>time.time()</code>对 GPU 代码块计时包括同步。最好使用<code>torch.cuda.Event(enable_timing=True)</code>对 GPU 代码计时，而不会产生额外的同步。</p>
 <blockquote>
 <p><strong>Avoid using time.time() for Python-side profiling since this implicitly synchronizes</strong>：Timing GPU code blocks with time.time() as this includes a synchronization. It's better to use torch.cuda.Event(enable_timing=True) for timing GPU code without extraneous synchronizations.</p>
 </blockquote>

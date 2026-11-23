@@ -1513,7 +1513,7 @@
 <blockquote>
 <p>Thread blocks execute independently and in no guaranteed order. This allows the GPU scheduler to dispatch them across all SMs and fully exploit hardware parallelism. This grid-block-warp hierarchy guarantees that your CUDA kernels will run unmodified on future GPU architectures with more SMs and threads.</p>
 </blockquote>
-<p>吞吐还取决于 warp 的执行效率。同一个 warp 中的线程必须遵循相同的控制流路径并执行合并访问（coalesced access）的内存访问。如果某些线程发生分歧，使得一个分支走 if 路径而其他线程走 else 路径，那么该 warp 会串行化执行，逐一顺序处理每条分支路径。这被称为<em>warp 分歧</em>（warp divergence），如图 6-8 所示。</p>
+<p>吞吐还取决于 warp 的执行效率。同一个 warp 中的线程必须遵循相同的控制流路径并执行合并访问（coalesced access）的内存访问。如果某些线程发生分歧，使一个分支走 if 路径而其他线程走 else 路径，那么该 warp 会串行化执行，逐一顺序处理每条分支路径。这被称为<em>warp 分歧</em>（warp divergence），如图 6-8 所示。</p>
 <blockquote>
 <p>Throughput also hinges on warp execution efficiency. Threads in a warp must follow the same control-flow path and perform coalesced memory accesses. If some threads diverge such that one branch takes the if path and others take the else path, the warp serializes execution, processing each branch path sequentially. This is called warp divergence, and it's shown in Figure 6-8.</p>
 </blockquote>
@@ -2104,7 +2104,7 @@
 <blockquote>
 <p>A memory pool recycles freed memory buffers and avoids repeated OS calls to allocate new memory. This helps to reduce memory fragmentation over time by reusing previously freed blocks instead of creating new ones for each iteration in a long-running training loop, for instance. Memory pools are enabled by default in many high-performance libraries and runtimes such as PyTorch.</p>
 </blockquote>
-<p>事实上，PyTorch 使用一个自定义的内存缓存分配器（caching allocator），通过 PYTORCH<em>ALLOC</em>CONF（旧称 PYTORCH<em>CUDA</em>ALLOC_CONF）进行配置。PyTorch 的内存缓存分配器在思路上与 CUDA 的内存池类似：它复用 GPU 内存，避免在——例如长时间运行的训练循环的每次迭代中——为每个新创建的 PyTorch 张量都调用同步的 cudaMalloc 操作所带来的开销。</p>
+<p>事实上，PyTorch 使用一个自定义的内存缓存分配器（caching allocator），通过 PYTORCH<em>ALLOC</em>CONF（旧称 PYTORCH<em>CUDA</em>ALLOC_CONF）配置。PyTorch 的内存缓存分配器在思路上与 CUDA 的内存池类似：它复用 GPU 内存，避免在——例如长时间运行的训练循环的每次迭代中——为每个新创建的 PyTorch 张量都调用同步的 cudaMalloc 操作所带来的开销。</p>
 <blockquote>
 <p>In fact, PyTorch uses a custom memory caching allocator, configured with PYTORCH<em>ALLOC</em>CONF (formerly PYTORCH<em>CUDA</em>ALLOC_CONF). The PyTorch memory caching allocator is similar in spirit to CUDA's memory pool: it reuses GPU memory and avoids the cost of calling the synchronous cudaMalloc operation for every new PyTorch tensor created during each iteration of a long-running training loop, for instance.</p>
 </blockquote>
@@ -2313,7 +2313,7 @@
 <blockquote>
 <p>Figure 6-15. Point-of-memory coherency for your GPU threads</p>
 </blockquote>
-<p>总而言之，理解 GPU 的内存层级并恰当地针对每一级进行优化非常重要。这样做，你就能构建 CUDA 核函数以最大化数据局部性、隐藏内存访问延迟、提高占用率，并充分发挥 Blackwell 强大的并行计算能力，稍后我们会加以探讨。首先，让我们讨论 NVIDIA 的统一内存——鉴于 Grace Hopper 与 Grace Blackwell 的 CPU-GPU 统一超级芯片设计，理解它十分重要。</p>
+<p>总而言之，理解 GPU 的内存层级并恰当地针对每一级优化非常重要。这样做，你就能构建 CUDA 核函数以最大化数据局部性、隐藏内存访问延迟、提高占用率，并充分发挥 Blackwell 强大的并行计算能力，稍后我们会加以探讨。首先，让我们讨论 NVIDIA 的统一内存——鉴于 Grace Hopper 与 Grace Blackwell 的 CPU-GPU 统一超级芯片设计，理解它十分重要。</p>
 <blockquote>
 <p>In summary, it's important to understand the GPU's memory hierarchy and target each level appropriately. By doing so, you can structure your CUDA kernels to maximize data locality, hide memory-access latency, increase occupancy, and fully leverage Blackwell's massive parallel compute capabilities, as we'll explore in a bit. First, let's discuss NVIDIA's unified memory, which is important to understand given the unified CPU-GPU superchip designs of Grace Hopper and Grace Blackwell.</p>
 </blockquote>
@@ -2536,7 +2536,7 @@
 <blockquote>
 <p>Figure 6-19. Vectorized addition operating happening in parallel across elements in the vectors</p>
 </blockquote>
-<p>在下面的 CUDA C++ 代码中，我们启动足够多的线程以覆盖所有元素（&lt;&lt;&lt; (N+255)/256, 256 &gt;&gt;&gt;），使得每块 256 个线程在所需数量的块上并行处理 <em>N</em> 个元素：</p>
+<p>在下面的 CUDA C++ 代码中，我们启动足够多的线程以覆盖所有元素（&lt;&lt;&lt; (N+255)/256, 256 &gt;&gt;&gt;），使每块 256 个线程在所需数量的块上并行处理 <em>N</em> 个元素：</p>
 <blockquote>
 <p>In the following CUDA C++ code, we launch enough threads to cover all elements (&lt;&lt;&lt; (N+255)/256, 256 &gt;&gt;&gt;) so that 256 threads per block process N elements in parallel across however many blocks are needed:</p>
 </blockquote>
@@ -2761,7 +2761,7 @@
 <p>GPU FLOPS are outpacing memory bandwidth. For instance, Blackwell's HBM3e delivers ~8 TB/s, but compute capability and model sizes are growing even faster. As such, optimizing memory movement is absolutely critical to avoid memory‐bound bottlenecks in modern AI workloads.</p>
 </blockquote>
 <h2 id="611-tuning-occupancy-with-launch-bounds">6.11 使用启动边界调整占用率 (Tuning Occupancy with Launch Bounds)<a class="headerlink" href="#611-tuning-occupancy-with-launch-bounds" title="Permanent link">&para;</a></h2>
-<p>在某些情况下，仅仅使用更多线程并不足够——尤其是当每个线程使用了大量资源（如寄存器和共享内存）时。我们可以通过 CUDA 的 _<em>launch<em>bounds</em></em> 核函数注解，引导编译器针对占用率进行优化。</p>
+<p>在某些情况下，仅仅使用更多线程并不足够——尤其是当每个线程使用了大量资源（如寄存器和共享内存）时。我们可以通过 CUDA 的 _<em>launch<em>bounds</em></em> 核函数注解，引导编译器针对占用率优化。</p>
 <blockquote>
 <p>In some cases, simply using more threads isn't enough-especially if each thread uses a lot of resources such as registers and shared memory. We can guide the compiler to optimize for occupancy by using CUDA's _<em>launch<em>bounds</em></em> kernel annotation.</p>
 </blockquote>
@@ -2772,7 +2772,7 @@
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">__global__</span><span class="w"> </span><span class="nf">__launch_bounds__</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span><span class="w"> </span><span class="mi">16</span><span class="p">)</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kt">void</span><span class="w"> </span><span class="n">myKernel</span><span class="p">(...)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
-<p>在这里，_<em>launch<em>bounds</em></em>(256, 16) 承诺该 CUDA 核函数启动时，每个线程块的线程数绝不会超过 256。它还请求编译器分配足够的寄存器并内联函数，使得至少 16 个每块 256 线程的线程块（即 4,096 个线程，16 blocks × 256 threads per block）能够同时常驻于该 SM 上。</p>
+<p>在这里，_<em>launch<em>bounds</em></em>(256, 16) 承诺该 CUDA 核函数启动时，每个线程块的线程数绝不会超过 256。它还请求编译器分配足够的寄存器并内联函数，使至少 16 个每块 256 线程的线程块（即 4,096 个线程，16 blocks × 256 threads per block）能够同时常驻于该 SM 上。</p>
 <blockquote>
 <p>Here, _<em>launch<em>bounds</em></em>(256, 16) promises that the CUDA kernel will never be launched with more than 256 threads in a block. It also requests that the compiler allocate enough registers and inline functions so that at least 16 blocks of 256 threads, or 4,096 threads (16 blocks x 256 threads per block), can be resident on the SM simultaneously.</p>
 </blockquote>
@@ -2842,7 +2842,7 @@
 <blockquote>
 <p>Since CUDA applications can spawn thousands of threads per kernel, traditional debugging may fail to catch subtle memory bugs and race conditions. NVIDIA Compute Sanitizer, a functional-correctness suite included with the CUDA Toolkit, addresses these challenges by instrumenting code at runtime to find errors early in development. This reduces debugging interactions-and improves overall code reliability.</p>
 </blockquote>
-<p>Sanitizer 通过 compute-sanitizer 命令行工具调用，并支持 NVIDIA Tools Extension（NVTX）注解以进行更细粒度的分析。NVTX 应当被广泛用于正确性分析和性能分析。使用该命令行工具时，你可以用 --option value 指定选项，并加入诸如 --error-exitcode 的标志以在出错时使程序失败。你还可以施加过滤器，只对特定核函数进行检查，例如使用 --kernel-name 和 --kernel-name-exclude。你可以用 --nvtx yes 启用 NVTX，以帮助收窄分析范围，例如在内存泄漏报告中最小化误报：</p>
+<p>Sanitizer 通过 compute-sanitizer 命令行工具调用，并支持 NVIDIA Tools Extension（NVTX）注解以进行更细粒度的分析。NVTX 应当被广泛用于正确性分析和性能分析。使用该命令行工具时，你可以用 --option value 指定选项，并加入诸如 --error-exitcode 的标志以在出错时使程序失败。你还可以施加过滤器，只对特定核函数检查，例如使用 --kernel-name 和 --kernel-name-exclude。你可以用 --nvtx yes 启用 NVTX，以帮助收窄分析范围，例如在内存泄漏报告中最小化误报：</p>
 <blockquote>
 <p>Sanitizer is invoked using the compute-sanitizer CLI and supports NVIDIA Tools Extension (NVTX) annotations for finer-grained analysis. NVTX should be used extensively for both correctness and performance analysis. To use the CLI, you can specify options with --option value and include flags like --error-exitcode to fail on errors. You can also apply filters to sanitize only specific kernels, such as using --kernel-name and --kernel-name-exclude. You can enable NVTX with --nvtx yes to help narrow the scope of your analysis and minimize false positives in memory-leak reports, for instance:</p>
 </blockquote>
@@ -2956,7 +2956,7 @@
 <blockquote>
 <p>Then you can use Nsight Systems for an overall timeline view showing GPU idle gaps, overlap with CPU work, and PCIe/NVLink transfers. Together they give you both the why (which stalls and which resources) and the when (how those stalls fit into the application's overall execution).</p>
 </blockquote>
-<p>关键在于借助 Nsight Compute 和 Nsight Systems 两者的指标，迭代地进行剖析并识别内存热点。你应当在可疑代码周围添加 NVTX 区域，放大观察时间线行为，并利用反馈进行优化。</p>
+<p>关键在于借助 Nsight Compute 和 Nsight Systems 两者的指标，迭代地进行剖析并识别内存热点。你应当在可疑代码周围添加 NVTX 区域，放大观察时间线行为，并利用反馈优化。</p>
 <blockquote>
 <p>The key is to iteratively profile and identify memory hotspots using metrics from Nsight Compute and Nsight Systems. You should add NVTX ranges around suspicious code, zoom in on timeline behavior, and use the feedback to optimize.</p>
 </blockquote>

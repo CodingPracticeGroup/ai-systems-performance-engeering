@@ -772,7 +772,7 @@
   <a href="#profiling-debugging-and-tuning-inference-performance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        性能分析、调试和调优推理性能 (Profiling, Debugging, and Tuning Inference Performance)
+        剖析、调试和调优推理性能 (Profiling, Debugging, and Tuning Inference Performance)
       
     </span>
   </a>
@@ -794,7 +794,7 @@
   <a href="#nsight-systems-nsight-compute-profiling-with-nsight-systems-and-nsight-compute" class="md-nav__link">
     <span class="md-ellipsis">
       
-        使用 Nsight Systems 和 Nsight Compute 进行性能分析 (Profiling with Nsight Systems and Nsight Compute)
+        使用 Nsight Systems 和 Nsight Compute 进行剖析 (Profiling with Nsight Systems and Nsight Compute)
       
     </span>
   </a>
@@ -1350,7 +1350,7 @@
   <a href="#profiling-debugging-and-tuning-inference-performance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        性能分析、调试和调优推理性能 (Profiling, Debugging, and Tuning Inference Performance)
+        剖析、调试和调优推理性能 (Profiling, Debugging, and Tuning Inference Performance)
       
     </span>
   </a>
@@ -1372,7 +1372,7 @@
   <a href="#nsight-systems-nsight-compute-profiling-with-nsight-systems-and-nsight-compute" class="md-nav__link">
     <span class="md-ellipsis">
       
-        使用 Nsight Systems 和 Nsight Compute 进行性能分析 (Profiling with Nsight Systems and Nsight Compute)
+        使用 Nsight Systems 和 Nsight Compute 进行剖析 (Profiling with Nsight Systems and Nsight Compute)
       
     </span>
   </a>
@@ -1780,7 +1780,7 @@
   
 
 
-<h1 id="16-profiling-debugging-and-tuning-inference-at-scale">第 16 章 大规模推理的性能分析、调试和调优 (Profiling, Debugging, and Tuning Inference at Scale)<a class="headerlink" href="#16-profiling-debugging-and-tuning-inference-at-scale" title="Permanent link">&para;</a></h1>
+<h1 id="16-profiling-debugging-and-tuning-inference-at-scale">第 16 章 大规模推理的剖析、调试和调优 (Profiling, Debugging, and Tuning Inference at Scale)<a class="headerlink" href="#16-profiling-debugging-and-tuning-inference-at-scale" title="Permanent link">&para;</a></h1>
 <p>运营大型 LLM 推理集群，需要监控与调试工具来确保一切按预期运行。当性能偏离目标时，它们还能帮你快速定位瓶颈。</p>
 <blockquote>
 <p>Operating a large LLM inference cluster requires monitoring and debugging tools that make sure everything is running as expected. They also help you quickly identify bottlenecks when performance strays from its target.</p>
@@ -1801,7 +1801,7 @@
 <blockquote>
 <p>Finally, we consider application-level optimizations that complement low-level performance tuning. These include strategies like prompt compression, prefix caching, deduplication, query routing (e.g., fallback models), and partial-output streaming.</p>
 </blockquote>
-<h2 id="profiling-debugging-and-tuning-inference-performance">性能分析、调试和调优推理性能 (Profiling, Debugging, and Tuning Inference Performance)<a class="headerlink" href="#profiling-debugging-and-tuning-inference-performance" title="Permanent link">&para;</a></h2>
+<h2 id="profiling-debugging-and-tuning-inference-performance">剖析、调试和调优推理性能 (Profiling, Debugging, and Tuning Inference Performance)<a class="headerlink" href="#profiling-debugging-and-tuning-inference-performance" title="Permanent link">&para;</a></h2>
 <p>现代 LLM 推理引擎有大量相互关联的环节——尤其是在 prefill 与 decode 分离（disaggregated）的情况下。一个典型请求的生命周期涉及许多组件，如图 16-1 所示。</p>
 <blockquote>
 <p>There are a lot of moving parts in modern LLM inference engines-especially with disaggregated prefill and decode. The lifecycle of a typical request involves many components, as shown in Figure 16-1.</p>
@@ -2015,7 +2015,7 @@
 <blockquote>
 <p>In practice, setting the capacity factor to 1.2-1.5 is common, as this allows 20%-50% extra tokens to be reassigned when a primary expert is overloaded. This can significantly smooth out tail latency in MoE inference. Spilling over to a second expert is better than queuing requests behind a slightly stalled expert on a GPU with a degraded interconnect. This will reduce sensitivity to outliers if your network continues to experience issues for whatever reason.</p>
 </blockquote>
-<h2 id="nsight-systems-nsight-compute-profiling-with-nsight-systems-and-nsight-compute">使用 Nsight Systems 和 Nsight Compute 进行性能分析 (Profiling with Nsight Systems and Nsight Compute)<a class="headerlink" href="#nsight-systems-nsight-compute-profiling-with-nsight-systems-and-nsight-compute" title="Permanent link">&para;</a></h2>
+<h2 id="nsight-systems-nsight-compute-profiling-with-nsight-systems-and-nsight-compute">使用 Nsight Systems 和 Nsight Compute 进行剖析 (Profiling with Nsight Systems and Nsight Compute)<a class="headerlink" href="#nsight-systems-nsight-compute-profiling-with-nsight-systems-and-nsight-compute" title="Permanent link">&para;</a></h2>
 <p>在开发和调优推理代码时，你可以用 Nsight Systems 捕获跨 CPU 与 GPU 的工作负载追踪。Nsight Systems 提供时间线视图，以微秒级分辨率展示 CPU 线程、GPU 核函数、CUDA 事件、NCCL 通信等等。</p>
 <blockquote>
 <p>When developing and tuning your inference code, you can use Nsight Systems to capture traces of the workload across both the CPU and GPU. Nsight Systems provides a timeline view that shows CPU threads, GPU kernels, CUDA events, NCCL communications, and more using microsecond resolution.</p>
@@ -2129,7 +2129,7 @@
 <blockquote>
 <p>Specifically, we can use this to profile live inference servers and pinpoint exactly which kernel instructions are taking the most time. And we can do this in a low-overhead manner.</p>
 </blockquote>
-<p>现在我们已经介绍了使用 Nsight Systems 和 Nsight Compute 进行性能分析，让我们讨论一些常见的推理故障排除方案。</p>
+<p>现在我们已经介绍了使用 Nsight Systems 和 Nsight Compute 进行剖析，让我们讨论一些常见的推理故障排除方案。</p>
 <blockquote>
 <p>Now that we've covered profiling with Nsight Systems and Nsight Compute, let's discuss some common troubleshooting recipes for inference.</p>
 </blockquote>
@@ -2268,7 +2268,7 @@
 </tr>
 <tr>
 <td>QoS 和扩展</td>
-<td>SLA 感知的动态批处理和尾延迟控制；使用 MIG 或流优先级的 GPU 隔离以强制执行 QoS；TTFT、TPOT、利用率和内存带宽利用率的实时性能分析仪表板；基于工作负载特征的动态并行性切换（TP、PP、DP）</td>
+<td>SLA 感知的动态批处理和尾延迟控制；使用 MIG 或流优先级的 GPU 隔离以强制执行 QoS；TTFT、TPOT、利用率和内存带宽利用率的实时剖析仪表板；基于工作负载特征的动态并行性切换（TP、PP、DP）</td>
 </tr>
 </tbody>
 </table>
@@ -2832,7 +2832,7 @@
 <p>In short, chunked prefill techniques schedule prompt prefill processing and token generation in a tightly interleaved manner. It unifies the high efficiency of large-batch prefill computation with the responsiveness of streaming decode. This can reduce tail latency across many workloads while maintaining high throughput.</p>
 </blockquote>
 <h3 id="latency-aware-scheduling-and-dynamic-routing">延迟感知调度和动态路由 (Latency-Aware Scheduling and Dynamic Routing)<a class="headerlink" href="#latency-aware-scheduling-and-dynamic-routing" title="Permanent link">&para;</a></h3>
-<p>延迟感知调度（latency-aware scheduling）可以分析到来的请求、创建动态批，并对这些批进行路由以最小化延迟。设想有六个提示同时到达一个双 GPU 的推理系统。这些提示的长度依次为 6K、2K、6K、2K、2K 和 2K。让我们把一个朴素的先进先出（first-in-first-out，FIFO）调度器与一个延迟感知调度器进行对比。</p>
+<p>延迟感知调度（latency-aware scheduling）可以分析到来的请求、创建动态批，并对这些批进行路由以最小化延迟。设想有六个提示同时到达一个双 GPU 的推理系统。这些提示词的长度依次为 6K、2K、6K、2K、2K 和 2K。让我们把一个朴素的先进先出（first-in-first-out，FIFO）调度器与一个延迟感知调度器进行对比。</p>
 <blockquote>
 <p>Latency-aware scheduling can analyze incoming requests, create dynamic batches, and route batches to minimize latency. Consider a scenario where six prompts arrive simultaneously at a dual-GPU inference system. The prompt lengths are 6K, 2K, 6K, 2K, 2K, and 2K in order. Let's compare a simple First-In-First-Out (FIFO) scheduler with a latency-aware scheduler.</p>
 </blockquote>
@@ -2930,7 +2930,7 @@
 </tr>
 </tbody>
 </table>
-<p>这把关键路径上的自注意力从 38,007,000 减少到 22,005,000，降低了约 42%。因此，延迟感知调度器可以显著降低 TTFT。由于延迟感知调度器了解提示长度、自注意力中三角形的 N(N + 1) ÷ 2 开销以及 MLP 中的 O(N) 开销，它可以平衡计算权重并最小化整体延迟。例如，在这个例子中，延迟感知调度器把 2K token 的请求提前。这让这些较轻的请求更早完成 prefill 并开始 decode，而无需等待较重的 6K token prefill 完成。</p>
+<p>这把关键路径上的自注意力从 38,007,000 减少到 22,005,000，降低了约 42%。因此，延迟感知调度器可以显著降低 TTFT。由于延迟感知调度器了解提示词长度、自注意力中三角形的 N(N + 1) ÷ 2 开销以及 MLP 中的 O(N) 开销，它可以平衡计算权重并最小化整体延迟。例如，在这个例子中，延迟感知调度器把 2K token 的请求提前。这让这些较轻的请求更早完成 prefill 并开始 decode，而无需等待较重的 6K token prefill 完成。</p>
 <blockquote>
 <p>This reduces the critical path self-attention by about 42% from 38,007,000 to 22,005,000. As such, the latency-aware scheduler can significantly reduce TTFT. Because the latency-aware scheduler is aware of prompt lengths, the triangular N(N + 1) / 2 cost in self-attention, and the O(N) cost in MLP, it can balance compute weight and minimize overall latency. For instance, in this example, the latency-aware scheduler moves the 2K token requests earlier. This allows these lighter requests to finish prefill sooner and begin decode without waiting for the heavier 6K token prefill to complete.</p>
 </blockquote>
@@ -2972,7 +2972,7 @@
 <blockquote>
 <p>Remember to use page-locked host buffers for transfers over PCIe or NIC. This way, the CUDA driver can DMA directly and overlap with computation.</p>
 </blockquote>
-<p>然后，您只在需要数据时使用 CUDA 事件同步。这可以防止 GPU 在 I/O 上空闲。这样，数据传输将使用非阻塞 CUDA 调用（例如锁页内存）和 CUDA 流，使 GPU 不会在这些操作上停顿。在具有全双工 NVLink 带宽的现代 GPU 上，这种重叠可以很大程度上隐藏通信延迟。但是，您应该在特定工作负载上通过性能分析来验证这一点。</p>
+<p>然后，您只在需要数据时使用 CUDA 事件同步。这可以防止 GPU 在 I/O 上空闲。这样，数据传输将使用非阻塞 CUDA 调用（例如锁页内存）和 CUDA 流，使 GPU 不会在这些操作上停顿。在具有全双工 NVLink 带宽的现代 GPU 上，这种重叠可以很大程度上隐藏通信延迟。但是，您应该在特定工作负载上通过剖析来验证这一点。</p>
 <blockquote>
 <p>Then, you synchronize with CUDA events only when you need the data. This prevents the GPU from idling on I/O. This way, data transfers use nonblocking CUDA calls (e.g., pinned memory) and CUDA streams to keep the GPU from stalling on these operations. On modern GPUs with full-duplex NVLink bandwidth, this overlap can largely hide communication latency. However, you should verify this with profiling on your specific workload.</p>
 </blockquote>
@@ -3409,7 +3409,7 @@
 <p>Fusing quantization-dequantization into the main compute kernel is particularly valuable for high-throughput inference pipelines, recovering performance by eliminating conversion-induced bottlenecks. Next, let's explore various application-level optimizations supported by modern AI inference serving engines.</p>
 </blockquote>
 <h2 id="application-level-optimizations">应用级优化 (Application-Level Optimizations)<a class="headerlink" href="#application-level-optimizations" title="Permanent link">&para;</a></h2>
-<p>除了核心模型和系统优化之外，还有几种更高级的技术可以显著提高 LLM 服务的性能和用户体验。这些方法在应用或推理服务层运作，改进提示的构建和缓存方式、对话历史的保留方式、请求如何路由到不同模型等。</p>
+<p>除了核心模型和系统优化之外，还有几种更高级的技术可以显著提高 LLM 服务的性能和用户体验。这些方法在应用或推理服务层运作，改进提示词的构建和缓存方式、对话历史的保留方式、请求如何路由到不同模型等。</p>
 <blockquote>
 <p>Beyond core model and system optimizations, there are several higher-level techniques that can significantly improve the performance and user experience of LLM serving. These methods operate at the application or inference serving layer, improving how prompts are constructed and cached, how conversation history is retained, how requests are routed to different models, and more.</p>
 </blockquote>
@@ -3426,7 +3426,7 @@
 <blockquote>
 <p>Users often send very long prompts or conversation histories to LLMs. However, not all of that context may be necessary for generating an adequate response. Prompt compression refers to a set of techniques to shorten or simplify the input prompt without losing relevant information.</p>
 </blockquote>
-<p>有些系统提示或系统注入的指令相当冗长（"你是 ChatGPT，一个旨在帮助用户的友好助手……"）。庞大的系统提示会在输入上下文中占用大量空间——而且是每个请求都如此。</p>
+<p>有些系统提示词或系统注入的指令相当冗长（"你是 ChatGPT，一个旨在帮助用户的友好助手……"）。庞大的系统提示词会在输入上下文中占用大量空间——而且是每个请求都如此。</p>
 <blockquote>
 <p>Some system prompts or system-injected instructions are very verbose ("You are ChatGPT, a friendly assistant designed to help users..."). Large system prompts will take up a lot of space in the input context-and for every request.</p>
 </blockquote>
@@ -3454,11 +3454,11 @@
 <blockquote>
 <p>To do this, you can run a small LLM-or a traditional rule-based system-to summarize the oldest parts of the conversation into a short summary. A common strategy is: when the conversation exceeds 75% of the maximum context length, summarize the oldest 25% of messages. This summary is then prepended to the newer parts of the conversation. This becomes the new prompt to continue with.</p>
 </blockquote>
-<p>在实现提示压缩时，请确保没有丢失关键事实。一种方法是让模型压缩提示（例如，生成摘要），然后通过向模型询问有关压缩提示的问题来验证压缩的提示。这样，您的算法检查压缩版本的提示中是否保留了关键信息。</p>
+<p>在实现提示压缩时，请确保没有丢失关键事实。一种方法是让模型压缩提示词（例如，生成摘要），然后通过向模型询问有关压缩提示词的问题来验证压缩的提示。这样，您的算法检查压缩版本的提示中是否保留了关键信息。</p>
 <blockquote>
 <p>When implementing prompt compression, make sure that key facts aren't lost. One approach is to have the model compress the prompt (e.g., generate a summary) and then verify the compressed prompt by asking the model questions about it. This way, your algorithm checks that key information is preserved in the compressed version of the prompt.</p>
 </blockquote>
-<p>这可以防止非常长的聊天产生过多延迟，并使模型专注于对话的最新部分。通过截断较早的轮次，您减少了有效提示长度 N，这将 prefill 自注意力工作从 N(N + 1) / 2（大致 O(N²)）减少到较短窗口的较小三角形成本。因此，虽然成本接近窗口大小的二次方，但较小的 N 对于非常长的对话产生显著差异。</p>
+<p>这可以防止非常长的聊天产生过多延迟，并使模型专注于对话的最新部分。通过截断较早的轮次，您减少了有效提示词词长度 N，这将 prefill 自注意力工作从 N(N + 1) / 2（大致 O(N²)）减少到较短窗口的较小三角形成本。因此，虽然成本接近窗口大小的二次方，但较小的 N 对于非常长的对话产生显著差异。</p>
 <blockquote>
 <p>This prevents very long chats from incurring too much latency and keeps the model focused on the most recent part of the conversation. By truncating earlier turns, you reduce the effective prompt length N, which reduces prefill self-attention work from N(N + 1) / 2 (roughly O(N²)) to the smaller triangular cost of the shorter window. So while the cost is still quadratic in the window size, the smaller N makes a big difference for very long conversations.</p>
 </blockquote>
@@ -3479,7 +3479,7 @@
 <blockquote>
 <p>For instance, we can potentially reduce inference engine computation by not sending empty lines and repeated punctuation that don't affect the input's meaning. This might save just a few tokens here and there, but it adds up across thousands of requests-especially for long input prompts.</p>
 </blockquote>
-<p>在某些情况下，我们可以用引用来代替完整内容，从而压缩提示。例如，如果用户的提示中包含一段我们系统此前见过的长文本——也许是因为他们引用了一份我们之前存储过的文档——我们就可以用类似"file0"这样的引用来替换它。</p>
+<p>在某些情况下，我们可以用引用来代替完整内容，从而压缩提示词。例如，如果用户的提示中包含一段我们系统此前见过的长文本——也许是因为他们引用了一份我们之前存储过的文档——我们就可以用类似"file0"这样的引用来替换它。</p>
 <blockquote>
 <p>In some cases, we can compress prompts by using references instead of full content. For example, if a user's prompt contains long text that our system has seen before-perhaps because they're referencing a document we previously stored-we could replace it with a reference like "file0".</p>
 </blockquote>
@@ -3487,19 +3487,19 @@
 <blockquote>
 <p>The model could then be fine-tuned to retrieve the actual content for that reference-or we could use a retrieval system to handle it. This gets into the realm of Retrieval-Augmented Generation (RAG), which we won't cover further here, but the key is that we don't always need to feed the raw content to the model if there are alternatives.</p>
 </blockquote>
-<p>一些推理引擎支持在每个会话中只设置一次系统提示（system prompt），而不必每次都发送。相比为每个请求重新压缩系统提示，这是更好的方案。</p>
+<p>一些推理引擎支持在每个会话中只设置一次系统提示词（system prompt），而不必每次都发送。相比为每个请求重新压缩系统提示词，这是更好的方案。</p>
 <blockquote>
 <p>Some inference engines support setting the system prompt once per session instead of sending it every time. This is a better solution than recompressing the system prompt per request.</p>
 </blockquote>
-<p>我们将在下一节中讨论如何通过前缀缓存提高大型系统提示的效率。但是，现在让我们使用提示压缩创建一个更短且功能等效的指令集。例如，可以训练模型使用特殊 token 或元数据来表示长系统提示。这样，它不必总是处理长自然语言版本。</p>
+<p>我们将在下一节中讨论如何通过前缀缓存提高大型系统提示词的效率。但是，现在让我们使用提示压缩创建一个更短且功能等效的指令集。例如，可以训练模型使用特殊 token 或元数据来表示长系统提示词。这样，它不必总是处理长自然语言版本。</p>
 <blockquote>
 <p>We'll discuss how to make large system prompts more efficient with prefix caching in the next section. For now, let's create a shorter and functionally equivalent set of instructions using prompt compression. For instance, the model could be trained to use special tokens or metadata to represent long system prompts. This way, it doesn't have to always process the long natural language version.</p>
 </blockquote>
-<p>考虑一个 200 token 的系统提示，充满了基于文本的规则，可以用 10 个特殊 token 替换，这些 token 触发与 200 token 自然语言表达的相同基于文本的规则。这需要训练模型解析元数据、推导规则并遵循它们。</p>
+<p>考虑一个 200 token 的系统提示词，充满了基于文本的规则，可以用 10 个特殊 token 替换，这些 token 触发与 200 token 自然语言表达的相同基于文本的规则。这需要训练模型解析元数据、推导规则并遵循它们。</p>
 <blockquote>
 <p>Consider a 200-token system prompt full of text-based rules that could be replaced with 10 special tokens that trigger the same text-based rules as the 200-token natural language expression. This requires training the model to parse metadata, derive rules, and follow them.</p>
 </blockquote>
-<p>正在进行关于"配置"token 的研究，这些 token 告诉模型为给定配置 token 加载某些预配置的指令集。将此视为为给定提示前缀（例如系统提示）分配唯一 ID。通常微调模型以识别像<code>&lt;POLICY_A&gt;</code>这样的 token 作为长 500 字策略的替代品。</p>
+<p>正在进行关于"配置"token 的研究，这些 token 告诉模型为给定配置 token 加载某些预配置的指令集。将此视为为给定提示前缀（例如系统提示词）分配唯一 ID。通常微调模型以识别像<code>&lt;POLICY_A&gt;</code>这样的 token 作为长 500 字策略的替代品。</p>
 <blockquote>
 <p>There's ongoing research on "configuration" tokens that tell the model to load certain preconfigured instruction sets for a given configuration token. Think of this as assigning a unique ID to a given prompt prefix (e.g., system prompt). Often models are fine-tuned to recognize tokens like <code>&lt;POLICY_A&gt;</code> as a stand-in for a long 500-word policy.</p>
 </blockquote>
@@ -3507,12 +3507,12 @@
 <blockquote>
 <p>The Hugging Face Transformers library implements the popular CTRL method. This is a good place to start using configuration tokens for prompt pruning.</p>
 </blockquote>
-<p>使用特殊 token 和元数据替换长系统提示更多是训练考虑。但如果它减少了提示大小并减少了 prefill 开销，它可以提供大规模推理加速。在大规模下，这直接转化为每个查询所需的更少计算--以及更多的成本节省。</p>
+<p>使用特殊 token 和元数据替换长系统提示词更多是训练考虑。但如果它减少了提示大小并减少了 prefill 开销，它可以提供大规模推理加速。在大规模下，这直接转化为每个查询所需的更少计算--以及更多的成本节省。</p>
 <blockquote>
 <p>Replacing long system prompts with special tokens and metadata is more of a training consideration. But if it reduces prompt size and reduces prefill overhead, it can provide significant inference speedups at scale. At scale, this directly translates to less compute required per query-and more cost savings.</p>
 </blockquote>
 <h3 id="prefix-caching">前缀缓存 (Prefix Caching)<a class="headerlink" href="#prefix-caching" title="Permanent link">&para;</a></h3>
-<p>通常，对 LLM 的多个请求在其输入中共享公共前缀，因为许多查询可能以相同的系统提示开始。您可以计算一次模型对相同前缀的输出，并为后续请求重用相同的 KV 缓存，而不是每次都重新计算。</p>
+<p>通常，对 LLM 的多个请求在其输入中共享公共前缀，因为许多查询可能以相同的系统提示词开始。您可以计算一次模型对相同前缀的输出，并为后续请求重用相同的 KV 缓存，而不是每次都重新计算。</p>
 <blockquote>
 <p>Often, multiple requests to an LLM share a common prefix in their inputs since many queries may start with the same system prompt. Instead of recomputing every time, you can compute the model's output for the identical prefix once and reuse the same KV cache for subsequent requests.</p>
 </blockquote>
@@ -3524,7 +3524,7 @@
 <blockquote>
 <p>Prefix caching can transform total work that would normally be O(N x L) (N requests of length L) into O(N + L) work by reusing cached prefix computations for repeated portions.</p>
 </blockquote>
-<p>vLLM 实现了前缀缓存（enable<em>prefix</em>caching=True）以避免重复计算。它首先判断传入提示的前 <em>N</em> 个 token 是否与缓存中已有的某个前缀匹配——该前缀可能来自之前的某个请求，或来自同一会话中较早的部分。如果匹配，vLLM 就会避免对这 <em>N</em> 个 token 做昂贵的注意力重算——而只是把数据从缓存的 KV 复制到新的上下文中。请确保你启用了前缀缓存——并分配了足够的内存。</p>
+<p>vLLM 实现了前缀缓存（enable<em>prefix</em>caching=True）以避免重复计算。它首先判断传入提示词的前 <em>N</em> 个 token 是否与缓存中已有的某个前缀匹配——该前缀可能来自之前的某个请求，或来自同一会话中较早的部分。如果匹配，vLLM 就会避免对这 <em>N</em> 个 token 做昂贵的注意力重算——而只是把数据从缓存的 KV 复制到新的上下文中。请确保你启用了前缀缓存——并分配了足够的内存。</p>
 <blockquote>
 <p>vLLM implements prefix caching (enable<em>prefix</em>caching=True) to avoid recomputation. It first identifies if the first N tokens of an incoming prompt match a prefix in the cache from a previous request-or an earlier request in the same session. If so, vLLM avoids the expensive attention recomputation for those N tokens-just copying the data from the cached KV to the new context. Make sure you have prefix caching enabled-and with sufficient memory allocation.</p>
 </blockquote>
@@ -3568,7 +3568,7 @@
 <blockquote>
 <p>To implement this yourself, you can hash the conversation history. This gives you a consistent key to look up in the cache. However, you must manage memory carefully, as storing entire KV caches for many conversations can use up GPU memory very quickly. vLLM's paging helps by paging inactive caches out to CPU memory-or disk-and paging them back into GPU memory on cache hits.</p>
 </blockquote>
-<p>您还可以跨多个请求去重提示的部分--甚至在单个请求内。在这里，去重指的是组合相同的子提示以仅计算一次它们的 transformer 状态。例如，如果两个用户几乎同时发送完全相同的提示前缀，系统可以合并两个提示并仅处理一次。</p>
+<p>您还可以跨多个请求去重提示词的部分--甚至在单个请求内。在这里，去重指的是组合相同的子提示以仅计算一次它们的 transformer 状态。例如，如果两个用户几乎同时发送完全相同的提示前缀，系统可以合并两个提示并仅处理一次。</p>
 <blockquote>
 <p>You can also deduplicate portions of prompts across multiple requests-or even within a single request. Here, deduplication refers to combining identical sub-prompts to compute their transformer state only once. For example, if two users send the exact same prompt prefix at nearly the same time, the system could merge the two prompts and process them only once.</p>
 </blockquote>
@@ -3584,7 +3584,7 @@
 <blockquote>
 <p>Prefix caching is often implemented as a token sequence trie (pronounced "try"). A trie, often called a prefix tree, is a tree-based data structure where each edge represents a single token, and each node encodes the sequence of tokens from the root to that point.</p>
 </blockquote>
-<p>在 token 序列 trie 中，每个观察到的提示前缀都存储为自己的 token 路径。这实现了共享前缀的快速查找。当新请求到达时，推理引擎从根开始逐 token 遍历 trie--直到无法再匹配下一个 token。匹配 token 序列落在完成最长缓存前缀的节点上，如图 16-8 所示，示例系统提示"你是 ChatGPT，一个旨在帮助用户的友好助手......"</p>
+<p>在 token 序列 trie 中，每个观察到的提示前缀都存储为自己的 token 路径。这实现了共享前缀的快速查找。当新请求到达时，推理引擎从根开始逐 token 遍历 trie--直到无法再匹配下一个 token。匹配 token 序列落在完成最长缓存前缀的节点上，如图 16-8 所示，示例系统提示词"你是 ChatGPT，一个旨在帮助用户的友好助手......"</p>
 <blockquote>
 <p>In a token sequence trie, each observed prompt prefix is stored as its own token path. This enables fast lookup of shared prefixes. When a new request arrives, the inference engine traverses the trie token by token starting from the root-until it can no longer match the next token. The matching token sequence lands on the node that completes the longest cached prefix, as shown in Figure 16-8, with an example system prompt "You are ChatGPT, a friendly assistant designed to help users..."</p>
 </blockquote>
@@ -3679,7 +3679,7 @@
 </ol>
 </blockquote>
 <ol>
-<li>服务器处理传入提示"Hello!"并用 LLM 生成的"Hi!"响应。通过这个简单的响应，许多 token 作为单条边添加到树中。此边链接到绿色的新节点。具体来说，系统提示"你是一个有帮助的助手"；用户消息"Hello!"；和 LLM 响应"Hi!"被合并。</li>
+<li>服务器处理传入提示词"Hello!"并用 LLM 生成的"Hi!"响应。通过这个简单的响应，许多 token 作为单条边添加到树中。此边链接到绿色的新节点。具体来说，系统提示词"你是一个有帮助的助手"；用户消息"Hello!"；和 LLM 响应"Hi!"被合并。</li>
 </ol>
 <blockquote>
 <ol>
@@ -3695,7 +3695,7 @@
 </ol>
 </blockquote>
 <ol>
-<li>新聊天会话开始，步骤 3 中的节点 b 被分割为两个单独的节点。这让两个聊天会话共享系统提示。</li>
+<li>新聊天会话开始，步骤 3 中的节点 b 被分割为两个单独的节点。这让两个聊天会话共享系统提示词。</li>
 </ol>
 <blockquote>
 <ol>
@@ -4016,7 +4016,7 @@
 <p><strong>Efficiency and cost optimization</strong>: Focus on improvements that make inference more cost-effective. Every optimization that increases throughput and utilization will directly improve the cost-per-query. By profiling and refining the system, teams can serve more requests with fewer GPUs. This leads to significant savings in infrastructure costs and power efficiency.</p>
 </blockquote>
 <h2 id="conclusion">结论 (Conclusion)<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
-<p>性能分析、调试和全栈系统调优对于在大规模下保持高效、可靠和具有成本效益的 LLM 推理至关重要。随着模型规模向数万亿参数增长，生产集群正在向每个部署数十万甚至数百万 GPU 扩展。在这种规模下，软件和硬件的持续协同设计仍然至关重要。仅依靠硬件来提高性能已不再足够--特别是随着功率成为限制因素。软件和硬件需要在堆栈的每一层协同设计和持续调优。</p>
+<p>剖析、调试和全栈系统调优对于在大规模下保持高效、可靠和具有成本效益的 LLM 推理至关重要。随着模型规模向数万亿参数增长，生产集群正在向每个部署数十万甚至数百万 GPU 扩展。在这种规模下，软件和硬件的持续协同设计仍然至关重要。仅依靠硬件来提高性能已不再足够--特别是随着功率成为限制因素。软件和硬件需要在堆栈的每一层协同设计和持续调优。</p>
 <blockquote>
 <p>Profiling, debugging, and full-stack system tuning are essential for maintaining efficient, reliable, and cost-effective LLM inference at scale. As model sizes grow toward multitrillion parameters, production clusters are scaling to hundreds of thousands-or even millions-of GPUs per deployment. At this scale, continuous codesign of software and hardware remains critical. Relying on hardware alone for performance improvements is no longer sufficient-especially as power is becoming a limiting factor. Both the software and hardware need to be codesigned and continuously tuned together-and at every layer in the stack.</p>
 </blockquote>

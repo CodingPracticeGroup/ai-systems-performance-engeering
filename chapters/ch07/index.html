@@ -1202,7 +1202,7 @@
 <blockquote>
 <p>Figure 7-1. Comparing coalesced versus uncoalesced memory access pattern</p>
 </blockquote>
-<p>在核函数代码里，这个问题通常表现为<em>跨步</em>（strided）或不规则的索引，使得每个线程都伸向不同的缓存行。当一个核函数的线程用跨步或不规则的索引取数据时，GPU 会发出许多小而非合并的全局内存事务，而不是少数几个全宽加载。</p>
+<p>在核函数代码里，这个问题通常表现为<em>跨步</em>（strided）或不规则的索引，使每个线程都伸向不同的缓存行。当一个核函数的线程用跨步或不规则的索引取数据时，GPU 会发出许多小而非合并的全局内存事务，而不是少数几个全宽加载。</p>
 <blockquote>
 <p>In kernel code, this problem typically appears as strided or irregular indexing such that each thread reaches into different cache lines. When a kernel's threads fetch data with strided or irregular indices, the GPU issues many small, uncoalesced global‐memory transactions rather than a handful of full‐width loads.</p>
 </blockquote>
@@ -1210,7 +1210,7 @@
 <blockquote>
 <p>In Nsight Compute, the Memory Workload Analysis section will show lower Global Memory Load Efficiency, higher DRAM sector read counts, and average sectors per request above 4.0 when uncoalesced patterns are present. This is because more sectors are being fetched than a properly coalesced memory access pattern, and it indicates that you're wasting bandwidth by fetching mostly unused bytes. And DRAM throughput percentage will remain well below peak. This confirms that your warp is spending cycles stalled on memory rather than driving the ALUs.</p>
 </blockquote>
-<p>要摆脱这种访存受限的境地，你可以重新组织数据，让每个 warp 的 32 个线程加载连续元素。要么用 input[idx] 来索引数组（其中 idx = blockIdx.x * blockDim.x + threadIdx.x），要么切换到数组结构体（Structure of Arrays，SoA）布局，使得线程 i 始终触及元素 i。结构体数组（Array of Structures，AoS）与 SoA 之间的区别如图 7-2 所示。</p>
+<p>要摆脱这种访存受限的境地，你可以重新组织数据，让每个 warp 的 32 个线程加载连续元素。要么用 input[idx] 来索引数组（其中 idx = blockIdx.x * blockDim.x + threadIdx.x），要么切换到数组结构体（Structure of Arrays，SoA）布局，使线程 i 始终触及元素 i。结构体数组（Array of Structures，AoS）与 SoA 之间的区别如图 7-2 所示。</p>
 <blockquote>
 <p>To break out of this memory‐bound regime, you can reorganize your data so that each warp's 32 threads load contiguous elements. Either index the array with input[idx] where idx = blockIdx.x * blockDim.x + threadIdx.x or switch to a structure‐of‐arrays (SoA) layout so that thread i always touches element i. The difference between an array of structures (AoS) and an SoA is shown in Figure 7-2.</p>
 </blockquote>
@@ -2243,7 +2243,7 @@
 </span><span id="__span-13-23"><a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a><span class="n">B</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </span><span id="__span-13-24"><a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="n">C</span> <span class="o">=</span> <span class="n">tiled_matmul</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
 </span></code></pre></div>
-<p>在 32 × 32 的瓦片下，当一个 warp 中的线程都访问同一列时，它们会争用同一个共享内存 bank。在实践中，你可以通过把瓦片填充到 33 列——或者使用像混洗（swizzling）这样的技术——来避免这一点，使得每次访问落在不同的 bank 上。我们会在下一节应用这项优化。目前，先让我们把分块本身作为一项优化来关注。</p>
+<p>在 32 × 32 的瓦片下，当一个 warp 中的线程都访问同一列时，它们会争用同一个共享内存 bank。在实践中，你可以通过把瓦片填充到 33 列——或者使用像混洗（swizzling）这样的技术——来避免这一点，使每次访问落在不同的 bank 上。我们会在下一节应用这项优化。目前，先让我们把分块本身作为一项优化来关注。</p>
 <blockquote>
 <p>With a 32 x 32 tile, threads in a warp will contend for the same shared-memory bank when they all access the same column. In practice, you can avoid this by padding the tile to 33 columns-or using techniques like swizzling-so that each access falls in a different bank. We will apply this optimization in the next section. For now, let's focus on tiling as an optimization on its own.</p>
 </blockquote>
@@ -2476,7 +2476,7 @@
 <blockquote>
 <p>Figure 7-5. 2-way and 16-way bank conflicts</p>
 </blockquote>
-<p>这里，多个线程正在访问同一个内存 bank，这会造成冲突并影响性能。bank 冲突的一个经典例子是使用 32 × 32 共享内存瓦片的朴素矩阵转置。如果 32 个线程各自读取 tile[i][threadIdx.x]，使得同一个列索引（threadIdx.x）在不同行（i）之间被读取，那么这个 warp 中的全部 32 个线程各自访问的内存地址都落在同一个共享内存 bank 中，造成 32 路 bank 冲突。</p>
+<p>这里，多个线程正在访问同一个内存 bank，这会造成冲突并影响性能。bank 冲突的一个经典例子是使用 32 × 32 共享内存瓦片的朴素矩阵转置。如果 32 个线程各自读取 tile[i][threadIdx.x]，使同一个列索引（threadIdx.x）在不同行（i）之间被读取，那么这个 warp 中的全部 32 个线程各自访问的内存地址都落在同一个共享内存 bank 中，造成 32 路 bank 冲突。</p>
 <blockquote>
 <p>Here, multiple threads are accessing the same memory bank, which will cause conflicts and impact performance. A classic example of bank conflicts is a naive matrix transpose using a 32 x 32 shared-memory tile. If 32 threads each read tile[i][threadIdx.x], such that the same column index (threadIdx.x) is read across different rows (i), all 32 threads in a warp will each access a memory address located in the same shared-memory bank, resulting in a 32-way bank conflict.</p>
 </blockquote>
@@ -2586,7 +2586,7 @@
 </span><span id="__span-15-41"><a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-15-42"><a id="__codelineno-15-42" name="__codelineno-15-42" href="#__codelineno-15-42"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>在这个核函数中，写入共享内存的瓦片写操作是行主序的（tile[ty][tx]），因此是合并的，使得每个 warp 以连续方式把一整行 32 个 float 写入共享内存。（注：以列主序 tile[tx][ty] 写入瓦片到共享内存会使 warp 以 128 字节为步长，并触发 32 路 bank 冲突。）相比之下，瓦片的读操作是转置的，因为每个线程读取的值中 threadIdx.y 是行索引、threadIdx.x 是列索引。</p>
+<p>在这个核函数中，写入共享内存的瓦片写操作是行主序的（tile[ty][tx]），因此是合并的，使每个 warp 以连续方式把一整行 32 个 float 写入共享内存。（注：以列主序 tile[tx][ty] 写入瓦片到共享内存会使 warp 以 128 字节为步长，并触发 32 路 bank 冲突。）相比之下，瓦片的读操作是转置的，因为每个线程读取的值中 threadIdx.y 是行索引、threadIdx.x 是列索引。</p>
 <blockquote>
 <p>In this kernel, the tile write into shared memory is row-major (tile[ty][tx]) and therefore coalesced such that each warp writes a full row of 32 floats to shared memory in a contiguous manner. (Note: Writing the tile to shared memory with column-major tile[tx][ty] would make the warp stride by 128 bytes and trigger a 32-way bank conflict.) In contrast, the tile read is transposed since each thread reads a value where threadIdx.y is the row index and threadIdx.x is the column index.</p>
 </blockquote>
@@ -2633,7 +2633,7 @@
 <blockquote>
 <p>PyTorch itself doesn't expose any high-level APIs for shared-memory padding, so you would have to implement those manually in CUDA kernels and load them with torch.utils.cpp_extension). However, in practice, PyTorch relies on optimized libraries like cuDNN and cuBLAS, which implement techniques under the hood to avoid bank conflicts and maximize throughput.</p>
 </blockquote>
-<p>给每一行共享内存填充一个额外元素，会让每行变成 33 个 float。填充 1 会改变索引运算，使得 tile[row][col] 的地址在每个线程的低 5 位上各不相同，而不再是所有线程共享同一个 5 位 bank 索引。这确保了每个线程索引都映射到不同的 bank。</p>
+<p>给每一行共享内存填充一个额外元素，会让每行变成 33 个 float。填充 1 会改变索引运算，使 tile[row][col] 的地址在每个线程的低 5 位上各不相同，而不再是所有线程共享同一个 5 位 bank 索引。这确保了每个线程索引都映射到不同的 bank。</p>
 <blockquote>
 <p>Padding each shared-memory row with an extra element makes each row 33 floats long. Padding by 1 changes the indexing math so that tile[row][col] addresses differ in the lower 5 bits for each thread, rather than all threads sharing the same 5-bit bank index. This ensures each thread index maps to a different bank.</p>
 </blockquote>
@@ -3214,7 +3214,7 @@
 <blockquote>
 <p>By ping-ponging between tile0 and tile1, each new memcpy_async overlaps with processTile on the previous buffer. The load and store units on the SM see lower pressure, and there are more instruction-issue slots available for computation. Meanwhile, TMA moves data in parallel. This eliminates redundant global memory loads, reduces synchronization overhead, and keeps warps busy instead of stalling on memory.</p>
 </blockquote>
-<p>从全局内存到共享内存的异步预取，把延迟隐藏在计算之后。线程在对先前加载的数据进行计算的同时，把即将用到的数据预加载到共享内存中。</p>
+<p>从全局内存到共享内存的异步预取，把延迟隐藏在计算之后。线程在对先前加载的数据计算的同时，把即将用到的数据预加载到共享内存中。</p>
 <blockquote>
 <p>Asynchronous prefetch from global memory to shared memory hides latency behind computation. Threads preload upcoming data into shared memory while computing on previously loaded data.</p>
 </blockquote>

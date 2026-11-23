@@ -928,7 +928,7 @@
   <a href="#profile-before-and-after" class="md-nav__link">
     <span class="md-ellipsis">
       
-        优化前后进行性能分析 (Profile before and after)
+        优化前后进行剖析 (Profile before and after)
       
     </span>
   </a>
@@ -2048,12 +2048,12 @@
   <a href="#performance-profiling-debugging-and-monitoring" class="md-nav__link">
     <span class="md-ellipsis">
       
-        性能分析、调试与监控 (Performance Profiling, Debugging, and Monitoring)
+        剖析、调试与监控 (Performance Profiling, Debugging, and Monitoring)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="性能分析、调试与监控 (Performance Profiling, Debugging, and Monitoring)">
+    <nav class="md-nav" aria-label="剖析、调试与监控 (Performance Profiling, Debugging, and Monitoring)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -3259,7 +3259,7 @@
   <a href="#profile-before-and-after" class="md-nav__link">
     <span class="md-ellipsis">
       
-        优化前后进行性能分析 (Profile before and after)
+        优化前后进行剖析 (Profile before and after)
       
     </span>
   </a>
@@ -4379,12 +4379,12 @@
   <a href="#performance-profiling-debugging-and-monitoring" class="md-nav__link">
     <span class="md-ellipsis">
       
-        性能分析、调试与监控 (Performance Profiling, Debugging, and Monitoring)
+        剖析、调试与监控 (Performance Profiling, Debugging, and Monitoring)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="性能分析、调试与监控 (Performance Profiling, Debugging, and Monitoring)">
+    <nav class="md-nav" aria-label="剖析、调试与监控 (Performance Profiling, Debugging, and Monitoring)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -5585,7 +5585,7 @@
 <blockquote>
 <p>Each chapter's techniques should be applied where they matter most. For example, if your training is 40% data loading, 50% GPU compute, and 10% communication, then first fix data loading, as you can maybe halve the overhead. Then look at GPU kernel optimization.</p>
 </blockquote>
-<h3 id="profile-before-and-after">优化前后进行性能分析 (Profile before and after)<a class="headerlink" href="#profile-before-and-after" title="Permanent link">&para;</a></h3>
+<h3 id="profile-before-and-after">优化前后进行剖析 (Profile before and after)<a class="headerlink" href="#profile-before-and-after" title="Permanent link">&para;</a></h3>
 <p>每当您应用优化时，都要衡量其影响。这听起来很明显，但通常调整是基于理论做出的，实际上可能没有帮助——甚至有害。</p>
 <blockquote>
 <p>Whenever you apply an optimization, measure its impact. This sounds obvious, but often tweaks are made based on theory and might not help-or even hurt-in practice.</p>
@@ -5594,7 +5594,7 @@
 <blockquote>
 <p>Consider a scenario where your workload is not memory-limited, but you decide to try enabling activation checkpointing for your training job. This may actually slow down the job by using extra compute to reduce memory. In other words, always compare key metrics like throughput, latency, and utilization before and after making changes.</p>
 </blockquote>
-<p>使用内置的性能分析器进行简单计时，例如 100 次迭代的平均迭代时间。</p>
+<p>使用内置的剖析器进行简单计时，例如 100 次迭代的平均迭代时间。</p>
 <blockquote>
 <p>Use the built-in profilers for simple timing, such as average iteration time over 100 iterations.</p>
 </blockquote>
@@ -5722,7 +5722,7 @@
 <p>Prefer modern GPUs for superior performance-per-watt and memory capacity. Newer architectures offer features like native FP8 and FP4 precision support-along with much faster interconnects. These produce big speedups over older-generation GPUs and systems.</p>
 </blockquote>
 <h3 id="leverage-high-bandwidth-interconnects">利用高带宽互连 (Leverage high-bandwidth interconnects)<a class="headerlink" href="#leverage-high-bandwidth-interconnects" title="Permanent link">&para;</a></h3>
-<p><em>利用高带宽互连</em> 对于多 GPU 工作负载，使用带 NVLink/NVSwitch 的系统，例如 GB200/GB300 NVL72，而非仅有 PCIe 的连接。NVLink 5 提供高达 1.8 TB/s 的双向 GPU 到 GPU 带宽（超过 PCIe Gen5 的 14×），实现跨 GPU 近乎线性的扩展。NVLink Switch 域可通过二级交换机扩展，在一个 NVLink 域内连接多达 576 个 GPU。这使得分层集合通信（collective）得以尽可能长时间地留在 NVLink 上，再回退到机架间的 fabric。</p>
+<p><em>利用高带宽互连</em> 对于多 GPU 工作负载，使用带 NVLink/NVSwitch 的系统，例如 GB200/GB300 NVL72，而非仅有 PCIe 的连接。NVLink 5 提供高达 1.8 TB/s 的双向 GPU 到 GPU 带宽（超过 PCIe Gen5 的 14×），实现跨 GPU 近乎线性的扩展。NVLink Switch 域可通过二级交换机扩展，在一个 NVLink 域内连接多达 576 个 GPU。这使分层集合通信（collective）得以尽可能长时间地留在 NVLink 上，再回退到机架间的 fabric。</p>
 <blockquote>
 <p>Use systems with NVLink/NVSwitch, such as GB200/GB300 NVL72, instead of PCIe-only connectivity for multi-GPU workloads. NVLink 5 provides up to 1.8 TB/s bidirectional GPU-to-GPU bandwidth (over 14x PCIe Gen5), enabling near-linear scaling across GPUs. NVLink Switch domains can be scaled with second-level switches to connect up to 576 GPUs in one NVLink domain. This enables hierarchical collectives that stay on NVLink as long as possible before falling back to the inter-rack fabric.</p>
 </blockquote>
@@ -5899,7 +5899,7 @@
 <p>With persistence mode enabled, the GPU remains "warm" and ready to use, reducing startup latency for jobs. This is especially crucial if using a Multi-Instance GPU (MIG) partitioning-without persistence, MIG configurations would reset on every job, but keeping the driver active preserves the slices. Always configure persistence mode when using MIG.</p>
 </blockquote>
 <h3 id="isolate-system-tasks">隔离系统任务 (Isolate system tasks)<a class="headerlink" href="#isolate-system-tasks" title="Permanent link">&para;</a></h3>
-<p><em>隔离系统任务</em> 在每台服务器上划出一个核心——或一小组核心——用于 OS 内务处理，例如中断处理与后台守护进程。这样，你喂饱 GPU 的主 CPU 线程就不会被打断。这可以通过 CPU 隔离或 cgroup 钉绑来实现。消除 OS 抖动能确保一致的吞吐量。</p>
+<p><em>隔离系统任务</em> 在每台服务器上划出一个核心——或一小组核心——用于 OS 内务处理，例如中断处理与后台守护进程。这样，你喂饱 GPU 的主 CPU 线程就不会被打断。这可以通过 CPU 隔离或 cgroup 钉绑实现。消除 OS 抖动能确保一致的吞吐量。</p>
 <blockquote>
 <p>Dedicate a core-or small subset of cores-on each server for OS housekeeping, such as interrupt handling and background daemons. This way, your main CPU threads feeding the GPU are not interrupted. This can be done using CPU isolation or cgroup pinning. Eliminating OS jitter ensures consistent throughput.</p>
 </blockquote>
@@ -6114,7 +6114,7 @@
 <blockquote>
 <p>Remember that speeding up model compute doesn't help if your data pipeline cuts throughput in half. Always profile end-to-end, not just the training loop isolated. Use Nsight Systems and Nsight Compute to measure kernel timelines and stalls, or the PyTorch profiler for framework-level attribution. Then compare iteration time with synthetic versus real data to see how much overhead data loading introduces. Aim for less than 10% overhead from ideal. If it's more than that, invest time in pipeline optimization; it often yields large "free" speedups in training.</p>
 </blockquote>
-<h2 id="performance-profiling-debugging-and-monitoring">性能分析、调试与监控 (Performance Profiling, Debugging, and Monitoring)<a class="headerlink" href="#performance-profiling-debugging-and-monitoring" title="Permanent link">&para;</a></h2>
+<h2 id="performance-profiling-debugging-and-monitoring">剖析、调试与监控 (Performance Profiling, Debugging, and Monitoring)<a class="headerlink" href="#performance-profiling-debugging-and-monitoring" title="Permanent link">&para;</a></h2>
 <p>你无法优化你没有测量的东西；剖析能揭示你是受计算限制、受内存限制、受 I/O 限制还是受网络限制，从而让你对症下药。持续的遥测（telemetry）与回归测试能防止已有成果随着代码、驱动和数据的演进而被侵蚀。</p>
 <blockquote>
 <p>You can't optimize what you don't measure; profiling reveals if you're compute-bound, memory-bound, I/O-bound, or network-bound so you target the right fix. Continuous telemetry and regression tests keep wins from eroding as code, drivers, and data evolve.</p>
@@ -6586,7 +6586,7 @@
 <p>Move beyond simple request batching and use continuous batching strategies to maximize throughput under heavy loads. Traditional dynamic batching groups incoming requests and processes them as a batch to improve GPU utilization. Continuous batching takes this further by dynamically merging and splitting sequences of tokens across requests in real time. Systems like vLLM implement token pooling, where as soon as any thread is ready to generate the next token, it gets grouped with other ready threads to form a new batch. This approach keeps the GPU at high occupancy at all times and drastically reduces idle periods. The result is significantly higher token throughput and better latency consistency, especially when serving many concurrent users with varying sequence lengths.</p>
 </blockquote>
 <h3 id="gpu-shard-models-efficiently-across-gpus-and-nodes">跨 GPU 和节点高效分片模型 (Shard models efficiently across GPUs and nodes)<a class="headerlink" href="#gpu-shard-models-efficiently-across-gpus-and-nodes" title="Permanent link">&para;</a></h3>
-<p><em>跨 GPU 与节点高效地对模型分片</em> 对于太大而无法装入单块 GPU 内存的模型，采用模型并行推理技术，把模型划分到多块 GPU 甚至多台服务器上。这可以用张量并行来完成，即把每一层的权重与计算切分到各设备上；也可以用流水线并行，即把模型各层切成托管在不同 GPU 上的段，并让数据顺序流经它们。虽然模型分片会引入通信开销和一些额外延迟（因为数据必须在各分片之间流动），但它使得部署原本无法服务的万亿参数模型成为可能。确保 GPU 之间有高速互连（如 NVLink 或 InfiniBand）以使其可行，并在可能处让通信与计算重叠。关键在于均衡负载，使所有设备并行工作，且没有任何单个阶段成为瓶颈。</p>
+<p><em>跨 GPU 与节点高效地对模型分片</em> 对于太大而无法装入单块 GPU 内存的模型，采用模型并行推理技术，把模型划分到多块 GPU 甚至多台服务器上。这可以用张量并行来完成，即把每一层的权重与计算切分到各设备上；也可以用流水线并行，即把模型各层切成托管在不同 GPU 上的段，并让数据顺序流经它们。虽然模型分片会引入通信开销和一些额外延迟（因为数据必须在各分片之间流动），但它使部署原本无法服务的万亿参数模型成为可能。确保 GPU 之间有高速互连（如 NVLink 或 InfiniBand）以使其可行，并在可能处让通信与计算重叠。关键在于均衡负载，使所有设备并行工作，且没有任何单个阶段成为瓶颈。</p>
 <blockquote>
 <p>For models that are too large to fit into a single GPU's memory, employ model-parallel inference techniques by partitioning the model across multiple GPUs or even multiple servers. This can be done with tensor parallelism, in which it splits each layer's weights and computation across devices, or pipeline parallelism, which splits the model's layers into segments hosted on different GPUs and streams the data through them sequentially. While model sharding introduces communication overhead and some added latency as data must flow between shards, it enables deployment of trillion-parameter models that would otherwise be impossible to serve. Ensure high-speed interconnects, such as NVLink or InfiniBand, between GPUs to make this feasible, and overlap communication with computation where possible. The key is to balance the load so all devices work in parallel and no single stage becomes a bottleneck.</p>
 </blockquote>

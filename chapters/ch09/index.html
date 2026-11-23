@@ -1652,7 +1652,7 @@
 <blockquote>
 <p>By pruning 50% of weights in a 2:4 pattern, for instance, you ensure that half of your memory traffic is never needed. This immediately reduces global‐memory reads and raises effective arithmetic intensity by almost 2x.</p>
 </blockquote>
-<p>NVIDIA GPU 在硬件中实现这种 2:4 结构化稀疏，使得每 16 个元素的块可以将 8 个元素置零。这正是用于把稀疏矩阵的 Tensor Core 吞吐翻倍的模式。在撰写本书时，没有其他任意稀疏模式能在硬件中获得这种特殊加速。</p>
+<p>NVIDIA GPU 在硬件中实现这种 2:4 结构化稀疏，使每 16 个元素的块可以将 8 个元素置零。这正是用于把稀疏矩阵的 Tensor Core 吞吐翻倍的模式。在撰写本书时，没有其他任意稀疏模式能在硬件中获得这种特殊加速。</p>
 <blockquote>
 <p>NVIDIA GPUs implement this 2:4 structured sparsity in hardware such that every 16-element chunk can zero out 8 elements. This is the pattern used to double Tensor Core throughput for sparse matrices. As of this writing, no other arbitrary sparsity pattern gains this special acceleration in hardware.</p>
 </blockquote>
@@ -2292,7 +2292,7 @@
 </tr>
 </tbody>
 </table>
-<p>这里可以看到，调优之后，通过重叠加载，我们核函数的内存停顿下降了，缓存提示也削减了部分延迟。此外，我们提高了 ILP 与每周期指令数（IPC）。这使得整体核函数执行时间净改善了 7%。</p>
+<p>这里可以看到，调优之后，通过重叠加载，我们核函数的内存停顿下降了，缓存提示也削减了部分延迟。此外，我们提高了 ILP 与每周期指令数（IPC）。这使整体核函数执行时间净改善了 7%。</p>
 <blockquote>
 <p>Here we see that after tuning, our kernel's memory stalls decreased by overlapping loads, and cache hints reduced some latency. Additionally, we increased ILP and the instructions per cycle (IPC). This gave a 7% net improvement in overall kernel execution time.</p>
 </blockquote>
