@@ -876,13 +876,13 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 使用自动调优（当可用时）(Use autotuning when available)
 
-*在可用时启用自动调优* 开启库的自动调优功能以最大化底层性能。例如，当输入尺寸固定时设置 torch.backends.cudnn.benchmark=True。这会让 NVIDIA 的 cuDNN 库尝试多种卷积算法，并为你的硬件挑选最快的一种。这一次性开销会换来经过优化的核函数，从而加速训练与推理。如果不要求严格可复现，可以通过禁用 cudnn.deterministic 来允许非确定性算法，从而解锁这些更快的实现。
+开启库的自动调优功能以最大化底层性能。例如，当输入尺寸固定时设置 torch.backends.cudnn.benchmark=True。这会让 NVIDIA 的 cuDNN 库尝试多种卷积算法，并为你的硬件挑选最快的一种。这一次性开销会换来经过优化的核函数，从而加速训练与推理。如果不要求严格可复现，可以通过禁用 cudnn.deterministic 来允许非确定性算法，从而解锁这些更快的实现。
 
 > Enable library autotuning features to maximize low-level performance. For example, set torch.backends.cudnn.benchmark=True when input sizes are fixed. This lets NVIDIA's cuDNN library try multiple convolution algorithms and pick the fastest one for your hardware. The one-time overhead leads to optimized kernels that can accelerate training and inference. If exact reproducibility isn't required, allow nondeterministic algorithms by disabling cudnn.deterministic to unlock these faster implementations.
 
 ### 利用只读路径 (Leverage the read-only path)
 
-*善用只读路径* 把频繁使用的常量或系数标记为只读，这样 GPU 就能把它们缓存在专用的 L1 只读缓存中。在 CUDA C++ 中，你可以使用 const __restrict__ 指针来提示数据不可变。在现代 GPU 架构上，编译器会为带 const __restrict__ 限定的指针生成带缓存的全局加载。使用 AI 框架和库时，确保查找表或静态权重位于设备上并被当作常量处理。这一优化能降低这些值的全局内存流量与延迟，因为每个 SM 都能从缓存中快速取用它们，而不必反复访问缓慢的 DRAM。
+把频繁使用的常量或系数标记为只读，这样 GPU 就能把它们缓存在专用的 L1 只读缓存中。在 CUDA C++ 中，你可以使用 const __restrict__ 指针来提示数据不可变。在现代 GPU 架构上，编译器会为带 const __restrict__ 限定的指针生成带缓存的全局加载。使用 AI 框架和库时，确保查找表或静态权重位于设备上并被当作常量处理。这一优化能降低这些值的全局内存流量与延迟，因为每个 SM 都能从缓存中快速取用它们，而不必反复访问缓慢的 DRAM。
 
 > Mark frequently used constants or coefficients as read-only so the GPU can cache them in the dedicated L1 read-only cache. In CUDA C++, you can use const __restrict__ pointers to hint that data is immutable. On modern GPU architectures, the compiler generates cached global loads for const __restrict__ qualified pointers. When using AI frameworks and libraries, make sure that lookup tables or static weights are on the device and treated as constant. This optimization reduces global memory traffic and latency for those values, as each SM can quickly fetch them from cache instead of repeatedly accessing slow DRAM.
 
@@ -898,7 +898,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 最小化 GPU 同步调用 (Minimize GPU synchronization calls)
 
-*尽量减少 GPU 同步调用* 避免不必要的全局同步，以免阻塞 GPU 的推进。过度使用 cudaDeviceSynchronize() 或阻塞式 GPU 操作（如同步内存拷贝）会插入空闲间隙，使 CPU 与 GPU 都无法做有用的工作。只在绝对必要时才同步。例如，在传输最终结果或调试时再同步。通过让异步操作排队进行，你能让 GPU 保持忙碌、CPU 得以腾出手来准备后续工作。这会带来更连续的执行流水线。
+避免不必要的全局同步，以免阻塞 GPU 的推进。过度使用 cudaDeviceSynchronize() 或阻塞式 GPU 操作（如同步内存拷贝）会插入空闲间隙，使 CPU 与 GPU 都无法做有用的工作。只在绝对必要时才同步。例如，在传输最终结果或调试时再同步。通过让异步操作排队进行，你能让 GPU 保持忙碌、CPU 得以腾出手来准备后续工作。这会带来更连续的执行流水线。
 
 > Avoid unnecessary global synchronizations that stall GPU progress. Excessive use of cudaDeviceSynchronize() or blocking GPU operations (like synchronous memory copies) will insert idle gaps where neither the CPU nor GPU can do useful work. Synchronize only when absolutely needed. For instance, synchronize when transferring final results or when debugging. By letting asynchronous operations queue up, you keep the GPU busy and the CPU free to prepare further work. This leads to a more continuous execution pipeline.
 
@@ -916,13 +916,13 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 对重复工作负载使用持久核函数 (Use persistent kernels for repeated workloads)
 
-*对重复的工作负载使用持久化核函数* 当某个工作负载涉及快速连续地启动完全相同的核函数时（例如处理一个工作队列，或以相同计算流式处理各批数据），可采用持久化核函数策略。持久化核函数只启动一次并保持活跃，在循环中复用线程处理许多个工作单元，而不是为每个单元都重新启动一个核函数。这种方式以更复杂的核函数设计换取显著更低的调度开销。通过让核函数保持存活，你避免了反复的启动成本，并能获得更高的持续占用率。高性能的分布式训练与推理系统常采用这一技巧，以最大化吞吐量并最小化迭代任务的延迟。
+当某个工作负载涉及快速连续地启动完全相同的核函数时（例如处理一个工作队列，或以相同计算流式处理各批数据），可采用持久化核函数策略。持久化核函数只启动一次并保持活跃，在循环中复用线程处理许多个工作单元，而不是为每个单元都重新启动一个核函数。这种方式以更复杂的核函数设计换取显著更低的调度开销。通过让核函数保持存活，你避免了反复的启动成本，并能获得更高的持续占用率。高性能的分布式训练与推理系统常采用这一技巧，以最大化吞吐量并最小化迭代任务的延迟。
 
 > Use a persistent kernel strategy when a workload involves launching identical kernels in rapid succession, such as processing a work queue or streaming batches with the same computation. A persistent kernel is launched once and remains active, reusing threads to handle many units of work in a loop, rather than launching a fresh kernel for each unit. This approach trades a more complex kernel design for significantly lower scheduling overhead. By keeping the kernel alive, you avoid repeated launch costs and can achieve higher sustained occupancy. High-performance distributed training and inference systems often employ this technique to maximize throughput and minimize latency for iterative tasks.
 
 ### 评估线程块集群 (Evaluate thread block clusters)
 
-*评估线程块簇* 用线程块簇（thread block cluster）来让数据保持邻近并减少重启开销。在 Blackwell 上，最多可有 16 个线程块组成一个簇（在提高不可移植上限之后）。在持久化风格的设计中，使用簇感知的同步与共享内存驻留来改善局部性。用 Nsight Compute 等核函数级剖析工具来权衡占用率与驻留之间的取舍。
+用线程块簇（thread block cluster）来让数据保持邻近并减少重启开销。在 Blackwell 上，最多可有 16 个线程块组成一个簇（在提高不可移植上限之后）。在持久化风格的设计中，使用簇感知的同步与共享内存驻留来改善局部性。用 Nsight Compute 等核函数级剖析工具来权衡占用率与驻留之间的取舍。
 
 > Thread block clusters to keep data close and reduce relaunch overheads. Up to 16 thread blocks can form a cluster on Blackwell (after increasing the non-portable limit). Use cluster-aware synchronization and shared-memory residency to improve locality in persistent-style designs. Profile occupancy vs. residency trade-offs with kernel-level profiling tools like Nsight Compute.
 
@@ -944,13 +944,13 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 采用梯度累积和激活检查点 (Embrace gradient accumulation and activation checkpointing)
 
-*采用梯度累积与激活检查点* 详细运用梯度累积（gradient accumulation）来在不额外占用内存的情况下有效增大批大小，并考虑用激活检查点来降低极深网络中的内存占用。在训练接近或超出 GPU 内存上限的模型时，这些技术至关重要。
+详细运用梯度累积（gradient accumulation）来在不额外占用内存的情况下有效增大批大小，并考虑用激活检查点来降低极深网络中的内存占用。在训练接近或超出 GPU 内存上限的模型时，这些技术至关重要。
 
 > Detail the use of gradient accumulation to effectively increase the batch size without extra memory usage, and consider activation checkpointing to reduce memory footprint in very deep networks. These techniques are crucial when training models that approach or exceed GPU memory limits.
 
 ### 在新硬件上优先使用 BF16 而非 FP16 (Favor BF16 instead of FP16 on newer hardware)
 
-*在较新硬件上优先使用 BF16 而非 FP16* 如果可用，请使用 BF16 而非 FP16，因为它的指数范围更大，且不需要损失缩放。现代 GPU 支持 BF16 Tensor Core，速度与 FP16 相同。BF16 通过避免上溢/下溢问题来简化训练，同时仍能获得半精度带来的性能优势。
+如果可用，请使用 BF16 而非 FP16，因为它的指数范围更大，且不需要损失缩放。现代 GPU 支持 BF16 Tensor Core，速度与 FP16 相同。BF16 通过避免上溢/下溢问题来简化训练，同时仍能获得半精度带来的性能优势。
 
 > If available, use BF16 instead of FP16, as it has a larger exponent range and doesn't require loss scaling. Modern GPUs support BF16 Tensor Cores at the same speed as FP16. BF16 will simplify training by avoiding overflow/underflow issues while still gaining the performance benefits of half precision.
 
@@ -986,7 +986,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 对推理使用自定义量化 (Use custom quantization for inference)
 
-*为推理使用自定义量化* 部署时，尽可能使用 INT8 量化。GPU 上的 INT8 推理极快且内存高效。使用 NVIDIA 的 TensorRT 或量化工具把模型量化到 INT8 并校准。许多神经网络（如 transformer）可以在准确率损失可忽略的情况下以 INT8 运行。相比 FP16，加速可达 2–4×。在最新的 GPU 上，还可为某些模型探索并评估 FP8 或 INT4，以进一步提升推理吞吐量。
+部署时，尽可能使用 INT8 量化。GPU 上的 INT8 推理极快且内存高效。使用 NVIDIA 的 TensorRT 或量化工具把模型量化到 INT8 并校准。许多神经网络（如 transformer）可以在准确率损失可忽略的情况下以 INT8 运行。相比 FP16，加速可达 2–4×。在最新的 GPU 上，还可为某些模型探索并评估 FP8 或 INT4，以进一步提升推理吞吐量。
 
 > For deployment, use INT8 quantization wherever possible. INT8 inference on GPUs is extremely fast and memory-efficient. Use NVIDIA's TensorRT or quantization tools to quantize models to INT8 and calibrate them. Many neural networks like transformers can run in INT8 with a negligible accuracy drop. The speedups can be 2-4x over FP16. On the newest GPUs, also explore and evaluate FP8 or INT4 for certain models to further boost throughput for inference.
 
@@ -1026,13 +1026,13 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 重叠通信和计算 (Overlap communication and computation)
 
-*重叠通信与计算* 在分布式训练中，尽可能让网络通信与 GPU 计算重叠。例如，对于梯度 all-reduce，一旦每层的梯度就绪就异步启动 all-reduce，而下一层仍在计算反向传播。若处理得当，这种流水线化能完全隐藏 all-reduce 的延迟。使用异步 NCCL 调用，或使用 PyTorch 的分布式数据并行（Distributed Data Parallel，DDP）等框架库，它们开箱即提供重叠。这能确保 GPU 不会空等网络。
+在分布式训练中，尽可能让网络通信与 GPU 计算重叠。例如，对于梯度 all-reduce，一旦每层的梯度就绪就异步启动 all-reduce，而下一层仍在计算反向传播。若处理得当，这种流水线化能完全隐藏 all-reduce 的延迟。使用异步 NCCL 调用，或使用 PyTorch 的分布式数据并行（Distributed Data Parallel，DDP）等框架库，它们开箱即提供重叠。这能确保 GPU 不会空等网络。
 
 > In distributed training, overlap network communication with GPU computation whenever possible. For example, with gradient all-reduce, launch the all-reduce asynchronously as soon as each layer's gradients are ready, while the next layer is still computing the backward pass. This pipelining can hide all-reduce latency entirely if done right. Use asynchronous NCCL calls or framework libraries like PyTorch's Distributed Data Parallel (DDP), which provide overlapping out of the box. This ensures the GPU isn't idle waiting for the network.
 
 ### 对深度模型使用流水线并行 (Use pipeline parallelism for deep models)
 
-*对深层模型使用流水线并行* 当模型规模迫使你用张量并行或流水线并行跨 GPU 切分时，可以用足够多的微批来让所有流水线阶段保持忙碌。利用 NVLink/NVSwitch 在各阶段之间快速传送激活。通过交错式调度来重叠并减少流水线气泡。一些框架会自动化这类调度。NVL72 网络结构在这里尤其有用，因为即便是通信密集的流水线阶段，也能以多太字节的速度交换数据，从而最小化流水线停顿。
+当模型规模迫使你用张量并行或流水线并行跨 GPU 切分时，可以用足够多的微批来让所有流水线阶段保持忙碌。利用 NVLink/NVSwitch 在各阶段之间快速传送激活。通过交错式调度来重叠并减少流水线气泡。一些框架会自动化这类调度。NVL72 网络结构在这里尤其有用，因为即便是通信密集的流水线阶段，也能以多太字节的速度交换数据，从而最小化流水线停顿。
 
 > When model size forces you to pipeline across GPUs using tensor parallelism or pipeline parallelism, you can use enough microbatches to keep all pipeline stages busy. Exploit NVLink/NVSwitch to send activations quickly between stages. Overlap and reduce pipeline bubbles by using an interleaved schedule. Some frameworks automate this type of scheduling. The NVL72 fabric is especially helpful here, as even communication-heavy pipeline stages can exchange data at multiterabyte speeds, minimizing pipeline stalls.
 
@@ -1050,7 +1050,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 整合稀疏性和剪枝 (Incorporate sparsity and pruning)
 
-*引入稀疏性与剪枝* 大语言模型往往存在冗余。在训练期间使用剪枝技术引入稀疏性，你可以在推理时加以利用——如果支持，也可在训练中部分利用。现代 GPU 硬件支持加速的稀疏矩阵乘法（2:4），未来的 GPU 很可能扩展这一特性。即便你让训练保持稠密、仅为推理剪枝，更小的模型也会运行更快、占用更少内存。这提升了模型部署的成本效益。可探索彩票假说（lottery ticket hypothesis）、蒸馏或结构化剪枝，在缩减模型大小的同时保住准确率。
+大语言模型往往存在冗余。在训练期间使用剪枝技术引入稀疏性，你可以在推理时加以利用——如果支持，也可在训练中部分利用。现代 GPU 硬件支持加速的稀疏矩阵乘法（2:4），未来的 GPU 很可能扩展这一特性。即便你让训练保持稠密、仅为推理剪枝，更小的模型也会运行更快、占用更少内存。这提升了模型部署的成本效益。可探索彩票假说（lottery ticket hypothesis）、蒸馏或结构化剪枝，在缩减模型大小的同时保住准确率。
 
 > Large models often have redundancy. Use pruning techniques during training to introduce sparsity, which you can exploit at inference-and partially during training if supported. Modern GPU hardware supports accelerated sparse matrix multiply (2:4), and future GPUs will likely extend this feature. Even if you leave training as dense and prune only for inference, a smaller model will run faster and use less memory. This increases cost-efficiency for model deployments. Explore the lottery ticket hypothesis, distillation, or structured pruning to maintain accuracy while trimming model size.
 
@@ -1072,7 +1072,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 如果使用以太网则调整 TCP/IP 堆栈 (Tune the TCP/IP stack if using Ethernet)
 
-*若使用以太网则调优 TCP/IP 栈* 对于基于 TCP 的集群，增大网络缓冲区。提高 /proc/sys/net/core/{r,w}mem_max 以及自动调优上限（net.ipv4.tcp_{r,w}mem），以允许更大的发送/接收缓冲区。这有助于跑满 10/40/100 GbE 链路。在所有节点与交换机上启用巨型帧（MTU 9000），以减少每个数据包的开销，从而提升吞吐量并降低 CPU 占用。对于广域或拥塞网络，也可考虑 BBR 等现代 TCP 拥塞控制。
+对于基于 TCP 的集群，增大网络缓冲区。提高 /proc/sys/net/core/{r,w}mem_max 以及自动调优上限（net.ipv4.tcp_{r,w}mem），以允许更大的发送/接收缓冲区。这有助于跑满 10/40/100 GbE 链路。在所有节点与交换机上启用巨型帧（MTU 9000），以减少每个数据包的开销，从而提升吞吐量并降低 CPU 占用。对于广域或拥塞网络，也可考虑 BBR 等现代 TCP 拥塞控制。
 
 > For TCP-based clusters, increase network buffer sizes. Raise /proc/sys/net/core/{r,w}mem_max and the autotuning limits (net.ipv4.tcp_{r,w}mem) to allow larger send/receive buffers. This helps saturate 10/40/100 GbE links. Enable jumbo frames (MTU 9000) on all nodes and switches to reduce overhead per packet, which improves throughput and reduces CPU usage. Also consider modern TCP congestion control like BBR for wide-area or congested networks.
 
@@ -1090,7 +1090,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 对慢速网络使用梯度累积 (Use gradient accumulation for slow networks)
 
-*在慢速网络上使用梯度累积* 如果因为把过多节点通过中等性能的互连连接在一起而使网络成为瓶颈，可用梯度累积来执行更少、更大的 all-reduce 操作。在同步之前，先在若干个 minibatch 上累积梯度，这样你就每 *N* 个批通信一次，而不是每个批都通信。这以少量额外内存与一些模型准确率调优为代价，显著降低网络开销。当因通信成本导致增加更多 GPU 收益递减时，这尤其有用。
+如果因为把过多节点通过中等性能的互连连接在一起而使网络成为瓶颈，可用梯度累积来执行更少、更大的 all-reduce 操作。在同步之前，先在若干个 minibatch 上累积梯度，这样你就每 *N* 个批通信一次，而不是每个批都通信。这以少量额外内存与一些模型准确率调优为代价，显著降低网络开销。当因通信成本导致增加更多 GPU 收益递减时，这尤其有用。
 
 > If your network becomes the bottleneck because you are scaling too many nodes linked by a moderate-performance interconnect, use gradient accumulation to perform fewer, larger all-reduce operations. Accumulate gradients over a few minibatches before syncing so that you communicate once for N batches instead of every batch. This trades a bit of extra memory and some model accuracy tuning for significantly reduced network overhead. It's especially helpful when adding more GPUs yields diminishing returns due to communication costs.
 
@@ -1142,7 +1142,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 优化批次和并发 (Optimize batch and concurrency)
 
-*优化批大小与并发* 对于推理工作负载，找到合适的批处理策略。对于推理工作负载，优先使用动态或连续批处理来自动地对到来的请求成批。更大的批大小通过让 GPU 保持忙碌来提升吞吐，但过大会增加延迟。此外，如果单个流用不完全部 GPU 资源，可并行运行多个推理流——例如用两个并发的推理批来充分利用 GPU 的 SM 与 Tensor Core。
+对于推理工作负载，找到合适的批处理策略。对于推理工作负载，优先使用动态或连续批处理来自动地对到来的请求成批。更大的批大小通过让 GPU 保持忙碌来提升吞吐，但过大会增加延迟。此外，如果单个流用不完全部 GPU 资源，可并行运行多个推理流——例如用两个并发的推理批来充分利用 GPU 的 SM 与 Tensor Core。
 
 > For inference workloads, find the right batching strategy. For inference workloads, favor dynamic or continuous batching to automatically batch incoming requests. Larger batch sizes improve throughput by keeping the GPU busy, but too large can add latency. Also, run multiple inference streams in parallel if one stream doesn't use all GPU resources-e.g., two concurrent inference batches to use both GPU SMs and Tensor Cores fully.
 
@@ -1160,7 +1160,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 高效服务模型 (Serve models efficiently)
 
-*高效地服务模型* 使用优化的模型推理系统，例如 vLLM、SGLang、NVIDIA Dynamo 与 NVIDIA TensorRT-LLM，以低延迟、高吞吐服务大语言模型。它们应实现量化、低精度格式、融合、高度优化的注意力核函数以及其他技巧，以在推理期间最大化 GPU 利用率。这些库还应处理张量并行、流水线并行、专家并行、上下文并行、推测解码（speculative decoding）、分块 prefill、分离式 prefill/decode 以及动态请求批处理——以及许多其他高性能特性。
+使用优化的模型推理系统，例如 vLLM、SGLang、NVIDIA Dynamo 与 NVIDIA TensorRT-LLM，以低延迟、高吞吐服务大语言模型。它们应实现量化、低精度格式、融合、高度优化的注意力核函数以及其他技巧，以在推理期间最大化 GPU 利用率。这些库还应处理张量并行、流水线并行、专家并行、上下文并行、推测解码（speculative decoding）、分块 prefill、分离式 prefill/decode 以及动态请求批处理——以及许多其他高性能特性。
 
 > Use optimized model inference systems, such as vLLM, SGLang, NVIDIA Dynamo, and NVIDIA TensorRT-LLM for serving large models with low latency and high throughput. They should implement quantization, low-precision formats, fusion, highly optimized attention kernels, and other tricks to maximize GPU utilization during inference. These libraries should also handle tensor parallelism, pipeline parallelism, expert parallelism, context parallelism, speculative decoding, chunked prefill, disaggregated prefill/decode, and dynamic request batching-among many other high-performance features.
 
@@ -1190,7 +1190,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 仔细调整边缘 AI 和延迟关键部署 (Tune carefully for edge AI and latency-critical deployments)
 
-*为边缘 AI 与延迟关键型部署精心调优* 通过利用专用的边缘加速器并优化中心服务器与边缘设备之间的数据传输协议，把性能调优延伸到边缘。这将有助于为时间敏感的应用实现超低延迟。
+通过利用专用的边缘加速器并优化中心服务器与边缘设备之间的数据传输协议，把性能调优延伸到边缘。这将有助于为时间敏感的应用实现超低延迟。
 
 > Extend performance tuning to the edge by leveraging specialized edge accelerators and optimizing data transfer protocols between central servers and edge devices. This will help achieve ultralow latency for time-sensitive applications.
 
@@ -1206,19 +1206,19 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 分解推理流水线 (Disaggregate inference pipelines)
 
-*分离推理流水线* 把推理工作流拆分为不同阶段，包括处理输入提示词并使其穿过所有模型层的"prefill"阶段，以及逐 token 生成输出的迭代式"decode"阶段。把这些阶段分配到不同资源上，以允许独立扩展。这种两阶段方式可防止较快的任务被较慢的任务拖成瓶颈。对于大语言模型，一种策略是运行完整模型来编码提示词，然后按阶段处理自回归解码，可能为每个阶段配备专用的工作节点。通过分离流水线，你能确保 GPU 持续处理其最擅长的那部分任务，避免队头阻塞——即一次长生成会拖住排在它后面的其他请求。
+把推理工作流拆分为不同阶段，包括处理输入提示词并使其穿过所有模型层的"prefill"阶段，以及逐 token 生成输出的迭代式"decode"阶段。把这些阶段分配到不同资源上，以允许独立扩展。这种两阶段方式可防止较快的任务被较慢的任务拖成瓶颈。对于大语言模型，一种策略是运行完整模型来编码提示词，然后按阶段处理自回归解码，可能为每个阶段配备专用的工作节点。通过分离流水线，你能确保 GPU 持续处理其最擅长的那部分任务，避免队头阻塞——即一次长生成会拖住排在它后面的其他请求。
 
 > Separate the inference workflow into distinct phases, including the "prefill" phase that processes the input prompt through all model layers, and the iterative "decode" phase that generates outputs token by token. Allocate these phases to different resources to allow for independent scaling. This two-stage approach prevents faster tasks from being bottlenecked by slower ones. For large language models, one strategy is to run the full model to encode the prompt, then handle autoregressive decoding on a stage-wise basis, possibly with specialized workers for each phase. By disaggregating the pipeline, you ensure that GPUs continuously work on the portion of the task they're most efficient at, avoiding head-of-line blocking, where one long generation stalls others behind it.
 
 ### 对 LLM 使用连续批处理 (Use continuous batch processing for LLMs)
 
-*为 LLM 使用连续批处理* 超越简单的请求批处理，使用连续批处理策略以在重负载下最大化吞吐量。传统动态批处理把到来的请求分组并作为一个批处理，以提升 GPU 利用率。连续批处理更进一步，在实时中动态地跨请求合并与拆分 token 序列。vLLM 等系统实现了 token 汇池：只要任一线程准备好生成下一个 token，它就会与其他就绪的线程分到一组，组成一个新的批。这种方式让 GPU 始终保持高占用率，并大幅减少空闲时段。其结果是显著更高的 token 吞吐量与更好的延迟一致性，尤其是在服务许多序列长度各异的并发用户时。
+超越简单的请求批处理，使用连续批处理策略以在重负载下最大化吞吐量。传统动态批处理把到来的请求分组并作为一个批处理，以提升 GPU 利用率。连续批处理更进一步，在实时中动态地跨请求合并与拆分 token 序列。vLLM 等系统实现了 token 汇池：只要任一线程准备好生成下一个 token，它就会与其他就绪的线程分到一组，组成一个新的批。这种方式让 GPU 始终保持高占用率，并大幅减少空闲时段。其结果是显著更高的 token 吞吐量与更好的延迟一致性，尤其是在服务许多序列长度各异的并发用户时。
 
 > Move beyond simple request batching and use continuous batching strategies to maximize throughput under heavy loads. Traditional dynamic batching groups incoming requests and processes them as a batch to improve GPU utilization. Continuous batching takes this further by dynamically merging and splitting sequences of tokens across requests in real time. Systems like vLLM implement token pooling, where as soon as any thread is ready to generate the next token, it gets grouped with other ready threads to form a new batch. This approach keeps the GPU at high occupancy at all times and drastically reduces idle periods. The result is significantly higher token throughput and better latency consistency, especially when serving many concurrent users with varying sequence lengths.
 
 ### 跨 GPU 和节点高效分片模型 (Shard models efficiently across GPUs and nodes)
 
-*跨 GPU 与节点高效地对模型分片* 对于太大而无法装入单块 GPU 内存的模型，采用模型并行推理技术，把模型划分到多块 GPU 甚至多台服务器上。这可以用张量并行来完成，即把每一层的权重与计算切分到各设备上；也可以用流水线并行，即把模型各层切成托管在不同 GPU 上的段，并让数据顺序流经它们。虽然模型分片会引入通信开销和一些额外延迟（因为数据必须在各分片之间流动），但它使部署原本无法服务的万亿参数模型成为可能。确保 GPU 之间有高速互连（如 NVLink 或 InfiniBand）以使其可行，并在可能处让通信与计算重叠。关键在于均衡负载，使所有设备并行工作，且没有任何单个阶段成为瓶颈。
+对于太大而无法装入单块 GPU 内存的模型，采用模型并行推理技术，把模型划分到多块 GPU 甚至多台服务器上。这可以用张量并行来完成，即把每一层的权重与计算切分到各设备上；也可以用流水线并行，即把模型各层切成托管在不同 GPU 上的段，并让数据顺序流经它们。虽然模型分片会引入通信开销和一些额外延迟（因为数据必须在各分片之间流动），但它使部署原本无法服务的万亿参数模型成为可能。确保 GPU 之间有高速互连（如 NVLink 或 InfiniBand）以使其可行，并在可能处让通信与计算重叠。关键在于均衡负载，使所有设备并行工作，且没有任何单个阶段成为瓶颈。
 
 > For models that are too large to fit into a single GPU's memory, employ model-parallel inference techniques by partitioning the model across multiple GPUs or even multiple servers. This can be done with tensor parallelism, in which it splits each layer's weights and computation across devices, or pipeline parallelism, which splits the model's layers into segments hosted on different GPUs and streams the data through them sequentially. While model sharding introduces communication overhead and some added latency as data must flow between shards, it enables deployment of trillion-parameter models that would otherwise be impossible to serve. Ensure high-speed interconnects, such as NVLink or InfiniBand, between GPUs to make this feasible, and overlap communication with computation where possible. The key is to balance the load so all devices work in parallel and no single stage becomes a bottleneck.
 
