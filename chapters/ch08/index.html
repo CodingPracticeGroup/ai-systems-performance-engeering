@@ -2866,7 +2866,6 @@
 </blockquote>
 <p>ILP不直接改变算术强度（每字节FLOPS）。然而，它通过重叠计算与内存或计算到计算的依赖关系来提高整体吞吐量（FLOPS）。我们显式展开以增加每线程的独立工作并帮助双发射。换句话说，ILP通过时间复用独立工作来提高吞吐量--而不是通过做额外工作。</p>
 <blockquote>
-<p>ILP does not directly change arithmetic intensity (FLOPS per byte). However, it raises overall throughput (FLOPS) by overlapping compute with memory or compute-to-compute dependencies. We explicitly unroll to increase independent work per thread and help dual-issue. In other words, ILP boosts throughput by time-multiplexing independent work-not by doing extra work.</p>
 <p>ILP doesn't directly change arithmetic intensity (FLOPS per byte). However, it improves overall throughput (FLOPS) by overlapping computation with memory or compute-to-compute dependencies. We explicitly unroll to increase per-thread independent work and help dual issue. In other words, ILP improves throughput by time-multiplexing independent work-not by doing extra work.</p>
 </blockquote>
 <p>一个常见的误解是增加ILP会执行更多操作。然而，它不会--它只是让GPU的多个功能单元保持忙碌。ILP只有在您的程序由于延迟而有空闲发出槽时才有帮助。如果您的内核已经在每个周期完全利用执行单元（例如，没有停顿的紧密计算绑定循环），增加ILP实际上不会提高性能。</p>
@@ -3265,7 +3264,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 01:45:02 UTC">2026年11月23日 01:45:02</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 02:03:18 UTC">2026年11月23日 02:03:18</span>
   </span>
 
     
