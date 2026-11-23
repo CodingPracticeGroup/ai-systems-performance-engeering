@@ -25,6 +25,15 @@
 
 ---
 
+## 🙏 译文参考说明
+
+本仓库 `fix/translation-review` 分支在可读性审校中，参考并采用了开源社区仓库
+[religou/AI-Systems-Performance-Engineering-CH](https://github.com/religou/AI-Systems-Performance-Engineering-CH)
+的中文译文（第 2–20 章与附录，约 3800 段），并在此过程中修正了若干漏译、代码标识符与术语不一致问题。
+全书术语口径（warp、核函数、prefill/decode 等）随该参考文本统一。谨此致谢。
+
+---
+
 ## ✨ 项目特色
 
 - **📖 中英对照**: 每个段落同时展示英文原文和中文翻译，便于对照学习

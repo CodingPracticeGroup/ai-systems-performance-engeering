@@ -29,7 +29,6 @@ theme:
   features:
     - navigation.instant
     - navigation.tracking
-    - navigation.tabs
     - navigation.sections
     - navigation.expand
     - navigation.top
@@ -48,6 +47,7 @@ extra_css:
   - assets/css/toggle-english.css
   - assets/css/annotation.css
   - assets/css/page-stats.css
+  - assets/css/wide-content.css
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2
@@ -68,7 +68,10 @@ markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.betterem:
-      smart_enable: all
+      # "all"(smart emphasis) 的词边界启发式会吞掉一切 **粗体** 紧邻 CJK 的写法,
+      # 使全书中文加粗(如 **第2章**深入…)在页面上显示为原始星号。
+      # none: 保留 betterem, 关闭 smart 规则 -- 中文粗体/下划线 snake_case 实测均正常。
+      smart_enable: none
   - pymdownx.caret
   - pymdownx.details
   - pymdownx.emoji:
