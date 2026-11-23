@@ -1,0 +1,11 @@
+/* 让整页布局随浏览器宽度自适应加宽（Material 默认上限 61rem） */
+.md-grid {
+  max-width: 100%;
+}
+
+/* 超宽屏下给主栏一个可读性上限，避免行宽失控 */
+@media (min-width: 1600px) {
+  .md-content .md-content__inner {
+    max-width: 74rem;
+  }
+}
