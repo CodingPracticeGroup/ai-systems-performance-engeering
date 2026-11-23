@@ -1519,7 +1519,7 @@
 </blockquote>
 <p>为了说明这一点，让我们用一个具体示例演示算术强度。假设我们想对2D张量x（形状[batch, hidden]）的每个长度为hidden的行进行L2归一化。对于每行b，计算单个范数，<code>norm_b = sqrt(Σ_i x[b,i]*x[b,i] + ε)</code>，然后对所有i写入<code>y[b,i] = x[b,i] / norm_b</code>。</p>
 <blockquote>
-<p>To drive this point home, let's demonstrate arithmetic intensity with a concrete example. Suppose we want to L2-normalize each length-hidden row of a 2D tensor x (shape [batch, hidden]). For each row b, compute a single norm, norm_b = sqrt(Σ_i x[b,i]*x[b,i] + ε), and then write y[b,i] = x[b,i] / norm_b for all i.</p>
+<p>To drive this point home, let's demonstrate arithmetic intensity with a concrete example. Suppose we want to L2-normalize each length-hidden row of a 2D tensor x (shape [batch, hidden]). For each row b, compute a single norm, norm<em>b = sqrt(Σ</em>i x[b,i]*x[b,i] + ε), and then write y[b,i] = x[b,i] / norm_b for all i.</p>
 </blockquote>
 <p>朴素实现会在一个内核中平方，在第二个内核中将每行归约为标量，在第三个内核中除法。这将需要多次内核启动并中间写入HBM。</p>
 <blockquote>
@@ -1626,7 +1626,7 @@
 </blockquote>
 <p>剪枝和格式转换在软件中处理--通常通过cuSPARSELt和框架工具。在PyTorch中，使用<code>to_sparse_semi_structured()</code>在部署稀疏GEMM到Sparse Tensor Core之前将训练好的密集模块转换为2:4稀疏格式。</p>
 <blockquote>
-<p>Pruning and format conversion are handled in software-typically through cuSPARSELt and framework tooling. In PyTorch, use to_sparse_semi_structured() to convert trained dense modules into 2:4 sparse format before deploying sparse GEMMs on Sparse Tensor Cores.</p>
+<p>Pruning and format conversion are handled in software-typically through cuSPARSELt and framework tooling. In PyTorch, use to<em>sparse</em>semi_structured() to convert trained dense modules into 2:4 sparse format before deploying sparse GEMMs on Sparse Tensor Cores.</p>
 </blockquote>
 <p>一旦您的模型被转换，它将调用在Sparse Tensor Core上运行的优化稀疏GEMM内核，而不是标准内核。Sparse Tensor Core对于许多推理工作负载可以达到比其密集对应物高近2倍的加速--特别是在提交大批量输入时，因为这些分摊了内核启动开销。</p>
 <blockquote>
@@ -1688,7 +1688,7 @@
 </blockquote>
 <p>因为它在底层使用cuDNN和cuBLAS等优化库，PyTorch在使用<code>torch.matmul</code>执行矩阵操作时会为您执行分块并使用共享内存。此外，PyTorch的<code>scaled_dot_product_attention</code>（SPDA）可能根据张量形状和dtype分派到FlashAttention、内存高效或cuDNN后端。要控制后端选择，使用<code>torch.nn.attention.sdpa_kernel(SDPBackend.FLASH_ATTENTION)</code>等。作为注重性能的开发人员，您应该了解这些优化以及如何验证它们何时被使用。</p>
 <blockquote>
-<p>Because it uses optimized libraries like cuDNN and cuBLAS under the hood, PyTorch will perform tiling and use shared memory for you when performing matrix operations with torch.matmul. In addition, PyTorch's scaled_dot_product_attention (SPDA) may dispatch to FlashAttention, memory-efficient, or cuDNN backends depending on tensor shapes and dtypes. To control the backend selection, use torch.nn.attention.sdpa_kernel(SDPBackend.FLASH_ATTENTION), for instance. As a performance-minded developer, you should be aware of these optimizations and how to verify when they're being used.</p>
+<p>Because it uses optimized libraries like cuDNN and cuBLAS under the hood, PyTorch will perform tiling and use shared memory for you when performing matrix operations with torch.matmul. In addition, PyTorch's scaled<em>dot</em>product<em>attention (SPDA) may dispatch to FlashAttention, memory-efficient, or cuDNN backends depending on tensor shapes and dtypes. To control the backend selection, use torch.nn.attention.sdpa</em>kernel(SDPBackend.FLASH_ATTENTION), for instance. As a performance-minded developer, you should be aware of these optimizations and how to verify when they're being used.</p>
 </blockquote>
 <p>值得注意的是，虽然PyTorch可以识别和编译大多数操作，但一些非标准操作或自定义CUDA操作可能不会被融合。在这些情况下，可能仍需要手动优化，如融合、分块等。</p>
 <blockquote>
@@ -1758,7 +1758,7 @@
 </blockquote>
 <p>Tensor Core指令然后作为MMA流水线的一部分在共享内存和TMEM之间移动操作数。这在幕后发生，无需显式用户代码。这样，数据被暂存在Tensor Core需要的地方。要从全局内存执行此数据传输到共享内存，请使用TMA或带有CUDA Pipeline API（<code>&lt;cuda/pipeline&gt;</code>）中流水线的<code>cuda::memcpy_async</code>。在代码中，使用<code>cuda::memcpy_async</code>和CUDA Pipeline API实现简单的两阶段流水线如下所示：</p>
 <blockquote>
-<p>Tensor Core instructions then move operands between shared memory and TMEM as part of the MMA pipeline. This happens behind the scenes and without explicit user code. This way, the data is staged where the Tensor Cores need it. To perform this data transfer from global memory into shared memory, use TMA or cuda::memcpy_async with a pipeline from the CUDA Pipeline API (<cuda/pipeline>.) In code, implementing a simple two-stage pipeline with cuda::memcpy_async and the CUDA Pipeline API looks like the following:</p>
+<p>Tensor Core instructions then move operands between shared memory and TMEM as part of the MMA pipeline. This happens behind the scenes and without explicit user code. This way, the data is staged where the Tensor Cores need it. To perform this data transfer from global memory into shared memory, use TMA or cuda::memcpy<em>async with a pipeline from the CUDA Pipeline API (<cuda/pipeline>.) In code, implementing a simple two-stage pipeline with cuda::memcpy</em>async and the CUDA Pipeline API looks like the following:</p>
 </blockquote>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// two_stage_pipeline.cu</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
@@ -1835,7 +1835,7 @@
 </span></code></pre></div>
 <p>启动此内核时，将动态共享内存大小设置为4 x tile_elems x sizeof(float)，以便在共享内存中分配A0、A1、B0和B1。这种双缓冲模式确保一旦一个块驻留在共享内存中，Tensor Core就可以开始处理它。同时，<code>cuda::memcpy_async</code>并行地将下一个块获取到共享内存中。因为TMEM为Tensor Core指令提供片上数据缓冲区，共享内存提供暂存空间，您可以完全在片上暂存和重用FP16、FP8或FP4块。结果是当流水线调优得当且块和副本大小适当时，停顿更少。<code>cuda::memcpy_async</code>可以重叠从HBM到共享内存的传输并保持内核忙碌。这有助于将内存延迟隐藏在计算之后。</p>
 <blockquote>
-<p>When launching this kernel, set the dynamic shared memory size to 4 x tile_elems x sizeof(float) to allocate A0, A1, B0, and B1 in shared memory. This double buffering pattern ensures that as soon as one tile is resident in shared memory, Tensor Cores can begin processing it. Meanwhile cuda::memcpy_async fetches the next tile into shared memory in parallel. Because TMEM provides an on-chip data buffer for Tensor Core instructions and shared memory provides the staging space, you can stage and reuse FP16, FP8, or FP4 tiles entirely on chip. The result is fewer stalls when the pipeline is tuned and the tiles and copies are sized appropriately. cuda::memcpy_async can overlap transfers from HBM to shared memory and keep the kernel busy. This helps hide memory latency behind computation.</p>
+<p>When launching this kernel, set the dynamic shared memory size to 4 x tile<em>elems x sizeof(float) to allocate A0, A1, B0, and B1 in shared memory. This double buffering pattern ensures that as soon as one tile is resident in shared memory, Tensor Cores can begin processing it. Meanwhile cuda::memcpy</em>async fetches the next tile into shared memory in parallel. Because TMEM provides an on-chip data buffer for Tensor Core instructions and shared memory provides the staging space, you can stage and reuse FP16, FP8, or FP4 tiles entirely on chip. The result is fewer stalls when the pipeline is tuned and the tiles and copies are sized appropriately. cuda::memcpy_async can overlap transfers from HBM to shared memory and keep the kernel busy. This helps hide memory latency behind computation.</p>
 </blockquote>
 <h3 id="tf32pytorchtf32-and-automatic-mixed-precision-pytorch">TF32和自动混合精度（PyTorch）(TF32 and Automatic Mixed Precision (PyTorch))<a class="headerlink" href="#tf32pytorchtf32-and-automatic-mixed-precision-pytorch" title="Permanent link">&para;</a></h3>
 <p>虽然Tensor Core最初是为FP16设计的，但它们也支持TF32，它介于FP32和FP16之间。TF32使用8位指数（像FP32）和10位尾数（像FP16）。TF32在Tensor Core上执行，吞吐量远高于FP32在CUDA核心上的执行，同时保留FP32的指数范围。在PyTorch中，启用TF32只需在PyTorch代码中设置以下内容：</p>
@@ -2331,7 +2331,7 @@
 </blockquote>
 <p>让我们分解<code>ld.global.nc.l1::no_allocate.l2::256b</code> PTX指令。<code>ld.global.nc</code>前缀发出非一致性（nc）全局内存加载（<code>ld.global</code>），而修饰符<code>l1::no_allocate</code>和<code>l2::256b</code>指示硬件避免在L1缓存中分配数据（<code>l1::no_allocate</code>）。相反，它一次获取256字节到L2（<code>l2::256b</code>）。</p>
 <blockquote>
-<p>Let's break down the ld.global.nc.l1::no_allocate.l2::256b PTX instruction. The ld.global.nc prefix issues a noncoherent (nc) global memory load (ld.global), while the modifiers l1::no_allocate and l2::256b instruct the hardware to avoid allocating the data in the L1 cache (l1::no_allocate). Instead, it fetches 256 bytes at a time into L2 (l2::256b).</p>
+<p>Let's break down the ld.global.nc.l1::no<em>allocate.l2::256b PTX instruction. The ld.global.nc prefix issues a noncoherent (nc) global memory load (ld.global), while the modifiers l1::no</em>allocate and l2::256b instruct the hardware to avoid allocating the data in the L1 cache (l1::no_allocate). Instead, it fetches 256 bytes at a time into L2 (l2::256b).</p>
 </blockquote>
 <p>通过绕过L1，加载可以直接将大数据块流式传输到L2，而不驱逐频繁使用的L1驻留数据。当您有需要在L1中保持低延迟内存访问的热工作集时，这至关重要。</p>
 <blockquote>
@@ -2351,7 +2351,7 @@
 </blockquote>
 <p>DeepSeek的DeepEP设置甚至包括构建时标志<code>DISABLE_AGGRESSIVE_PTX_INSTRS=1</code>，以便在出现兼容性问题时禁用这些激进指令。虽然DeepEP的定制PTX技巧可以产生显著的加速，但内联PTX/SASS应谨慎使用，并在更新到新GPU架构时彻底测试。</p>
 <blockquote>
-<p>DeepSeek's DeepEP setup even includes a build-time flag, DISABLE_AGGRESSIVE_PTX_INSTRS=1, to disable these aggressive instructions if compatibility issues arise. While DeepEP's bespoke PTX hack can produce significant speedup, inline PTX/SASS should be used with caution and tested thoroughly whenever updating to a new GPU architecture.</p>
+<p>DeepSeek's DeepEP setup even includes a build-time flag, DISABLE<em>AGGRESSIVE</em>PTX_INSTRS=1, to disable these aggressive instructions if compatibility issues arise. While DeepEP's bespoke PTX hack can produce significant speedup, inline PTX/SASS should be used with caution and tested thoroughly whenever updating to a new GPU architecture.</p>
 </blockquote>
 <h2 id="key-takeaways">关键要点 (Key Takeaways)<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <p>您看到了如何通过将工作从慢速全局内存移动到更快的片上资源和计算单元来揭示和消除GPU内核瓶颈。通过遵循分析、诊断、优化和重新分析的循环，您可以将内核从利用不足或内存受限转变为计算饱和、高吞吐量的例程。这些技术将帮助利用GPU的全部能力：</p>
@@ -2364,7 +2364,7 @@
 </blockquote>
 <p><strong>利用混合精度、Tensor Core和Transformer Engine</strong>：从FP32降到TF32/BF16/FP16/FP8/FP4将权重流量减少2倍到8倍。这相应地提高算术强度。在PyTorch中，您可以使用<code>torch.set_float32_matmul_precision('high')</code>和<code>torch.cuda.amp</code>启用混合精度。在现代GPU上，TMEM和TMA引擎将块流式传输到Tensor Core。现代GPU还提供Transformer Engine来专门为AI工作负载利用这些低精度。这可以进一步提高吞吐量。</p>
 <blockquote>
-<p><strong>Leverage mixed precision, Tensor Cores, and Transformer Engine</strong>：Dropping from FP32 to TF32/BF16/FP16/FP8/FP4 cuts weight traffic by 2x to 8x. This boosts arithmetic intensity accordingly. In PyTorch, you can use torch.set_float32_matmul_precision('high') and torch.cuda.amp to enable mixed precision. On modern GPUs, the TMEM and TMA engines stream tiles to Tensor Cores. Modern GPUs also provide a Transformer Engine to utilize these lower precisions specifically for AI workloads. This can further increase throughput.</p>
+<p><strong>Leverage mixed precision, Tensor Cores, and Transformer Engine</strong>：Dropping from FP32 to TF32/BF16/FP16/FP8/FP4 cuts weight traffic by 2x to 8x. This boosts arithmetic intensity accordingly. In PyTorch, you can use torch.set<em>float32</em>matmul_precision('high') and torch.cuda.amp to enable mixed precision. On modern GPUs, the TMEM and TMA engines stream tiles to Tensor Cores. Modern GPUs also provide a Transformer Engine to utilize these lower precisions specifically for AI workloads. This can further increase throughput.</p>
 </blockquote>
 <p><strong>利用CUTLASS实现高性能GEMM和融合内核</strong>：与其手工编码MMA循环，实例化CUTLASS GEMM模板以自动管理双缓冲、TMEM暂存和Tensor Core流水线。这将产生性能在手工调优内核几个百分点内的内核。像cuBLAS和TorchInductor这样的高级框架已经依赖CUTLASS。只有在需要非标准布局或独特融合模式时才需要自定义。</p>
 <blockquote>

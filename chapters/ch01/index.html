@@ -1695,15 +1695,15 @@
 <blockquote>
 <p>How will we approach the optimization of 100-trillion-parameter AI systems? This book is organized to take you from the hardware fundamentals up through the software stack and algorithmic techniques-with an emphasis on hands-on analysis at each level. Here is a breakdown of the rest of the book.</p>
 </blockquote>
-<p>**第2章**深入介绍NVIDIA AI系统硬件，包括GB200/GB300 NVL72"机架式AI超级计算机"，它将Grace Blackwell Superchip设计与NVLink网络相结合，创造出AI超级计算机的性能/功耗特性。</p>
+<p><strong>第2章</strong>深入介绍NVIDIA AI系统硬件，包括GB200/GB300 NVL72"机架式AI超级计算机"，它将Grace Blackwell Superchip设计与NVLink网络相结合，创造出AI超级计算机的性能/功耗特性。</p>
 <blockquote>
 <p><strong>Chapter 2</strong> provides an in-depth look at NVIDIA AI system hardware, including the GB200/GB300 NVL72 "AI supercomputer in a rack," which combines Grace Blackwell Superchip design with the NVLink network to create performance/power characteristics of an AI supercomputer.</p>
 </blockquote>
-<p>**第3-5章**将介绍GPU基础AI系统的操作系统级、网络和存储优化。这些优化包括CPU和内存绑定，以及Docker容器和Kubernetes编排考虑因素，包括GPU环境的网络I/O和存储配置。</p>
+<p><strong>第3-5章</strong>将介绍GPU基础AI系统的操作系统级、网络和存储优化。这些优化包括CPU和内存绑定，以及Docker容器和Kubernetes编排考虑因素，包括GPU环境的网络I/O和存储配置。</p>
 <blockquote>
 <p><strong>Chapters 3-5</strong> will then cover OS-level, networking, and storage optimizations for GPU-based AI systems. These optimizations include CPU and memory pinning, as well as Docker container and Kubernetes orchestration considerations, including network I/O and storage configurations for GPU environments.</p>
 </blockquote>
-<p>**第6-12章**讨论NVIDIA CUDA编程基础和CUDA内核优化，这对于开发新颖的硬件感知算法至关重要。这些流行算法包括FlashAttention和DeepSeek的MLA。这些算法针对transformer架构中资源密集的注意力机制，该机制主导着当今的生成式AI工作负载。</p>
+<p><strong>第6-12章</strong>讨论NVIDIA CUDA编程基础和CUDA内核优化，这对于开发新颖的硬件感知算法至关重要。这些流行算法包括FlashAttention和DeepSeek的MLA。这些算法针对transformer架构中资源密集的注意力机制，该机制主导着当今的生成式AI工作负载。</p>
 <blockquote>
 <p><strong>Chapters 6-12</strong> discuss NVIDIA CUDA programming fundamentals and CUDA-kernel optimizations that are essential for developing novel hardware-aware algorithms. Such popular algorithms include FlashAttention and DeepSeek's MLA. These algorithms target the resource-intensive attention mechanism of the transformer architecture, which dominates today's generative AI workloads.</p>
 </blockquote>
@@ -1711,19 +1711,19 @@
 <blockquote>
 <p>With NVIDIA hardware and CUDA software context in hand, we'll dive into distributed communication optimizations, including training and serving ultralarge models efficiently. We'll examine strategies to minimize communication, such as overlapping computation with communication-a pattern that applies to many layers of the AI system stack.</p>
 </blockquote>
-<p>**第13和14章**讨论PyTorch特定的优化，包括PyTorch编译器栈和OpenAI基于Python的Triton语言和编译器，用于自定义GPU内核。这些编译器降低了开发新颖CUDA内核的门槛，因为它们不需要开发CUDA内核通常所需的深入C++理解。这些章节还讨论了模型训练的分布式并行化技术，包括数据并行（DP）、全分片数据并行（FSDP）、张量并行（TP）、流水线并行（PP）、上下文并行（CP）和混合专家（MoE）。我们将展示如何高效地在多个GPU上分割和训练万亿参数模型。我们还将讨论超大规模模型训练期间的内存优化技术，包括激活检查点、分片优化器状态和卸载到更大的CPU内存。当模型大小超过物理GPU硬件限制时，这些技术至关重要。</p>
+<p><strong>第13和14章</strong>讨论PyTorch特定的优化，包括PyTorch编译器栈和OpenAI基于Python的Triton语言和编译器，用于自定义GPU内核。这些编译器降低了开发新颖CUDA内核的门槛，因为它们不需要开发CUDA内核通常所需的深入C++理解。这些章节还讨论了模型训练的分布式并行化技术，包括数据并行（DP）、全分片数据并行（FSDP）、张量并行（TP）、流水线并行（PP）、上下文并行（CP）和混合专家（MoE）。我们将展示如何高效地在多个GPU上分割和训练万亿参数模型。我们还将讨论超大规模模型训练期间的内存优化技术，包括激活检查点、分片优化器状态和卸载到更大的CPU内存。当模型大小超过物理GPU硬件限制时，这些技术至关重要。</p>
 <blockquote>
 <p><strong>Chapters 13 and 14</strong> discuss PyTorch-specific optimizations, including the PyTorch compiler stack and OpenAI's Python-based Triton language and compiler for custom GPU kernels. These compilers lower the barrier for developing novel CUDA kernels, as they don't require a deep understanding of C++ typically required to develop CUDA kernels. These chapters also discuss distributed parallelization techniques for model training, including data parallelism (DP), fully sharded data parallelism (FSDP), tensor parallelism (TP), pipeline parallelism (PP), context parallelism (CP), and mixture-of-experts (MoE). We will show how multi-trillion-parameter models are split and trained across many GPUs efficiently. And we will discuss techniques for memory optimization during ultrascale model training, including activation checkpointing, sharding optimizer states, and offloading to larger CPU memory. These techniques are vital when model sizes exceed the physical GPU hardware limits.</p>
 </blockquote>
-<p>**第15-19章**专注于高吞吐量、低延迟模型推理和智能体AI系统的软件和算法创新。这包括分离式预填充和解码，现在NVIDIA Dynamo和社区栈支持通过UCX与GPUDirect RDMA、NCCL点对点或框架提供的传输进行键值（KV）缓存移动。我们还讨论广泛使用的模型服务引擎，包括vLLM、SGLang和NVIDIA TensorRT LLM。然后我们介绍NVIDIA Dynamo分布式推理框架，它与这些引擎集成，并包括NIXL用于在分离式预填充-解码设置中进行低延迟KV缓存传输。</p>
+<p><strong>第15-19章</strong>专注于高吞吐量、低延迟模型推理和智能体AI系统的软件和算法创新。这包括分离式预填充和解码，现在NVIDIA Dynamo和社区栈支持通过UCX与GPUDirect RDMA、NCCL点对点或框架提供的传输进行键值（KV）缓存移动。我们还讨论广泛使用的模型服务引擎，包括vLLM、SGLang和NVIDIA TensorRT LLM。然后我们介绍NVIDIA Dynamo分布式推理框架，它与这些引擎集成，并包括NIXL用于在分离式预填充-解码设置中进行低延迟KV缓存传输。</p>
 <blockquote>
 <p><strong>Chapters 15–19</strong> focus on software and algorithmic innovations for high-throughput, low-latency model inference and agentic AI systems. This includes disaggregated prefill and decode, which is now supported in NVIDIA Dynamo and community stacks with key-value (KV) cache movement over UCX with GPUDirect RDMA, NCCL point-to-point, or framework-provided transports. We also discuss the widely used model serving engines, including vLLM, SGLang, and NVIDIA TensorRT LLM. We then cover the NVIDIA Dynamo distributed inference framework, which integrates with these engines and includes NIXL for low-latency KV cache transfer in disaggregated prefill decode setups.</p>
 </blockquote>
-<p>**第20章**描述了使用AI辅助工具优化内核和AI系统性能的现代努力。该章还包括高效训练和服务数十亿和万亿参数模型的案例研究。它还涵盖了自我改进AI系统优化和智能体的新兴趋势。这有助于描绘100万亿参数规模AI系统的发展方向--以及如何为AI系统性能工程的未来做好准备。</p>
+<p><strong>第20章</strong>描述了使用AI辅助工具优化内核和AI系统性能的现代努力。该章还包括高效训练和服务数十亿和万亿参数模型的案例研究。它还涵盖了自我改进AI系统优化和智能体的新兴趋势。这有助于描绘100万亿参数规模AI系统的发展方向--以及如何为AI系统性能工程的未来做好准备。</p>
 <blockquote>
 <p><strong>Chapter 20</strong> describes modern efforts to use AI-assisted tools to optimize kernel and AI system performance. The chapter also includes case studies on training and serving multi-billion- and multi-trillion-parameter models efficiently. It also covers emerging trends for self-improving AI system optimizations and agents. This helps to paint a picture of where 100-trillion-parameter-scale AI systems are headed-and how to position ourselves for the future of AI systems performance engineering.</p>
 </blockquote>
-<p>**附录**提供了应用于你自己AI系统的常见性能优化和成本节约技巧清单。这是本书讨论的可操作优化和效率提升的总结。</p>
+<p><strong>附录</strong>提供了应用于你自己AI系统的常见性能优化和成本节约技巧清单。这是本书讨论的可操作优化和效率提升的总结。</p>
 <blockquote>
 <p><strong>The Appendix</strong> provides a checklist of common performance-optimization and cost-saving tips and tricks to apply to your own AI system. This is a summary of actionable optimizations and efficiency gains discussed throughout this book.</p>
 </blockquote>

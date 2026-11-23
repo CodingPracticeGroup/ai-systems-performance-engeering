@@ -1674,13 +1674,13 @@
 <p>While it's good to know the theoretical grid limits, you'll typically be constrained by the thread/block/per-SM limits shown earlier. If you do need to exceed 65,535 blocks in one dimension, you can launch 2D or 3D grids to spread the work over multiple kernel launches (multi-kernel launches). We show an example in a later chapter. In practice, you'll rarely hit grid-size limits before hitting other resource limits.</p>
 </blockquote>
 <h3 id="631-cuda-gpu-cuda-gpu-backward-and-forward-compatibility-model">6.3.1 CUDA GPU向后和向前兼容模型 (CUDA GPU Backward and Forward Compatibility Model)<a class="headerlink" href="#631-cuda-gpu-cuda-gpu-backward-and-forward-compatibility-model" title="Permanent link">&para;</a></h3>
-<p>CUDA的核心优势之一是其向前和向后兼容模型。今天编译的内核通常可以在未来的GPU代上无需修改运行--只要您在二进制文件中包含PTX以实现向前兼容。如果您仅为单个架构发布SASS（例如Hopper的sm_90或Blackwell的sm_100）而没有PTX，该二进制文件将无法在更新的架构上向前运行。特定于系列的目标如sm_100f或compute_100f将可移植性限制在同一特性系列的设备。最好发布包含通用cubin/PTX和所需的特定系列cubin（例如优化等）的fatbin。</p>
+<p>CUDA的核心优势之一是其向前和向后兼容模型。今天编译的内核通常可以在未来的GPU代上无需修改运行--只要您在二进制文件中包含PTX以实现向前兼容。如果您仅为单个架构发布SASS（例如Hopper的sm<em>90或Blackwell的sm</em>100）而没有PTX，该二进制文件将无法在更新的架构上向前运行。特定于系列的目标如sm<em>100f或compute</em>100f将可移植性限制在同一特性系列的设备。最好发布包含通用cubin/PTX和所需的特定系列cubin（例如优化等）的fatbin。</p>
 <blockquote>
-<p>One of CUDA's key strengths is its forward and backward compatibility model. Kernels compiled today can often run unmodified on future GPU generations-as long as you include PTX in your binary for forward compatibility. If you ship SASS only for a single architecture (e.g., sm_90 for Hopper or sm_100 for Blackwell) without PTX, that binary will not run forward on newer architectures. Family-specific targets like sm_100f or compute_100f limit portability to devices within the same feature family. It's best to ship a fatbin that includes generic cubin/PTX and any specific family cubins you need (e.g., for optimizations, etc.).</p>
+<p>One of CUDA's key strengths is its forward and backward compatibility model. Kernels compiled today can often run unmodified on future GPU generations-as long as you include PTX in your binary for forward compatibility. If you ship SASS only for a single architecture (e.g., sm<em>90 for Hopper or sm</em>100 for Blackwell) without PTX, that binary will not run forward on newer architectures. Family-specific targets like sm<em>100f or compute</em>100f limit portability to devices within the same feature family. It's best to ship a fatbin that includes generic cubin/PTX and any specific family cubins you need (e.g., for optimizations, etc.).</p>
 </blockquote>
-<p>您可以通过在加载时设置CUDA_FORCE_PTX_JIT=1来强制PTX JIT编译来验证兼容性，以JIT编译PTX并缓存结果。如果您的二进制文件缺少PTX，内核启动将失败。这迫使您使用PTX支持重新构建。此兼容模型是大型CUDA生态系统的基础。它允许您从单个代码库同时针对传统和尖端硬件。</p>
+<p>您可以通过在加载时设置CUDA<em>FORCE</em>PTX_JIT=1来强制PTX JIT编译来验证兼容性，以JIT编译PTX并缓存结果。如果您的二进制文件缺少PTX，内核启动将失败。这迫使您使用PTX支持重新构建。此兼容模型是大型CUDA生态系统的基础。它允许您从单个代码库同时针对传统和尖端硬件。</p>
 <blockquote>
-<p>You can verify compatibility by setting CUDA_FORCE_PTX_JIT=1 at load time to force PTX JIT compilation to JIT-compile the PTX and cache the result. If your binary lacks PTX, kernel launches will fail. This forces you to rebuild with PTX support. This compatibility model underpins the large CUDA ecosystem. It allows you to target both legacy and cutting-edge hardware from a single codebase.</p>
+<p>You can verify compatibility by setting CUDA<em>FORCE</em>PTX_JIT=1 at load time to force PTX JIT compilation to JIT-compile the PTX and cache the result. If your binary lacks PTX, kernel launches will fail. This forces you to rebuild with PTX support. This compatibility model underpins the large CUDA ecosystem. It allows you to target both legacy and cutting-edge hardware from a single codebase.</p>
 </blockquote>
 <p>要真正在当前和未来GPU代之间保持向后和向前兼容性，您应该使用通用目标编译--或显式包含PTX。当您需要来自新硬件特性的特定优化时，可以使用特定代的目标。这样做时，请确保为其他架构提供回退路径。</p>
 <blockquote>
@@ -1781,11 +1781,11 @@
 6. 使用<code>cudaFree</code>和<code>cudaFreeHost</code>清理设备和主机上的内存。</p>
 <blockquote>
 <p>The complete data flow is as follows:
-1. Allocate memory on the host (h_input).
-2. Copy data from the host (h_input) to the device (d_input) using cudaMemcpy with cudaMemcpyHostToDevice.
-3. Run the kernel on the device with d_input.
+1. Allocate memory on the host (h<em>input).
+2. Copy data from the host (h</em>input) to the device (d<em>input) using cudaMemcpy with cudaMemcpyHostToDevice.
+3. Run the kernel on the device with d</em>input.
 4. Synchronize to ensure the kernel has finished executing on the device.
-5. Transfer the results (d_input) from the device to the host (h_input) using cudaMemcpy with cudaMemcpyDeviceToHost.
+5. Transfer the results (d<em>input) from the device to the host (h</em>input) using cudaMemcpy with cudaMemcpyDeviceToHost.
 6. Clean up memory on both the device and host using cudaFree and cudaFreeHost.</p>
 </blockquote>
 <p>您可以在启动时使用<code>&lt;&lt;&lt; &gt;&gt;&gt;</code>向内核传递额外的、高级的CUDA特定参数，包括共享内存大小（以及许多其他参数），但两个核心启动参数<code>blocksPerGrid</code>和<code>threadsPerBlock</code>是任何CUDA内核调用的基础。</p>
@@ -2110,7 +2110,7 @@
 </blockquote>
 <p>事实上，PyTorch使用自定义内存缓存分配器，可通过<code>PYTORCH_ALLOC_CONF</code>（以前是<code>PYTORCH_CUDA_ALLOC_CONF</code>）配置。PyTorch内存缓存分配器在精神上类似于CUDA的内存池：它重用GPU内存，避免了为长时间运行的训练循环中每次迭代创建的每个新PyTorch张量调用同步<code>cudaMalloc</code>操作的成本。</p>
 <blockquote>
-<p>In fact, PyTorch uses a custom memory caching allocator, configured with PYTORCH_ALLOC_CONF (formerly PYTORCH_CUDA_ALLOC_CONF). The PyTorch memory caching allocator is similar in spirit to CUDA's memory pool: it reuses GPU memory and avoids the cost of calling the synchronous cudaMalloc operation for every new PyTorch tensor created during each iteration of a long-running training loop, for instance.</p>
+<p>In fact, PyTorch uses a custom memory caching allocator, configured with PYTORCH<em>ALLOC</em>CONF (formerly PYTORCH<em>CUDA</em>ALLOC_CONF). The PyTorch memory caching allocator is similar in spirit to CUDA's memory pool: it reuses GPU memory and avoids the cost of calling the synchronous cudaMalloc operation for every new PyTorch tensor created during each iteration of a long-running training loop, for instance.</p>
 </blockquote>
 <p>在执行频繁、细粒度分配的CUDA应用程序中，使用异步基于池的例程--<code>cudaMallocAsync</code>和<code>cudaFreeAsync</code>--远比传统的同步<code>cudaMalloc</code>/<code>cudaFree</code>高效，后者会产生完整的设备同步甚至OS级别的调用。要使用流有序分配，创建一个非阻塞流：</p>
 <blockquote>
@@ -2767,7 +2767,7 @@
 <h2 id="611-tuning-occupancy-with-launch-bounds">6.11 使用启动边界调整占用率 (Tuning Occupancy with Launch Bounds)<a class="headerlink" href="#611-tuning-occupancy-with-launch-bounds" title="Permanent link">&para;</a></h2>
 <p>在某些情况下，仅仅使用更多线程是不够的--特别是如果每个线程使用大量资源如寄存器和共享内存。我们可以通过使用CUDA的<code>__launch_bounds__</code>内核注释来指导编译器优化占用率。</p>
 <blockquote>
-<p>In some cases, simply using more threads isn't enough-especially if each thread uses a lot of resources such as registers and shared memory. We can guide the compiler to optimize for occupancy by using CUDA's <strong>launch_bounds</strong> kernel annotation.</p>
+<p>In some cases, simply using more threads isn't enough-especially if each thread uses a lot of resources such as registers and shared memory. We can guide the compiler to optimize for occupancy by using CUDA's _<em>launch<em>bounds</em></em> kernel annotation.</p>
 </blockquote>
 <p>此注释允许我们在编译时为内核指定两个参数：我们将启动的每块最大线程数和希望在每个SM上保持驻留的最小线程块数。这些提示影响编译器的寄存器分配和内联决策。示例如下：</p>
 <blockquote>
@@ -2778,7 +2778,7 @@
 </span></code></pre></div>
 <p>在这里，<code>__launch_bounds__(256, 16)</code>承诺CUDA内核永远不会以块中超过256个线程启动。它还请求编译器分配足够的寄存器并内联函数，以便至少16个256线程的块，或4,096个线程（16个块 x 每块256个线程），可以同时驻留在SM上。</p>
 <blockquote>
-<p>Here, <strong>launch_bounds</strong>(256, 16) promises that the CUDA kernel will never be launched with more than 256 threads in a block. It also requests that the compiler allocate enough registers and inline functions so that at least 16 blocks of 256 threads, or 4,096 threads (16 blocks x 256 threads per block), can be resident on the SM simultaneously.</p>
+<p>Here, _<em>launch<em>bounds</em></em>(256, 16) promises that the CUDA kernel will never be launched with more than 256 threads in a block. It also requests that the compiler allocate enough registers and inline functions so that at least 16 blocks of 256 threads, or 4,096 threads (16 blocks x 256 threads per block), can be resident on the SM simultaneously.</p>
 </blockquote>
 <p>请记住，现代GPU（如Blackwell）上每块最多只能有1,024个线程，每SM最多只能有2,048个驻留线程。</p>
 <blockquote>
@@ -2794,7 +2794,7 @@
 </blockquote>
 <p>在实践中，使用<code>__launch_bounds__</code>通常会导致编译器限制每线程寄存器使用（有时限制展开或内联）以避免溢出并允许更高的占用率。我们本质上是在牺牲一些每线程性能，不使用每个最后的寄存器或最大程度展开。这是为了通过保持更多线程束在运行来获得更一致的线程束吞吐量。</p>
 <blockquote>
-<p>In practice, using <strong>launch_bounds</strong> often causes the compiler to cap per-thread register usage (and to sometimes restrict unrolling or inlining) to avoid spilling and to allow higher occupancy. We are essentially trading a bit of per-thread performance and not using every last register or unrolling to the max. This is in exchange for more consistent warp throughput by keeping more warps in flight.</p>
+<p>In practice, using _<em>launch<em>bounds</em></em> often causes the compiler to cap per-thread register usage (and to sometimes restrict unrolling or inlining) to avoid spilling and to allow higher occupancy. We are essentially trading a bit of per-thread performance and not using every last register or unrolling to the max. This is in exchange for more consistent warp throughput by keeping more warps in flight.</p>
 </blockquote>
 <p>增加占用率必须与每线程资源限制相平衡。您希望避免寄存器溢出（如果您强制太多线程导致它们用完寄存器并溢出到本地内存，导致慢速内存访问）。</p>
 <blockquote>
@@ -2835,7 +2835,7 @@
 </blockquote>
 <p>当应用时，编译器的启发式方法通常很好，但<code>__launch_bounds__</code>和占用率计算器在需要时为您提供显式控制。当您知道您的内核可以牺牲一些每线程资源使用来换取更多活动线程束时使用它们。这有助于防止由于重型线程导致SM占用不足。</p>
 <blockquote>
-<p>When applied, the compiler's heuristics are usually good, but <strong>launch_bounds</strong> and occupancy calculators give you explicit control when needed. Use them when you know your kernel can trade some per-thread resource usage for more active warps. This helps prevent underoccupying SMs due to heavy threads.</p>
+<p>When applied, the compiler's heuristics are usually good, but _<em>launch<em>bounds</em></em> and occupancy calculators give you explicit control when needed. Use them when you know your kernel can trade some per-thread resource usage for more active warps. This helps prevent underoccupying SMs due to heavy threads.</p>
 </blockquote>
 <p>寄存器和占用率之间的权衡很重要。使用更少的每线程寄存器--或使用启动边界限制它们--允许更多线程束驻留，这改善了延迟隐藏。但是，使用太少的寄存器会迫使编译器将数据溢出到本地内存，损害性能。找到最佳点通常需要实验。Nsight Compute的"每线程寄存器"和"占用率"指标可以在此指导您。</p>
 <blockquote>

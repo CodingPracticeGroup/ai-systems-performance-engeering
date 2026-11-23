@@ -2099,9 +2099,9 @@
 <blockquote>
 <p>Empirically, speedups around 1.5-2.5x are common, and higher gains are possible with careful batching and draft model design.</p>
 </blockquote>
-<p>在PyTorch中，操作torch.nn.functional.scaled_dot_product_attention根据设备代、形状、掩码和dtype自动选择最优后端（FlashAttention或cuDNN内核）。您可以使用带有显式SDPABackend类型的torch.nn.attention.sdpa_kernel()来固定后端。例如，在对LLM解码进行基准测试时，验证融合后端是否处于活动状态非常重要。</p>
+<p>在PyTorch中，操作torch.nn.functional.scaled<em>dot</em>product<em>attention根据设备代、形状、掩码和dtype自动选择最优后端（FlashAttention或cuDNN内核）。您可以使用带有显式SDPABackend类型的torch.nn.attention.sdpa</em>kernel()来固定后端。例如，在对LLM解码进行基准测试时，验证融合后端是否处于活动状态非常重要。</p>
 <blockquote>
-<p>In PyTorch, the operation torch.nn.functional.scaled_dot_product_attention auto-selects the optimal backend (FlashAttention or a cuDNN kernel) based on device generation, shapes, mask, and dtype. You can pin a backend using torch.nn.attention.sdpa_kernel() with an explicit SDPABackend type. It's important to verify that the fused backend is active when benchmarking LLM decoding, for instance.</p>
+<p>In PyTorch, the operation torch.nn.functional.scaled<em>dot</em>product<em>attention auto-selects the optimal backend (FlashAttention or a cuDNN kernel) based on device generation, shapes, mask, and dtype. You can pin a backend using torch.nn.attention.sdpa</em>kernel() with an explicit SDPABackend type. It's important to verify that the fused backend is active when benchmarking LLM decoding, for instance.</p>
 </blockquote>
 <p>例如，EAGLE（Extrapolation Algorithm for Greater LLM Efficiency）算法通过在特征级别而非token级别操作来重新思考推测解码。EAGLE使用大型模型自身中间表示的一步外推来预测下一个token的特征。这解决了不确定性并实现了更高的接受率。</p>
 <blockquote>

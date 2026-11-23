@@ -2094,9 +2094,9 @@
 <blockquote>
 <p>Here, we use topo -m to get both CPU and NUMA affinities. We then extract a single-node ID from the NUMA Affinity column. Finally, we bind both --cpunodebind and --membind to that node to ensure your process's threads and memory allocations stay local to the GPU's NUMA domain.</p>
 </blockquote>
-<p>许多深度学习框架还允许你以编程方式设置线程亲和性。例如，PyTorch的DataLoader暴露worker_init_fn，以便你可以在初始化期间为每个工作进程设置CPU亲和性，如下所示：</p>
+<p>许多深度学习框架还允许你以编程方式设置线程亲和性。例如，PyTorch的DataLoader暴露worker<em>init</em>fn，以便你可以在初始化期间为每个工作进程设置CPU亲和性，如下所示：</p>
 <blockquote>
-<p>Many deep learning frameworks also let you set thread affinities programmatically. For instance, PyTorch's DataLoader exposes worker_init_fn so you can set CPU affinity for each worker process during initialization, as shown here:</p>
+<p>Many deep learning frameworks also let you set thread affinities programmatically. For instance, PyTorch's DataLoader exposes worker<em>init</em>fn so you can set CPU affinity for each worker process during initialization, as shown here:</p>
 </blockquote>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
@@ -2286,25 +2286,25 @@
 </span><span id="__span-2-186"><a id="__codelineno-2-186" name="__codelineno-2-186" href="#__codelineno-2-186"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
 </span><span id="__span-2-187"><a id="__codelineno-2-187" name="__codelineno-2-187" href="#__codelineno-2-187"></a>    <span class="n">main</span><span class="p">()</span>
 </span></code></pre></div>
-<p>此脚本将主训练进程和每个DataLoader工作进程绑定到GPU的本地NUMA节点，以防止跨NUMA内存访问。在DataLoader中，我们传递一个基于闭包的worker_init_fn，在每个工作进程内重新应用预先计算的NUMA绑定。我们在工作进程中不调用任何CUDA API。</p>
+<p>此脚本将主训练进程和每个DataLoader工作进程绑定到GPU的本地NUMA节点，以防止跨NUMA内存访问。在DataLoader中，我们传递一个基于闭包的worker<em>init</em>fn，在每个工作进程内重新应用预先计算的NUMA绑定。我们在工作进程中不调用任何CUDA API。</p>
 <blockquote>
-<p>This script binds the main training process and each DataLoader worker process to the GPU's local NUMA node to prevent cross-NUMA memory access. In the DataLoader, we pass a closure-based worker_init_fn that reapplies the precomputed NUMA binding inside each worker. And we do this without touching any CUDA APIs in the worker.</p>
+<p>This script binds the main training process and each DataLoader worker process to the GPU's local NUMA node to prevent cross-NUMA memory access. In the DataLoader, we pass a closure-based worker<em>init</em>fn that reapplies the precomputed NUMA binding inside each worker. And we do this without touching any CUDA APIs in the worker.</p>
 </blockquote>
 <p>启动时，进程使用NVML将当前GPU映射到其NUMA节点和CPU亲和性掩码。当可用时，我们通过nvmlDeviceGetNUMANodeId直接读取节点。否则，我们从GPU的CPU亲和性掩码（nvmlDeviceGetCpuAffinity）推导它。如果NVML不可用或未暴露节点，我们回退到内核的sysfs条目/sys/bus/pci/devices/<PCI_ID>/numa_node。作为最后手段，我们使用进程的当前首选节点。</p>
 <blockquote>
 <p>At startup, the process uses NVML to map the current GPU to its NUMA node and CPU-affinity mask. When available, we read the node directly via nvmlDeviceGetNUMANodeId. Otherwise, we derive it from the GPU's CPU-affinity mask (nvmlDeviceGetCpuAffinity). If NVML is unavailable or does not expose the node, we fall back to the kernel's sysfs entry at /sys/bus/pci/devices/<PCI_ID>/numa_node. As a last resort, we use the process's current preferred node.</p>
 </blockquote>
-<p>然后我们从/sys/devices/system/node/node<N>/cpulist计算该节点的CPU列表，并使用psutil将CPU亲和性应用于这些核心。我们还使用libnuma（numa_run_on_node + numa_set_preferred）将所有未来分配绑定到该节点。</p>
+<p>然后我们从/sys/devices/system/node/node<N>/cpulist计算该节点的CPU列表，并使用psutil将CPU亲和性应用于这些核心。我们还使用libnuma（numa<em>run</em>on<em>node + numa</em>set_preferred）将所有未来分配绑定到该节点。</p>
 <blockquote>
-<p>We then compute the CPU list for that node from /sys/devices/system/node/node<N>/cpulist and apply CPU affinity to those cores with psutil. We also bind all future allocations to that node using libnuma (numa_run_on_node + numa_set_preferred).</p>
+<p>We then compute the CPU list for that node from /sys/devices/system/node/node<N>/cpulist and apply CPU affinity to those cores with psutil. We also bind all future allocations to that node using libnuma (numa<em>run</em>on<em>node + numa</em>set_preferred).</p>
 </blockquote>
 <p>由于某些启动器、容器运行时或内核不能可靠地将NUMA策略传播给子进程，我们在每个fork的工作进程中显式重新应用并验证绑定。仅依赖继承是不安全的。</p>
 <blockquote>
 <p>Because some launchers, container runtimes, or kernels do not reliably propagate NUMA policy to children, we explicitly reapply and verify the binding in every forked worker. It's not safe to rely on inheritance alone.</p>
 </blockquote>
-<p>记得设置pin_memory=True并在H2D复制上使用non_blocking=True，以便页锁定的主机缓冲区保持在正确的NUMA节点上。优先使用persistent_workers=True以避免重新fork工作进程并在epoch之间丢失它们的亲和性。不要在worker_init_fn中调用torch.cuda.*。相反，使用闭包或环境变量传递GPU索引。</p>
+<p>记得设置pin<em>memory=True并在H2D复制上使用non</em>blocking=True，以便页锁定的主机缓冲区保持在正确的NUMA节点上。优先使用persistent<em>workers=True以避免重新fork工作进程并在epoch之间丢失它们的亲和性。不要在worker</em>init_fn中调用torch.cuda.*。相反，使用闭包或环境变量传递GPU索引。</p>
 <blockquote>
-<p>Remember to set pin_memory=True and use non_blocking=True on H2D copies so that page-locked host buffers stay on the correct NUMA node. Prefer persistent_workers=True to avoid re-forking workers and losing their affinity between epochs. And do not call torch.cuda.* in worker_init_fn. Instead, pass the GPU index using a closure or environment variable.</p>
+<p>Remember to set pin<em>memory=True and use non</em>blocking=True on H2D copies so that page-locked host buffers stay on the correct NUMA node. Prefer persistent<em>workers=True to avoid re-forking workers and losing their affinity between epochs. And do not call torch.cuda.* in worker</em>init_fn. Instead, pass the GPU index using a closure or environment variable.</p>
 </blockquote>
 <p>结果是数据准备和批次加载完全在本地内存中发生。这样，你的GPU保持忙碌，永远不需要为远程NUMA跳转而暂停。使用此代码，你可以在任何安装了libnuma和numactl的Linux服务器上获得健壮的、拓扑感知的亲和性。</p>
 <blockquote>
@@ -2477,17 +2477,17 @@
 <blockquote>
 <p>A best practice for large training jobs is to write frequent checkpoints to disk in case you need to restart a failed job from a known good checkpoint. During checkpointing, however, huge bursts of data might fill up the OS page cache and cause stalls.</p>
 </blockquote>
-<p>对于存储，你可以调整vm.dirty_ratio和vm.dirty_background_ratio来调整页面缓存大小以缓冲写入。例如，对于多GB检查点，使用更高的脏数据比率让OS在刷新到磁盘之前在RAM中批处理更多数据。这将平滑大型检查点写入并减少训练循环中的停顿。</p>
+<p>对于存储，你可以调整vm.dirty<em>ratio和vm.dirty</em>background_ratio来调整页面缓存大小以缓冲写入。例如，对于多GB检查点，使用更高的脏数据比率让OS在刷新到磁盘之前在RAM中批处理更多数据。这将平滑大型检查点写入并减少训练循环中的停顿。</p>
 <blockquote>
-<p>For storage, you can adjust vm.dirty_ratio and vm.dirty_background_ratio to tune the page-cache size for buffering writes. For example, with multi-GB checkpoints, using a higher dirty ratio lets the OS batch more data in RAM before flushing to disk. This will smooth out large checkpoint writes and reduce stalls in your training loop.</p>
+<p>For storage, you can adjust vm.dirty<em>ratio and vm.dirty</em>background_ratio to tune the page-cache size for buffering writes. For example, with multi-GB checkpoints, using a higher dirty ratio lets the OS batch more data in RAM before flushing to disk. This will smooth out large checkpoint writes and reduce stalls in your training loop.</p>
 </blockquote>
 <p>另一个选择是在单独的线程中执行检查点。PyTorch中一个较新的选项是从集群中的节点写入分布式检查点分区。在这种情况下，检查点分区将在失败作业重启后加载检查点时合并。</p>
 <blockquote>
 <p>Another option is to perform checkpointing in a separate thread. A more recent option in PyTorch is to write distributed checkpoint partitions from nodes across the cluster. In this case, the checkpoint partitions will be combined when the checkpoint is loaded after a failed-job restart.</p>
 </blockquote>
-<p>在延迟敏感的训练工作流中，最好完全绕过页面缓存。例如，使用O_DIRECT打开检查点文件或使用Linux的io_uring进行异步I/O以避免页面缓存停顿。在写入每个检查点后，调用posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED)立即从缓存中删除这些页面，并防止后续迭代的内存压力。</p>
+<p>在延迟敏感的训练工作流中，最好完全绕过页面缓存。例如，使用O<em>DIRECT打开检查点文件或使用Linux的io</em>uring进行异步I/O以避免页面缓存停顿。在写入每个检查点后，调用posix<em>fadvise(fd, 0, 0, POSIX</em>FADV_DONTNEED)立即从缓存中删除这些页面，并防止后续迭代的内存压力。</p>
 <blockquote>
-<p>In latency-sensitive training workflows, it's best to bypass the page cache entirely. For example, open checkpoint files with O_DIRECT or use Linux's io_uring for asynchronous I/O to avoid page-cache stalls. After writing each checkpoint, call posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED) to immediately drop those pages from cache and prevent memory pressure on subsequent iterations.</p>
+<p>In latency-sensitive training workflows, it's best to bypass the page cache entirely. For example, open checkpoint files with O<em>DIRECT or use Linux's io</em>uring for asynchronous I/O to avoid page-cache stalls. After writing each checkpoint, call posix<em>fadvise(fd, 0, 0, POSIX</em>FADV_DONTNEED) to immediately drop those pages from cache and prevent memory pressure on subsequent iterations.</p>
 </blockquote>
 <h3 id="337-cpuc-cpu-frequency-and-c-states">3.3.7 CPU频率和C状态 (CPU Frequency and C-states)<a class="headerlink" href="#337-cpuc-cpu-frequency-and-c-states" title="Permanent link">&para;</a></h3>
 <p>默认情况下，许多计算节点将以省电模式运行CPU，这会降低CPU频率或在空闲时使其休眠。这有助于节省能源、减少热量并降低成本。在模型训练期间，当GPU正在处理其数据集的最后批次时，CPU可能不会始终100%利用。然而，当新工作到达时，这些电源管理功能可能会导致额外延迟。</p>
@@ -2527,9 +2527,9 @@
 <blockquote>
 <p>By tuning your host's memory allocator (jemalloc or tcmalloc), you can eliminate unpredictable pauses in data preparation. This will keep GPUs running at their peak-except for intentional synchronization points.</p>
 </blockquote>
-<p>调优后，你应该看到每个GPU的利用率接近100%，仅在必要的同步屏障处下降。GPU永远不应因CPU端延迟而停顿等待数据。使用jemalloc，你可以将分配分片到每CPU arena（narenas），启用background_thread用于离路径清除，并延长dirty_decay_ms/muzzy_decay_ms，以便释放的页面不会立即返回给OS。这将最小化锁争用和碎片。</p>
+<p>调优后，你应该看到每个GPU的利用率接近100%，仅在必要的同步屏障处下降。GPU永远不应因CPU端延迟而停顿等待数据。使用jemalloc，你可以将分配分片到每CPU arena（narenas），启用background<em>thread用于离路径清除，并延长dirty</em>decay<em>ms/muzzy</em>decay_ms，以便释放的页面不会立即返回给OS。这将最小化锁争用和碎片。</p>
 <blockquote>
-<p>After tuning, you should see each GPU's utilization hover near 100% and drop only at required synchronization barriers. The GPUs should never stall for data due to CPU-side delays. With jemalloc, you can shard allocations into per-CPU arenas (narenas), enable background_thread for off-path purging, and lengthen dirty_decay_ms/muzzy_decay_ms so that freed pages aren't immediately returned to the OS. This will minimize lock contention and fragmentation.</p>
+<p>After tuning, you should see each GPU's utilization hover near 100% and drop only at required synchronization barriers. The GPUs should never stall for data due to CPU-side delays. With jemalloc, you can shard allocations into per-CPU arenas (narenas), enable background<em>thread for off-path purging, and lengthen dirty</em>decay<em>ms/muzzy</em>decay_ms so that freed pages aren't immediately returned to the OS. This will minimize lock contention and fragmentation.</p>
 </blockquote>
 <p>你可以使用MALLOC_CONF环境变量调优jemalloc：</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">MALLOC_CONF</span><span class="o">=</span><span class="s2">"narenas:8,dirty_decay_ms:10000,muzzy_decay_ms:10000,background_thread:true"</span>
@@ -2537,12 +2537,12 @@
 <blockquote>
 <p>You can tune jemalloc with the MALLOC_CONF environment variable:</p>
 </blockquote>
-<p>同样，tcmalloc受益于调优TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES和TCMALLOC_RELEASE_RATE环境变量。这些将提供更大的每线程缓存，以便小分配避免全局锁和系统调用--保持CPU线程准备好以低、可预测的延迟为GPU提供数据。</p>
+<p>同样，tcmalloc受益于调优TCMALLOC<em>MAX</em>TOTAL<em>THREAD</em>CACHE<em>BYTES和TCMALLOC</em>RELEASE_RATE环境变量。这些将提供更大的每线程缓存，以便小分配避免全局锁和系统调用--保持CPU线程准备好以低、可预测的延迟为GPU提供数据。</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES</span><span class="o">=</span><span class="k">$((</span><span class="m">512</span><span class="o">*</span><span class="m">1024</span><span class="o">*</span><span class="m">1024</span><span class="k">))</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">TCMALLOC_RELEASE_RATE</span><span class="o">=</span><span class="m">16</span>
 </span></code></pre></div>
 <blockquote>
-<p>Similarly, tcmalloc benefits from tuning the TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES and TCMALLOC_RELEASE_RATE environment variables. These will provide larger per-thread caches so that small allocations avoid global locks and syscalls-keeping CPU threads ready to feed the GPU with low, predictable latency.</p>
+<p>Similarly, tcmalloc benefits from tuning the TCMALLOC<em>MAX</em>TOTAL<em>THREAD</em>CACHE<em>BYTES and TCMALLOC</em>RELEASE_RATE environment variables. These will provide larger per-thread caches so that small allocations avoid global locks and syscalls-keeping CPU threads ready to feed the GPU with low, predictable latency.</p>
 </blockquote>
 <h2 id="34-gpu-gpu-driver-and-runtime-settings-for-performance">3.4 GPU驱动和运行时性能设置 (GPU Driver and Runtime Settings for Performance)<a class="headerlink" href="#34-gpu-gpu-driver-and-runtime-settings-for-performance" title="Permanent link">&para;</a></h2>
 <p>我们已经优化了CPU端，但GPU驱动和运行时也有一些重要设置可能影响性能--特别是在多GPU和多用户场景中。NVIDIA GPU有一些旋钮，当正确调优时，可以减少开销并改善多个工作负载共享GPU的方式。</p>
@@ -2637,9 +2637,9 @@
 <blockquote>
 <p>Typically, you start the MPS server on a node-often one per GPU or one per user-and then run your GPU jobs with an environment variable that connects them to MPS. All jobs under that server will share the GPU concurrently.</p>
 </blockquote>
-<p>MPS的另一个功能是能够为每个客户端设置活动线程百分比。这限制了客户端可以使用多少SM（本质上是GPU核心）。如果你想保证服务质量（QoS），例如两个作业各获得最多50%的GPU执行资源，这可能很有用。在这种情况下，你可以设置CUDA_MPS_ACTIVE_THREAD_PERCENTAGE=50将客户端限制为约50%的SM执行容量。如果未显式设置，作业将只是竞争并使用它们能获得的任何GPU资源。</p>
+<p>MPS的另一个功能是能够为每个客户端设置活动线程百分比。这限制了客户端可以使用多少SM（本质上是GPU核心）。如果你想保证服务质量（QoS），例如两个作业各获得最多50%的GPU执行资源，这可能很有用。在这种情况下，你可以设置CUDA<em>MPS</em>ACTIVE<em>THREAD</em>PERCENTAGE=50将客户端限制为约50%的SM执行容量。如果未显式设置，作业将只是竞争并使用它们能获得的任何GPU资源。</p>
 <blockquote>
-<p>Another feature of MPS is the ability to set an active thread percentage per client. This limits how many SMs (GPU cores, essentially) a client can use. This can be useful if you want to guarantee quality of service (QoS) where two jobs, for example, each get at most 50% of the GPU's execution resources. In this case, you can set CUDA_MPS_ACTIVE_THREAD_PERCENTAGE=50 to cap a client to about 50% of SM execution capacity. If not explicitly set, the jobs will just compete and use whatever GPU resources they can.</p>
+<p>Another feature of MPS is the ability to set an active thread percentage per client. This limits how many SMs (GPU cores, essentially) a client can use. This can be useful if you want to guarantee quality of service (QoS) where two jobs, for example, each get at most 50% of the GPU's execution resources. In this case, you can set CUDA<em>MPS</em>ACTIVE<em>THREAD</em>PERCENTAGE=50 to cap a client to about 50% of SM execution capacity. If not explicitly set, the jobs will just compete and use whatever GPU resources they can.</p>
 </blockquote>
 <p>请注意，MPS不分区GPU内存，因此所有进程将共享完整的GPU内存空间。MPS主要关于计算共享和调度。问题是一个进程可能请求大量GPU RAM，导致GPU上的OOM错误，并导致终止GPU上运行的所有其他进程。这非常具有破坏性。此外，如果一个程序自己使GPU饱和100%，MPS不会神奇地使其更快，因为你无法超过100%利用率。它仅在单个作业留下一些其他作业可以填补的空闲时才有益。</p>
 <blockquote>
@@ -2890,9 +2890,9 @@
 <blockquote>
 <p>By default, some frameworks (e.g., TensorFlow) grab all of the available GPU memory at startup to avoid fragmentation and improve performance. If you don't know this, it can be very bad in scenarios where you are sharing the GPU. PyTorch, by default, allocates GPU memory only as needed.</p>
 </blockquote>
-<p>TensorFlow有一个选项（TF_FORCE_GPU_ALLOW_GROWTH=true）使其从小开始并按需动态增长GPU内存使用--类似于PyTorch。然而，PyTorch和TensorFlow都不允许你分配超过GPU可用内存的内存。</p>
+<p>TensorFlow有一个选项（TF<em>FORCE</em>GPU<em>ALLOW</em>GROWTH=true）使其从小开始并按需动态增长GPU内存使用--类似于PyTorch。然而，PyTorch和TensorFlow都不允许你分配超过GPU可用内存的内存。</p>
 <blockquote>
-<p>TensorFlow has an option (TF_FORCE_GPU_ALLOW_GROWTH=true) to make it start small and dynamically grow the GPU memory usage as needed-similar to PyTorch. However, neither PyTorch nor TensorFlow lets you allocate more memory than the GPU has available.</p>
+<p>TensorFlow has an option (TF<em>FORCE</em>GPU<em>ALLOW</em>GROWTH=true) to make it start small and dynamically grow the GPU memory usage as needed-similar to PyTorch. However, neither PyTorch nor TensorFlow lets you allocate more memory than the GPU has available.</p>
 </blockquote>
 <p>CUDA的统一内存系统允许你分配内存而无需预定义它驻留在CPU还是GPU上。CUDA运行时根据需要移动页面。现代NVIDIA GPU如Hopper和Blackwell包括使用页面迁移引擎（PME）进行按需分页的硬件支持。</p>
 <blockquote>
@@ -2914,17 +2914,17 @@
 <blockquote>
 <p>Libraries like PyTorch use a caching allocator so that when you free GPU memory, it doesn't return the memory to the OS immediately. Instead, it keeps it to reuse for future allocations. This avoids memory fragmentation and the overhead of asking the OS to repeatedly allocate the same block of memory.</p>
 </blockquote>
-<p>你可以使用PYTORCH_CUDA_ALLOC_CONF（以前称为PYTORCH_CUDA_ALLOC_CONF）设置最大池大小来限制缓存分配器。我们将在后面的章节中介绍PyTorch内存分配机制的优化。</p>
+<p>你可以使用PYTORCH<em>CUDA</em>ALLOC<em>CONF（以前称为PYTORCH</em>CUDA<em>ALLOC</em>CONF）设置最大池大小来限制缓存分配器。我们将在后面的章节中介绍PyTorch内存分配机制的优化。</p>
 <blockquote>
-<p>You can limit the caching allocator using PYTORCH_CUDA_ALLOC_CONF (formerly PYTORCH_CUDA_ALLOC_CONF) to set a max pool size. We'll cover optimizations to PyTorch's memory-allocation mechanism in a later chapter.</p>
+<p>You can limit the caching allocator using PYTORCH<em>CUDA</em>ALLOC<em>CONF (formerly PYTORCH</em>CUDA<em>ALLOC</em>CONF) to set a max pool size. We'll cover optimizations to PyTorch's memory-allocation mechanism in a later chapter.</p>
 </blockquote>
 <p>如果你遇到GPU OOM错误（你肯定会在某个时候遇到），这很可能是由内存碎片化或过度内存缓存引起的。你可以尝试使用PyTorch的torch.cuda.empty_cache()清除缓存，但这几乎总是意味着你的工作负载确实需要那么多内存。</p>
 <blockquote>
 <p>If you run into the GPU OOM error, which you surely will at some point, it's likely caused by memory fragmentation or excessive memory caching. You can try to clear the cache using PyTorch's torch.cuda.empty_cache(), but it almost always means your workload legitimately needs that much memory.</p>
 </blockquote>
-<p>PyTorch还提供torch.cuda.memory_stats()和torch.cuda.memory_summary()等工具，通过显示已分配与保留内存来帮助诊断碎片化。NVIDIA的Nsight Systems还显示GPU内存使用模式，以帮助识别内存泄漏、与泄漏相关的长期分配、CPU-GPU互连活动和GPUDirect Storage时间线跟踪。此外，Nsight Compute分析器提供低级内核分析，包括占用率、吞吐量和NVLink使用情况。我们将在接下来的章节中介绍所有这些内容。</p>
+<p>PyTorch还提供torch.cuda.memory<em>stats()和torch.cuda.memory</em>summary()等工具，通过显示已分配与保留内存来帮助诊断碎片化。NVIDIA的Nsight Systems还显示GPU内存使用模式，以帮助识别内存泄漏、与泄漏相关的长期分配、CPU-GPU互连活动和GPUDirect Storage时间线跟踪。此外，Nsight Compute分析器提供低级内核分析，包括占用率、吞吐量和NVLink使用情况。我们将在接下来的章节中介绍所有这些内容。</p>
 <blockquote>
-<p>PyTorch also provides tools like torch.cuda.memory_stats() and torch.cuda.memory_summary() to help diagnose fragmentation by showing allocated versus reserved memory. NVIDIA's Nsight Systems also shows GPU memory usage patterns to help identify memory leaks, long-lived allocations that correlate with leaks, CPU-GPU interconnect activity, and GPUDirect Storage timeline tracing. Additionally, the Nsight Compute profiler provides low-level kernel analysis, including occupancy, throughput, and NVLink usage. We'll cover all of these in the upcoming chapters.</p>
+<p>PyTorch also provides tools like torch.cuda.memory<em>stats() and torch.cuda.memory</em>summary() to help diagnose fragmentation by showing allocated versus reserved memory. NVIDIA's Nsight Systems also shows GPU memory usage patterns to help identify memory leaks, long-lived allocations that correlate with leaks, CPU-GPU interconnect activity, and GPUDirect Storage timeline tracing. Additionally, the Nsight Compute profiler provides low-level kernel analysis, including occupancy, throughput, and NVLink usage. We'll cover all of these in the upcoming chapters.</p>
 </blockquote>
 <p>Docker提供--gpus标志来选择并将GPU暴露给容器，但它不支持设置GPU内存限制。如果你需要GPU内存或计算的硬隔离，使用MIG分区设备或使用带活动线程百分比的多进程服务（MPS）进行公平共享。在Kubernetes中使用MIG资源如nvidia.com/mig-2g.45gb配置限制，当你需要严格分区时。</p>
 <blockquote>
@@ -3160,9 +3160,9 @@
 <blockquote>
 <p>Using host networking allows a container to access the InfiniBand interconnect exactly as the host does-without any additional translation or firewall layers. This is particularly useful for MPI jobs because it eliminates the need to configure port mappings for every MPI rank.</p>
 </blockquote>
-<p>然而，如果由于安全策略无法使用主机网络，你必须确保你的Kubernetes容器网络接口（CNI）和任何覆盖网络能够处理所需的流量。在这种情况下，你可能需要打开特定端口以支持NCCL握手和数据交换，使用NCCL_PORT_RANGE和NCCL_SOCKET_IFNAME等环境变量来帮助建立连接。</p>
+<p>然而，如果由于安全策略无法使用主机网络，你必须确保你的Kubernetes容器网络接口（CNI）和任何覆盖网络能够处理所需的流量。在这种情况下，你可能需要打开特定端口以支持NCCL握手和数据交换，使用NCCL<em>PORT</em>RANGE和NCCL<em>SOCKET</em>IFNAME等环境变量来帮助建立连接。</p>
 <blockquote>
-<p>However, if host networking is not an option due to security policies, you must ensure that your Kubernetes container network interface (CNI) and any overlay network can handle the required traffic. In such cases, you may need to open specific ports to support the handshake of NCCL and data exchange, using environment variables like NCCL_PORT_RANGE and NCCL_SOCKET_IFNAME to help establish connections.</p>
+<p>However, if host networking is not an option due to security policies, you must ensure that your Kubernetes container network interface (CNI) and any overlay network can handle the required traffic. In such cases, you may need to open specific ports to support the handshake of NCCL and data exchange, using environment variables like NCCL<em>PORT</em>RANGE and NCCL<em>SOCKET</em>IFNAME to help establish connections.</p>
 </blockquote>
 <p>在覆盖网络上运行时，关键是延迟保持低且操作在内核空间运行。此外，确保没有用户空间代理限制节点之间的流量。这些因素可能会显著影响性能。</p>
 <blockquote>
@@ -3277,9 +3277,9 @@
 <blockquote>
 <p><strong>Maximize GPU driver and runtime efficiency</strong>: Fine-tune the GPU driver settings, such as enabling persistence mode to keep GPUs in a ready state. Consider features like Multi-Process Service (MPS) for overlapping work from multiple processes on a single GPU. For multitenant environments, explore MIG partitions to isolate workloads effectively.</p>
 </blockquote>
-<p><strong>有效预取和批处理数据</strong>：通过提前预取数据和将小I/O操作批处理为更大、更高效的读取来保持GPU供应充足。利用PyTorch的DataLoader prefetch_factor（连同num_workers）等预取机制提前加载多个批次。</p>
+<p><strong>有效预取和批处理数据</strong>：通过提前预取数据和将小I/O操作批处理为更大、更高效的读取来保持GPU供应充足。利用PyTorch的DataLoader prefetch<em>factor（连同num</em>workers）等预取机制提前加载多个批次。</p>
 <blockquote>
-<p><strong>Prefetch and batch data effectively</strong>: Keep the GPUs fed by prefetching data ahead of time and batching small I/O operations into larger, more efficient reads. Leverage prefetching mechanisms like PyTorch's DataLoader prefetch_factor (along with num_workers) to load multiple batches in advance.</p>
+<p><strong>Prefetch and batch data effectively</strong>: Keep the GPUs fed by prefetching data ahead of time and batching small I/O operations into larger, more efficient reads. Leverage prefetching mechanisms like PyTorch's DataLoader prefetch<em>factor (along with num</em>workers) to load multiple batches in advance.</p>
 </blockquote>
 <p><strong>数据加载时固定内存</strong>：将数据预取与使用PyTorch的DataLoader pin_memory=True进行内存固定相结合，使用固定的CPU内存（页锁定，不可交换到磁盘）进行更快、异步的数据传输到GPU。因此，数据加载和模型执行可以重叠，空闲时间减少，CPU和GPU资源得到持续利用。</p>
 <blockquote>

@@ -1463,9 +1463,9 @@
 <blockquote>
 <p>Instead, you should batch your reads into larger contiguous chunks or use a high-level dataset API (e.g., TFRecordDataset or PyTorch's IterableDataset and DataLoader with configurable prefetch sizes). And while many of these frameworks and libraries are internally optimized for large sequential reads, tuning their buffer and prefetch parameters is still important.</p>
 </blockquote>
-<p>如果你的访问模式仍然必须是随机的，请使用调用pread()的线程或Linux的异步I/O接口（如io_uring）并行发出多个读取。通过预注册缓冲区和轮询等功能，io_uring允许以最小的内核开销提交批量I/O请求。它可以通过减少每次系统调用的开销来进一步提高随机读取吞吐量。这有助于隐藏延迟并实现高IOPS。</p>
+<p>如果你的访问模式仍然必须是随机的，请使用调用pread()的线程或Linux的异步I/O接口（如io<em>uring）并行发出多个读取。通过预注册缓冲区和轮询等功能，io</em>uring允许以最小的内核开销提交批量I/O请求。它可以通过减少每次系统调用的开销来进一步提高随机读取吞吐量。这有助于隐藏延迟并实现高IOPS。</p>
 <blockquote>
-<p>If your access pattern still must be random, issue multiple reads in parallel using either threads calling pread() or Linux's asynchronous I/O interfaces like io_uring. With features like preregistered buffers and polling, io_uring allows submitting batches of I/O requests with minimal kernel overhead. It can further improve random read throughput by reducing per-syscall overhead. This helps hide latency and achieve high IOPS.</p>
+<p>If your access pattern still must be random, issue multiple reads in parallel using either threads calling pread() or Linux's asynchronous I/O interfaces like io<em>uring. With features like preregistered buffers and polling, io</em>uring allows submitting batches of I/O requests with minimal kernel overhead. It can further improve random read throughput by reducing per-syscall overhead. This helps hide latency and achieve high IOPS.</p>
 </blockquote>
 <p>应该使用针对大型并发I/O优化的文件系统。XFS在Linux NVMe服务器上很常见。你应该使用noatime挂载它以消除每次读取时昂贵的访问时间更新。对于像Amazon EFS这样的网络存储服务，确保你的EFS文件系统处于Max I/O性能模式以获得最高聚合吞吐量。如果你需要一致的带宽，可以从默认的Bursting吞吐量模式切换到Provisioned吞吐量。这些设置确保你的I/O层能够跟上大规模并行AI工作负载。</p>
 <blockquote>
@@ -1484,9 +1484,9 @@
 <blockquote>
 <p>For high-performance NVMe, it's recommended to still use the none or mq-deadline multiqueue scheduler to maximize throughput. You can verify and set the scheduler using /sys/block/nvme*/queue/scheduler. It's almost always configured properly out of the box, but it's worth verifying with a quick check.</p>
 </blockquote>
-<p>另一个调优方面是预读。当内核检测到顺序读取时，它会自动预读额外数据。你可以在/sys/block/<device>/queue/read_ahead_kb中看到预读设置。例如，默认情况下它可能设置为128 KB。如果你正在流式传输大文件，请将其增加到几MB。这将通过减少系统调用开销和流水线读取来提高吞吐量。可以使用blockdev --setra在设备上完成此操作。</p>
+<p>另一个调优方面是预读。当内核检测到顺序读取时，它会自动预读额外数据。你可以在/sys/block/<device>/queue/read<em>ahead</em>kb中看到预读设置。例如，默认情况下它可能设置为128 KB。如果你正在流式传输大文件，请将其增加到几MB。这将通过减少系统调用开销和流水线读取来提高吞吐量。可以使用blockdev --setra在设备上完成此操作。</p>
 <blockquote>
-<p>Another tuning aspect is read ahead. The kernel will automatically read ahead extra data when it detects sequential reads. You can see the read ahead setting in /sys/block/<device>/queue/read_ahead_kb. For example, by default it is likely set to 128 KB. If you are streaming large files, increase this to a few MB. This will improve your throughput by reducing syscall overhead and pipelining reads. This can be done using blockdev --setra on the device.</p>
+<p>Another tuning aspect is read ahead. The kernel will automatically read ahead extra data when it detects sequential reads. You can see the read ahead setting in /sys/block/<device>/queue/read<em>ahead</em>kb. For example, by default it is likely set to 128 KB. If you are streaming large files, increase this to a few MB. This will improve your throughput by reducing syscall overhead and pipelining reads. This can be done using blockdev --setra on the device.</p>
 </blockquote>
 <p>如果使用NVMe SSD磁盘，请确保它们设置在系统上可用的最快接口上。并确保你有足够的通道（例如PCIe），这样它们就不会成为瓶颈。有时，多个SSD可以使用RAID 0进行条带化，例如，以充分利用这些设备并最大化吞吐量--特别是如果单个磁盘无法使你的GPU饱和。</p>
 <blockquote>
@@ -1504,9 +1504,9 @@
 <blockquote>
 <p>Be sure to use multiple workers in data loading (e.g., PyTorch's DataLoader(num_workers=N)). These separate CPU threads/processes will fetch and preprocess data in parallel to feed the many GPUs in your training job. Finding the right number of workers is empirical.</p>
 </blockquote>
-<p>我们将在第13和14章深入探讨PyTorch性能调优，但在这里值得注意的是，你应该启用pin_memory=True并使用non_blocking=True来启用主机到设备副本的重叠。通过设置persistent_workers=True，你可以避免跨epoch的工作进程重生开销。调整每个工作负载的prefetch_factor也很有用。当num_workers大于0时，默认prefetch_factor为2。</p>
+<p>我们将在第13和14章深入探讨PyTorch性能调优，但在这里值得注意的是，你应该启用pin<em>memory=True并使用non</em>blocking=True来启用主机到设备副本的重叠。通过设置persistent<em>workers=True，你可以避免跨epoch的工作进程重生开销。调整每个工作负载的prefetch</em>factor也很有用。当num<em>workers大于0时，默认prefetch</em>factor为2。</p>
 <blockquote>
-<p>We will dive into PyTorch performance tuning in Chapters 13 and 14, but it's worth noting here that you should enable pin_memory=True and use non_blocking=True to enable overlapping host-to-device copies. And by setting persistent_workers=True, you avoid worker respawn overhead across epochs. It's also useful to tune prefetch_factor per workload. The default prefetch_factor is 2 for num_workers greater than 0.</p>
+<p>We will dive into PyTorch performance tuning in Chapters 13 and 14, but it's worth noting here that you should enable pin<em>memory=True and use non</em>blocking=True to enable overlapping host-to-device copies. And by setting persistent<em>workers=True, you avoid worker respawn overhead across epochs. It's also useful to tune prefetch</em>factor per workload. The default prefetch<em>factor is 2 for num</em>workers greater than 0.</p>
 </blockquote>
 <p>工作进程太少，GPU将空闲。工作进程太多，它们的线程将开始争夺可用的CPU核心和I/O带宽。监控CPU使用率和磁盘吞吐量。理想情况下，你希望磁盘吞吐量接近100%利用率，CPU有一些余量。</p>
 <blockquote>
@@ -1553,9 +1553,9 @@
 <blockquote>
 <p>cuFileRead integrates directly with the Linux filesystem. You can also use cuFile's asynchronous APIs, such as cuFileReadAsync and cuFileWriteAsync to integrate storage I/O on CUDA streams (discussed in Chapter 11) for overlap and pipelining.</p>
 </blockquote>
-<p>尽可能使用O_DIRECT以启用直接DMA并绕过OS页面缓存。对于现代GDS版本，cuFile也可以在非O_DIRECT文件描述符上操作，但未对齐可能会导致额外复制或性能下降。</p>
+<p>尽可能使用O<em>DIRECT以启用直接DMA并绕过OS页面缓存。对于现代GDS版本，cuFile也可以在非O</em>DIRECT文件描述符上操作，但未对齐可能会导致额外复制或性能下降。</p>
 <blockquote>
-<p>Use O_DIRECT when possible to enable direct DMA and bypass the OS page cache. With modern GDS releases, cuFile can also operate on non-O_DIRECT file descriptors, but misalignment may incur extra copies or reduced performance.</p>
+<p>Use O<em>DIRECT when possible to enable direct DMA and bypass the OS page cache. With modern GDS releases, cuFile can also operate on non-O</em>DIRECT file descriptors, but misalignment may incur extra copies or reduced performance.</p>
 </blockquote>
 <p>许多存储供应商如WekaIO、DDN、VAST、Cloudian等已发布支持GDS的解决方案或插件，使其系统可以使用RDMA直接将数据传送到GPU内存。这种生态系统支持意味着GDS可以开箱即用于企业网络附加存储（NAS）和并行文件系统。</p>
 <blockquote>
@@ -1888,13 +1888,13 @@
 <blockquote>
 <p><strong>Perform operations in batches by collating tensors</strong>: If possible, you want your loader to perform operations in batches instead of per sample. For example, you want to apply transformations to a whole batch of tensors at once using vectorized operations. You do this by collating the batch with a custom collate_fn()-or perhaps in the training loop itself on the GPU. This is much better than performing these operations on each row of input data separately. However, some transformations need to be performed per sample, so you sometimes need to understand the workload before you can batch and collate effectively.</p>
 </blockquote>
-<p><strong>在数据加载中使用内存固定</strong>：在PyTorch DataLoader中启用pin_memory=True使主机→GPU（H2D）传输更快，并允许当源固定时真正的异步.to(..., non_blocking=True)复制。来自固定内存的DMA避免额外复制和页面错误，因为数据锁定在RAM中并准备好直接传输。这在将数据传输到GPU时几乎总是有益的。确保设置高ulimit -l（或容器--ulimit memlock）以避免大型固定缓冲区的分配失败。</p>
+<p><strong>在数据加载中使用内存固定</strong>：在PyTorch DataLoader中启用pin<em>memory=True使主机→GPU（H2D）传输更快，并允许当源固定时真正的异步.to(..., non</em>blocking=True)复制。来自固定内存的DMA避免额外复制和页面错误，因为数据锁定在RAM中并准备好直接传输。这在将数据传输到GPU时几乎总是有益的。确保设置高ulimit -l（或容器--ulimit memlock）以避免大型固定缓冲区的分配失败。</p>
 <blockquote>
-<p><strong>Use memory pinning with data loading</strong>: Enabling pin_memory=True in PyTorch DataLoader makes the host → GPU (H2D) transfer faster and allows truly asynchronous .to(..., non_blocking=True) copies when the source is pinned. DMA from pinned memory avoids extra copies and page faults because the data is locked in RAM and ready for direct transfer. This is almost always beneficial when transferring data to the GPU. Make sure you set a high ulimit -l (or container --ulimit memlock) to avoid allocation failures for large pinned buffers.</p>
+<p><strong>Use memory pinning with data loading</strong>: Enabling pin<em>memory=True in PyTorch DataLoader makes the host → GPU (H2D) transfer faster and allows truly asynchronous .to(..., non</em>blocking=True) copies when the source is pinned. DMA from pinned memory avoids extra copies and page faults because the data is locked in RAM and ready for direct transfer. This is almost always beneficial when transferring data to the GPU. Make sure you set a high ulimit -l (or container --ulimit memlock) to avoid allocation failures for large pinned buffers.</p>
 </blockquote>
-<p><strong>预取批次</strong>：某些框架让你指定预取队列长度。这是它应该提前加载多少批次。默认情况下，PyTorch的DataLoader使用保守值，如prefetch_factor=2。在这种情况下，PyTorch每个工作进程预取两个批次。在底层，它保持最多num_workers * prefetch_factor批次排队。因此，在阻塞之前，每个工作进程加载两个批次的数据。如果你的工作负载有突发I/O--或者你看到工作进程偶尔使GPU饥饿--你可以将prefetch_factor增加到4或8，例如。以下是一个PyTorch代码片段，演示PyTorch DataLoader同时使用pin_memory和prefetch_factor=4：</p>
+<p><strong>预取批次</strong>：某些框架让你指定预取队列长度。这是它应该提前加载多少批次。默认情况下，PyTorch的DataLoader使用保守值，如prefetch<em>factor=2。在这种情况下，PyTorch每个工作进程预取两个批次。在底层，它保持最多num</em>workers * prefetch<em>factor批次排队。因此，在阻塞之前，每个工作进程加载两个批次的数据。如果你的工作负载有突发I/O--或者你看到工作进程偶尔使GPU饥饿--你可以将prefetch</em>factor增加到4或8，例如。以下是一个PyTorch代码片段，演示PyTorch DataLoader同时使用pin<em>memory和prefetch</em>factor=4：</p>
 <blockquote>
-<p><strong>Prefetch batches</strong>: Some frameworks let you specify a prefetch queue length. This is how many batches it should load ahead. By default, PyTorch's DataLoader uses a conservative value such as prefetch_factor=2. In this case, PyTorch prefetches two batches per worker. Under the hood it keeps up to num_workers * prefetch_factor batches queued. As such, before blocking, each worker loads two batches of data. If your workload has bursty I/O-or you see workers starving the GPU occasionally-you can increase prefetch_factor to 4 or 8, for example. Here is a PyTorch snippet that demonstrates the PyTorch DataLoader using both pin_memory and prefetch_factor=4:</p>
+<p><strong>Prefetch batches</strong>: Some frameworks let you specify a prefetch queue length. This is how many batches it should load ahead. By default, PyTorch's DataLoader uses a conservative value such as prefetch<em>factor=2. In this case, PyTorch prefetches two batches per worker. Under the hood it keeps up to num</em>workers * prefetch<em>factor batches queued. As such, before blocking, each worker loads two batches of data. If your workload has bursty I/O-or you see workers starving the GPU occasionally-you can increase prefetch</em>factor to 4 or 8, for example. Here is a PyTorch snippet that demonstrates the PyTorch DataLoader using both pin<em>memory and prefetch</em>factor=4:</p>
 </blockquote>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">DataLoader</span>
@@ -2083,17 +2083,17 @@
 <blockquote>
 <p><strong>Identify the cause</strong>: Once you spot a bottleneck, map it to a set of hypothetical causes and validate (or invalidate) them one by one. For example, if the bottleneck is network bound, maybe you're not using RDMA or your message sizes are too small or you need better overlapping, etc. If the GPU is idle waiting for other GPUs, you might have a straggler situation in which one GPU is doing more work than others due to a data imbalance. If your workload is CPU bound, perhaps the data loader is not configured correctly or there is a CPU aggregation operation that is better suited for the GPU, etc. If the bottleneck is memory bound on the GPU, maybe some kernels are transferring too much data between registers and HBM memory, so you might try reducing the batch size or introducing kernel fusion, etc.</p>
 </blockquote>
-<p><strong>应用修复或优化</strong>：在运行假设并找到实际原因后，现在是采取行动的时候了。对于网络和通信瓶颈修复，确保启用GPUDirect RDMA，如果你有多个NIC且仍然受网络带宽限制，增加NCCL_NSOCKS_PERTHREAD，并考虑使用梯度压缩等技术压缩数据，我们将在后面的章节中介绍。如果你跨越NUMA节点，尝试层次化方法或配置NCCL拓扑以每个NUMA节点使用更少的GPU等。</p>
+<p><strong>应用修复或优化</strong>：在运行假设并找到实际原因后，现在是采取行动的时候了。对于网络和通信瓶颈修复，确保启用GPUDirect RDMA，如果你有多个NIC且仍然受网络带宽限制，增加NCCL<em>NSOCKS</em>PERTHREAD，并考虑使用梯度压缩等技术压缩数据，我们将在后面的章节中介绍。如果你跨越NUMA节点，尝试层次化方法或配置NCCL拓扑以每个NUMA节点使用更少的GPU等。</p>
 <blockquote>
-<p><strong>Apply fixes or optimizations</strong>: After running through your hypotheses and finding the actual cause, it's now time to take action. For network and communication bottleneck fixes, ensure GPUDirect RDMA is enabled, increase NCCL_NSOCKS_PERTHREAD if you have multiple NICs and are still network-bandwidth limited, and consider compressing data using techniques like gradient compression, which we cover in a later chapter. If you are crossing NUMA nodes, try a hierarchical approach or configure the NCCL topology to use fewer GPUs per NUMA node, etc.</p>
+<p><strong>Apply fixes or optimizations</strong>: After running through your hypotheses and finding the actual cause, it's now time to take action. For network and communication bottleneck fixes, ensure GPUDirect RDMA is enabled, increase NCCL<em>NSOCKS</em>PERTHREAD if you have multiple NICs and are still network-bandwidth limited, and consider compressing data using techniques like gradient compression, which we cover in a later chapter. If you are crossing NUMA nodes, try a hierarchical approach or configure the NCCL topology to use fewer GPUs per NUMA node, etc.</p>
 </blockquote>
 <p>对于节点内拓扑问题，如果你的GPU分布在PCIe交换机上，如果可能，尝试将作业绑定到单个NUMA节点的GPU以避免慢速互连--或使用更多拓扑感知算法。对于CPU和数据问题，检查数据加载器是否太慢。在这种情况下，添加更多工作进程/线程或使用DALI将一些预处理移动到GPU。或提前做更多离线预处理。如果一个GPU较慢，可能在做额外验证或日志记录，尝试减少工作或使用异步操作将其移出关键路径。</p>
 <blockquote>
 <p>For intranode topology issues, if your GPUs are spread across PCIe switches, try binding your job to a single NUMA node's GPUs if possible to avoid slow interconnects-or use more topology-aware algorithms. For CPU and data issues, check if the data loader is too slow. In this case, add more worker processes/threads or move some preprocessing to the GPU using DALI, for instance. Or do more offline preprocessing ahead of time. If one GPU is slower, maybe doing extra validation or logging, try reducing the work or moving it off the critical path using asynchronous operations.</p>
 </blockquote>
-<p>如果同步是问题，删除代码中可能无意中序列化执行的不必要的torch.cuda.synchronize()调用或屏障（第13章将详细介绍）。如果环境需要调优，可能设置NCCL_IGNORE_CPU_AFFINITY=1。或将CPU线程固定到不同的拓扑配置等。只需相对较少的努力，有时只需几个小改动就可以将非常差的资源利用率转变为最大利用率（说起来容易做起来难，当然，但保持积极态度是好的！）：</p>
+<p>如果同步是问题，删除代码中可能无意中序列化执行的不必要的torch.cuda.synchronize()调用或屏障（第13章将详细介绍）。如果环境需要调优，可能设置NCCL<em>IGNORE</em>CPU_AFFINITY=1。或将CPU线程固定到不同的拓扑配置等。只需相对较少的努力，有时只需几个小改动就可以将非常差的资源利用率转变为最大利用率（说起来容易做起来难，当然，但保持积极态度是好的！）：</p>
 <blockquote>
-<p>If synchronizations are an issue, remove unnecessary torch.cuda.synchronize() calls or barriers in your code that might be inadvertently serializing execution (more on this in Chapter 13). If the environment needs tuning, maybe set NCCL_IGNORE_CPU_AFFINITY=1 if needed. Or pin CPU threads to a different topology configuration, etc. With relatively little effort, one can sometimes turn very poor resource utilization into maximum utilization with just a few small changes (easier said than done, of course, but it's good to stay positive!):</p>
+<p>If synchronizations are an issue, remove unnecessary torch.cuda.synchronize() calls or barriers in your code that might be inadvertently serializing execution (more on this in Chapter 13). If the environment needs tuning, maybe set NCCL<em>IGNORE</em>CPU_AFFINITY=1 if needed. Or pin CPU threads to a different topology configuration, etc. With relatively little effort, one can sometimes turn very poor resource utilization into maximum utilization with just a few small changes (easier said than done, of course, but it's good to stay positive!):</p>
 </blockquote>
 <p><strong>每次更改后重新测量</strong>：与任何调试工作一样，重要的是一次只更改一两个东西--然后测量。否则，你不会知道哪个更改有帮助。当你在当前配置上实现良好扩展时，记下好的指标值，并在扩展时以保持这些良好值为目标。</p>
 <blockquote>
@@ -2111,9 +2111,9 @@
 <blockquote>
 <p><strong>Automate monitoring in production</strong>: If you regularly run large training and inference workloads, it's always good to have consistent monitoring setup in production to continuously profile GPU utilization, network throughput, and memory throughput over time. That way, if a job or inference request is running slower than expected due to an environment issue, kernel update, or data pipeline regression, you catch it quickly. Kubernetes and other job schedulers integrate well with monitoring tools. Set up alerts if utilization drops below some threshold, for example.</p>
 </blockquote>
-<p><strong>文档和教育</strong>：性能调优通常涉及团队中的隐性知识，例如哪些环境变量被覆盖、哪些库版本有问题等。直接在代码或配置文件中记录这些发现，以便其他人或未来的你每次打开这些文件时都会被提醒。例如，注明"在此集群配置中，我们发现设置NCCL_SOCKET_NTHREADS=2将多节点吞吐量提高了10%"。希望这是标准做法。</p>
+<p><strong>文档和教育</strong>：性能调优通常涉及团队中的隐性知识，例如哪些环境变量被覆盖、哪些库版本有问题等。直接在代码或配置文件中记录这些发现，以便其他人或未来的你每次打开这些文件时都会被提醒。例如，注明"在此集群配置中，我们发现设置NCCL<em>SOCKET</em>NTHREADS=2将多节点吞吐量提高了10%"。希望这是标准做法。</p>
 <blockquote>
-<p><strong>Document and educate</strong>: Performance tuning often involves tacit knowledge among the team for things like which environment variables are overridden and which library versions are buggy, etc. Document these findings directly in the code or configuration file so that others, or a future you, are reminded of them every time you open up those files. For instance, note that "in this cluster configuration, we found that setting NCCL_SOCKET_NTHREADS=2 improved multinode throughput by 10%." Hopefully, this is a standard practice.</p>
+<p><strong>Document and educate</strong>: Performance tuning often involves tacit knowledge among the team for things like which environment variables are overridden and which library versions are buggy, etc. Document these findings directly in the code or configuration file so that others, or a future you, are reminded of them every time you open up those files. For instance, note that "in this cluster configuration, we found that setting NCCL<em>SOCKET</em>NTHREADS=2 improved multinode throughput by 10%." Hopefully, this is a standard practice.</p>
 </blockquote>
 <p>通过持续遵循此工作流，你本质上创建了一个反馈循环：运行 → 测量 → 调优 → 运行 → 测量 → 调优 → ......此反馈循环确保，随着你扩展到更多GPU并转向更好的模型，你继续维护系统的性能和效率。维护良好性能比在性能随时间下降后重新获得它要容易得多。保持如此多移动部件以最高水平运行是一场持续的战斗。</p>
 <blockquote>

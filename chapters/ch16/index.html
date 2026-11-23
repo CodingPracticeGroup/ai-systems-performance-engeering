@@ -1852,7 +1852,7 @@
 </blockquote>
 <p>另一种场景是使用KV缓存在批处理请求中重用相同输入序列前缀的数据，以避免重新计算前缀的KV。在这种情况下，您需要衡量请求共享前缀的频率。这会导致前缀合并事件，并增加vLLM中的前缀缓存命中指标，包括<code>vllm:gpu_prefix_cache_queries</code>和<code>vllm:gpu_prefix_cache_hits</code>。这些让您可以计算命中率，例如命中数除以查询数。</p>
 <blockquote>
-<p>Another scenario is using a KV cache to reuse data for identical input-sequence prefixes among batched requests to avoid recomputing the KV for the prefix. In this case, you want to measure how often requests share a prefix. This leads to a prefix merge event and increments the prefix cache hit metrics in vLLM including vllm:gpu_prefix_cache_queries and vllm:gpu_prefix_cache_hits. These let you compute the hit rate as hits per queries, for example.</p>
+<p>Another scenario is using a KV cache to reuse data for identical input-sequence prefixes among batched requests to avoid recomputing the KV for the prefix. In this case, you want to measure how often requests share a prefix. This leads to a prefix merge event and increments the prefix cache hit metrics in vLLM including vllm:gpu<em>prefix</em>cache<em>queries and vllm:gpu</em>prefix<em>cache</em>hits. These let you compute the hit rate as hits per queries, for example.</p>
 </blockquote>
 <p>衡量前缀合并率有助于您与实际缓存命中率相关联，以评估缓存层的实际收益。这样，您可以调整批处理和调度策略以最大化共享前缀--并预测不同工作负载下的端到端吞吐量和延迟改进。</p>
 <blockquote>
@@ -1921,7 +1921,7 @@
 </blockquote>
 <p>NVIDIA的数据中心GPU管理器（DCGM）暴露了许多GPU指标，Prometheus可以抓取和收集这些指标。例如，DCGM提供<code>DCGM_FI_DEV_GPU_UTIL</code>用于SM利用率%，<code>DCGM_FI_DEV_MEM_COPY_UTIL</code>用于内存拷贝引擎利用率，<code>DCGM_FI_DEV_FB_USED</code>用于帧缓冲区内存使用量等。</p>
 <blockquote>
-<p>NVIDIA's Data Center GPU Manager (DCGM) exposes many GPU metrics, which Prometheus can scrape and collect. For instance, DCGM provides DCGM_FI_DEV_GPU_UTIL for SM utilization %, DCGM_FI_DEV_MEM_COPY_UTIL for memory copy engine utilization, and DCGM_FI_DEV_FB_USED for framebuffer memory used, among others.</p>
+<p>NVIDIA's Data Center GPU Manager (DCGM) exposes many GPU metrics, which Prometheus can scrape and collect. For instance, DCGM provides DCGM<em>FI</em>DEV<em>GPU</em>UTIL for SM utilization %, DCGM<em>FI</em>DEV<em>MEM</em>COPY<em>UTIL for memory copy engine utilization, and DCGM</em>FI<em>DEV</em>FB_USED for framebuffer memory used, among others.</p>
 </blockquote>
 <p>DCGM暴露NVLink错误计数器，并且可以在某些平台和驱动程序版本上暴露吞吐量计数器。对于持续的链路利用率，也可以使用<code>nvidia-smi nvlink</code>和Nsight工具。您应该将这些指标集成到仪表板中，并设置警报以帮助识别网络何时因跨GPU和跨节点通信流量而饱和。</p>
 <blockquote>
@@ -2067,7 +2067,7 @@
 </span></code></pre></div>
 <p>在这里，我们使用<code>nvtxRangePushEx</code>/<code>nvtxRangePop</code>显式标记区域。我们在<code>model.encode(...)</code>之前立即push一个"Prefill"范围，并在其后立即pop它。在解码循环内部，我们在每次迭代的顶部push"Decode"并在<code>model.decode_next()</code>之后pop它。小的<code>NVTX_PUSH</code>/<code>NVTX_POP</code>辅助函数还附加颜色（十六进制值）和文本。这有助于减少时间线可视化中的不匹配--同时保持调用点简洁。显式的push/pop配对在代码中清晰可见，这使得它们易于审计。</p>
 <blockquote>
-<p>Here, we mark regions explicitly with nvtxRangePushEx/nvtxRangePop. We push a "Prefill" range immediately before model.encode(...) and pop it right after. Inside the decode loop, we push "Decode" at the top of each iteration and pop it after model.decode_next(). The small NVTX_PUSH/NVTX_POP helpers also attach color (hex values) and text. This helps to reduce mismatch in timeline visualizations-while keeping call sites concise. The explicit push/pop pairings are clearly visible in the code, which makes them easy to audit.</p>
+<p>Here, we mark regions explicitly with nvtxRangePushEx/nvtxRangePop. We push a "Prefill" range immediately before model.encode(...) and pop it right after. Inside the decode loop, we push "Decode" at the top of each iteration and pop it after model.decode<em>next(). The small NVTX</em>PUSH/NVTX_POP helpers also attach color (hex values) and text. This helps to reduce mismatch in timeline visualizations-while keeping call sites concise. The explicit push/pop pairings are clearly visible in the code, which makes them easy to audit.</p>
 </blockquote>
 <p>彩色块注释将出现在Nsight Systems GPU活动时间线中，标记为"Prefill"和"Decode"。这使得很容易看到每个阶段需要多长时间--以及这些阶段如何与通信操作重叠。这有助于识别GPU空闲间隙和意外同步等问题。</p>
 <blockquote>
@@ -2087,7 +2087,7 @@
 </blockquote>
 <p>例如，您可以使用<code>nvtxNameCudaStreamA(transfer_stream, "transfer_stream")</code>和<code>nvtxNameCudaStreamA(compute_stream, "compute_stream")</code>命名流。然后，您将在内存拷贝/传输周围使用<code>nvtxRangePushA("transfer_stream")</code>和<code>nvtxRangePop()</code>，在内核启动周围使用<code>nvtxRangePushA("compute_stream")</code>和<code>nvtxRangePop()</code>。</p>
 <blockquote>
-<p>For instance, you can name streams using nvtxNameCudaStreamA(transfer_stream, "transfer_stream") and nvtxNameCudaStreamA(compute_stream, "compute_stream"), for instance. You would then use nvtxRangePushA("transfer_stream") and nvtxRangePop() around memory copies/transfers and nvtxRangePushA("compute_stream") and nvtxRangePop() around kernel launches.</p>
+<p>For instance, you can name streams using nvtxNameCudaStreamA(transfer<em>stream, "transfer</em>stream") and nvtxNameCudaStreamA(compute<em>stream, "compute</em>stream"), for instance. You would then use nvtxRangePushA("transfer<em>stream") and nvtxRangePop() around memory copies/transfers and nvtxRangePushA("compute</em>stream") and nvtxRangePop() around kernel launches.</p>
 </blockquote>
 <p>使用NVTX命名的流使得Nsight Systems时间线中的重叠（或缺乏重叠）变得明显。以下是一些代码，展示了它们如何组合在一起：</p>
 <blockquote>
@@ -2159,7 +2159,7 @@
 <tr>
 <td>SM利用率 &lt; 50%</td>
 <td>批次大小小或缺乏融合内核</td>
-<td>增加批次大小，启用融合内核（FlashAttention或PyTorch中的cuDNN融合scaled_dot_product_attention (SDPA)后端），或添加自定义融合内核（例如，使用Triton）；然后使用<code>nsys --trace=cuda</code>进行性能分析。</td>
+<td>增加批次大小，启用融合内核（FlashAttention或PyTorch中的cuDNN融合scaled<em>dot</em>product_attention (SDPA)后端），或添加自定义融合内核（例如，使用Triton）；然后使用<code>nsys --trace=cuda</code>进行性能分析。</td>
 </tr>
 <tr>
 <td>KV缓存抢占警告</td>
@@ -2624,7 +2624,7 @@
 <tr>
 <td>延迟界限</td>
 <td>无界限；等待完整批次</td>
-<td>由max_batch_delay_ms限制</td>
+<td>由max<em>batch</em>delay_ms限制</td>
 <td>最小；批次中途驱逐和重新填充</td>
 </tr>
 <tr>
@@ -2653,7 +2653,7 @@
 <tr>
 <th>Latency bound</th>
 <th>Unbounded; waits for full batch</th>
-<th>Bounded by max_batch_delay_ms</th>
+<th>Bounded by max<em>batch</em>delay_ms</th>
 <th>Minimal; mid-batch eviction and refill</th>
 </tr>
 </thead>
@@ -3110,13 +3110,13 @@
 <blockquote>
 <p>Another dimension to consider is power and thermal constraints. Running GPUs at 100% continuously will cause thermal throttling if cooling is insufficient. Modern GPU systems employ liquid cooling to reduce thermal throttling and maintain performance. If you're running older air-cooled systems, be aware of downclocking.</p>
 </blockquote>
-<p>您可以在GPU利用率高时使用nvidia-smi或DCGM监控降频。具体来说，DCGM通过DCGM_FI_DEV_CLOCK_THROTTLE_REASONS暴露XID节流原因。当GPU正在功耗节流时，nvidia-smi将显示"Pwr Throttle"标志。</p>
+<p>您可以在GPU利用率高时使用nvidia-smi或DCGM监控降频。具体来说，DCGM通过DCGM<em>FI</em>DEV<em>CLOCK</em>THROTTLE_REASONS暴露XID节流原因。当GPU正在功耗节流时，nvidia-smi将显示"Pwr Throttle"标志。</p>
 <blockquote>
-<p>You can monitor downclocking using nvidia-smi or DCGM when GPU utilization is high. Specifically, DCGM exposes XID throttle reasons through DCGM_FI_DEV_CLOCK_THROTTLE_REASONS. When a GPU is power throttling, nvidia-smi will show a "Pwr Throttle" flag.</p>
+<p>You can monitor downclocking using nvidia-smi or DCGM when GPU utilization is high. Specifically, DCGM exposes XID throttle reasons through DCGM<em>FI</em>DEV<em>CLOCK</em>THROTTLE_REASONS. When a GPU is power throttling, nvidia-smi will show a "Pwr Throttle" flag.</p>
 </blockquote>
-<p>您也可能达到板上的功耗限制--特别是在boost时钟下。现代GPU在boost下消耗显著更多的功率，因此您应该监控GPU是否因达到功耗限制而降频。如果发生这种情况，您将体验到不太理想的GPU性能。始终监控DCGM的DCGM_FI_DEV_POWER_USAGE指标，并在其超过正常范围时发出警报。</p>
+<p>您也可能达到板上的功耗限制--特别是在boost时钟下。现代GPU在boost下消耗显著更多的功率，因此您应该监控GPU是否因达到功耗限制而降频。如果发生这种情况，您将体验到不太理想的GPU性能。始终监控DCGM的DCGM<em>FI</em>DEV<em>POWER</em>USAGE指标，并在其超过正常范围时发出警报。</p>
 <blockquote>
-<p>You can also hit the power limit on the board-especially at boost clocks. Modern GPUs consume significantly more power at boost, so you should monitor if GPUs are downclocking due to hitting power limits. If this happens, you'll experience less-than-ideal GPU performance. Always monitor DCGM's DCGM_FI_DEV_POWER_USAGE metric and alert if it exceeds normal ranges.</p>
+<p>You can also hit the power limit on the board-especially at boost clocks. Modern GPUs consume significantly more power at boost, so you should monitor if GPUs are downclocking due to hitting power limits. If this happens, you'll experience less-than-ideal GPU performance. Always monitor DCGM's DCGM<em>FI</em>DEV<em>POWER</em>USAGE metric and alert if it exceeds normal ranges.</p>
 </blockquote>
 <p>如果您的GPU持续达到功耗限制，考虑启用Dynamic Boost模式--或稍微降频--以避免可能导致延迟飙升的热量节流。</p>
 <blockquote>
@@ -3251,9 +3251,9 @@
 <blockquote>
 <p>FP8 reduces precision further to 8-bit floating point. Compared to FP16/BF16, this halves the memory footprint. And it doubles Tensor Core math throughput again, since GPUs perform twice as many 8-bit multiply-add operations per cycle compared to 16-bit operations.</p>
 </blockquote>
-<p>虽然您可以通过使用torch.set_float32_matmul_precision("high")在PyTorch中获得适度的加速，但您希望充分利用NVIDIA Transformer Engine (TE)提供的8位和4位精度支持。TE作为库提供FP8和FP4内核，允许现有代码以最小的更改使用这些精简精度。</p>
+<p>虽然您可以通过使用torch.set<em>float32</em>matmul_precision("high")在PyTorch中获得适度的加速，但您希望充分利用NVIDIA Transformer Engine (TE)提供的8位和4位精度支持。TE作为库提供FP8和FP4内核，允许现有代码以最小的更改使用这些精简精度。</p>
 <blockquote>
-<p>While you can get modest speedups in PyTorch by using torch.set_float32_matmul_precision("high"), you want to take full advantage of the 8-bit and 4-bit precision support provided by NVIDIA Transformer Engine (TE). TE provides FP8 and FP4 kernels as a library, allowing existing code to use these reduced precisions with minimal changes.</p>
+<p>While you can get modest speedups in PyTorch by using torch.set<em>float32</em>matmul_precision("high"), you want to take full advantage of the 8-bit and 4-bit precision support provided by NVIDIA Transformer Engine (TE). TE provides FP8 and FP4 kernels as a library, allowing existing code to use these reduced precisions with minimal changes.</p>
 </blockquote>
 <p>NVIDIA的TE在这些精简精度下自动管理每张量的缩放因子。在推理时，您的推理服务器可以以FP16加载模型但使用FP8矩阵乘法。</p>
 <blockquote>
@@ -3524,9 +3524,9 @@
 <blockquote>
 <p>Prefix caching can transform total work that would normally be O(N x L) (N requests of length L) into O(N + L) work by reusing cached prefix computations for repeated portions.</p>
 </blockquote>
-<p>vLLM实现前缀缓存（enable_prefix_caching=True）以避免重新计算。它首先识别传入提示的前N个token是否与先前请求的缓存中的前缀匹配--或同一会话中较早的请求。如果是，vLLM避免对这些N个token进行昂贵的注意力重新计算--只需将数据从缓存KV复制到新上下文中。确保您已启用前缀缓存--并具有足够的内存分配。</p>
+<p>vLLM实现前缀缓存（enable<em>prefix</em>caching=True）以避免重新计算。它首先识别传入提示的前N个token是否与先前请求的缓存中的前缀匹配--或同一会话中较早的请求。如果是，vLLM避免对这些N个token进行昂贵的注意力重新计算--只需将数据从缓存KV复制到新上下文中。确保您已启用前缀缓存--并具有足够的内存分配。</p>
 <blockquote>
-<p>vLLM implements prefix caching (enable_prefix_caching=True) to avoid recomputation. It first identifies if the first N tokens of an incoming prompt match a prefix in the cache from a previous request-or an earlier request in the same session. If so, vLLM avoids the expensive attention recomputation for those N tokens-just copying the data from the cached KV to the new context. Make sure you have prefix caching enabled-and with sufficient memory allocation.</p>
+<p>vLLM implements prefix caching (enable<em>prefix</em>caching=True) to avoid recomputation. It first identifies if the first N tokens of an incoming prompt match a prefix in the cache from a previous request-or an earlier request in the same session. If so, vLLM avoids the expensive attention recomputation for those N tokens-just copying the data from the cached KV to the new context. Make sure you have prefix caching enabled-and with sufficient memory allocation.</p>
 </blockquote>
 <p>像vLLM这样的推理引擎可以自动将传入查询分组为微批次，以实现高GPU利用率，将开销分摊到许多请求，并使用连续批处理等保持低延迟。确保如果您不直接使用vLLM等推理引擎，您会在堆栈中寻找使用前缀共享的方法。</p>
 <blockquote>
@@ -3638,17 +3638,17 @@
 </span><span id="__span-5-32"><a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a>
 </span><span id="__span-5-33"><a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a>    <span class="k">return</span> <span class="n">output_tokens</span>
 </span></code></pre></div>
-<p>当生成开始时，引擎调用radix.longest_prefix(prompt_tokens)沿多token边向下遍历基数树，直到到达匹配提示最长缓存前缀的最深节点。然后它使用ModelState.from_cache(node.cache)对该节点的KV缓存页面进行轻量级克隆。这为model_state设定种子，而无需重新计算缓存前缀的任何自注意力。</p>
+<p>当生成开始时，引擎调用radix.longest<em>prefix(prompt</em>tokens)沿多token边向下遍历基数树，直到到达匹配提示最长缓存前缀的最深节点。然后它使用ModelState.from<em>cache(node.cache)对该节点的KV缓存页面进行轻量级克隆。这为model</em>state设定种子，而无需重新计算缓存前缀的任何自注意力。</p>
 <blockquote>
-<p>When generation begins, the engine calls radix.longest_prefix(prompt_tokens) to walk multitoken edges down the radix tree until it reaches the deepest node matching the prompt's longest cached prefix. It then does a lightweight clone of that node's KV cache page using ModelState.from_cache(node.cache). This seeds model_state without recomputing any self-attention for the cached prefix.</p>
+<p>When generation begins, the engine calls radix.longest<em>prefix(prompt</em>tokens) to walk multitoken edges down the radix tree until it reaches the deepest node matching the prompt's longest cached prefix. It then does a lightweight clone of that node's KV cache page using ModelState.from<em>cache(node.cache). This seeds model</em>state without recomputing any self-attention for the cached prefix.</p>
 </blockquote>
-<p>接下来，它仅处理提示的未见后缀--逐token--并即时更新基数树。对于每个新token，它调用radix.insert(...)，根据需要分割边或创建新边。然后它将中间model_state.kv_cache存储在每个新节点。</p>
+<p>接下来，它仅处理提示的未见后缀--逐token--并即时更新基数树。对于每个新token，它调用radix.insert(...)，根据需要分割边或创建新边。然后它将中间model<em>state.kv</em>cache存储在每个新节点。</p>
 <blockquote>
-<p>Next, it processes only the unseen suffix of the prompt-token by token-and updates the radix tree on the fly. For each new token, it calls radix.insert(...), splits edges, or creates new ones as needed. It then stores the intermediate model_state.kv_cache at each new node.</p>
+<p>Next, it processes only the unseen suffix of the prompt-token by token-and updates the radix tree on the fly. For each new token, it calls radix.insert(...), splits edges, or creates new ones as needed. It then stores the intermediate model<em>state.kv</em>cache at each new node.</p>
 </blockquote>
-<p>一旦整个提示被消费，循环切换到自回归解码阶段，使用model.generate_next(model_state)生成新token。同样，这将每个生成的前缀插入基数树。这种方法最小化冗余计算，使用空间高效的KV页面存储，并执行快速前缀查找--同时支持增量缓存更新。</p>
+<p>一旦整个提示被消费，循环切换到自回归解码阶段，使用model.generate<em>next(model</em>state)生成新token。同样，这将每个生成的前缀插入基数树。这种方法最小化冗余计算，使用空间高效的KV页面存储，并执行快速前缀查找--同时支持增量缓存更新。</p>
 <blockquote>
-<p>Once the entire prompt has been consumed, the loop switches to the autoregressive decoding phase, which generates new tokens with model.generate_next(model_state). Similarly, this inserts each generated prefix into the radix tree. This approach minimizes redundant computations, uses space-efficient storage of KV pages, and performs fast prefix lookups-all while supporting incremental cache updates.</p>
+<p>Once the entire prompt has been consumed, the loop switches to the autoregressive decoding phase, which generates new tokens with model.generate<em>next(model</em>state). Similarly, this inserts each generated prefix into the radix tree. This approach minimizes redundant computations, uses space-efficient storage of KV pages, and performs fast prefix lookups-all while supporting incremental cache updates.</p>
 </blockquote>
 <p>SGLang的KV缓存设计自动捕获所有常见重用模式，包括多轮聊天、少样本示例和分支逻辑。同时，它确保共享前缀作为大型、合并的内存块获取，以进行高效的GPU访问。</p>
 <blockquote>

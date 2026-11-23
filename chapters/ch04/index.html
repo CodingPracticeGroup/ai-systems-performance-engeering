@@ -2255,7 +2255,7 @@
 </blockquote>
 <p>在这个例子中，将通信与计算重叠在我们的示例工作负载中产生了大约30%的迭代时间改进。在较大的训练作业中，收益会更显著，因为较大的模型会产生更多通信瓶颈的可能性。PyTorch DistributedDataParallel默认使用25 MiB桶。这样，它在每个桶准备好时启动all-reduce。调整<code>bucket_cap_mb</code>可以帮助增加特定模型拓扑的重叠，但较大的桶会增加最后一个桶的延迟。</p>
 <blockquote>
-<p>In this example, overlapping communication with computation yields roughly a 30% iteration time improvement in our example workload. In larger training jobs, the gains would be more substantial since larger models create more potential for communication bottlenecks. PyTorch DistributedDataParallel uses 25 MiB buckets by default. This way, it launches an all-reduce for each bucket as soon as it is ready. Tuning bucket_cap_mb can help increase overlap for your specific model topology, but larger buckets increase latency for the last bucket.</p>
+<p>In this example, overlapping communication with computation yields roughly a 30% iteration time improvement in our example workload. In larger training jobs, the gains would be more substantial since larger models create more potential for communication bottlenecks. PyTorch DistributedDataParallel uses 25 MiB buckets by default. This way, it launches an all-reduce for each bucket as soon as it is ready. Tuning bucket<em>cap</em>mb can help increase overlap for your specific model topology, but larger buckets increase latency for the last bucket.</p>
 </blockquote>
 <p>关键要点是，调优良好的DDP应该将大部分梯度通信与计算重叠。通常唯一无法重叠的通信部分是尾部，或最后一个梯度桶，如果它恰好在最后一次计算后完成。研究工作正在进行中，以将优化器步骤与通信重叠，或使用张量分区等技术实现进一步的重叠，但PyTorch DDP的默认重叠策略通常被描述为无等待反向传播（WFBP），它将梯度分桶并在每个桶准备好时立即启动归约。</p>
 <blockquote>
@@ -2341,7 +2341,7 @@
 </blockquote>
 <p>始终验证是否为真正的GPUDirect RDMA。使用<code>lsmod | grep nvidia_peermem</code>确认内核模块已加载，并检查dmesg以确认初始化。要进行端到端检查，请使用<code>NCCL_DEBUG=INFO</code>运行NCCL以确认NET/IB路径，并使用带有<code>--use_cuda</code>的RDMA性能测试来验证GPU到GPU传输。验证将有助于防止隐蔽的性能下降。吞吐量的下降会在分析器中显示为数量级的吞吐量下降。但您必须意识到这种可能性，并持续监控系统是否存在这些类型的微妙回退。</p>
 <blockquote>
-<p>Always verify that it is true GPUDirect RDMA. Confirm that the kernel module is loaded with <code>lsmod | grep nvidia_peermem</code>, and check dmesg for initialization. For an end-to-end check, run NCCL with NCCL_DEBUG=INFO to confirm NET/IB paths and use RDMA perftests with --use_cuda to validate GPU-to-GPU transfers. Verifying will help prevent stealthy performance degradations. The reduced throughput would show up in the profiler as an order-of-magnitude reduction in throughput. But you have to be aware of this possibility and continuously monitor your system for these types of subtle fallbacks.</p>
+<p>Always verify that it is true GPUDirect RDMA. Confirm that the kernel module is loaded with <code>lsmod | grep nvidia_peermem</code>, and check dmesg for initialization. For an end-to-end check, run NCCL with NCCL<em>DEBUG=INFO to confirm NET/IB paths and use RDMA perftests with --use</em>cuda to validate GPU-to-GPU transfers. Verifying will help prevent stealthy performance degradations. The reduced throughput would show up in the profiler as an order-of-magnitude reduction in throughput. But you have to be aware of this possibility and continuously monitor your system for these types of subtle fallbacks.</p>
 </blockquote>
 <p>NVIDIA的GPU RDMA实现称为GPUDirect RDMA。GPUDirect RDMA让RDMA capable NIC（如InfiniBand和RDMA over Converged Ethernet（RoCE））在两台服务器之间直接对GPU设备内存执行直接内存访问（DMA）--完全绕过主机CPU和系统RAM。图4-3显示了使用RoCE的数据传输。</p>
 <blockquote>
@@ -2377,7 +2377,7 @@
 </blockquote>
 <p>此外，调整TCP栈也很重要。您应该验证Linux sysctl参数（如<code>net.core.rmem_max/wmem_max</code>和自动调整范围<code>net.ipv4.tcp_rmem/tcp_wmem</code>）设置得足够高，以充分利用高带宽链路。</p>
 <blockquote>
-<p>Also, it's important to tune the TCP stack for a similar reason. You should verify that Linux sysctl parameters like net.core.rmem_max/wmem_max and the autotuning ranges net.ipv4.tcp_rmem/tcp_wmem are set high enough to fully utilize a high-bandwidth link.</p>
+<p>Also, it's important to tune the TCP stack for a similar reason. You should verify that Linux sysctl parameters like net.core.rmem<em>max/wmem</em>max and the autotuning ranges net.ipv4.tcp<em>rmem/tcp</em>wmem are set high enough to fully utilize a high-bandwidth link.</p>
 </blockquote>
 <p>当然，使用现代TCP拥塞控制算法来改善高延迟链路上的吞吐量很重要。在精心设计的、没有外部互联网流量的专用集群网络上，默认的CUBIC拥塞控制通常表现良好，因为它是为避免拥塞而设计的。</p>
 <blockquote>
@@ -2385,7 +2385,7 @@
 </blockquote>
 <p>对于任何高延迟-带宽链路，考虑使用现代TCP拥塞算法，如瓶颈带宽和往返传播时间（BBR），并调整缓冲区大小以确保充分利用。始终验证默认设置没有限制吞吐量。使用<code>sysctl net.ipv4.tcp_congestion_control</code>等工具检查和调优设置。在云或混合环境中，要谨慎判断你是否真正拥有受控的高速连接。例如，如果你使用带有Elastic Fabric Adapter（EFA）的AWS EC2实例，你会获得类似于部署在同一"放置组"中的实例之间InfiniBand级别的RDMA。但如果你尝试运行跨越本地数据中心和云且没有直接连接的多节点训练或推理作业，你的流量可能会通过公共互联网。这将引入不可预测的延迟和拥塞。始终确保你的多节点设置位于正确配置的高性能、低拥塞网络上。直接与你的云提供商合作，了解网络架构中的每一跳。即使使用RDMA，CPU也没有完全退出。主机仍然设置RDMA传输并处理通信完成事件。因此，正确的CPU亲和性很重要。记得将网络中断处理或轮询线程绑定到与NIC相同NUMA节点上的CPU核心，理想情况下也与GPU相同。例如，如果InfiniBand主机通道适配器位于NUMA节点0，则将其中断CPU亲和性核心绑定到节点0。这减少了控制操作的跨NUMA流量和延迟。</p>
 <blockquote>
-<p>For any high latency-bandwidth links, consider using a modern TCP congestion algorithm like Bottleneck Bandwidth and Round-trip propagation time (BBR) and adjust buffer sizes to ensure full utilization. Always validate that the default settings are not limiting throughput. Use tools like sysctl net.ipv4.tcp_congestion_control to inspect and tune the setting. In cloud or hybrid environments, be cautious of whether you truly have a controlled high-speed connection. For example, if you use AWS EC2 instances with Elastic Fabric Adapter (EFA), you get something similar to InfiniBand-level RDMA between instances deployed in the same "placement group." But if you try to run a multinode training or inference job that spans both an on-premises data center and the cloud without direct connectivity, your traffic will likely traverse the public internet. This will introduce unpredictable latency and congestion. Always ensure your multinode setup is on a properly configured, high-performance, low-congestion network. Work directly with your cloud provider to understand every hop in the network architecture. Even when using RDMA, the CPU is not completely out of the picture. The host still sets up RDMA transfers and handles communication-completion events. Therefore, proper CPU affinity is important. Remember to pin the network interrupt handling-or polling threads-to a CPU core on the same NUMA node as the NIC and, ideally, the GPU as well. For example, if an InfiniBand host channel adapter is on NUMA node 0, bind its interrupt CPU affinity cores to node 0. This reduces cross-NUMA traffic and latency for control operations.</p>
+<p>For any high latency-bandwidth links, consider using a modern TCP congestion algorithm like Bottleneck Bandwidth and Round-trip propagation time (BBR) and adjust buffer sizes to ensure full utilization. Always validate that the default settings are not limiting throughput. Use tools like sysctl net.ipv4.tcp<em>congestion</em>control to inspect and tune the setting. In cloud or hybrid environments, be cautious of whether you truly have a controlled high-speed connection. For example, if you use AWS EC2 instances with Elastic Fabric Adapter (EFA), you get something similar to InfiniBand-level RDMA between instances deployed in the same "placement group." But if you try to run a multinode training or inference job that spans both an on-premises data center and the cloud without direct connectivity, your traffic will likely traverse the public internet. This will introduce unpredictable latency and congestion. Always ensure your multinode setup is on a properly configured, high-performance, low-congestion network. Work directly with your cloud provider to understand every hop in the network architecture. Even when using RDMA, the CPU is not completely out of the picture. The host still sets up RDMA transfers and handles communication-completion events. Therefore, proper CPU affinity is important. Remember to pin the network interrupt handling-or polling threads-to a CPU core on the same NUMA node as the NIC and, ideally, the GPU as well. For example, if an InfiniBand host channel adapter is on NUMA node 0, bind its interrupt CPU affinity cores to node 0. This reduces cross-NUMA traffic and latency for control operations.</p>
 </blockquote>
 <h2 id="44-tuning-multinode-connectivity">4.4 调优多节点连接性 (Tuning Multinode Connectivity)<a class="headerlink" href="#44-tuning-multinode-connectivity" title="Permanent link">&para;</a></h2>
 <p>对于使用GPU的分布式、多节点训练，确保网络不是瓶颈至关重要。这涉及使用正确的通信和网络技术，以及正确配置这些技术。以下是一些采用的建议和需要避免的陷阱：</p>
@@ -2406,7 +2406,7 @@
 </blockquote>
 <p><strong>如果可用，使用多个NIC聚合带宽</strong>：有些服务器有多个网络接口（NIC）。NCCL可以跨多个NIC条带化流量（称为多轨）以增加带宽。但你可能需要设置一些环境变量，如<code>NCCL_NSOCKS_PERTHREAD</code>和<code>NCCL_SOCKET_NTHREADS</code>来优化这一点。我们稍后会详细讨论这些。只需确保每个NIC在不同的子网上，并且NCCL可以发现两者。通过正确的设置，例如并行使用两个800 Gbps NIC，可以为NCCL流量提供1.6 Tbps的聚合带宽。四个这样的NIC链路（例如，两个双端口NIC）可以实现约3.2 Tbps。</p>
 <blockquote>
-<p><strong>Aggregate bandwidth with multiple NICs if available</strong>: Some servers have multiple network interfaces (NICs). NCCL can stripe traffic across multiple NICs (called multirail) to increase bandwidth. But you may need to set some environment variables like NCCL_NSOCKS_PERTHREAD and NCCL_SOCKET_NTHREADS to optimize this. We'll discuss these in more detail in a bit. Just make sure that each NIC is on a different subnet and that NCCL can discover both. With proper setup, using two 800 Gbps NICs in parallel, for instance, gives an aggregate of 1.6 Tbps for NCCL traffic. And four such NIC links (e.g., two dual-port NICs) can achieve ~3.2 Tbps.</p>
+<p><strong>Aggregate bandwidth with multiple NICs if available</strong>: Some servers have multiple network interfaces (NICs). NCCL can stripe traffic across multiple NICs (called multirail) to increase bandwidth. But you may need to set some environment variables like NCCL<em>NSOCKS</em>PERTHREAD and NCCL<em>SOCKET</em>NTHREADS to optimize this. We'll discuss these in more detail in a bit. Just make sure that each NIC is on a different subnet and that NCCL can discover both. With proper setup, using two 800 Gbps NICs in parallel, for instance, gives an aggregate of 1.6 Tbps for NCCL traffic. And four such NIC links (e.g., two dual-port NICs) can achieve ~3.2 Tbps.</p>
 </blockquote>
 <p><strong>如果可用，利用优化的"直接NIC"模式</strong>：倾向于为每个GPU或小组GPU提供足够专用网络带宽的高带宽、多轨NIC配置。物理上，NIC使用PCIe连接到主机CPU或DPU。现代GPU系统支持GPU发起的网络，使用InfiniBand GPUDirect Async（IBGDA）和直接NIC路径，如图4-4所示。这让GPU可以在没有CPU干预的情况下驱动全带宽RDMA。</p>
 <blockquote>
@@ -2517,7 +2517,7 @@
 </blockquote>
 <p>在生产集群环境中，如果有多个NIC，您应该显式设置<code>NCCL_SOCKET_IFNAME=ib0</code>，以便NCCL的初始TCP握手通过InfiniBand主机通道适配器（HCA）运行。这确保它正确引导，然后切换到最快路径上的GPUDirect RDMA。否则，您可能会看到连接失败，或者更糟，静默回退到更慢的接口。确保所有节点可以通过所选互连相互访问。</p>
 <blockquote>
-<p>In a production cluster environment with multiple NICs, you should explicitly set NCCL_SOCKET_IFNAME=ib0 so that NCCL's initial TCP handshake runs over the InfiniBand host channel adapter (HCA). This ensures it bootstraps correctly and then hands off to GPUDirect RDMA on the fastest path. Otherwise, you may see failed connections or, worse, silently fall back to a much slower interface. Be sure that all nodes can reach one another over the selected interconnect.</p>
+<p>In a production cluster environment with multiple NICs, you should explicitly set NCCL<em>SOCKET</em>IFNAME=ib0 so that NCCL's initial TCP handshake runs over the InfiniBand host channel adapter (HCA). This ensures it bootstraps correctly and then hands off to GPUDirect RDMA on the fastest path. Otherwise, you may see failed connections or, worse, silently fall back to a much slower interface. Be sure that all nodes can reach one another over the selected interconnect.</p>
 </blockquote>
 <h3 id="452-2nccl-pitfall-2-mismatched-nccl-versions">4.5.2 陷阱#2：NCCL版本不匹配 (Pitfall #2: Mismatched NCCL Versions)<a class="headerlink" href="#452-2nccl-pitfall-2-mismatched-nccl-versions" title="Permanent link">&para;</a></h3>
 <p>如果你运行PyTorch捆绑的NCCL（例如，<code>torch.cuda.nccl.version() == ()</code>）与系统安装的不同版本的libnccl，系统将挂起。或者更糟，你将静默回退到较慢的实现。这可能很难检测。确保通过对齐nvidia-nccl-cu*包或针对系统NCCL重新构建PyTorch来避免这些兼容性陷阱。</p>
@@ -2527,7 +2527,7 @@
 <h3 id="453-3nccltcp-pitfall-3-tcp-port-exhaustion-during-nccl-bootstrap">4.5.3 陷阱#3：NCCL引导期间TCP端口耗尽 (Pitfall #3: TCP Port Exhaustion During NCCL Bootstrap)<a class="headerlink" href="#453-3nccltcp-pitfall-3-tcp-port-exhaustion-during-nccl-bootstrap" title="Permanent link">&para;</a></h3>
 <p>NCCL使用临时TCP端口进行其带外设置，如果你的OS的<code>net.ipv4.ip_local_port_range</code>太窄，你可能会耗尽可用端口，导致握手失败或停滞。建议在<code>/proc/sys/net/ipv4/ip_local_port_range</code>中扩大端口范围（例如，50000 51000）以避免隐藏的引导失败。请注意，现代NCCL版本已改进引导处理，但在大型集群上主动设置宽端口范围仍然是最佳做法。</p>
 <blockquote>
-<p>NCCL uses ephemeral TCP ports for its out-of-band setup, and if your OS's net.ipv4.ip_local_port_range is too narrow, you can exhaust available ports, causing failed or stalled handshakes. It's recommended that you widen your port range in /proc/sys/net/ipv4/ip_local_port_range (e.g., 50000 51000) to avoid hidden bootstrap failures. Note that modern NCCL versions have improved bootstrap handling, but it's still best to proactively set a broad port range on large clusters.</p>
+<p>NCCL uses ephemeral TCP ports for its out-of-band setup, and if your OS's net.ipv4.ip<em>local</em>port<em>range is too narrow, you can exhaust available ports, causing failed or stalled handshakes. It's recommended that you widen your port range in /proc/sys/net/ipv4/ip</em>local<em>port</em>range (e.g., 50000 51000) to avoid hidden bootstrap failures. Note that modern NCCL versions have improved bootstrap handling, but it's still best to proactively set a broad port range on large clusters.</p>
 </blockquote>
 <h3 id="454-4nic-pitfall-4-insufficient-network-bandwidth-or-misconfigured-nics">4.5.4 陷阱#4：网络带宽不足或NIC配置错误 (Pitfall #4: Insufficient Network Bandwidth or Misconfigured NICs)<a class="headerlink" href="#454-4nic-pitfall-4-insufficient-network-bandwidth-or-misconfigured-nics" title="Permanent link">&para;</a></h3>
 <p>另一个多节点陷阱是根本没有足够的网络带宽用于同步的数据量--或者没有使用所有可用接口。随着GPU集群扩展，这个陷阱变得更加常见。例如，使用Blackwell GPU很容易使每个节点单个400 Gbps链路饱和。</p>
@@ -2544,11 +2544,11 @@
 </blockquote>
 <p>如果可用，您也可以尝试利用多个接口。例如，如果您正在使800 Gbps（100 GB/s）InfiniBand链路饱和，而您的作业需要更多网络吞吐量，请考虑启用NCCL的多NIC支持--假设您有多个NIC。确保<code>NCCL_NSOCKS_PERTHREAD</code>和<code>NCCL_SOCKET_NTHREADS</code>已调优，因为这些控制NCCL用于网络传输的并行连接和线程数量。在有多个NIC的情况下，从平台相关的默认值增加这些环境变量值可以帮助利用两个NIC。</p>
 <blockquote>
-<p>You can also try to utilize multiple interfaces, if available. If you're saturating an 800 Gbps (100 GB/s) InfiniBand link, for instance, and your job needs more network throughput, consider enabling NCCL's multi-NIC support-assuming that you have multiple NICs. Make sure that NCCL_NSOCKS_PERTHREAD and NCCL_SOCKET_NTHREADS are tuned, as these control how many parallel connections and threads NCCL uses for network transfers. In cases with multiple NICs, increasing these environment variable values from their platform-dependent defaults can help utilize both NICs.</p>
+<p>You can also try to utilize multiple interfaces, if available. If you're saturating an 800 Gbps (100 GB/s) InfiniBand link, for instance, and your job needs more network throughput, consider enabling NCCL's multi-NIC support-assuming that you have multiple NICs. Make sure that NCCL<em>NSOCKS</em>PERTHREAD and NCCL<em>SOCKET</em>NTHREADS are tuned, as these control how many parallel connections and threads NCCL uses for network transfers. In cases with multiple NICs, increasing these environment variable values from their platform-dependent defaults can help utilize both NICs.</p>
 </blockquote>
 <p>例如，如果您有两个NIC，您可能会设置<code>NCCL_NSOCKS_PERTHREAD=2</code>并保持<code>NCCL_SOCKET_NTHREADS=2</code>（因为2个线程 x 2个套接字 = 每个进程总共4个连接）。但是，不要随意增加这些值。请记住，根据NVIDIA指导，线程和套接字的乘积不应超过64，因为更多线程意味着更多CPU使用。</p>
 <blockquote>
-<p>For example, if you have two NICs, you might set NCCL_NSOCKS_PERTHREAD=2 and keep NCCL_SOCKET_NTHREADS=2 (since 2 threads x 2 sockets = 4 total connections per process). However, do not arbitrarily increase these values. Remember that the product of threads and sockets should not exceed 64 per NVIDIA guidance since more threads mean more CPU usage.</p>
+<p>For example, if you have two NICs, you might set NCCL<em>NSOCKS</em>PERTHREAD=2 and keep NCCL<em>SOCKET</em>NTHREADS=2 (since 2 threads x 2 sockets = 4 total connections per process). However, do not arbitrarily increase these values. Remember that the product of threads and sockets should not exceed 64 per NVIDIA guidance since more threads mean more CPU usage.</p>
 </blockquote>
 <p>逐步增加这些线程相关设置（例如，2 → 4 → 8），并持续测量吞吐量。太多线程将争用资源并可能减少收益。</p>
 <blockquote>
@@ -2594,7 +2594,7 @@
 </span></code></pre></div>
 <p>这里，<code>dist.monitored_barrier(timeout=datetime.timedelta(seconds=30))</code>将在任何GPU在30秒内未到达时引发错误。这将帮助您精确定位落后者。将此与<code>NCCL_DEBUG=INFO</code>和<code>NCCL_ASYNC_ERROR_HANDLING=1</code>结合使用，可以获得PyTorch和NCCL关于哪个rank或链路较慢的日志。</p>
 <blockquote>
-<p>Here, dist.monitored_barrier(timeout=datetime.timedelta(seconds=30)) will raise an error on any GPU that doesn't arrive within 30s. This will help you pinpoint stragglers. Combine this with NCCL_DEBUG=INFO and NCCL_ASYNC_ERROR_HANDLING=1 to get both PyTorch and NCCL logs around which rank or link is slow.</p>
+<p>Here, dist.monitored<em>barrier(timeout=datetime.timedelta(seconds=30)) will raise an error on any GPU that doesn't arrive within 30s. This will help you pinpoint stragglers. Combine this with NCCL</em>DEBUG=INFO and NCCL<em>ASYNC</em>ERROR_HANDLING=1 to get both PyTorch and NCCL logs around which rank or link is slow.</p>
 </blockquote>
 <p>应该使用PyTorch的<code>torch.distributed.monitored_barrier</code>和NCCL的异步错误处理等现代监控工具来快速检测这些类型的问题。</p>
 <blockquote>
@@ -2642,7 +2642,7 @@
 </span><span id="__span-5-38"><a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a>    <span class="n">run</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </span></code></pre></div>
 <blockquote>
-<p>PyTorch's caching allocator holds onto GPU memory across iterations. In distributed settings using UCX/RDMA, these long-lived allocations can exhaust registration pools or fragment memory, causing sporadic allocation failures or performance cliffs. Monitoring torch.cuda.memory_reserved() versus memory_allocated() helps surface these edge cases:</p>
+<p>PyTorch's caching allocator holds onto GPU memory across iterations. In distributed settings using UCX/RDMA, these long-lived allocations can exhaust registration pools or fragment memory, causing sporadic allocation failures or performance cliffs. Monitoring torch.cuda.memory<em>reserved() versus memory</em>allocated() helps surface these edge cases:</p>
 </blockquote>
 <h2 id="46-gpunccl-nccl-for-distributed-multi-gpu-communication">4.6 用于分布式多GPU通信的NCCL (NCCL for Distributed Multi-GPU Communication)<a class="headerlink" href="#46-gpunccl-nccl-for-distributed-multi-gpu-communication" title="Permanent link">&para;</a></h2>
 <p>NVIDIA NCCL是一个多对多通信库，用于称为集合的操作，由GPU组用于共享数据。NCCL支撑着NVIDIA生态系统中大多数多GPU训练工作负载。</p>
@@ -2696,7 +2696,7 @@
 </blockquote>
 <p>NCCL在检测到此类拓扑时通常会选择最高性能的方法。但是，在某些情况下，自动检测可能不会激活，例如，如果拓扑选择相当--或者如果消息大小较小等。可以使用环境变量<code>NCCL_ALGO</code>覆盖NCCL的算法选择（例如，<code>NCCL_ALGO=NVLS,NVLSTree,Tree,Ring,PAT</code>等），但通常NCCL在根据拓扑自动选择最佳路径方面做得很好。手动覆盖通常仅用于故障排除、研究实验等特定情况。</p>
 <blockquote>
-<p>NCCL will usually choose the most performant approach when it detects such topologies. However, in some cases, the automatic detection might not activate, for instance, if the topology choices are comparable-or if the message sizes are small, etc. It is possible to override NCCL's algorithm selection with the environment variable NCCL_ALGO (e.g., NCCL_ALGO=NVLS,NVLSTree,Tree,Ring,PAT, etc.), but generally NCCL does a good job of automatically choosing the best path based on the topology. Manual override is usually only for specific situations like troubleshooting, research experiments, and more.</p>
+<p>NCCL will usually choose the most performant approach when it detects such topologies. However, in some cases, the automatic detection might not activate, for instance, if the topology choices are comparable-or if the message sizes are small, etc. It is possible to override NCCL's algorithm selection with the environment variable NCCL<em>ALGO (e.g., NCCL</em>ALGO=NVLS,NVLSTree,Tree,Ring,PAT, etc.), but generally NCCL does a good job of automatically choosing the best path based on the topology. Manual override is usually only for specific situations like troubleshooting, research experiments, and more.</p>
 </blockquote>
 <p>为了说明拓扑对NCCL的影响，考虑一个场景，系统上有四个GPU，带有两个PCIe交换机（GPU 0-1在一个交换机上，2-3在另一个上）。在所有四个GPU上使用单个环的朴素all-reduce最终会通过PCIe交换机间链路传递大量数据。这将是一个主要的通信瓶颈。相比之下，层次方法使用两个独立的环（0-1和2-3）并结合每对中一个GPU之间的交换，将减少通信压力。在实践中，如果NCCL检测到拓扑中的较慢链路，它会在底层选择这种通信模式。</p>
 <blockquote>
@@ -2769,18 +2769,18 @@
 <blockquote>
 <p>It's also worth mentioning that the NVIDIA superchips blur the line between CPU and GPU memory. They offer extremely fast CPU-GPU interconnects on the order of 900 GB/s NVLink-C2C between CPU and GPU in a Grace Blackwell Superchip, for instance. This allows the CPU memory to act as a high-speed extension of GPU memory. This means that even if some part of the all-reduce involves the CPU or system memory, it may still be as fast as older GPU-GPU links. The key takeaway is to optimize your intranode communication by using the fastest paths available-and minimize usage of slow paths.</p>
 </blockquote>
-<p>NVIDIA Nsight Systems等工具--或NCCL自己的跟踪（使用NCCL_DEBUG=INFO和NCCL_TOPO_DUMP_FILE=<path>）--将显示NVLink路径是否被充分利用。</p>
+<p>NVIDIA Nsight Systems等工具--或NCCL自己的跟踪（使用NCCL<em>DEBUG=INFO和NCCL</em>TOPO<em>DUMP</em>FILE=<path>）--将显示NVLink路径是否被充分利用。</p>
 <blockquote>
-<p>Tools like NVIDIA Nsight Systems-or NCCL's own traces with NCCL_DEBUG=INFO and NCCL_TOPO_DUMP_FILE=<path>-will show if NVLink paths are being utilized fully.</p>
+<p>Tools like NVIDIA Nsight Systems-or NCCL's own traces with NCCL<em>DEBUG=INFO and NCCL</em>TOPO<em>DUMP</em>FILE=<path>-will show if NVLink paths are being utilized fully.</p>
 </blockquote>
 <h3 id="462-nccl-nccl-communication-algorithms">4.6.2 NCCL通信算法 (NCCL Communication Algorithms)<a class="headerlink" href="#462-nccl-nccl-communication-algorithms" title="Permanent link">&para;</a></h3>
 <p>在内部，NCCL可以根据数据大小、GPU数量和拓扑采用不同的通信算法。NCCL用于集合的主要算法包括Ring、Tree、CollTree、CollNet和并行聚合树（PAT）等：</p>
 <blockquote>
 <p>Internally, NCCL can employ different communication algorithms depending on the size of data, number of GPUs, and topology. The primary algorithms NCCL uses for collectives are Ring, Tree, CollTree, CollNet, and Parallel Aggregated Tree (PAT), among others:</p>
 </blockquote>
-<p><strong>Ring（环）</strong>：在环all-reduce中，GPU在逻辑上排列成环。每个GPU以流水线方式向其邻居发送数据并从其另一个邻居接收数据。对于all-reduce，数据的每个块将在环中循环，累积部分和。环算法具有良好的属性，即完美平衡网络负载，使每个GPU发送和接收完全相同的数据量。它是带宽最优的，因为每个链路在all-reduce集合中传输2 x (data_size / num_gpus)字节。缺点是延迟。总时间随GPU数量扩展，因为数据必须遍历所有跳。环通常对大消息很有利，因为当你发送非常大的消息时，实际移动字节所花费的时间远远超过实际开始传输的成本。这被称为带宽主导的工作负载。</p>
+<p><strong>Ring（环）</strong>：在环all-reduce中，GPU在逻辑上排列成环。每个GPU以流水线方式向其邻居发送数据并从其另一个邻居接收数据。对于all-reduce，数据的每个块将在环中循环，累积部分和。环算法具有良好的属性，即完美平衡网络负载，使每个GPU发送和接收完全相同的数据量。它是带宽最优的，因为每个链路在all-reduce集合中传输2 x (data<em>size / num</em>gpus)字节。缺点是延迟。总时间随GPU数量扩展，因为数据必须遍历所有跳。环通常对大消息很有利，因为当你发送非常大的消息时，实际移动字节所花费的时间远远超过实际开始传输的成本。这被称为带宽主导的工作负载。</p>
 <blockquote>
-<p><strong>Ring</strong>: In the ring all-reduce, GPUs are logically arranged in a ring. Each GPU sends data to its neighbor and receives data from its other neighbor in a pipelined fashion. For an all-reduce, each chunk of the data will circulate around the ring, accumulating partial sums. The ring algorithm has the nice property that it perfectly balances network load such that each GPU sends and receives exactly the same amount of data. It is bandwidth-optimal, as each link transmits 2 x (data_size / num_gpus) bytes in an all-reduce collective. The downside is latency. The total time scales with the number of GPUs since the data has to traverse all hops. Ring is often great for large messages because, when you send very large messages, the time spent actually moving bytes far outweighs the cost of actually starting the transfer. This is known as a bandwidth-dominated workload.</p>
+<p><strong>Ring</strong>: In the ring all-reduce, GPUs are logically arranged in a ring. Each GPU sends data to its neighbor and receives data from its other neighbor in a pipelined fashion. For an all-reduce, each chunk of the data will circulate around the ring, accumulating partial sums. The ring algorithm has the nice property that it perfectly balances network load such that each GPU sends and receives exactly the same amount of data. It is bandwidth-optimal, as each link transmits 2 x (data<em>size / num</em>gpus) bytes in an all-reduce collective. The downside is latency. The total time scales with the number of GPUs since the data has to traverse all hops. Ring is often great for large messages because, when you send very large messages, the time spent actually moving bytes far outweighs the cost of actually starting the transfer. This is known as a bandwidth-dominated workload.</p>
 </blockquote>
 <p><strong>Tree和NVLSTree（树）</strong>：在树算法中，归约和广播使用生成树算法在树结构中完成。all-reduce实际上是reduce-scatter后跟广播。树可以在N个GPU的O(log N)步中完成all-reduce--而不是环的O(N)。因此，树算法为较小的消息提供更低的延迟。但是，它可能无法为大数据充分利用所有链路，因为并非所有GPU都一直在传输。一些GPU是树的叶子，只向树发送一次。NCCL的树算法经过优化，通常用于总时间由传输启动延迟主导的较小消息大小。这被称为延迟主导的工作负载--与环算法的大消息带宽主导用例形成对比。使用NVLSTree将启用NVLink SHARP卸载。</p>
 <blockquote>
@@ -2820,7 +2820,7 @@
 </blockquote>
 <p>默认情况下，NCCL的通信器初始化会自动检查消息大小、互连拓扑和GPU代，以自动为每个集合和拓扑选择最快的算法和协议组合。但是，如果分析您的工作负载发现通信次优，例如意外的跨节点高延迟，您可以通过设置<code>NCCL_ALGO</code>环境变量（例如，<code>NCCL_ALGO=NVLSTree,PAT</code>）逐案覆盖通信算法。这将强制NCCL在该通信器上使用特定算法。如果在代码中设置此变量，请确保在调用<code>ncclCommInitRank()</code>之前进行。</p>
 <blockquote>
-<p>By default, NCCL's communicator initialization automatically inspects the message size, interconnect topology, and GPU generation to automatically pick the fastest algorithm and protocol combination for each collective and topology. However, if profiling your workload reveals suboptimal communication, such as unexpectedly high cross-node latency, you can override the communication algorithm on a case-by-case basis by setting the NCCL_ALGO environment variable (e.g., NCCL_ALGO=NVLSTree,PAT). This will force NCCL to use a particular algorithm on that communicator. If setting this variable in code, make sure to do it before calling ncclCommInitRank().</p>
+<p>By default, NCCL's communicator initialization automatically inspects the message size, interconnect topology, and GPU generation to automatically pick the fastest algorithm and protocol combination for each collective and topology. However, if profiling your workload reveals suboptimal communication, such as unexpectedly high cross-node latency, you can override the communication algorithm on a case-by-case basis by setting the NCCL<em>ALGO environment variable (e.g., NCCL</em>ALGO=NVLSTree,PAT). This will force NCCL to use a particular algorithm on that communicator. If setting this variable in code, make sure to do it before calling ncclCommInitRank().</p>
 </blockquote>
 <h2 id="47-distributed-data-parallel-strategies">4.7 分布式数据并行策略 (Distributed Data Parallel Strategies)<a class="headerlink" href="#47-distributed-data-parallel-strategies" title="Permanent link">&para;</a></h2>
 <p>在实践中，大规模训练和推理数十亿和数万亿参数模型需要结合并行策略，包括数据并行、张量模型并行、流水线并行、专家并行、上下文并行等。这些是线性扩展训练集群所必需的，不会因过多开销而浪费GPU资源。</p>
@@ -2981,7 +2981,7 @@
 </span></code></pre></div>
 <p>您可以使用<code>torchrun</code>启动器（或集群的MPI/SLURM/Kubernetes集成）运行此代码，并设置<code>MASTER_ADDR</code>和<code>MASTER_PORT</code>环境变量。运行以下脚本，您将看到类似以下的输出（注意：这些结果是工作负载和硬件特定的，不一定与您的结果匹配）：</p>
 <blockquote>
-<p>You can run this using the torchrun launcher (or your cluster's MPI/SLURM/Kubernetes integration) and setting the MASTER_ADDR and MASTER_PORT environment variables. Running the following script, you will see output like the following (note: these results are workload and hardware specific and will not necessarily match your results):</p>
+<p>You can run this using the torchrun launcher (or your cluster's MPI/SLURM/Kubernetes integration) and setting the MASTER<em>ADDR and MASTER</em>PORT environment variables. Running the following script, you will see output like the following (note: these results are workload and hardware specific and will not necessarily match your results):</p>
 </blockquote>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Environment (common gotchas)</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">NCCL_DEBUG</span><span class="o">=</span>INFO
@@ -3033,7 +3033,7 @@
 <h3 id="481-1nccl-pitfall-1-creating-nccl-communicators-too-often">4.8.1 陷阱#1：过于频繁创建NCCL通信器 (Pitfall #1: Creating NCCL Communicators Too Often)<a class="headerlink" href="#481-1nccl-pitfall-1-creating-nccl-communicators-too-often" title="Permanent link">&para;</a></h3>
 <p>NCCL通信器代表一组可以集体通信的GPU或rank。使用C++的<code>ncclCommInitRank</code>或PyTorch的<code>torch.distributed.init_process_group</code>创建通信器是一个昂贵的操作。初始化器要求所有rank相互交换信息，包括唯一ID、网络地址等。它们还设置环/树并分配缓冲区。</p>
 <blockquote>
-<p>An NCCL communicator represents a group of GPUs, or ranks, that can communicate collectively. Creating a communicator with either C++'s ncclCommInitRank in C++ or PyTorch's torch.distributed.init_process_group is an expensive operation. Initializers require that all ranks exchange information with one another, including unique IDs, network addresses, etc. They also set up rings/trees and allocate buffers.</p>
+<p>An NCCL communicator represents a group of GPUs, or ranks, that can communicate collectively. Creating a communicator with either C++'s ncclCommInitRank in C++ or PyTorch's torch.distributed.init<em>process</em>group is an expensive operation. Initializers require that all ranks exchange information with one another, including unique IDs, network addresses, etc. They also set up rings/trees and allocate buffers.</p>
 </blockquote>
 <p>如果你的代码重复初始化NCCL通信器，你每次都要付出沉重的代价。考虑一个有32个GPU的系统。如果你创建32个单独的NCCL通信器，每个rank一个，这可能需要2-3分钟，而不是2-3秒（或更快）。</p>
 <blockquote>
@@ -3045,7 +3045,7 @@
 </blockquote>
 <p>在PyTorch的DDP中，这会为您处理。您只需在程序开始时调用一次<code>init_process_group</code>，DDP将为所有进程创建一个通信器。随后在每次迭代中用于所有集合。</p>
 <blockquote>
-<p>In PyTorch's DDP, this is handled for you. You simply call init_process_group once at the start of your program and DDP will create one communicator for all processes. This is subsequently used for all collectives at each iteration.</p>
+<p>In PyTorch's DDP, this is handled for you. You simply call init<em>process</em>group once at the start of your program and DDP will create one communicator for all processes. This is subsequently used for all collectives at each iteration.</p>
 </blockquote>
 <p>为了说明在每次迭代中创建NCCL通信器的成本，这里有一个PyTorch示例，其中有人天真地在每次训练迭代中初始化和销毁NCCL进程组：</p>
 <blockquote>
@@ -3072,11 +3072,11 @@
 </span></code></pre></div>
 <p>如果你运行这个，你会注意到它非常慢，即使all-reduce是微不足道的，因为大部分时间都花在<code>init_process_group</code>和<code>destroy_process_group</code>上。在有更多rank的真实场景中，成本会成倍增加。</p>
 <blockquote>
-<p>If you run this, you will notice it's extremely slow even though the all-reduce is trivial because most of the time is spent in init_process_group and destroy_process_group. In a real scenario with more ranks, the cost multiplies.</p>
+<p>If you run this, you will notice it's extremely slow even though the all-reduce is trivial because most of the time is spent in init<em>process</em>group and destroy<em>process</em>group. In a real scenario with more ranks, the cost multiplies.</p>
 </blockquote>
 <p>由于<code>init_process_group</code>调用被设计为在启动时调用一次，您应该避免任何在每次迭代中重新初始化它的设计。修复方法是在循环外初始化一次，如下所示：</p>
 <blockquote>
-<p>Since the init_process_group call is designed to be called once at startup, you should avoid any design that reinitializes it on every iteration. The fix is to initialize once outside the loop, as shown here:</p>
+<p>Since the init<em>process</em>group call is designed to be called once at startup, you should avoid any design that reinitializes it on every iteration. The fix is to initialize once outside the loop, as shown here:</p>
 </blockquote>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch.distributed</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dist</span>
@@ -3123,7 +3123,7 @@
 </thead>
 <tbody>
 <tr>
-<td>init_process_group + destroy</td>
+<td>init<em>process</em>group + destroy</td>
 <td>48.0毫秒</td>
 <td>0毫秒</td>
 </tr>
@@ -3143,7 +3143,7 @@
 <p><strong>Table 4-3. Impact of avoiding repeated communicator init/destroy on per-iteration time</strong>
 | Metric | Before (per iter) | After (per iter) |
 |--------|-------------------|------------------|
-| init_process_group + destroy | 48.0 ms | 0 ms |
+| init<em>process</em>group + destroy | 48.0 ms | 0 ms |
 | dist.all_reduce (1-element tensor) | 0.5 ms | 0.5 ms |
 | Total iteration time | 48.5 ms | 0.5 ms |</p>
 </blockquote>
@@ -3167,7 +3167,7 @@
 <h3 id="483-3nccl-pitfall-3-avoid-overtuning-or-disabling-nccl-features-with-environment-variables">4.8.3 陷阱#3：避免使用环境变量过度调优或禁用NCCL功能 (Pitfall #3: Avoid Overtuning or Disabling NCCL Features with Environment Variables)<a class="headerlink" href="#483-3nccl-pitfall-3-avoid-overtuning-or-disabling-nccl-features-with-environment-variables" title="Permanent link">&para;</a></h3>
 <p>NCCL有许多环境变量，如<code>NCCL_BUFFSIZE</code>、<code>NCCL_NSOCKS_PERTHREAD</code>、<code>NCCL_P2P_LEVEL</code>、<code>NCCL_SHM_DISABLE</code>等。通常最好将它们保留为默认值，除非你有特定原因。更好的是，将它们的值设置为当前默认值以明确并不依赖默认值！务必查看发行说明并相应调整值。</p>
 <blockquote>
-<p>NCCL has many environment variables such as NCCL_BUFFSIZE, NCCL_NSOCKS_PERTHREAD, NCCL_P2P_LEVEL, NCCL_SHM_DISABLE, etc. It's usually best to leave them at their defaults unless you have a specific reason. Better yet, set their values to their current defaults to be explicit and not rely on defaults! Be sure to review the release notes and adjust the values accordingly.</p>
+<p>NCCL has many environment variables such as NCCL<em>BUFFSIZE, NCCL</em>NSOCKS<em>PERTHREAD, NCCL</em>P2P<em>LEVEL, NCCL</em>SHM_DISABLE, etc. It's usually best to leave them at their defaults unless you have a specific reason. Better yet, set their values to their current defaults to be explicit and not rely on defaults! Be sure to review the release notes and adjust the values accordingly.</p>
 </blockquote>
 <p>虽然可以增加<code>NCCL_BUFFSIZE</code>以提高大型all-reduce操作的带宽，但必须仔细调整大小。设置得太高可能会导致GPU内存压力或强制较小的模型驱逐其工作集。从4 MB开始并逐步增加。在增加此值时监控GPU内存使用情况。</p>
 <blockquote>
@@ -3179,15 +3179,15 @@
 </blockquote>
 <p>使用<code>NCCL_P2P_DISABLE=1</code>禁用直接P2P GPU复制可能有助于在故障排除期间隔离问题，但如果保持启用，它将大大降低节点内性能。这是因为它强制所有节点内流量通过CPU主机中转的中间缓冲区，而不是GPU直接的NVLink链路。这增加了额外的跳数和CPU工作，可能将延迟从几微秒增加到几十微秒，并将带宽从数百GB/s降低到数十GB/s。</p>
 <blockquote>
-<p>Disabling direct P2P GPU copies with NCCL_P2P_DISABLE=1 might help isolate a problem during troubleshooting, but it will drastically reduce intranode performance if left enabled. This is because it forces all intranode traffic to go through CPU host-staged intermediate buffers instead of GPU-direct NVLink links. This adds extra hops and CPU work that can increase latency from a few microseconds to tens of microseconds and cut bandwidth from hundreds of GB/s down to tens of GB/s.</p>
+<p>Disabling direct P2P GPU copies with NCCL<em>P2P</em>DISABLE=1 might help isolate a problem during troubleshooting, but it will drastically reduce intranode performance if left enabled. This is because it forces all intranode traffic to go through CPU host-staged intermediate buffers instead of GPU-direct NVLink links. This adds extra hops and CPU work that can increase latency from a few microseconds to tens of microseconds and cut bandwidth from hundreds of GB/s down to tens of GB/s.</p>
 </blockquote>
 <p>仅在诊断问题时使用<code>NCCL_P2P_DISABLE=1</code>。完成调试后，记得使用<code>NCCL_P2P_DISABLE=0</code>重新启用P2P（或完全删除该环境变量）。</p>
 <blockquote>
-<p>Use NCCL_P2P_DISABLE=1 only when diagnosing an issue. Remember to reenable P2P with NCCL_P2P_DISABLE=0 (or remove the environment variable altogether) when you're done debugging.</p>
+<p>Use NCCL<em>P2P</em>DISABLE=1 only when diagnosing an issue. Remember to reenable P2P with NCCL<em>P2P</em>DISABLE=0 (or remove the environment variable altogether) when you're done debugging.</p>
 </blockquote>
 <p>同样，保持共享内存交换禁用（<code>NCCL_SHM_DISABLE=1</code>）将强制NCCL不使用共享内存进行节点内通信。这会导致回退到网络或主机中介的复制，这会产生额外的内核驱动程序开销和上下文切换，进一步增加延迟并限制吞吐量。</p>
 <blockquote>
-<p>Likewise, leaving shared-memory exchanges disabled (NCCL_SHM_DISABLE=1) would force NCCL to not use shared memory for intranode communication. This causes a fallback to network or host-mediated copies, which incurs additional kernel-driver overhead and context switches that further increase latency and throttle throughput.</p>
+<p>Likewise, leaving shared-memory exchanges disabled (NCCL<em>SHM</em>DISABLE=1) would force NCCL to not use shared memory for intranode communication. This causes a fallback to network or host-mediated copies, which incurs additional kernel-driver overhead and context switches that further increase latency and throttle throughput.</p>
 </blockquote>
 <p>仅在调试期间短暂更改性能关键的环境变量。在恢复正常操作之前，不要忘记将它们设置回生产设置。</p>
 <blockquote>
@@ -3195,27 +3195,27 @@
 </blockquote>
 <p>另一个变量是<code>NCCL_DEBUG</code>。设置<code>NCCL_DEBUG=INFO</code>或<code>DEBUG</code>对于记录NCCL操作很有用，因为日志可以提示问题，例如回退到以太网等。但额外的日志记录确实会产生开销。不要在生产中以DEBUG级别运行；在需要时使用。但是，出于性能原因，您可能希望将设置降低到WARN（默认）甚至只是VERSION。这将使除NCCL版本之外的所有内容静音，但在时机到来时会使调试变得困难--而且它会的！为了调优性能，一些有用的变量包括以下内容：</p>
 <blockquote>
-<p>Another variable is NCCL_DEBUG. Setting NCCL_DEBUG=INFO or DEBUG is useful to log NCCL operations, as logs can hint at issues like falling back to Ethernet, for instance. But additional logging does incur overhead. Don't run at DEBUG level in production; use it when needed. For performance reasons, however, you may want to lower the setting to WARN (default) or even just VERSION. This would silence everything except the NCCL version but will make things difficult to debug when the time comes-and it will! To tune performance, some of the useful variables include the following:</p>
+<p>Another variable is NCCL<em>DEBUG. Setting NCCL</em>DEBUG=INFO or DEBUG is useful to log NCCL operations, as logs can hint at issues like falling back to Ethernet, for instance. But additional logging does incur overhead. Don't run at DEBUG level in production; use it when needed. For performance reasons, however, you may want to lower the setting to WARN (default) or even just VERSION. This would silence everything except the NCCL version but will make things difficult to debug when the time comes-and it will! To tune performance, some of the useful variables include the following:</p>
 </blockquote>
-<p><strong>NCCL_NSOCKS_PERTHREAD和NCCL_SOCKET_NTHREADS</strong>：如前所述，如果您有多个NIC或非常高的网络带宽，增加这些可能会有所帮助。例如，如果您有两个NIC，您可能会设置<code>NCCL_NSOCKS_PERTHREAD=2</code>，以便每个线程处理两个套接字，总共允许四个连接。默认值因平台和构建而异，但重要的是<code>NCCL_NSOCKS_PERTHREAD</code>和<code>NCCL_SOCKET_NTHREADS</code>的乘积根据NVIDIA指导不得超过64。这个64限制是NCCL对每个通信器允许的TCP套接字连接总数的内置最大值。它定义为<code>NCCL_SOCKET_NTHREADS * NCCL_NSOCKS_PERTHREAD</code>。它旨在限制CPU和网络资源使用--并避免超过操作系统和硬件限制。</p>
+<p><strong>NCCL<em>NSOCKS</em>PERTHREAD和NCCL<em>SOCKET</em>NTHREADS</strong>：如前所述，如果您有多个NIC或非常高的网络带宽，增加这些可能会有所帮助。例如，如果您有两个NIC，您可能会设置<code>NCCL_NSOCKS_PERTHREAD=2</code>，以便每个线程处理两个套接字，总共允许四个连接。默认值因平台和构建而异，但重要的是<code>NCCL_NSOCKS_PERTHREAD</code>和<code>NCCL_SOCKET_NTHREADS</code>的乘积根据NVIDIA指导不得超过64。这个64限制是NCCL对每个通信器允许的TCP套接字连接总数的内置最大值。它定义为<code>NCCL_SOCKET_NTHREADS * NCCL_NSOCKS_PERTHREAD</code>。它旨在限制CPU和网络资源使用--并避免超过操作系统和硬件限制。</p>
 <blockquote>
-<p><strong>NCCL_NSOCKS_PERTHREAD and NCCL_SOCKET_NTHREADS</strong>: As mentioned, if you have multiple NICs or very high network bandwidth, increasing these might help. If you have, say, two NICs, you might set NCCL_NSOCKS_PERTHREAD=2 so that each thread handles two sockets for a total of four connections allowed. Defaults vary by platform and build, but what matters is that the product of NCCL_NSOCKS_PERTHREAD and NCCL_SOCKET_NTHREADS must not exceed 64 per NVIDIA guidance. This 64 limit is NCCL's built-in maximum for the total number of TCP socket connections allowed per communicator. It's defined as the product of NCCL_SOCKET_NTHREADS * NCCL_NSOCKS_PERTHREAD. It's designed to bound CPU and network resource usage-and avoid exceeding operating-system and hardware limits.</p>
+<p><strong>NCCL<em>NSOCKS</em>PERTHREAD and NCCL<em>SOCKET</em>NTHREADS</strong>: As mentioned, if you have multiple NICs or very high network bandwidth, increasing these might help. If you have, say, two NICs, you might set NCCL<em>NSOCKS</em>PERTHREAD=2 so that each thread handles two sockets for a total of four connections allowed. Defaults vary by platform and build, but what matters is that the product of NCCL<em>NSOCKS</em>PERTHREAD and NCCL<em>SOCKET</em>NTHREADS must not exceed 64 per NVIDIA guidance. This 64 limit is NCCL's built-in maximum for the total number of TCP socket connections allowed per communicator. It's defined as the product of NCCL<em>SOCKET</em>NTHREADS * NCCL<em>NSOCKS</em>PERTHREAD. It's designed to bound CPU and network resource usage-and avoid exceeding operating-system and hardware limits.</p>
 </blockquote>
-<p><strong>NCCL_MIN_NCHANNELS和NCCL_MAX_NCHANNELS</strong>：这些控制NCCL可能使用多少个子环，因为如果可能，NCCL会将数据拆分到多个环上以并行使用多个NVLink。建议将这些值保留为默认值。在具有NVSwitch的GPU系统上，NCCL将根据拓扑和消息大小自动调整通道数量。此外，NCCL创建与通道相同数量的子环以匹配并发硬件链路的数量。每个通道对应一个用于通信的CUDA块。因此，更多的通道将需要更多的GPU资源。</p>
+<p><strong>NCCL<em>MIN</em>NCHANNELS和NCCL<em>MAX</em>NCHANNELS</strong>：这些控制NCCL可能使用多少个子环，因为如果可能，NCCL会将数据拆分到多个环上以并行使用多个NVLink。建议将这些值保留为默认值。在具有NVSwitch的GPU系统上，NCCL将根据拓扑和消息大小自动调整通道数量。此外，NCCL创建与通道相同数量的子环以匹配并发硬件链路的数量。每个通道对应一个用于通信的CUDA块。因此，更多的通道将需要更多的GPU资源。</p>
 <blockquote>
-<p><strong>NCCL_MIN_NCHANNELS and NCCL_MAX_NCHANNELS</strong>: These control how many subrings NCCL may use since NCCL splits data across multiple rings to use multiple NVLinks in parallel, if possible. It's recommended to leave these values as default. On GPU systems with NVSwitch, NCCL will auto-tune the number of channels based on topology and message size. Additionally, NCCL creates the same number of subrings as channels to match the number of concurrent hardware links. Each channel corresponds to one CUDA block used for communication. As such, a higher number of channels will require more GPU resources.</p>
+<p><strong>NCCL<em>MIN</em>NCHANNELS and NCCL<em>MAX</em>NCHANNELS</strong>: These control how many subrings NCCL may use since NCCL splits data across multiple rings to use multiple NVLinks in parallel, if possible. It's recommended to leave these values as default. On GPU systems with NVSwitch, NCCL will auto-tune the number of channels based on topology and message size. Additionally, NCCL creates the same number of subrings as channels to match the number of concurrent hardware links. Each channel corresponds to one CUDA block used for communication. As such, a higher number of channels will require more GPU resources.</p>
 </blockquote>
-<p><strong>NCCL_TOPO_FILE</strong>：您可以使用系统的拓扑文件设置此变量，以指导NCCL做出明智的决策。这在NCCL可能无法正确检测拓扑的复杂网络或云环境中很有用。要捕获NCCL在运行时检测到的内容，请将<code>NCCL_TOPO_DUMP_FILE</code>设置为输出路径并检查生成的文件。</p>
+<p><strong>NCCL<em>TOPO</em>FILE</strong>：您可以使用系统的拓扑文件设置此变量，以指导NCCL做出明智的决策。这在NCCL可能无法正确检测拓扑的复杂网络或云环境中很有用。要捕获NCCL在运行时检测到的内容，请将<code>NCCL_TOPO_DUMP_FILE</code>设置为输出路径并检查生成的文件。</p>
 <blockquote>
-<p><strong>NCCL_TOPO_FILE</strong>: You can set this variable with a topology file for the system to guide NCCL to make wise decisions. This is useful in complex networks or cloud environments where NCCL might not detect the topology correctly. To capture what NCCL detects at runtime, set NCCL_TOPO_DUMP_FILE to an output path and inspect the generated file.</p>
+<p><strong>NCCL<em>TOPO</em>FILE</strong>: You can set this variable with a topology file for the system to guide NCCL to make wise decisions. This is useful in complex networks or cloud environments where NCCL might not detect the topology correctly. To capture what NCCL detects at runtime, set NCCL<em>TOPO</em>DUMP_FILE to an output path and inspect the generated file.</p>
 </blockquote>
-<p><strong>NCCL_MNNVL_ENABLE</strong>：启用NVIDIA多节点NVLink（MNNVL）。这是为支持多节点NVLink交换机（例如NVL72 GB200/GB300）的系统中的高速通信而设计的。</p>
+<p><strong>NCCL<em>MNNVL</em>ENABLE</strong>：启用NVIDIA多节点NVLink（MNNVL）。这是为支持多节点NVLink交换机（例如NVL72 GB200/GB300）的系统中的高速通信而设计的。</p>
 <blockquote>
-<p><strong>NCCL_MNNVL_ENABLE</strong>: Enable NVIDIA multi-node NVLink (MNNVL). This is designed for high-speed communication in systems with support for multi-node NVLink switches (e.g., NVL72 GB200/GB300).</p>
+<p><strong>NCCL<em>MNNVL</em>ENABLE</strong>: Enable NVIDIA multi-node NVLink (MNNVL). This is designed for high-speed communication in systems with support for multi-node NVLink switches (e.g., NVL72 GB200/GB300).</p>
 </blockquote>
-<p><strong>NCCL_SHARP_DISABLE</strong>：此设置控制使用SHARP进行网络内聚合。我们稍后将讨论SHARP。默认情况下，如果SHARP可用且作业配置为使用它，NCCL将启用它。您可以通过设置<code>NCCL_SHARP_DISABLE=1</code>显式禁用SHARP以进行A/B测试和故障排除。</p>
+<p><strong>NCCL<em>SHARP</em>DISABLE</strong>：此设置控制使用SHARP进行网络内聚合。我们稍后将讨论SHARP。默认情况下，如果SHARP可用且作业配置为使用它，NCCL将启用它。您可以通过设置<code>NCCL_SHARP_DISABLE=1</code>显式禁用SHARP以进行A/B测试和故障排除。</p>
 <blockquote>
-<p><strong>NCCL_SHARP_DISABLE</strong>: This setting controls the usage of SHARP for in-network aggregation. We will discuss SHARP in a bit. By default, if SHARP is available and the job is configured to use it, NCCL will enable it. You can disable SHARP explicitly by setting NCCL_SHARP_DISABLE=1 for A/B testing and troubleshooting.</p>
+<p><strong>NCCL<em>SHARP</em>DISABLE</strong>: This setting controls the usage of SHARP for in-network aggregation. We will discuss SHARP in a bit. By default, if SHARP is available and the job is configured to use it, NCCL will enable it. You can disable SHARP explicitly by setting NCCL<em>SHARP</em>DISABLE=1 for A/B testing and troubleshooting.</p>
 </blockquote>
 <p>总之，除非您有证据表明特定的可调参数会有所帮助，否则请使用环境默认值。如果您确实更改了这些值，请确保记录它们，并在升级到更新的硬件和NCCL版本时持续监控它们的效果是否仍然有益。</p>
 <blockquote>
@@ -3228,19 +3228,19 @@
 </blockquote>
 <p>NCCL通常将其线程分配给离它们服务的GPU最近的核心，但如果进程被绑定到一组狭窄的核心，它可能会将所有NCCL线程折叠到单个核心上，并遭受调度不良和吞吐量低的问题。为防止这种情况，设置环境变量<code>NCCL_IGNORE_CPU_AFFINITY=1</code>，以便NCCL忽略继承的CPU亲和性掩码，并自由地将其工作线程分布在本地NUMA域中的核心上。</p>
 <blockquote>
-<p>NCCL normally assigns its threads to the cores nearest the GPUs they serve, but if the process is pinned to a narrow set of cores, it may collapse all NCCL threads onto a single core and suffer from poor scheduling and low throughput. To prevent this, set the environment variable NCCL_IGNORE_CPU_AFFINITY=1 so that NCCL ignores the inherited CPU affinity mask and freely spreads its worker threads across the cores in the local NUMA domain.</p>
+<p>NCCL normally assigns its threads to the cores nearest the GPUs they serve, but if the process is pinned to a narrow set of cores, it may collapse all NCCL threads onto a single core and suffer from poor scheduling and low throughput. To prevent this, set the environment variable NCCL<em>IGNORE</em>CPU_AFFINITY=1 so that NCCL ignores the inherited CPU affinity mask and freely spreads its worker threads across the cores in the local NUMA domain.</p>
 </blockquote>
 <p>推荐的方法是将每个GPU进程绑定到其NUMA域的CPU核心，然后设置<code>NCCL_IGNORE_CPU_AFFINITY=1</code>，以便NCCL可以在这些核心内微调线程放置。</p>
 <blockquote>
-<p>The recommended approach is to bind each GPU process to the CPU cores for its NUMA domain and then set NCCL_IGNORE_CPU_AFFINITY=1 so that NCCL can fine-tune thread placement within those cores.</p>
+<p>The recommended approach is to bind each GPU process to the CPU cores for its NUMA domain and then set NCCL<em>IGNORE</em>CPU_AFFINITY=1 so that NCCL can fine-tune thread placement within those cores.</p>
 </blockquote>
-<p>考虑一个具有两个NUMA节点域和八个GPU的计算节点。如果GPU 0-3连接到第一个CPU，设备4-7连接到第二个CPU，则应将rank 0-3绑定到第一组CPU核心，将rank 4-7绑定到第二组CPU核心。接下来，您将设置NCCL_IGNORE_CPU_AFFINITY=1以忽略继承的CPU亲和性掩码。</p>
+<p>考虑一个具有两个NUMA节点域和八个GPU的计算节点。如果GPU 0-3连接到第一个CPU，设备4-7连接到第二个CPU，则应将rank 0-3绑定到第一组CPU核心，将rank 4-7绑定到第二组CPU核心。接下来，您将设置NCCL<em>IGNORE</em>CPU_AFFINITY=1以忽略继承的CPU亲和性掩码。</p>
 <blockquote>
-<p>Consider a compute node with two NUMA node domains and eight GPUs. If the GPUs 0-3 are attached to the first CPU and devices 4-7 are attached to the second CPU, you would bind ranks 0-3 to the first set of CPU cores and ranks 4-7 to the second set of CPU cores. Next, you would set NCCL_IGNORE_CPU_AFFINITY=1 to ignore the inherited CPU affinity mask.</p>
+<p>Consider a compute node with two NUMA node domains and eight GPUs. If the GPUs 0-3 are attached to the first CPU and devices 4-7 are attached to the second CPU, you would bind ranks 0-3 to the first set of CPU cores and ranks 4-7 to the second set of CPU cores. Next, you would set NCCL<em>IGNORE</em>CPU_AFFINITY=1 to ignore the inherited CPU affinity mask.</p>
 </blockquote>
-<p>在实践中，使用numactl或设置CUDA_DEVICE_ORDER和CUDA_VISIBLE_DEVICES可以帮助强制执行此绑定。PyTorch的启动实用程序会自动处理大部分这些工作，但最好进行验证。您还可以指定显式拓扑文件以进一步减少延迟并提高吞吐量。如果您不想手动固定进程，可以依赖MPI运行时绑定或作业调度程序选项（如SLURM --cpu-bind）来确保每个rank落在正确的核心上。</p>
+<p>在实践中，使用numactl或设置CUDA<em>DEVICE</em>ORDER和CUDA<em>VISIBLE</em>DEVICES可以帮助强制执行此绑定。PyTorch的启动实用程序会自动处理大部分这些工作，但最好进行验证。您还可以指定显式拓扑文件以进一步减少延迟并提高吞吐量。如果您不想手动固定进程，可以依赖MPI运行时绑定或作业调度程序选项（如SLURM --cpu-bind）来确保每个rank落在正确的核心上。</p>
 <blockquote>
-<p>In practice, using numactl or setting CUDA_DEVICE_ORDER and CUDA_VISIBLE_DEVICES can help enforce this binding. PyTorch's launch utilities handle much of this automatically, but it's good to verify. You can also specify an explicit topology file to further reduce latency and improve throughput. If you prefer not to pin processes manually, you can rely on MPI runtime binding or job scheduler options such as SLURM --cpu-bind to ensure each rank lands on the correct cores.</p>
+<p>In practice, using numactl or setting CUDA<em>DEVICE</em>ORDER and CUDA<em>VISIBLE</em>DEVICES can help enforce this binding. PyTorch's launch utilities handle much of this automatically, but it's good to verify. You can also specify an explicit topology file to further reduce latency and improve throughput. If you prefer not to pin processes manually, you can rely on MPI runtime binding or job scheduler options such as SLURM --cpu-bind to ensure each rank lands on the correct cores.</p>
 </blockquote>
 <h3 id="485-5nccl-pitfall-5-resist-the-temptation-to-ignore-nccl-warnings-and-errors">4.8.5 陷阱#5：抵制忽略NCCL警告和错误的诱惑 (Pitfall #5: Resist the Temptation to Ignore NCCL Warnings and Errors)<a class="headerlink" href="#485-5nccl-pitfall-5-resist-the-temptation-to-ignore-nccl-warnings-and-errors" title="Permanent link">&para;</a></h3>
 <p>如果谨慎启用日志记录，NCCL会打印许多日志。在这些日志中，可能会有关于回退到较慢PCIe带宽等警告。这些是需要解决的重要警告。</p>
@@ -3251,9 +3251,9 @@
 <blockquote>
 <p>If you see logs like "unable to enable P2P, falling back to copy," don't ignore these! They often indicate suboptimal conditions. If you see this warning, it means that NCCL was unable to establish direct GPU P2P between two GPUs. Perhaps because they're on different PCIe root complexes with no support. This means that data transfers will be much slower, as they must travel through host CPU memory buffers.</p>
 </blockquote>
-<p>警告可能会提示您重新安排进程中使用的GPU。解决方案是确保需要相互通信的GPU在同一NUMA节点上或使用不同的配对模式。另一个例子是NCCL INFO NET/Socket: using Ethernet interface eth0警告，它告诉您选择了哪个接口。如果那不是性能最高的互连，您可能需要显式设置NCCL_SOCKET_IFNAME。例如，您可以设置NCCL_SOCKET_IFNAME=ib0，以便引导握手使用预期的架构。您应该追踪为什么这没有自动设置为最快的接口。这可能是一个更大的问题。</p>
+<p>警告可能会提示您重新安排进程中使用的GPU。解决方案是确保需要相互通信的GPU在同一NUMA节点上或使用不同的配对模式。另一个例子是NCCL INFO NET/Socket: using Ethernet interface eth0警告，它告诉您选择了哪个接口。如果那不是性能最高的互连，您可能需要显式设置NCCL<em>SOCKET</em>IFNAME。例如，您可以设置NCCL<em>SOCKET</em>IFNAME=ib0，以便引导握手使用预期的架构。您应该追踪为什么这没有自动设置为最快的接口。这可能是一个更大的问题。</p>
 <blockquote>
-<p>Warnings could prompt you to rearrange which GPUs are used in a process. The solution would be to ensure that GPUs that need to talk to one another are on the same NUMA node or using a different pairing schema. Another example is the NCCL INFO NET/Socket: using Ethernet interface eth0 warning, which tells you which interface was picked. If that's not the highest-performing interconnect, you might need to set NCCL_SOCKET_IFNAME explicitly. For instance, you can set NCCL_SOCKET_IFNAME=ib0 so the bootstrap handshake uses the intended fabric. You should track down why this is not being automatically set to the fastest interface. This is likely a larger issue.</p>
+<p>Warnings could prompt you to rearrange which GPUs are used in a process. The solution would be to ensure that GPUs that need to talk to one another are on the same NUMA node or using a different pairing schema. Another example is the NCCL INFO NET/Socket: using Ethernet interface eth0 warning, which tells you which interface was picked. If that's not the highest-performing interconnect, you might need to set NCCL<em>SOCKET</em>IFNAME explicitly. For instance, you can set NCCL<em>SOCKET</em>IFNAME=ib0 so the bootstrap handshake uses the intended fabric. You should track down why this is not being automatically set to the fastest interface. This is likely a larger issue.</p>
 </blockquote>
 <h3 id="486-6nccl-pitfall-6-nccl-communicator-hangs-errors-or-shuts-down-completely">4.8.6 陷阱#6：NCCL通信器挂起、错误或完全关闭 (Pitfall #6: NCCL Communicator Hangs, Errors, or Shuts Down Completely)<a class="headerlink" href="#486-6nccl-pitfall-6-nccl-communicator-hangs-errors-or-shuts-down-completely" title="Permanent link">&para;</a></h3>
 <p>偶尔，如果一个进程崩溃或一个GPU rank遇到错误，NCCL通信器可能会挂起其他rank，因为集合无法完成。不幸的是，这在大型集群中相当常见，因为如Meta在表4-4中描述的那样，规模上GPU故障的频率相对较高。</p>
@@ -3387,7 +3387,7 @@
 </blockquote>
 <p>启用<code>NCCL_ASYNC_ERROR_HANDLING=1</code>可以通过允许NCCL异步中止错误来提高弹性，但这可能会产生轻微的开销。PyTorch在最近版本中当你使用<code>init_process_group</code>时默认设置此值。但是，为了清晰和可重复性，最好显式设置此值。</p>
 <blockquote>
-<p>Enabling NCCL_ASYNC_ERROR_HANDLING=1 can improve resiliency by allowing NCCL to abort on errors asynchronously, but this may incur a slight overhead. PyTorch sets this by default in recent versions when you use init_process_group. However, it's a good idea to keep explicitly setting this value for clarity and reproducibility.</p>
+<p>Enabling NCCL<em>ASYNC</em>ERROR<em>HANDLING=1 can improve resiliency by allowing NCCL to abort on errors asynchronously, but this may incur a slight overhead. PyTorch sets this by default in recent versions when you use init</em>process_group. However, it's a good idea to keep explicitly setting this value for clarity and reproducibility.</p>
 </blockquote>
 <p>永远不要依赖默认值。始终要明确！默认值有时会随版本变化--当它们变化时极难调试。在初始化期间显式设置这些值可以避免依赖于版本的行为。</p>
 <blockquote>
@@ -3400,7 +3400,7 @@
 <h2 id="49-nccl-profiling-and-debugging-nccl">4.9 NCCL分析和调试 (Profiling and Debugging NCCL)<a class="headerlink" href="#49-nccl-profiling-and-debugging-nccl" title="Permanent link">&para;</a></h2>
 <p>NCCL支持网络错误等情况的异步错误处理和故障转移。要启用异步错误处理，请设置环境变量<code>NCCL_ASYNC_ERROR_HANDLING=1</code>。在调试NCCL时，确保还要启用<code>NCCL_DEBUG=WARN</code>或<code>INFO</code>。这样，您可以检查常见问题，如不匹配的rank或套接字配置错误。</p>
 <blockquote>
-<p>NCCL supports asynchronous error handling and failover for cases like network errors. To enable asynchronous error handling, set the environment variable NCCL_ASYNC_ERROR_HANDLING=1. And when debugging NCCL, make sure to also enable NCCL_DEBUG=WARN or INFO. This way, you can check for common issues like unmatched ranks or socket misconfigurations.</p>
+<p>NCCL supports asynchronous error handling and failover for cases like network errors. To enable asynchronous error handling, set the environment variable NCCL<em>ASYNC</em>ERROR<em>HANDLING=1. And when debugging NCCL, make sure to also enable NCCL</em>DEBUG=WARN or INFO. This way, you can check for common issues like unmatched ranks or socket misconfigurations.</p>
 </blockquote>
 <p>NCCL分析器插件API也可用于调试NCCL。此API让您监控GPU通信的内部时间线，并精确定位系统中任何滞后设备或瓶颈。NCCL分析器插件API旨在解决随着GPU集群规模扩大而越来越难以诊断的性能问题。</p>
 <blockquote>
@@ -3408,7 +3408,7 @@
 </blockquote>
 <p>NCCL分析器插件可以通过<code>NCCL_PROFILER_PLUGIN</code>接口动态加载，并由支持它的工具集成。<code>NCCL_PROFILER_PLUGIN</code>环境变量以类似于其他NCCL插件的方式控制此插件的加载和初始化。</p>
 <blockquote>
-<p>The NCCL profiler plugin can be dynamically loaded via the NCCL_PROFILER_PLUGIN interface and integrated by tools that support it. The NCCL_PROFILER_PLUGIN environment variable governs the loading and initialization of this plugin in a manner similar to other NCCL plugins.</p>
+<p>The NCCL profiler plugin can be dynamically loaded via the NCCL<em>PROFILER</em>PLUGIN interface and integrated by tools that support it. The NCCL<em>PROFILER</em>PLUGIN environment variable governs the loading and initialization of this plugin in a manner similar to other NCCL plugins.</p>
 </blockquote>
 <p>NVIDIA创建了这个灵活的API，以简化第三方分析工具（例如PyTorch Kineto）与NCCL的集成，并确保在运行时执行期间以清晰、层次化和低开销的方式监控和捕获复杂的通信活动。如果未启用NCCL插件，PyTorch的Kineto也可以使用CUPTI和NVTX收集NCCL活动。</p>
 <blockquote>
@@ -3473,11 +3473,11 @@
 </blockquote>
 <p>SHARP默认不启用。必须通过插件选择或策略进行配置。您可以使用<code>NCCL_SHARP_DISABLE=1</code>禁用它进行A/B测试以验证性能影响。但是，建议保持启用以在规模上改善all-reduce延迟。</p>
 <blockquote>
-<p>SHARP is not enabled by default. It must be configured with a plugin selection or policy. You can disable it with NCCL_SHARP_DISABLE=1 for A/B testing to verify the performance impact. However, it's recommended to keep it enabled to improve all-reduce latency at scale.</p>
+<p>SHARP is not enabled by default. It must be configured with a plugin selection or policy. You can disable it with NCCL<em>SHARP</em>DISABLE=1 for A/B testing to verify the performance impact. However, it's recommended to keep it enabled to improve all-reduce latency at scale.</p>
 </blockquote>
 <p>使用SHARP通常不需要代码更改。可以通过查看NCCL日志（<code>NCCL_DEBUG=INFO</code>）来验证是否正在使用SHARP。如果正在使用，日志会提到SHARP。还有诊断工具（<code>ibv_devinfo</code>等）可以检查设备是否支持SHARP。</p>
 <blockquote>
-<p>Using SHARP doesn't typically require code changes. One can verify if SHARP is in use by looking at the NCCL logs (NCCL_DEBUG=INFO). The logs will mention SHARP if it's being used. There are also diagnostic tools (ibv_devinfo etc.) to check if a device supports SHARP.</p>
+<p>Using SHARP doesn't typically require code changes. One can verify if SHARP is in use by looking at the NCCL logs (NCCL<em>DEBUG=INFO). The logs will mention SHARP if it's being used. There are also diagnostic tools (ibv</em>devinfo etc.) to check if a device supports SHARP.</p>
 </blockquote>
 <p>总之，SHARP将归约计算移入网络。这进一步展示了现代系统设计如何模糊计算和通信之间的界限。对于性能工程师，如果您的集群运行在高端InfiniBand网络上，值得检查SHARP是否已启用并得到利用。它可以为大规模all-reduce操作提供一个"加速按钮"，实现更快的扩展和更高的效率。SHARP以网络为中心的优化补充了NCCL以GPU为中心的优化。</p>
 <blockquote>

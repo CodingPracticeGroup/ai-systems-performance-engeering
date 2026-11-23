@@ -1802,7 +1802,7 @@
 </blockquote>
 <p>PyTorch分析器允许您直接识别模型代码中的瓶颈操作。例如，您可以使用<code>torch.profiler.profile(..., with_flops=True, profile_memory=True)</code>来分析训练循环，以记录内存使用情况并估计支持的操作符（如矩阵乘法）的FLOPs。（注意：这些是操作级别的基于公式的估计，而不是每内核硬件计数器。）这种集成使弥合PyTorch模型代码与底层CUDA性能分析之间的差距变得更加容易。</p>
 <blockquote>
-<p>PyTorch profiler allows you to identify bottleneck operations in your model code directly. For example, you can profile a training loop with torch.profiler.profile(..., with_flops=True, profile_memory=True) to record memory usage and to estimate FLOPs for supported operators such as matrix multiplication. (Note: These are formula-based estimates at the operator level rather than per-kernel hardware counters.) Such integration makes it easier to bridge the gap between PyTorch model code and low-level CUDA performance analysis.</p>
+<p>PyTorch profiler allows you to identify bottleneck operations in your model code directly. For example, you can profile a training loop with torch.profiler.profile(..., with<em>flops=True, profile</em>memory=True) to record memory usage and to estimate FLOPs for supported operators such as matrix multiplication. (Note: These are formula-based estimates at the operator level rather than per-kernel hardware counters.) Such integration makes it easier to bridge the gap between PyTorch model code and low-level CUDA performance analysis.</p>
 </blockquote>
 <p>现代版本的Nsight Systems可以收集Python回溯采样，还提供PyTorch专注模式，支持Python调用栈采样和PyTorch域以实现更相关的跟踪。这有助于将框架活动与系统时间线关联起来。Nsight Compute关联到CUDA C或C++源代码以及PTX或SASS。您可以使用<code>-lineinfo</code>编译设备代码以启用源代码行映射。要将模型代码与内核关联，请使用Python中的<code>torch.cuda.nvtx</code>提供的NVTX范围。此外，现代版本的Nsight Compute提供源代码视图，包括指令混合以及吞吐量细分，有助于精确定位受停顿和吞吐量限制影响的源代码行。</p>
 <blockquote>
@@ -1961,7 +1961,7 @@
 </blockquote>
 <p>这些限制因素每一个都暗示不同的修复方法，我们将在下一节详细讨论。例如，如果寄存器是限制因素，您可能会减少寄存器使用或使用<code>__launch_bounds__</code>来允许更多块。如果共享内存是限制因素，您可以尝试使用更小的分块和每个块更少的共享内存。</p>
 <blockquote>
-<p>Each of these limiters hints at different fixes, which we will discuss in more detail in the next section. For instance, if registers are the limiter, you might reduce register usage or use <strong>launch_bounds</strong> to allow more blocks. If shared memory is the limiter, you can try to use smaller tiles and less shared memory per block.</p>
+<p>Each of these limiters hints at different fixes, which we will discuss in more detail in the next section. For instance, if registers are the limiter, you might reduce register usage or use _<em>launch<em>bounds</em></em> to allow more blocks. If shared memory is the limiter, you can try to use smaller tiles and less shared memory per block.</p>
 </blockquote>
 <p>超过某一点，增加占用率可能不会产生加速。非常低的占用率（例如10%-20%）会由于糟糕的延迟隐藏而损害性能。另一方面，如果内存带宽和指令依赖等其他因素成为瓶颈，将占用率推到100%并不总是有益的。</p>
 <blockquote>
@@ -2290,7 +2290,7 @@
 <h3 id="techniques-for-occupancy-tuning">占用率调优技术 (Techniques for Occupancy Tuning)<a class="headerlink" href="#techniques-for-occupancy-tuning" title="Permanent link">&para;</a></h3>
 <p>当分析表明占用率是限制因素时，有几个简单的步骤可以改善占用率：通过启动更多线程增加并行性、调整块大小、减少每线程资源使用，以及使用<code>__launch_bounds__</code>或占用率API。让我们在这里讨论每一个：</p>
 <blockquote>
-<p>There are a few straightforward steps to improve occupancy when profiling suggests that it's the limiting factor: increase parallelism by launching more threads, adjust the block size, reduce per-thread resource usage, and use <strong>launch_bounds</strong> or the occupancy API. Let's discuss each of these here:</p>
+<p>There are a few straightforward steps to improve occupancy when profiling suggests that it's the limiting factor: increase parallelism by launching more threads, adjust the block size, reduce per-thread resource usage, and use _<em>launch<em>bounds</em></em> or the occupancy API. Let's discuss each of these here:</p>
 </blockquote>
 <p><strong>增加并行性（启动更多线程）</strong></p>
 <blockquote>
@@ -2358,15 +2358,15 @@
 </blockquote>
 <p>在某些场景中，您可能有意限制占用率或引导编译器针对特定占用率进行优化。CUDA允许您使用<code>__launch_bounds__</code>注解在内核代码中设置启动边界。这向编译器提示内核的预期使用模式和启动配置。</p>
 <blockquote>
-<p>In some scenarios, you might intentionally limit occupancy or guide the compiler to optimize for a specific occupancy. CUDA allows you to set launch bounds in your kernel code using the <strong>launch_bounds</strong> annotation. This hints to the compiler about the kernel's expected usage patterns and launch configuration.</p>
+<p>In some scenarios, you might intentionally limit occupancy or guide the compiler to optimize for a specific occupancy. CUDA allows you to set launch bounds in your kernel code using the _<em>launch<em>bounds</em></em> annotation. This hints to the compiler about the kernel's expected usage patterns and launch configuration.</p>
 </blockquote>
 <p>如果您分析发现性能在约50%占用率而不是100%时达到峰值，这通常意味着每个线程使用大量寄存器或共享内存。这将进一步限制占用率。在这种情况下，您可以使用<code>__launch_bounds__</code>引导编译器。</p>
 <blockquote>
-<p>If you profile and find that performance peaks at around 50% occupancy instead of 100%, this often means each thread uses a lot of registers or shared memory. This will further limit occupancy. In this case, you can use <strong>launch_bounds</strong> to guide the compiler.</p>
+<p>If you profile and find that performance peaks at around 50% occupancy instead of 100%, this often means each thread uses a lot of registers or shared memory. This will further limit occupancy. In this case, you can use _<em>launch<em>bounds</em></em> to guide the compiler.</p>
 </blockquote>
 <p>例如，您可以使用<code>__launch_bounds__</code>限制每块线程数并指定每SM最小块数，以允许更多线程束驻留在SM上。本质上，您告诉编译器用一些每线程寄存器/共享内存资源使用换取更高的线程束数量。</p>
 <blockquote>
-<p>For example, you can use <strong>launch_bounds</strong> to limit the threads per block and specify a minimum number of blocks per SM, allowing more warps to be resident on the SM. Essentially, you're telling the compiler to trade some per-thread register/shared memory resource usage for higher warp counts.</p>
+<p>For example, you can use _<em>launch<em>bounds</em></em> to limit the threads per block and specify a minimum number of blocks per SM, allowing more warps to be resident on the SM. Essentially, you're telling the compiler to trade some per-thread register/shared memory resource usage for higher warp counts.</p>
 </blockquote>
 <p>当您的内核延迟受限时，这将改善吞吐量，因为更多线程束将隐藏内存延迟和依赖停顿。这与纯计算受限内核形成对比，后者不会从此类优化中获得相同收益。</p>
 <blockquote>
@@ -2378,11 +2378,11 @@
 </blockquote>
 <p>除了<code>__launch_bounds__</code>注解外，CUDA的占用率API函数（例如<code>cudaOccupancyMaxPotentialBlockSize()</code>和<code>cudaOccupancyMaxActiveBlocksPerMultiprocessor()</code>）让您在运行时确定给定内核实际寄存器和共享内存需求下产生最高占用率的块大小。</p>
 <blockquote>
-<p>Beyond the <strong>launch_bounds</strong> annotation, CUDA's Occupancy API functions (e.g., cudaOccupancyMaxPotentialBlockSize() and cudaOccupancyMaxActiveBlocksPerMultiprocessor()) let you determine at runtime the block size that yields the highest occupancy given your kernel's actual register and shared memory requirements.</p>
+<p>Beyond the _<em>launch<em>bounds</em></em> annotation, CUDA's Occupancy API functions (e.g., cudaOccupancyMaxPotentialBlockSize() and cudaOccupancyMaxActiveBlocksPerMultiprocessor()) let you determine at runtime the block size that yields the highest occupancy given your kernel's actual register and shared memory requirements.</p>
 </blockquote>
 <p>这些函数提供每块线程数和每SM块数的推荐值。这样，您不必猜测哪种配置最有效。在实践中，您可能使用占用率API找到候选块大小，然后用<code>__launch_bounds__</code>提示微调以锁定特定占用率水平。</p>
 <blockquote>
-<p>These functions provide recommended values for threads per block and blocks per SM. This way, you don't have to guess which configuration is most effective. In practice, you might use the Occupancy API to find candidate block sizes, then fine-tune with <strong>launch_bounds</strong> hints to lock in a specific occupancy level.</p>
+<p>These functions provide recommended values for threads per block and blocks per SM. This way, you don't have to guess which configuration is most effective. In practice, you might use the Occupancy API to find candidate block sizes, then fine-tune with _<em>launch<em>bounds</em></em> hints to lock in a specific occupancy level.</p>
 </blockquote>
 <p>另一种方法是使用CUDA Graphs在确定最佳配置后高效启动预定义工作负载。虽然不直接改变占用率，但CUDA Graphs可以减少每次启动开销，这在增加块数量时对占用率有益。我们将在第12章介绍CUDA Graphs，在第13章和第14章介绍PyTorch对CUDA Graphs的使用，但在此背景下值得一提。</p>
 <blockquote>
@@ -2390,12 +2390,12 @@
 </blockquote>
 <p>简而言之，建议使用多阶段方法，通过分析系统发现理想占用率范围--然后使用编译器和运行时提示实现理想占用率。目标是高效调整线程块大小，保持足够多的线程束进行中，而不过度分配寄存器和共享内存等稀缺片上资源。接下来，让我们仔细看看使用<code>__launch_bounds__</code>、占用率API和PyTorch调优占用率。</p>
 <blockquote>
-<p>In short, it's recommended to use a multiphased approach by profiling your system to discover the ideal occupancy range-and then using compiler and runtime hints to achieve the ideal occupancy. The goal is to size your thread blocks efficiently to keep enough warps in flight without over allocating scarce on‐chip resources like registers and shared memory. Next, let's take a closer look at tuning occupancy with <strong>launch_bounds</strong>, the Occupancy API, and PyTorch.</p>
+<p>In short, it's recommended to use a multiphased approach by profiling your system to discover the ideal occupancy range-and then using compiler and runtime hints to achieve the ideal occupancy. The goal is to size your thread blocks efficiently to keep enough warps in flight without over allocating scarce on‐chip resources like registers and shared memory. Next, let's take a closer look at tuning occupancy with _<em>launch<em>bounds</em></em>, the Occupancy API, and PyTorch.</p>
 </blockquote>
 <h3 id="compiler-hints-to-optimize-occupancy">优化占用率的编译器提示 (Compiler Hints to Optimize Occupancy)<a class="headerlink" href="#compiler-hints-to-optimize-occupancy" title="Permanent link">&para;</a></h3>
 <p>我们可以通过使用CUDA的<code>__launch_bounds__</code>内核注解引导编译器优化占用率。此注解让我们为内核指定两个参数：我们想要启动的每块最大线程数（例如256）和我们希望在每个SM上保持驻留的最小线程块数（例如4），如下所示：</p>
 <blockquote>
-<p>We can guide the compiler to optimize for occupancy by using CUDA's <strong>launch_bounds</strong> kernel annotation. This annotation lets us specify two parameters for a kernel: the maximum number of threads per block that we want to launch (e.g., 256) and the minimum number of thread blocks we want to keep resident on each SM (e.g., 4), as shown here: <strong>global</strong> <strong>launch_bounds</strong>(256, 8) void myKernel(...) { /* ... */ } Here, we promise never to launch myKernel with more than 256 threads per block. And we request that at least 8 blocks be active on each SM.</p>
+<p>We can guide the compiler to optimize for occupancy by using CUDA's _<em>launch<em>bounds</em></em> kernel annotation. This annotation lets us specify two parameters for a kernel: the maximum number of threads per block that we want to launch (e.g., 256) and the minimum number of thread blocks we want to keep resident on each SM (e.g., 4), as shown here: <strong>global</strong> _<em>launch<em>bounds</em></em>(256, 8) void myKernel(...) { /* ... */ } Here, we promise never to launch myKernel with more than 256 threads per block. And we request that at least 8 blocks be active on each SM.</p>
 </blockquote>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">__global__</span><span class="w"> </span><span class="nf">__launch_bounds__</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kt">void</span><span class="w"> </span><span class="n">myKernel</span><span class="p">(...)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
@@ -2406,7 +2406,7 @@
 </blockquote>
 <p>具体来说，<code>__launch_bounds__</code>将限制每个线程的寄存器使用，使得最多256个线程可以放入一个块--并且每个SM至少可以有8个块活跃。这是每个SM总共2,048个活跃线程（8个块 x 每块256个线程 = 2,048个线程）。这填满了B200等设备的线程槽，其每SM限制为2,048个线程（例如Blackwell）。在实践中，<code>__launch_bounds__</code>可能导致编译器限制每线程寄存器使用并限制展开/内联。这避免了溢出并允许更高占用率。因此，我们实际上是用一些每线程性能（例如不使用每个最后的寄存器或最大展开）换取更稳定的线程束吞吐量，通过保持更多线程束进行中。</p>
 <blockquote>
-<p>Specifically, <strong>launch_bounds</strong> will limit per-thread register usage so that at most 256 threads can fit in a block-and at least 8 blocks can be active per SM. This is a total of 2,048 active threads per SM (8 blocks x 256 threads per block = 2,048 threads). This fills up the thread slots on devices like the B200, which has a limit of 2,048 threads per SM (e.g., Blackwell). In practice, <strong>launch_bounds</strong> can cause the compiler to limit per-thread register usage and limit unrolling/inlining. This avoids spilling and allows for higher occupancy. As a result, we're effectively trading some per-thread performance (e.g., not using every last register or maximum unrolling) for more steady warp throughput by keeping more warps in flight.</p>
+<p>Specifically, _<em>launch<em>bounds</em></em> will limit per-thread register usage so that at most 256 threads can fit in a block-and at least 8 blocks can be active per SM. This is a total of 2,048 active threads per SM (8 blocks x 256 threads per block = 2,048 threads). This fills up the thread slots on devices like the B200, which has a limit of 2,048 threads per SM (e.g., Blackwell). In practice, _<em>launch<em>bounds</em></em> can cause the compiler to limit per-thread register usage and limit unrolling/inlining. This avoids spilling and allows for higher occupancy. As a result, we're effectively trading some per-thread performance (e.g., not using every last register or maximum unrolling) for more steady warp throughput by keeping more warps in flight.</p>
 </blockquote>
 <p>增加的占用率必须与增加的每线程资源平衡。您要避免通过强制太多线程导致寄存器溢出。这会导致缓慢的内存访问，因为它们用完寄存器并溢出到本地内存（由全局HBM支持）。找到最佳点通常需要实验。Nsight Compute的"每线程寄存器"和"占用率"指标可以在此指导您。</p>
 <blockquote>
@@ -2434,7 +2434,7 @@
 </blockquote>
 <p>在实践中，编译器的启发式方法通常相当不错。但在需要时使用<code>__launch_bounds__</code>和占用率API可以给您显式控制。当您知道内核可以用一些每线程资源使用换取更多活跃线程束时使用它们。这有助于防止由于重型线程而导致SM占用不足。</p>
 <blockquote>
-<p>In practice, the compiler's heuristics are often quite good. But using <strong>launch_bounds</strong> and the Occupancy API when needed can give you explicit control. Use them when you know the kernel can trade some per-thread resource usage for more active warps. This helps prevent underpopulating the SM due to heavyweight threads.</p>
+<p>In practice, the compiler's heuristics are often quite good. But using _<em>launch<em>bounds</em></em> and the Occupancy API when needed can give you explicit control. Use them when you know the kernel can trade some per-thread resource usage for more active warps. This helps prevent underpopulating the SM due to heavyweight threads.</p>
 </blockquote>
 <h3 id="pytorch-tuning-occupancy-with-pytorch">使用PyTorch调优占用率 (Tuning Occupancy with PyTorch)<a class="headerlink" href="#pytorch-tuning-occupancy-with-pytorch" title="Permanent link">&para;</a></h3>
 <p>对于编写高级代码的PyTorch用户，您通常不直接管理占用率--PyTorch的CUDA内核和库在底层处理启动参数。像矩阵乘法、卷积等操作已经调优为有效使用GPU。然而，理解占用率仍然很有价值。如果您编写自定义CUDA内核作为PyTorch扩展，同样的原则适用：启动足够的线程/块来利用GPU，选择合理的块大小，避免使用过多寄存器或共享内存每线程（如果它会限制占用率）。</p>
@@ -2554,7 +2554,7 @@
 </blockquote>
 <p>线程束内建函数（<code>__ballot_sync</code>、<code>__any_sync</code>、<code>__all_sync</code>）、协作组的warp.ballot/any/all以及设备端投票掩码（<code>%WarpVote</code>）让线程束集体决定或投票哪些通道需要"特殊"工作。然后线程束动态委托、重新分区并将该工作压缩到一个（或几个）通道中，而不是分歧所有32个线程。这避免了每通道分支分歧，但引入了一些您应该分析影响的潜在负载不平衡权衡。我们稍后将更详细地介绍线程束内建函数。</p>
 <blockquote>
-<p>Warp intrinsics (__ballot_sync, __any_sync, __all_sync), cooperative-groups' warp.ballot/any/all, and device-side vote masks (%WarpVote) let a warp collectively decide, or vote, which lanes need "special" work. The warp then dynamically delegates, repartitions, and compacts that work into one (or a few) lane(s) instead of diverging all 32 threads. This avoids per-lane branch divergence but introduces some potential load-imbalance trade-offs that you should profile for impact. We'll cover warp intrinsics in more detail in a bit.</p>
+<p>Warp intrinsics (__ballot<em>sync, __any</em>sync, __all_sync), cooperative-groups' warp.ballot/any/all, and device-side vote masks (%WarpVote) let a warp collectively decide, or vote, which lanes need "special" work. The warp then dynamically delegates, repartitions, and compacts that work into one (or a few) lane(s) instead of diverging all 32 threads. This avoids per-lane branch divergence but introduces some potential load-imbalance trade-offs that you should profile for impact. We'll cover warp intrinsics in more detail in a bit.</p>
 </blockquote>
 <p><strong>谓词执行短通道</strong></p>
 <blockquote>
@@ -2602,7 +2602,7 @@
 </blockquote>
 <p>当分歧不可避免时（例如，具有固有变化的每线程工作的树或图工作负载），保持分歧部分尽可能短和罕见，以便线程束快速重新汇聚。您还可以利用线程束级内建函数如<code>__any_sync</code>、<code>__ballot_sync</code>和其他投票原语让线程束一起在条件上达成一致。您还可以尝试将工作压缩到更少的通道中，而不是让所有32个通道分支。</p>
 <blockquote>
-<p>When divergence is unavoidable (e.g., tree or graph workloads with inherently varying per-thread work), keep the divergent sections as short and rare as possible so that warps reconverge quickly. You can also leverage warp-level intrinsics like __any_sync, __ballot_sync, and other vote primitives to let a warp agree on conditions together. You can also try compressing work into fewer lanes instead of having all 32 lanes branch.</p>
+<p>When divergence is unavoidable (e.g., tree or graph workloads with inherently varying per-thread work), keep the divergent sections as short and rare as possible so that warps reconverge quickly. You can also leverage warp-level intrinsics like __any<em>sync, __ballot</em>sync, and other vote primitives to let a warp agree on conditions together. You can also try compressing work into fewer lanes instead of having all 32 lanes branch.</p>
 </blockquote>
 <p>总之，最小化线程束分歧需要仔细的算法和数据组织。在可能的情况下，重构您的问题，使每个线程束遵循统一的执行路径。这可能意味着拆分内核以在单独的启动中处理不同情况，重新排列数据使每个线程束处理相似的项目，或将分歧条件从内部循环中拉出来。当分歧不可避免时（例如，具有固有变化的每线程工作的树或图工作负载），保持分歧代码尽可能短，并考虑使用谓词执行或线程束投票内建函数来减少其影响。</p>
 <blockquote>
@@ -2741,7 +2741,7 @@
 </blockquote>
 <p>同时，动态指令计数（<code>smsp__inst_executed.sum</code>）下降了50%，从6亿条指令降至3亿条指令，因为每个线程束不再花费周期串行执行分支的两边。平均线程束分支解析停顿延迟（<code>smsp__average_warp_latency_issue_stalled_branch_resolving</code>）也减半，从200周期降至100周期。</p>
 <blockquote>
-<p>At the same time, the dynamic instruction count (smsp__inst_executed.sum) dropped by 50%, from 600 million instructions to 300 million instructions, since each warp no longer spends cycles serially executing both sides of branches. The average warp branch resolution stall latency (smsp__average_warp_latency_issue_stalled_branch_resolving) also halved, from 200 cycles to 100 cycles.</p>
+<p>At the same time, the dynamic instruction count (smsp<strong>inst_executed.sum) dropped by 50%, from 600 million instructions to 300 million instructions, since each warp no longer spends cycles serially executing both sides of branches. The average warp branch resolution stall latency (smsp</strong>average<em>warp</em>latency<em>issue</em>stalled<em>branch</em>resolving) also halved, from 200 cycles to 100 cycles.</p>
 </blockquote>
 <p>如果您的内核包含多个分歧点，或者每个分歧分支承载更重的工作，移除这些分支可以复合这些收益--可能每个移除的分支产生超过2倍的加速。</p>
 <blockquote>
@@ -2766,7 +2766,7 @@
 <h3 id="efficient-intrawarp-communication-with-warp-intrinsics">使用线程束内建函数进行高效的线程束内通信 (Efficient Intrawarp Communication with Warp Intrinsics)<a class="headerlink" href="#efficient-intrawarp-communication-with-warp-intrinsics" title="Permanent link">&para;</a></h3>
 <p>当线程束内的线程必须共享数据来计算归约/聚合时，例如，您可以使用线程束洗牌内建函数，包括<code>__shfl_sync</code>和<code>__shfl_down_sync</code>（在第6章介绍），直接通过寄存器交换值。这与将它们暂存在共享内存中并调用<code>__syncthreads()</code>形成对比，后者会对性能产生负面影响。与产生额外L1/L2流量并需要全块屏障的共享内存方法不同，洗牌只在寄存器之间移动数据，并在每条指令隐式同步线程束中的32个通道。这只增加几个时钟周期的延迟。</p>
 <blockquote>
-<p>When threads within a warp must share data to compute a reduction/aggregation, for instance, you can use warp shuffle intrinsics, including __shfl_sync and __shfl_down_sync (introduced in Chapter 6) to exchange values directly through registers. This is in contrast to staging them in shared memory and calling __syncthreads(), which negatively impacts performance. Unlike the shared memory approach that generates extra L1/L2 traffic and requires a full-block barrier, shuffles move data only between registers and implicitly synchronize the 32 lanes in a warp with each instruction. This adds only a few clock cycles of latency.</p>
+<p>When threads within a warp must share data to compute a reduction/aggregation, for instance, you can use warp shuffle intrinsics, including __shfl<em>sync and __shfl</em>down_sync (introduced in Chapter 6) to exchange values directly through registers. This is in contrast to staging them in shared memory and calling __syncthreads(), which negatively impacts performance. Unlike the shared memory approach that generates extra L1/L2 traffic and requires a full-block barrier, shuffles move data only between registers and implicitly synchronize the 32 lanes in a warp with each instruction. This adds only a few clock cycles of latency.</p>
 </blockquote>
 <p>有关完整讨论，包括性能比较、代码示例以及如何实现线程束级归约或前缀和，请参见第6章。</p>
 <blockquote>
@@ -2848,9 +2848,9 @@
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">ai</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">bi</span><span class="p">;</span><span class="w">        </span><span class="c1">// multiply after both loads complete</span>
 </span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>您可以展开，使每个循环迭代发出两个独立的乘法操作而不是一个，如下一代码块所示。这给硬件提供了在第一个乘法仍在进行时执行第二个乘法的机会--或者在等待其操作数从内存加载时。这适当地重叠并隐藏延迟。结果是更高的每周期指令数（IPC）和更好的延迟隐藏，如下所示通过并行计算两个乘法ai0*bi0和ai1*bi1：</p>
+<p>您可以展开，使每个循环迭代发出两个独立的乘法操作而不是一个，如下一代码块所示。这给硬件提供了在第一个乘法仍在进行时执行第二个乘法的机会--或者在等待其操作数从内存加载时。这适当地重叠并隐藏延迟。结果是更高的每周期指令数（IPC）和更好的延迟隐藏，如下所示通过并行计算两个乘法ai0<em>bi0和ai1</em>bi1：</p>
 <blockquote>
-<p>By unrolling your loop body, you turn what was once "load → multiply → store" each iteration into a sequence that loads and multiplies multiple elements before looping back. For example, instead of: for (int i = 0; i &lt; N; ++i) { float ai = a[i]; // load float bi = b[i]; // load sum += ai * bi; // multiply after both loads complete } You can unroll such that each loop iteration issues two independent multiply operations instead of one, as shown in the next code block. This gives the hardware an opportunity to execute the second multiply while the first is still in progress-or while waiting for its operands to load from memory. This appropriately overlaps and hides latency. The result is higher instructions per cycle (IPC) and better latency hiding, as shown next by computing two multiplications ai0*bi0 and ai1*bi1 in parallel:</p>
+<p>By unrolling your loop body, you turn what was once "load → multiply → store" each iteration into a sequence that loads and multiplies multiple elements before looping back. For example, instead of: for (int i = 0; i &lt; N; ++i) { float ai = a[i]; // load float bi = b[i]; // load sum += ai * bi; // multiply after both loads complete } You can unroll such that each loop iteration issues two independent multiply operations instead of one, as shown in the next code block. This gives the hardware an opportunity to execute the second multiply while the first is still in progress-or while waiting for its operands to load from memory. This appropriately overlaps and hides latency. The result is higher instructions per cycle (IPC) and better latency hiding, as shown next by computing two multiplications ai0<em>bi0 and ai1</em>bi1 in parallel:</p>
 </blockquote>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">ai0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">];</span><span class="w">        </span><span class="c1">// load a[i]</span>
@@ -2924,11 +2924,11 @@
 </span></code></pre></div>
 <p>在这个内核中，每个线程从不同数组加载两个值x和y并计算两个结果u和v。<code>u = x*x</code>和<code>v = y*y</code>的计算彼此独立，因为它们都不使用另一个的结果。</p>
 <blockquote>
-<p>In this kernel, each thread loads two values x and y from different arrays and computes two results u and v. The calculations of u = x*x and v = y*y are independent of each other since neither uses the result of the other.</p>
+<p>In this kernel, each thread loads two values x and y from different arrays and computes two results u and v. The calculations of u = x<em>x and v = y</em>y are independent of each other since neither uses the result of the other.</p>
 </blockquote>
 <p>以这种方式构建代码，而不是<code>sum = x*x + y*y</code>，给编译器提供了安排指令序列以暴露ILP并增加性能的机会。具体来说，它可以发出<code>u = x*x</code>的指令，然后在下一个周期在u完成之前发出<code>v = y*y</code>。</p>
 <blockquote>
-<p>Structuring the code this way, instead of sum = x*x + y*y, gives the compiler an opportunity to schedule the instruction sequence to expose ILP and increase performance. Specifically, it can issue the instruction for u = x*x and then issue v = y*y on the next cycle before u completes.</p>
+<p>Structuring the code this way, instead of sum = x<em>x + y</em>y, gives the compiler an opportunity to schedule the instruction sequence to expose ILP and increase performance. Specifically, it can issue the instruction for u = x<em>x and then issue v = y</em>y on the next cycle before u completes.</p>
 </blockquote>
 <p>当第一个乘法正在运行--或等待流水线槽时，第二个乘法可以在另一个算术单元中并行运行。当需要做<code>sum = u + v</code>时，可能两个乘法都已经完成。因此线程束有多条指令在进行中，这有助于隐藏这两个乘法操作的延迟。</p>
 <blockquote>
@@ -3149,7 +3149,7 @@
 </span></code></pre></div>
 <p>在这里，您通过不让一个依赖指令阻塞下一个独立指令等来保持每个周期的执行单元忙碌。在这个交错代码中，<code>u = x*c</code>和<code>v = y*d</code>是独立指令，可以并发执行。编译器将背靠背调度它们，使得一个乘法可以在另一个乘法仍在完成时进行。这就是ILP在行动。</p>
 <blockquote>
-<p>Here, you keep the execution units busy each cycle by not letting one dependent instruction block the next independent instruction, etc. In this interleaved code, u = x*c and v = y*d are independent instructions that can execute concurrently. The compiler will schedule them back-to-back so that one multiply can proceed while the other is still completing. This is ILP in action.</p>
+<p>Here, you keep the execution units busy each cycle by not letting one dependent instruction block the next independent instruction, etc. In this interleaved code, u = x<em>c and v = y</em>d are independent instructions that can execute concurrently. The compiler will schedule them back-to-back so that one multiply can proceed while the other is still completing. This is ILP in action.</p>
 </blockquote>
 <p><strong>使用编译器提示</strong></p>
 <blockquote>

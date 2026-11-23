@@ -1690,13 +1690,13 @@
 <blockquote>
 <p>For example, an NVTX range for "forward" will appear in both PyTorch profiler traces and Nsight Systems' timelines. This makes cross-tool analysis much easier at different layers of the stack. NVTX markers are supported by most modern AI frameworks and libraries, including PyTorch and anything related to the CUDA ecosystem.</p>
 </blockquote>
-<p>NVTX标记使用CUDA C++、PyTorch或任何支持NVIDIA GPU的C++或Python库（如OpenAI Triton、PyCUDA、CuPy、cuTile、cuTe、CUTLASS等）注入代码。大多数库已经为您在代码的关键区域注入了NVTX标记，如"train_step"、"forward"、"backward"、"optimizer_step"等。</p>
+<p>NVTX标记使用CUDA C++、PyTorch或任何支持NVIDIA GPU的C++或Python库（如OpenAI Triton、PyCUDA、CuPy、cuTile、cuTe、CUTLASS等）注入代码。大多数库已经为您在代码的关键区域注入了NVTX标记，如"train<em>step"、"forward"、"backward"、"optimizer</em>step"等。</p>
 <blockquote>
-<p>NVTX markers are injected into code using either CUDA C++, PyTorch, or any C++ or Python library that supports NVIDIA GPUs (e.g., OpenAI Triton, PyCUDA, CuPy, cuTile, cuTe, CUTLASS, etc.). Most libraries already inject NVTX markers on your behalf for critical regions of code, such as "train_step", "forward", "backward", "optimizer_step", etc.</p>
+<p>NVTX markers are injected into code using either CUDA C++, PyTorch, or any C++ or Python library that supports NVIDIA GPUs (e.g., OpenAI Triton, PyCUDA, CuPy, cuTile, cuTe, CUTLASS, etc.). Most libraries already inject NVTX markers on your behalf for critical regions of code, such as "train<em>step", "forward", "backward", "optimizer</em>step", etc.</p>
 </blockquote>
 <p>但您也可以自己注入它们，例如在PyTorch中使用<code>torch.profiler.record_function()</code>和<code>torch.cuda.nvtx.range_push()</code>。</p>
 <blockquote>
-<p>But you can also inject them yourself using torch.profiler.record_function() and torch.cuda.nvtx.range_push() in PyTorch, for instance.</p>
+<p>But you can also inject them yourself using torch.profiler.record<em>function() and torch.cuda.nvtx.range</em>push() in PyTorch, for instance.</p>
 </blockquote>
 <p>既然我们已经描述了如何使用NVTX标记注释代码中有趣的部分，让我们讨论可以摄取、对齐和可视化这些标记的工具。表13-1总结了常见的性能分析工具及其范围、关键特性和典型用例。此表可以帮助您在优化旅程的每个阶段选择正确的工具。</p>
 <blockquote>
@@ -1734,7 +1734,7 @@
 <tr>
 <td>PyTorch memory profiler</td>
 <td>按操作的GPU内存使用情况</td>
-<td>内存快照时间线、每个操作的峰值内存、torch.cuda.memory_stats()和torch.cuda.mem_get_info()集成</td>
+<td>内存快照时间线、每个操作的峰值内存、torch.cuda.memory<em>stats()和torch.cuda.mem</em>get_info()集成</td>
 <td>诊断内存碎片或意外的高内存使用。查看哪些操作分配最多内存以及何时分配，以优化内存占用</td>
 </tr>
 <tr>
@@ -1881,7 +1881,7 @@
 </span></code></pre></div>
 <p>现在我们使用PyTorch的分析器和NVTX分析一次训练迭代。我们将迭代包装在<code>torch.profiler.profile()</code>中，并使用<code>record_function</code>和NVTX范围标记高级区域，包括"forward"、"backward"和"optimizer_step"，如下所示：</p>
 <blockquote>
-<p>Now we profile one training iteration using PyTorch's profiler and NVTX. We wrap the iteration in torch.profiler.profile() and mark high-level regions with record_function and NVTX ranges, including "forward", "backward", and "optimizer_step", as shown here:</p>
+<p>Now we profile one training iteration using PyTorch's profiler and NVTX. We wrap the iteration in torch.profiler.profile() and mark high-level regions with record<em>function and NVTX ranges, including "forward", "backward", and "optimizer</em>step", as shown here:</p>
 </blockquote>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">profiler</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
@@ -1920,7 +1920,7 @@
 </span></code></pre></div>
 <p>在这段代码中，PyTorch分析器在<code>train_step</code>期间记录所有CPU和GPU活动。我们使用<code>record_function("train_step")</code>定义顶级区域。我们还为子阶段（"forward"、"backward"、"optimizer_step"）插入NVTX标记。这些标记将出现在分析器时间线中以划分迭代的阶段。</p>
 <blockquote>
-<p>In this code, the PyTorch profiler is recording all CPU and GPU activities during the train_step. We use record_function("train_step") to define a top-level region. We also insert NVTX markers for the subphases ("forward", "backward", "optimizer_step"). These markers will appear in profiler timelines to delineate phases of the iteration.</p>
+<p>In this code, the PyTorch profiler is recording all CPU and GPU activities during the train<em>step. We use record</em>function("train<em>step") to define a top-level region. We also insert NVTX markers for the subphases ("forward", "backward", "optimizer</em>step"). These markers will appear in profiler timelines to delineate phases of the iteration.</p>
 </blockquote>
 <p>分析器还可以突出显示模型的编译与非编译区域。我们将在本章后面介绍PyTorch编译器、图断点以及缓解图断点的机制--以及下一章。</p>
 <blockquote>
@@ -2103,15 +2103,15 @@
 </table>
 <p>在这里，我们看到<code>train_step</code>范围包括forward、backward和optimizer子范围。此NVTX GPU投影摘要确认<code>train_step</code>下的总GPU时间为138 ms。此时间与表13-2中PyTorch分析器输出的forward、backward和<code>optimizer_step</code>时间之和匹配。这显示了工具之间的一致性。</p>
 <blockquote>
-<p>Here, we see the train_step range includes the forward, backward, and optimizer subranges. This NVTX GPU Projection Summary confirms that the total GPU time under train_step is 138 ms. This time matches the sum of the forward, backward, and optimizer_step times from the PyTorch profiler output in Table 13-2. This shows consistency between tools.</p>
+<p>Here, we see the train<em>step range includes the forward, backward, and optimizer subranges. This NVTX GPU Projection Summary confirms that the total GPU time under train</em>step is 138 ms. This time matches the sum of the forward, backward, and optimizer_step times from the PyTorch profiler output in Table 13-2. This shows consistency between tools.</p>
 </blockquote>
 <p>尽管表13-3显示单个<code>optimizer_step</code>调用，但其NVTX范围实际上将所有64个<code>aten::add_</code> CUDA内核启动（如表13-2所示，每个专家一个<code>add_</code>）括在单个<code>optimizer_step</code>标记下。</p>
 <blockquote>
-<p>And although Table 13-3 shows a single optimizer_step call, its NVTX range actually brackets all 64 aten::add_ CUDA kernel launches (one add_ per expert as shown in Table 13-2) under the single optimizer_step marker.</p>
+<p>And although Table 13-3 shows a single optimizer<em>step call, its NVTX range actually brackets all 64 aten::add</em> CUDA kernel launches (one add_ per expert as shown in Table 13-2) under the single optimizer_step marker.</p>
 </blockquote>
 <p>请注意，Nsight Systems将64个<code>aten::add_</code>调用（例如，64路专家并行策略）分组到单个<code>optimizer_step</code>标记中，因为它使用CUDA性能分析工具接口（CUPTI）捕获主机上的NVTX push/pop事件。然后它将异步GPU内核执行时间"投影"到这些CPU定义的间隔上。因此，它对GPU开始/结束时间戳落在相应push和pop调用之间的每个内核的持续时间求和。这产生了一个累积GPU时间，与各个<code>aten::add_</code>内核的总和完全匹配。</p>
 <blockquote>
-<p>Note that Nsight Systems groups the 64 aten::add_ calls (e.g., 64-way expert parallelism strategy) into a single optimizer_step marker because it uses the CUDA Profiling Tools Interface (CUPTI) to capture NVTX push/pop events on the host. It then "projects" asynchronous GPU kernel execution times onto these CPU-defined intervals. As such, it sums the durations of every kernel with GPU start/end timestamps that fall between the corresponding push and pop calls. This produces one cumulative GPU time that exactly matches the total of the individual aten::add_ kernels.</p>
+<p>Note that Nsight Systems groups the 64 aten::add_ calls (e.g., 64-way expert parallelism strategy) into a single optimizer<em>step marker because it uses the CUDA Profiling Tools Interface (CUPTI) to capture NVTX push/pop events on the host. It then "projects" asynchronous GPU kernel execution times onto these CPU-defined intervals. As such, it sums the durations of every kernel with GPU start/end timestamps that fall between the corresponding push and pop calls. This produces one cumulative GPU time that exactly matches the total of the individual aten::add</em> kernels.</p>
 </blockquote>
 <p>forward和backward范围各自的self GPU时间等于其总时间，因为我们没有选择在其中嵌套更深的范围。因此，子GPU时间为0 ms。然而，<code>train_step</code>几乎所有时间都是子GPU时间，因为它只是嵌套阶段的包装器。</p>
 <blockquote>
@@ -2169,7 +2169,7 @@
 </span></code></pre></div>
 <p>在这里，我们为名称匹配"matmul"的任何内核收集硬件计数器。具体来说，我们收集一些关键指标，包括GPU DRAM带宽和L2带宽作为峰值百分比（<code>gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed</code>、<code>lts__throughput.avg.pct_of_peak_sustained_elapsed</code>）、FP32指令计数作为计算代理（<code>sm__sass_thread_inst_executed_op_fp32_pred_on.sum</code>）、内核时间（<code>gpu__time_duration.avg</code>）和实现的占用率（<code>sm__warps_active.avg.pct_of_peak_sustained_active</code>）。</p>
 <blockquote>
-<p>Here, we are collecting hardware counters for any kernel whose name matches "matmul". Specifically, we collect a few key metrics, including GPU DRAM bandwidth and L2 bandwidth as a percent of peak (gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed, lts__throughput.avg.pct_of_peak_sustained_elapsed), FP32 instruction count as a compute proxy (sm__sass_thread_inst_executed_op_fp32_pred_on.sum), kernel time (gpu__time_duration.avg), and achieved occupancy (sm__warps_active.avg.pct_of_peak_sustained_active).</p>
+<p>Here, we are collecting hardware counters for any kernel whose name matches "matmul". Specifically, we collect a few key metrics, including GPU DRAM bandwidth and L2 bandwidth as a percent of peak (gpu<strong>dram<em>throughput.avg.pct</em>of<em>peak</em>sustained_elapsed, lts</strong>throughput.avg.pct<em>of</em>peak<em>sustained</em>elapsed), FP32 instruction count as a compute proxy (sm<strong>sass<em>thread</em>inst<em>executed</em>op<em>fp32</em>pred_on.sum), kernel time (gpu</strong>time<em>duration.avg), and achieved occupancy (sm__warps</em>active.avg.pct<em>of</em>peak<em>sustained</em>active).</p>
 </blockquote>
 <p>指标标识符在Nsight Compute版本之间可能略有不同。如果找不到某个指标，请使用UI定位当前名称并进行相应替换。在这里，我们正在分析SM和DRAM的峰值持续百分比以及实现的占用率。</p>
 <blockquote>
@@ -2315,13 +2315,13 @@
 <blockquote>
 <p>Large matmul hotspot (20.5% in aten::matmul): Either use the PyTorch Compiler to optimize this code or move this critical matrix multiply into a custom CUDA C++ kernel (e.g., fused kernel) to bypass Python and use the optimized CUDA code directly.</p>
 </blockquote>
-<p><strong>数据加载停顿（dataloader_iter_next中占10.2%）</strong></p>
+<p><strong>数据加载停顿（dataloader<em>iter</em>next中占10.2%）</strong></p>
 <blockquote>
-<p>Data loading stalls (10.2% in dataloader_iter_next)</p>
+<p>Data loading stalls (10.2% in dataloader<em>iter</em>next)</p>
 </blockquote>
 <p>增加PyTorch DataLoader的<code>num_workers</code>。一个常见的指导原则是每个CPU一个工作进程，但您可以尝试更多以找到正确的I/O并行化级别。只需确保不要过度订阅CPU核心。您还应该启用<code>persistent_workers=True</code>，以便工作进程在各个epoch之间保持活跃，避免每个epoch的启动开销。融合或并行化多个<code>torch.utils.data.DataPipe</code>。这可以减少复杂数据流水线中的Python开销。</p>
 <blockquote>
-<p>Data loading stalls (10.2% in dataloader_iter_next): Increase PyTorch's DataLoader num_workers. A common guideline is one worker per CPU, but you can experiment with more to find the right level of I/O parallelization. Just make sure you don't oversubscribe the CPU cores. You should also enable persistent_workers=True so that worker processes stay alive across epochs and avoid startup overhead for each epoch. Fuse or parallelize multiple torch.utils.data.DataPipe. This can reduce Python overhead in complex data pipelines.</p>
+<p>Data loading stalls (10.2% in dataloader<em>iter</em>next): Increase PyTorch's DataLoader num<em>workers. A common guideline is one worker per CPU, but you can experiment with more to find the right level of I/O parallelization. Just make sure you don't oversubscribe the CPU cores. You should also enable persistent</em>workers=True so that worker processes stay alive across epochs and avoid startup overhead for each epoch. Fuse or parallelize multiple torch.utils.data.DataPipe. This can reduce Python overhead in complex data pipelines.</p>
 </blockquote>
 <p><strong>梯度同步开销（ncclAllReduce中占8.7%）</strong></p>
 <blockquote>
@@ -2329,7 +2329,7 @@
 </blockquote>
 <p>优化多GPU通信。例如，您可以增加<code>DistributedDataParallel</code>中的梯度桶大小。通常将<code>bucket_cap_mb</code>从25 MB增加到50 MB，以便NCCL可以更快启动all-reduce操作并将其与反向计算重叠。您还可以考虑梯度压缩技术或NVIDIA的NCCL压缩（用于8位梯度）以减少带宽使用。这些可能会对准确率造成轻微损失。</p>
 <blockquote>
-<p>Gradient synchronization overhead (8.7% in ncclAllReduce): Optimize multi-GPU communication. For instance, you can increase the gradient bucket size in DistributedDataParallel. It's common to increase the bucket_cap_mb from 25 MB to 50 MB so that NCCL can launch all-reduce operations sooner and overlap them with backward computations. You can also consider gradient compression techniques or NVIDIA's NCCL compression for 8-bit gradients to reduce bandwidth usage. These may incur a slight cost to accuracy.</p>
+<p>Gradient synchronization overhead (8.7% in ncclAllReduce): Optimize multi-GPU communication. For instance, you can increase the gradient bucket size in DistributedDataParallel. It's common to increase the bucket<em>cap</em>mb from 25 MB to 50 MB so that NCCL can launch all-reduce operations sooner and overlap them with backward computations. You can also consider gradient compression techniques or NVIDIA's NCCL compression for 8-bit gradients to reduce bandwidth usage. These may incur a slight cost to accuracy.</p>
 </blockquote>
 <p><strong>主机I/O瓶颈（read系统调用中占5.3%）</strong></p>
 <blockquote>
@@ -2337,7 +2337,7 @@
 </blockquote>
 <p>在DataLoader中使用固定内存（<code>pin_memory=True</code>）和非阻塞GPU拷贝（<code>.to(device, non_blocking=True)</code>）来重叠CPU到GPU的数据传输。此外，您可以批量读取文件或将许多小文件捆绑到优化的数据集格式中，如Arrow、WebDataset（tar分片）、TFRecord或Parquet块，以便于大型顺序读取。最好优先使用连续的分片格式而不是每样本文件。在使用较大预取深度（例如，<code>prefetch_factor=4</code>或8）时，优先使用固定的主机缓冲区。结合<code>persistent_workers=True</code>，您的系统将保持加载器线程忙碌，因为计算-通信正在高效重叠。这将消除在大型语料库中读取许多小文件时的每文件开销。</p>
 <blockquote>
-<p>Host I/O bottleneck (5.3% in read syscalls): Use pinned memory (pin_memory=True) and nonblocking GPU copies (.to(device, non_blocking=True)) in the DataLoader to overlap CPU-to-GPU data transfers. Also, you can batch file reads or bundle many small files into an optimized dataset format like Arrow, WebDataset (tar shards), TFRecord, or Parquet chunks that facilitate large sequential reads. It's best to prefer contiguous shard formats over per-sample files. Prefer pinned host buffers when using a larger prefetch depth (e.g., prefetch_factor=4 or 8). Combined with persistent_workers=True, your system will keep loader threads busy since compute-communication are overlapping efficiently. This will eliminate per-file overhead when reading many small files in large corpora.</p>
+<p>Host I/O bottleneck (5.3% in read syscalls): Use pinned memory (pin<em>memory=True) and nonblocking GPU copies (.to(device, non</em>blocking=True)) in the DataLoader to overlap CPU-to-GPU data transfers. Also, you can batch file reads or bundle many small files into an optimized dataset format like Arrow, WebDataset (tar shards), TFRecord, or Parquet chunks that facilitate large sequential reads. It's best to prefer contiguous shard formats over per-sample files. Prefer pinned host buffers when using a larger prefetch depth (e.g., prefetch<em>factor=4 or 8). Combined with persistent</em>workers=True, your system will keep loader threads busy since compute-communication are overlapping efficiently. This will eliminate per-file overhead when reading many small files in large corpora.</p>
 </blockquote>
 <p>这些方法结合大型OS预读和NVMe SSD将提高I/O吞吐量。此外，较新的文件系统和存储库（如NVIDIA Magnum IO）可以帮助将数据高效地流水线传输到GPU。</p>
 <blockquote>
@@ -2349,7 +2349,7 @@
 </blockquote>
 <p>在存在NVIDIA性能监控单元（PMU）驱动程序的系统上，您可以使用perf采样NVIDIA芯片互连和结构计数器以及CPU计数器，包括在<code>/sys/bus/event_source/devices</code>下作为<code>nvidia_nvlink_c2c*</code>暴露的NVLink-C2C设备。使用<code>perf list</code>验证可用性，并检查sysfs中的<code>nvidia_pmu</code>条目。</p>
 <blockquote>
-<p>On systems with the NVIDIA Performance Monitoring Unit (PMU) drivers present, you can use perf to sample NVIDIA chip interconnect and fabric counters alongside CPU counters, including NVLink-C2C devices exposed under /sys/bus/event_source/devices as nvidia_nvlink_c2c*, for instance. Verify availability with perf list and by checking the nvidia_pmu entries under sysfs.</p>
+<p>On systems with the NVIDIA Performance Monitoring Unit (PMU) drivers present, you can use perf to sample NVIDIA chip interconnect and fabric counters alongside CPU counters, including NVLink-C2C devices exposed under /sys/bus/event<em>source/devices as nvidia</em>nvlink<em>c2c*, for instance. Verify availability with perf list and by checking the nvidia</em>pmu entries under sysfs.</p>
 </blockquote>
 <p>NVIDIA PMU的Linux perf仅限于设备级链路和结构事件，如Grace-Blackwell上的NVLink-C2C。SM流水线、线程束停顿和内存吞吐量计数器仍然仅限于CUPTI和Nsight工具。这些PMU不暴露SM级内核指标。对于SM利用率、占用率和内存吞吐量，请使用Nsight Compute或基于CUPTI的分析器。确保设置<code>NVreg_RestrictProfilingToAdminUsers=0</code>以允许非root用户分析SM级硬件计数器。</p>
 <blockquote>
@@ -2414,7 +2414,7 @@
 </blockquote>
 <p>使用<code>torch.compiler.save_cache_artifacts()</code>和<code>torch.compiler.load_cache_artifacts()</code>在跨运行或节点间持久化TorchInductor输出。这减少了长时间运行训练或服务的启动时间。</p>
 <blockquote>
-<p>Use torch.compiler.save_cache_artifacts() and torch.compiler.load_cache_artifacts() to persist TorchInductor outputs across runs or nodes. This reduces startup on long-running training or serving.</p>
+<p>Use torch.compiler.save<em>cache</em>artifacts() and torch.compiler.load<em>cache</em>artifacts() to persist TorchInductor outputs across runs or nodes. This reduces startup on long-running training or serving.</p>
 </blockquote>
 <p>一个例子是PyTorch Mega-Cache功能。这是一个端到端的编译缓存，让您可以将编译的内核保存到磁盘并在未来的运行中重新加载。使用PyTorch Mega-Cache，您可以编译一次（例如，离线）并在多个训练会话中重用优化的内核。这有助于减少启动时间。您仍然可以从TorchInductor的内核优化（如线程束特化）中受益，但避免了每次重新编译图。</p>
 <blockquote>
@@ -2703,7 +2703,7 @@
 </blockquote>
 <p>具体来说，区域编译通过只编译重复块（例如Transformer块）一次并在所有出现的地方重用该代码来减少编译时间。PyTorch通过<code>torch.compiler.nested_compile_region()</code>支持区域编译。此API将块标记为嵌套编译区域。该区域在第一次被编译，然后在后续运行中重用。</p>
 <blockquote>
-<p>Specifically, regional compilation reduces compile time by compiling the repeated block (e.g., a Transformer block) once and reusing that code across all occurrences. PyTorch supports regional compilation with torch.compiler.nested_compile_region(). This API marks a block as a nested compile region. This region is compiled the first time and then reused for subsequent runs.</p>
+<p>Specifically, regional compilation reduces compile time by compiling the repeated block (e.g., a Transformer block) once and reusing that code across all occurrences. PyTorch supports regional compilation with torch.compiler.nested<em>compile</em>region(). This API marks a block as a nested compile region. This region is compiled the first time and then reused for subsequent runs.</p>
 </blockquote>
 <p>此外，区域编译保持正确性。如果编译器检测到新的输入条件（形状、dtype、设备、步幅、全局变量），它将透明地重新编译该区域。</p>
 <blockquote>
@@ -2732,7 +2732,7 @@
 </blockquote>
 <p>另一个有用的技术是在运行脚本之前设置环境变量<code>TORCH_LOGS="+dynamo"</code>或<code>TORCH_LOGS="+dynamo,+inductor"</code>。<code>+</code>前缀为<code>torch.compile</code>流水线中的TorchDynamo和TorchInductor等组件启用详细（DEBUG级别）日志记录。详细日志包括有关图中断、回退到eager模式和编译阶段的详细信息。如果模型使用<code>torch.compile</code>出乎意料地慢，这些日志可以帮助识别执行何时何地退出编译图。</p>
 <blockquote>
-<p>Another useful technique is to set the environment variable TORCH_LOGS="+dynamo" or TORCH_LOGS="+dynamo,+inductor" before running your script. The + prefix enables verbose (DEBUG-level) logging for components like TorchDynamo and TorchInductor in the torch.compile pipeline. The verbose logs include details about graph breaks, fallbacks to eager mode, and compilation phases. If a model is unexpectedly slow with torch.compile, these logs can help identify when and where the execution is exiting the compiled graph.</p>
+<p>Another useful technique is to set the environment variable TORCH<em>LOGS="+dynamo" or TORCH</em>LOGS="+dynamo,+inductor" before running your script. The + prefix enables verbose (DEBUG-level) logging for components like TorchDynamo and TorchInductor in the torch.compile pipeline. The verbose logs include details about graph breaks, fallbacks to eager mode, and compilation phases. If a model is unexpectedly slow with torch.compile, these logs can help identify when and where the execution is exiting the compiled graph.</p>
 </blockquote>
 <p>如果模型具有真正无法在编译时解析的动态形状或动态控制流，您可能需要引导编译器。例如，您可以将模型分成可编译的部分，让真正动态的部分在Python中运行。</p>
 <blockquote>
@@ -2740,11 +2740,11 @@
 </blockquote>
 <p>要分析和基准测试TorchInductor生成的内核，您可以指定<code>TORCHINDUCTOR_UNIQUE_KERNEL_NAMES=1</code>和<code>TORCHINDUCTOR_BENCHMARK_KERNEL=1</code>环境变量。设置这些后，Inductor将为生成的内核模块生成基准测试工具代码。此工具代码生成的日志可以帮助查明意外的图中断和性能问题。</p>
 <blockquote>
-<p>To profile and benchmark the kernels generated by TorchInductor, you can specify the TORCHINDUCTOR_UNIQUE_KERNEL_NAMES=1 and TORCHINDUCTOR_BENCHMARK_KERNEL=1 environment variables. When these are set, Inductor will generate benchmark harness code for the generated kernel modules. The logs generated by this harness code can help pinpoint unexpected graph breaks and performance issues.</p>
+<p>To profile and benchmark the kernels generated by TorchInductor, you can specify the TORCHINDUCTOR<em>UNIQUE</em>KERNEL<em>NAMES=1 and TORCHINDUCTOR</em>BENCHMARK_KERNEL=1 environment variables. When these are set, Inductor will generate benchmark harness code for the generated kernel modules. The logs generated by this harness code can help pinpoint unexpected graph breaks and performance issues.</p>
 </blockquote>
 <p>您还可以使用<code>torch._dynamo.mark_dynamic(tensor, dim)</code>将代码的一部分标记为让编译器知道要预期动态形状。这可以消除由于形状不匹配导致的不必要图中断。我们将在下一章深入探讨PyTorch编译器时更详细地介绍这些技术。</p>
 <blockquote>
-<p>You can also mark part of the code as torch._dynamo.mark_dynamic(tensor, dim) to let the compiler know to expect dynamic shapes. This can eliminate unnecessary graph breaks due to shape mismatches. We'll cover these techniques in more detail in the next chapter's deep dive into the PyTorch compiler.</p>
+<p>You can also mark part of the code as torch.<em>dynamo.mark</em>dynamic(tensor, dim) to let the compiler know to expect dynamic shapes. This can eliminate unnecessary graph breaks due to shape mismatches. We'll cover these techniques in more detail in the next chapter's deep dive into the PyTorch compiler.</p>
 </blockquote>
 <p>简而言之，当<code>torch.compile</code>没有产生预期的加速时，您可以使用<code>torch._dynamo.explain()</code>--以及编译器日志--来识别哪些操作或代码区域导致了回退。从那里，您需要应用变通方法，例如替换操作、以不同方式重塑张量、接受较少的动态行为，或简单地禁用模型特定部分的编译。结果是您可以为模型的大部分保持性能优势，同时仍然处理边缘情况。</p>
 <blockquote>
@@ -2761,12 +2761,12 @@
 </blockquote>
 <p>PyTorch的高级API <code>torch.nn.functional.scaled_dot_product_attention</code>（或SDPA）会自动为给定硬件使用最快的可用注意力内核（例如FlashAttention）。当您的模型的注意力模式和dtype被所选后端（Flash、memory-efficient或math）支持时，使用此API可以轻松获得加速。如果不支持，它将回退到标准注意力实现。</p>
 <blockquote>
-<p>PyTorch's high-level API torch.nn.functional.scaled_dot_product_attention, or SDPA, automatically uses the fastest available attention kernel for the given hardware (e.g., FlashAttention). Use this for a no-hassle speedup when your model's attention pattern and dtype are supported by the selected backend (Flash, memory-efficient, or math). If it's not supported, it will fall back to the standard attention implementation.</p>
+<p>PyTorch's high-level API torch.nn.functional.scaled<em>dot</em>product_attention, or SDPA, automatically uses the fastest available attention kernel for the given hardware (e.g., FlashAttention). Use this for a no-hassle speedup when your model's attention pattern and dtype are supported by the selected backend (Flash, memory-efficient, or math). If it's not supported, it will fall back to the standard attention implementation.</p>
 </blockquote>
 <p><strong>FlexAttention</strong></p>
 <p>这是一种基于编译器的方法，用于注意力中的自定义稀疏模式。FlexAttention可以为特定的稀疏注意力模式（例如块稀疏或滑动窗口注意力）生成优化的内核，从而显著提高速度，如图13-3所示。对于<code>scaled_dot_product_attention</code>不支持的特殊情况，请使用FlexAttention。</p>
 <blockquote>
-<p>A compiler-based approach for custom sparsity patterns in attention. FlexAttention can be substantially faster for specific sparse attention patterns (e.g., block-sparse or sliding-window attention) by generating optimized kernels for these patterns, as shown in Figure 13-3. Use FlexAttention for special cases that scaled_dot_product_attention does not support.</p>
+<p>A compiler-based approach for custom sparsity patterns in attention. FlexAttention can be substantially faster for specific sparse attention patterns (e.g., block-sparse or sliding-window attention) by generating optimized kernels for these patterns, as shown in Figure 13-3. Use FlexAttention for special cases that scaled<em>dot</em>product_attention does not support.</p>
 </blockquote>
 <p><img alt="图13-3 FlexAttention支持自定义注意力变体" src="../../assets/images/ch13/fig13_840_1.png" /></p>
 <blockquote>
@@ -2783,7 +2783,7 @@
 </blockquote>
 <p>上下文并行沿序列长度维度在参与设备或rank之间分片注意力，以扩展上下文长度。使用<code>context_parallel()</code> API来限定用上下文并行感知的内核替换<code>scaled_dot_product_attention</code>。该机制按序列跨rank分割查询-键-值（QKV），并在注意力期间同步，而不是在单个GPU内跨线程并行化注意力。</p>
 <blockquote>
-<p>Context Parallel shards attention along the sequence-length dimension across participating devices or ranks to scale context length. Use the context_parallel() API to scope replacement of scaled_dot_product_attention with context-parallel-aware kernels. The mechanism splits query-key-value (QKV) by sequence across ranks and synchronizes during attention, rather than parallelizing attention across threads within a single GPU.</p>
+<p>Context Parallel shards attention along the sequence-length dimension across participating devices or ranks to scale context length. Use the context<em>parallel() API to scope replacement of scaled</em>dot<em>product</em>attention with context-parallel-aware kernels. The mechanism splits query-key-value (QKV) by sequence across ranks and synchronizes during attention, rather than parallelizing attention across threads within a single GPU.</p>
 </blockquote>
 <h2 id="pytorchtorchao">PyTorch架构优化（torchao）、量化、稀疏性和剪枝<a class="headerlink" href="#pytorchtorchao" title="Permanent link">&para;</a></h2>
 <p>PyTorch架构优化（torchao）将量化、稀疏性、剪枝和相关的数值调试工具整合到单个命名空间中。其量化子包（<code>torchao.quantization</code>）提供常见的FX图模式工作流，包括训练后量化（PTQ）、量化感知训练（QAT）和QConfigMapping API，用于转换和优化INT8、FP8和新兴格式的模型。</p>
@@ -3352,7 +3352,7 @@
 </blockquote>
 <p>使用<code>torch.compile</code>，FSDP可以更高效，但需要仔细包装以最大化计算-通信重叠。建议使用<code>use_orig_params=True</code>将每个transformer块--而不仅仅是单个低级层--包装在其自己的FSDP模块中。</p>
 <blockquote>
-<p>With torch.compile, FSDP can be more efficient, but requires careful wrapping to maximize compute-communication overlap. It's recommended to use use_orig_params=True and wrap each transformer block-rather than individual low-level layers-in its own FSDP module.</p>
+<p>With torch.compile, FSDP can be more efficient, but requires careful wrapping to maximize compute-communication overlap. It's recommended to use use<em>orig</em>params=True and wrap each transformer block-rather than individual low-level layers-in its own FSDP module.</p>
 </blockquote>
 <p><strong>使用torch.compile的张量和流水线并行</strong></p>
 <blockquote>
@@ -3503,11 +3503,11 @@
 </blockquote>
 <p><strong>保存编译产物以重用</strong>：如果启动时间是一个问题，最好缓存编译产物以供以后重用。为此，您可以使用<code>torch.compiler.save_cache_artifacts()</code>和<code>load_cache_artifacts()</code>。对于多节点集群上的长时间运行作业，建议将编译产物作为"mega-cache"持久化在共享路径中。</p>
 <blockquote>
-<p><strong>Save compiled artifacts for reuse</strong>：If startup time is a concern, it's best to cache the compiled artifacts for reuse later. To do this, you can use torch.compiler.save_cache_artifacts() and load_cache_artifacts(). For long-running jobs on multinode fleets, it's recommended to persist compiler artifacts as a "mega-cache" in a shared path (e.g., TORCHINDUCTOR_CACHE_DIR environment variable) mounted at identical locations across nodes. This will help avoid cold starts when new nodes are started.</p>
+<p><strong>Save compiled artifacts for reuse</strong>：If startup time is a concern, it's best to cache the compiled artifacts for reuse later. To do this, you can use torch.compiler.save<em>cache</em>artifacts() and load<em>cache</em>artifacts(). For long-running jobs on multinode fleets, it's recommended to persist compiler artifacts as a "mega-cache" in a shared path (e.g., TORCHINDUCTOR<em>CACHE</em>DIR environment variable) mounted at identical locations across nodes. This will help avoid cold starts when new nodes are started.</p>
 </blockquote>
 <p><strong>避免同步陷阱</strong>：PyTorch设计用于可用性，这意味着很容易无意中编写强制CPU和GPU之间同步的代码。例如，在CUDA张量上调用<code>tensor.item()</code>以检索Python值将同步GPU。使用<code>torch.cuda.Stream.wait_stream()</code>和流事件来协调流之间的同步，而不是强制同步。</p>
 <blockquote>
-<p><strong>Avoid synchronization pitfalls</strong>：PyTorch is designed for usability, which means it's easy to inadvertently write code that forces synchronization between CPU and GPU. For example, calling tensor.item() on a CUDA tensor to retrieve a Python value will synchronize the GPU. Use torch.cuda.Stream.wait_stream() with stream events instead of forcing synchronizations when coordinating between streams. Similarly, transferring data from GPU to CPU without using non_blocking=True will cause a synchronization. Use asynchronous transfers and let the profilers guide you to any hidden synchronizations.</p>
+<p><strong>Avoid synchronization pitfalls</strong>：PyTorch is designed for usability, which means it's easy to inadvertently write code that forces synchronization between CPU and GPU. For example, calling tensor.item() on a CUDA tensor to retrieve a Python value will synchronize the GPU. Use torch.cuda.Stream.wait<em>stream() with stream events instead of forcing synchronizations when coordinating between streams. Similarly, transferring data from GPU to CPU without using non</em>blocking=True will cause a synchronization. Use asynchronous transfers and let the profilers guide you to any hidden synchronizations.</p>
 </blockquote>
 <p><strong>避免使用time.time()进行Python端性能分析，因为这会隐式同步</strong>：使用<code>time.time()</code>对GPU代码块计时包括同步。最好使用<code>torch.cuda.Event(enable_timing=True)</code>对GPU代码计时，而不会产生额外的同步。</p>
 <blockquote>
@@ -3519,7 +3519,7 @@
 </blockquote>
 <p><strong>使用TF32而非FP32来激活Tensor Cores</strong>：对于可以容忍TF32精度的FP32工作负载，使用<code>torch.set_float32_matmul_precision()</code>并设置为"high"或"medium"以启用TF32。此设置映射到CUDA设备上的<code>torch.backends.cuda.matmul.fp32_precision</code>。在现代GPU上，TF32使用Tensor Cores，这是理想的。</p>
 <blockquote>
-<p><strong>Use TF32 instead of FP32 to activate Tensor Cores</strong>：For FP32 workloads that can tolerate TF32 precision, use torch.set_float32_matmul_precision() with either "high" or "medium" to enable TF32. This setting maps to torch.backends.cuda.matmul.fp32_precision under the hood on CUDA devices. On modern GPUs, TF32 uses Tensor Cores, which is ideal. Be sure to verify that your kernel uses Tensor Cores with Nsight Compute's SpeedOfLight view or the sm__inst_executed_pipe_tensor metric. (Note: using "highest" will enforce true FP32 and disable TF32, so be careful. This can be useful for debugging but is discouraged if your goal is to improve performance.)</p>
+<p><strong>Use TF32 instead of FP32 to activate Tensor Cores</strong>：For FP32 workloads that can tolerate TF32 precision, use torch.set<em>float32</em>matmul<em>precision() with either "high" or "medium" to enable TF32. This setting maps to torch.backends.cuda.matmul.fp32</em>precision under the hood on CUDA devices. On modern GPUs, TF32 uses Tensor Cores, which is ideal. Be sure to verify that your kernel uses Tensor Cores with Nsight Compute's SpeedOfLight view or the sm__inst<em>executed</em>pipe_tensor metric. (Note: using "highest" will enforce true FP32 and disable TF32, so be careful. This can be useful for debugging but is discouraged if your goal is to improve performance.)</p>
 </blockquote>
 <p><strong>验证Tensor Cores实际被使用</strong>：要验证内核正在使用Tensor Cores和预期的dtype，您应该使用分析器。在PyTorch中，使用<code>torch.profiler</code>检查操作符计时，然后使用Nsight Compute确认Tensor流水线活动。</p>
 <blockquote>
@@ -3535,7 +3535,7 @@
 </blockquote>
 <p><strong>减少内存碎片</strong>：如果您的训练作业或推理流水线运行数天/数周/数月，内存碎片可能成为问题--特别是因为在大多数LLM应用中，张量大小随迭代变化。考虑使用内存池库，如PyTorch的缓存分配器，可以预先分配所有大型张量。</p>
 <blockquote>
-<p><strong>Reduce memory fragmentation</strong>：If your training job or inference pipeline runs for days/weeks/months, memory fragmentation can become an issue-especially since tensor sizes vary from iteration to iteration in most LLM applications. Consider using memory pooling libraries like PyTorch's caching allocator that can allocate all large tensors up-front. The fewer distinct allocation sizes you have, the better. So reuse and stick to constant shapes when possible. Proactively manage memory by tuning the CUDA allocator with environment variables (e.g., max_split_size_mb). And avoid breaking large chunks into many small pieces, preallocate frequently used buffers at a fixed maximum size, and reuse buffers to keep allocation sizes consistent. These practices will keep memory usage stable over time and prevent fragmentation-related slowdowns and crashes.</p>
+<p><strong>Reduce memory fragmentation</strong>：If your training job or inference pipeline runs for days/weeks/months, memory fragmentation can become an issue-especially since tensor sizes vary from iteration to iteration in most LLM applications. Consider using memory pooling libraries like PyTorch's caching allocator that can allocate all large tensors up-front. The fewer distinct allocation sizes you have, the better. So reuse and stick to constant shapes when possible. Proactively manage memory by tuning the CUDA allocator with environment variables (e.g., max<em>split</em>size_mb). And avoid breaking large chunks into many small pieces, preallocate frequently used buffers at a fixed maximum size, and reuse buffers to keep allocation sizes consistent. These practices will keep memory usage stable over time and prevent fragmentation-related slowdowns and crashes.</p>
 </blockquote>
 <p><strong>使用激活检查点</strong>：默认情况下，PyTorch保存反向传递所需的所有激活，这对于大型模型消耗大量内存。考虑使用激活检查点以计算换取内存。<code>torch.utils.checkpoint</code>使通过包装前向传递的段来应用变得容易，以便它们的激活不被保存。</p>
 <blockquote>
@@ -3551,7 +3551,7 @@
 </blockquote>
 <p><strong>优化多GPU和多节点通信</strong>：如果管理不当，分布式训练通常由于通信开销而达到上限。使用优化的PyTorch分布式实现，如DDP，默认将通信与计算重叠。调整梯度<code>bucket_cap_mb</code>以找到重叠的最佳桶大小。</p>
 <blockquote>
-<p><strong>Optimize multi-GPU and multinode communication</strong>：Distributed training often hits a ceiling due to communication overhead if not managed properly. Use optimized PyTorch distributed implementations like DDP, which overlaps communication with computation by default. Tune the gradient bucket_cap_mb to find the optimal bucket size for overlap. Larger buckets (e.g., 50 MB instead of the default 25 MB) can reduce per-message overhead and better overlap if your network can handle it.</p>
+<p><strong>Optimize multi-GPU and multinode communication</strong>：Distributed training often hits a ceiling due to communication overhead if not managed properly. Use optimized PyTorch distributed implementations like DDP, which overlaps communication with computation by default. Tune the gradient bucket<em>cap</em>mb to find the optimal bucket size for overlap. Larger buckets (e.g., 50 MB instead of the default 25 MB) can reduce per-message overhead and better overlap if your network can handle it.</p>
 </blockquote>
 <p><strong>监控网络带宽</strong>：如果已达到最大值，您可以探索激活压缩技术以减少带宽使用。确保将all-reduce集合与反向计算重叠，以便隐藏通信时间。对于多节点，考虑拓扑并将频繁通信的进程放在同一节点或交换机上以减少延迟。</p>
 <blockquote>

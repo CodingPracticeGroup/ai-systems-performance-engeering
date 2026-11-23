@@ -1426,13 +1426,13 @@
 <blockquote>
 <p>Figure 11-1. Launching five kernels from the CPU onto the two streams running on the GPU</p>
 </blockquote>
-<p>在这里，我们看到ker_A和ker_B在流2上运行，而ker_1、ker_2和ker_3在流1上运行。只要硬件资源允许，所有内核都可以相互重叠--并且可以跨CUDA流重叠。</p>
+<p>在这里，我们看到ker<em>A和ker</em>B在流2上运行，而ker<em>1、ker</em>2和ker_3在流1上运行。只要硬件资源允许，所有内核都可以相互重叠--并且可以跨CUDA流重叠。</p>
 <blockquote>
-<p>Here, we see ker_A and ker_B are running on stream 2, while ker_1, ker_2, and ker_3 are running on stream 1. All kernels may overlap with one another-and across CUDA streams-as long as hardware resources permit.</p>
+<p>Here, we see ker<em>A and ker</em>B are running on stream 2, while ker<em>1, ker</em>2, and ker_3 are running on stream 1. All kernels may overlap with one another-and across CUDA streams-as long as hardware resources permit.</p>
 </blockquote>
-<p>CPU能够继续执行工作（cpu_code_1和cpu_code_2），而流异步执行内核操作。在这两个CUDA流上启动这五个内核的代码如下所示：</p>
+<p>CPU能够继续执行工作（cpu<em>code</em>1和cpu<em>code</em>2），而流异步执行内核操作。在这两个CUDA流上启动这五个内核的代码如下所示：</p>
 <blockquote>
-<p>The CPU is able to continue performing work (cpu_code_1 and cpu_code_2) while the streams perform the kernel operations asynchronously. The code to launch these five kernels on the two CUDA streams is shown here:</p>
+<p>The CPU is able to continue performing work (cpu<em>code</em>1 and cpu<em>code</em>2) while the streams perform the kernel operations asynchronously. The code to launch these five kernels on the two CUDA streams is shown here:</p>
 </blockquote>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime.h&gt;</span>
@@ -1492,9 +1492,9 @@
 </span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>ker_1被加入stream1的队列，然后控制权立即返回给CPU。cpu_code_1()在主机上运行，而ker_1在GPU上执行。同时，我们将ker_A加入stream2的队列，将ker_B加入stream1的队列。然后我们将ker_2加入stream2的队列，交错执行cpu_code_2，并将ker_3加入stream1的队列。最后，我们在每个流上同步以等待所有工作完成，然后销毁流以清理资源。</p>
+<p>ker<em>1被加入stream1的队列，然后控制权立即返回给CPU。cpu</em>code<em>1()在主机上运行，而ker</em>1在GPU上执行。同时，我们将ker<em>A加入stream2的队列，将ker</em>B加入stream1的队列。然后我们将ker<em>2加入stream2的队列，交错执行cpu</em>code<em>2，并将ker</em>3加入stream1的队列。最后，我们在每个流上同步以等待所有工作完成，然后销毁流以清理资源。</p>
 <blockquote>
-<p>ker_1 is enqueued on stream1, then control returns immediately to the CPU. cpu_code_1() runs on the host while ker_1 executes on the GPU. Meanwhile, we enqueue ker_A on stream2 and ker_B on stream1. We then enqueue ker_2 on stream2, interleave cpu_code_2, and enqueue ker_3 on stream1. Finally, we synchronize on each stream to wait for all of the work to complete and then destroy the streams to clean up the resources.</p>
+<p>ker<em>1 is enqueued on stream1, then control returns immediately to the CPU. cpu</em>code<em>1() runs on the host while ker</em>1 executes on the GPU. Meanwhile, we enqueue ker<em>A on stream2 and ker</em>B on stream1. We then enqueue ker<em>2 on stream2, interleave cpu</em>code<em>2, and enqueue ker</em>3 on stream1. Finally, we synchronize on each stream to wait for all of the work to complete and then destroy the streams to clean up the resources.</p>
 </blockquote>
 <p>这个示例突出了五个不同的内核执行在两个不同的流之间重叠。稍微增加一点复杂性，并在第10章的基础上构建，以下是使用CUDA流的相同线程束专用化流水线示例：</p>
 <blockquote>
@@ -1630,9 +1630,9 @@
 <p>PyTorch's default CUDA caching allocator is stream-aware and, in normal operation (e.g., servicing allocations from its cache), it avoids device-wide synchronization. Only when it has to request more memory from the OS using cudaMalloc would a synchronization occur. In practice this means most tensor allocations and frees don't block other streams. Enabling the cudaMallocAsync backend can further reduce fragmentation and improve reuse in many workloads, as you'll see next.</p>
 </blockquote>
 <h2 id="stream-ordered-memory-allocator">流有序内存分配器 (Stream-Ordered Memory Allocator)<a class="headerlink" href="#stream-ordered-memory-allocator" title="Permanent link">&para;</a></h2>
-<p>在PyTorch中，您可以通过在启动PyTorch脚本之前设置环境变量PYTORCH_ALLOC_CONF=backend:cudaMallocAsync来启用CUDA的流有序分配器。如果设置了此变量，PyTorch张量内存分配（cudaMallocAsync()）和释放（cudaFreeAsync()）操作将按照它们被调用的顺序加入单独的CUDA流中。当未设置此环境变量时，PyTorch使用其自己的缓存分配器。</p>
+<p>在PyTorch中，您可以通过在启动PyTorch脚本之前设置环境变量PYTORCH<em>ALLOC</em>CONF=backend:cudaMallocAsync来启用CUDA的流有序分配器。如果设置了此变量，PyTorch张量内存分配（cudaMallocAsync()）和释放（cudaFreeAsync()）操作将按照它们被调用的顺序加入单独的CUDA流中。当未设置此环境变量时，PyTorch使用其自己的缓存分配器。</p>
 <blockquote>
-<p>In PyTorch, you can enable CUDA's stream‐ordered allocator by setting the environment variable PYTORCH_ALLOC_CONF=backend:cudaMallocAsync before launching your PyTorch script. If this variable is set, PyTorch tensor memory allocation (cudaMallocAsync()) and free (cudaFreeAsync()) operations are enqueued in separate CUDA streams in the order in which they are invoked. When this environment variant is not set, PyTorch uses its own caching allocator.</p>
+<p>In PyTorch, you can enable CUDA's stream‐ordered allocator by setting the environment variable PYTORCH<em>ALLOC</em>CONF=backend:cudaMallocAsync before launching your PyTorch script. If this variable is set, PyTorch tensor memory allocation (cudaMallocAsync()) and free (cudaFreeAsync()) operations are enqueued in separate CUDA streams in the order in which they are invoked. When this environment variant is not set, PyTorch uses its own caching allocator.</p>
 </blockquote>
 <p>如果您使用传统的cudaMalloc(...)，请记住它是一个阻塞的、设备范围的操作，在返回之前会同步设备。这可能会停止其他流中的工作，因为每次分配都会强制整个GPU停止，直到内存被保留。这会暂停所有流，限制并行性，并破坏工作负载的性能。</p>
 <blockquote>
@@ -1883,9 +1883,9 @@
 <blockquote>
 <p>Operations enqueued into thread A's default stream do not wait for work in thread B's default stream. They run concurrently whenever hardware resources allow. Likewise, operations in thread B's default stream do not wait for thread A's default stream, and so on.</p>
 </blockquote>
-<p>PTDS广泛用于多线程CUDA应用程序中，以避免"主机范围屏障"问题。要启用PTDS，您可以使用nvcc --default-stream per-thread编译代码，或设置CUDA_API_PER_THREAD_DEFAULT_STREAM=1环境变量（在包含任何CUDA头文件之前）。</p>
+<p>PTDS广泛用于多线程CUDA应用程序中，以避免"主机范围屏障"问题。要启用PTDS，您可以使用nvcc --default-stream per-thread编译代码，或设置CUDA<em>API</em>PER<em>THREAD</em>DEFAULT_STREAM=1环境变量（在包含任何CUDA头文件之前）。</p>
 <blockquote>
-<p>PTDS is widely used in multithreaded CUDA applications to avoid the "host-wide barrier" issue. To enable PTDS, you can compile your code using nvcc --default-stream per-thread or set the CUDA_API_PER_THREAD_DEFAULT_STREAM=1 environment variable (before including any CUDA headers).</p>
+<p>PTDS is widely used in multithreaded CUDA applications to avoid the "host-wide barrier" issue. To enable PTDS, you can compile your code using nvcc --default-stream per-thread or set the CUDA<em>API</em>PER<em>THREAD</em>DEFAULT_STREAM=1 environment variable (before including any CUDA headers).</p>
 </blockquote>
 <p>一旦PTDS激活，每个主机CPU线程的默认流的行为就像用户创建的流，不会与其他线程的默认流隐式同步。如果在同一进程中混合PTDS和传统默认流，PTDS流仍然会与传统默认流同步。</p>
 <blockquote>
@@ -2108,9 +2108,9 @@
 <blockquote>
 <p>If your bottleneck is on-device tile reuse, use thread block clusters. If the bottleneck is host ↔ device communication and batching, use CUDA streams. We'll show how to combine these in a bit, but this is a good starting point for initial decision making.</p>
 </blockquote>
-<p>下一个内核每个块使用三个线程束（0 = 加载器，1 = 计算器，2 = 存储器）和两个流水线来乒乓阶段。因此，它需要 6 * TILE_SIZE * sizeof(float) 的动态共享内存（[A0|B0|C0|A1|B1|C1]）。值得注意的是，我们正在切换使用两个独立的块范围流水线，每个深度为2。一个用于加载器 → 计算器（pipe_lc）交接，另一个用于计算器 → 存储器（pipe_cs）。</p>
+<p>下一个内核每个块使用三个线程束（0 = 加载器，1 = 计算器，2 = 存储器）和两个流水线来乒乓阶段。因此，它需要 6 * TILE<em>SIZE * sizeof(float) 的动态共享内存（[A0|B0|C0|A1|B1|C1]）。值得注意的是，我们正在切换使用两个独立的块范围流水线，每个深度为2。一个用于加载器 → 计算器（pipe</em>lc）交接，另一个用于计算器 → 存储器（pipe_cs）。</p>
 <blockquote>
-<p>The next kernel uses three warps per block (0 = loader, 1 = compute, 2 = storer) and two pipelines to ping-pong stages. Therefore, it requires 6 * TILE_SIZE * sizeof(float) dynamic shared memory ([A0|B0|C0|A1|B1|C1]). It's worth noting that we are switching to use two independent block-scoped pipelines, each with depth 2. One is for the loader → compute (pipe_lc) handoff, and another is for compute → storer (pipe_cs).</p>
+<p>The next kernel uses three warps per block (0 = loader, 1 = compute, 2 = storer) and two pipelines to ping-pong stages. Therefore, it requires 6 * TILE<em>SIZE * sizeof(float) dynamic shared memory ([A0|B0|C0|A1|B1|C1]). It's worth noting that we are switching to use two independent block-scoped pipelines, each with depth 2. One is for the loader → compute (pipe</em>lc) handoff, and another is for compute → storer (pipe_cs).</p>
 </blockquote>
 <p>此外，我们使用双缓冲共享内存，以便内核可以在计算瓦片i的同时加载瓦片i+1并存储瓦片i-1。这就是为什么您在下面的代码中看到两个cuda::pipeline对象和共享内存中的"[A|B|C] x 2 stages"。这两个流水线是内核内的选择，用于加深每个内核内的重叠。（注意：您可以将流与任一内核风格一起使用。）以下是代码：</p>
 <blockquote>
@@ -2253,21 +2253,21 @@
 </span><span id="__span-4-135"><a id="__codelineno-4-135" name="__codelineno-4-135" href="#__codelineno-4-135"></a><span class="w">    </span><span class="c1">// 动态共享内存 = 6 * TILE_SIZE * sizeof(float)。</span>
 </span><span id="__span-4-136"><a id="__codelineno-4-136" name="__codelineno-4-136" href="#__codelineno-4-136"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>在这里，我们包括一些值得注意的性能亮点。首先，我们要求A0、B0、A_global + base和B_global + base的16字节对齐。如果路径不是16字节对齐的，我们会回退到4字节循环处理未对齐的序言/尾声。</p>
+<p>在这里，我们包括一些值得注意的性能亮点。首先，我们要求A0、B0、A<em>global + base和B</em>global + base的16字节对齐。如果路径不是16字节对齐的，我们会回退到4字节循环处理未对齐的序言/尾声。</p>
 <blockquote>
-<p>Here, we are including some performance highlights worth noting. First, we are requiring 16-byte alignment of A0, B0, A_global + base, and B_global + base. If a path isn't 16-byte aligned, we fall back to the 4-byte loop for the misaligned prologue/epilogue.</p>
+<p>Here, we are including some performance highlights worth noting. First, we are requiring 16-byte alignment of A0, B0, A<em>global + base, and B</em>global + base. If a path isn't 16-byte aligned, we fall back to the 4-byte loop for the misaligned prologue/epilogue.</p>
 </blockquote>
 <p>每通道16字节（float4/int4）符合现代GPU最佳实践，以在线程束级别实现128字节合并访问。这有助于减少流水线开销。</p>
 <blockquote>
 <p>16-bytes per lane (float4/int4) aligns with modern GPU best practice to reach 128-byte coalesced accesses at the warp level. This helps to reduce pipeline overhead.</p>
 </blockquote>
-<p>其次，我们假设TILE_SIZE是128的倍数（32通道 x 4浮点数）。如果不是，请使用标量循环处理尾部。此外，我们使用带float4的cuda::memcpy_async。这保留了流水线的异步语义，并将每个瓦片的复制计数从每通道4x降低到1x。</p>
+<p>其次，我们假设TILE<em>SIZE是128的倍数（32通道 x 4浮点数）。如果不是，请使用标量循环处理尾部。此外，我们使用带float4的cuda::memcpy</em>async。这保留了流水线的异步语义，并将每个瓦片的复制计数从每通道4x降低到1x。</p>
 <blockquote>
-<p>Next, we are assuming the TILE_SIZE is a multiple of 128 (32 lanes x 4 floats). If not, handle the tail with a scalar loop. In addition, we use cuda::memcpy_async with float4. This preserves the pipeline's asynchronous semantics and lowers the per-tile copy count from 4x down to 1x per lane.</p>
+<p>Next, we are assuming the TILE<em>SIZE is a multiple of 128 (32 lanes x 4 floats). If not, handle the tail with a scalar loop. In addition, we use cuda::memcpy</em>async with float4. This preserves the pipeline's asynchronous semantics and lowers the per-tile copy count from 4x down to 1x per lane.</p>
 </blockquote>
-<p>以下是主机驱动程序，它在非阻塞流之间循环批次，并使用固定主机内存和流有序分配器（cudaMallocAsync / cudaFreeAsync）。它启动前面内核中的warp_specialized_two_pipelines：</p>
+<p>以下是主机驱动程序，它在非阻塞流之间循环批次，并使用固定主机内存和流有序分配器（cudaMallocAsync / cudaFreeAsync）。它启动前面内核中的warp<em>specialized</em>two_pipelines：</p>
 <blockquote>
-<p>And here is the host driver, which cycles batches across nonblocking streams and uses pinned host memory and the stream-ordered allocator (cudaMallocAsync / cudaFreeAsync). It launches the warp_specialized_two_pipelines in the previous kernel:</p>
+<p>And here is the host driver, which cycles batches across nonblocking streams and uses pinned host memory and the stream-ordered allocator (cudaMallocAsync / cudaFreeAsync). It launches the warp<em>specialized</em>two_pipelines in the previous kernel:</p>
 </blockquote>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime.h&gt;</span>
@@ -2396,9 +2396,9 @@
 <blockquote>
 <p>Chapter 10 showed warp specialization inside a single thread block as well as combining warp specialization with thread-block clusters using DSMEM. This way, one leader thread block loads a tile once-and every block in the thread block cluster computes from that shared on-chip copy. This removes duplicate global loads.</p>
 </blockquote>
-<p>此示例重用该确切模式，其中领导者使用块范围流水线来暂存复制。所有块使用cluster.map_shared_rank读取，因此它继承了数据重用的优势。</p>
+<p>此示例重用该确切模式，其中领导者使用块范围流水线来暂存复制。所有块使用cluster.map<em>shared</em>rank读取，因此它继承了数据重用的优势。</p>
 <blockquote>
-<p>This example reuses that exact pattern in which the leader uses a block-scoped pipeline to stage the copies. All blocks are read using cluster.map_shared_rank, so it inherits the data-reuse win.</p>
+<p>This example reuses that exact pattern in which the leader uses a block-scoped pipeline to stage the copies. All blocks are read using cluster.map<em>shared</em>rank, so it inherits the data-reuse win.</p>
 </blockquote>
 <p>在之前使用CUDA流的线程束专用化示例中，每个线程块负责其自己共享内存区域内的所有三个流水线阶段--加载器、计算器和存储器。现在，让我们扩展该早期实现以使用线程块集群流水线。这样，加载器、计算器和存储器线程束分布在线程块集群中。</p>
 <blockquote>
@@ -2408,9 +2408,9 @@
 <blockquote>
 <p>This is in contrast to the previous implementation, which is confined to a single thread block.</p>
 </blockquote>
-<p>以下是线程块集群加上使用CUDA流的线程束专用化示例的代码。在此示例中，我们选择NUM_STREAMS = 2，以便主机可以在单独的CUDA流中排队两个独立的启动。我们重用第10章关于使用线程块集群进行线程束专用化部分中的相同warp_specialized_cluster_pipeline实现，并添加CUDA流：</p>
+<p>以下是线程块集群加上使用CUDA流的线程束专用化示例的代码。在此示例中，我们选择NUM<em>STREAMS = 2，以便主机可以在单独的CUDA流中排队两个独立的启动。我们重用第10章关于使用线程块集群进行线程束专用化部分中的相同warp</em>specialized<em>cluster</em>pipeline实现，并添加CUDA流：</p>
 <blockquote>
-<p>The code for the thread block cluster plus warp specialization example with CUDA streams follows. In this example, we pick NUM_STREAMS = 2 so that the host can queue two independent launches in separate CUDA streams. We reuse the same warp_specialized_cluster_pipeline implementation from Chapter 10's section on warp specialization with thread block clusters and add CUDA streams:</p>
+<p>The code for the thread block cluster plus warp specialization example with CUDA streams follows. In this example, we pick NUM<em>STREAMS = 2 so that the host can queue two independent launches in separate CUDA streams. We reuse the same warp</em>specialized<em>cluster</em>pipeline implementation from Chapter 10's section on warp specialization with thread block clusters and add CUDA streams:</p>
 </blockquote>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// 使用DSMEM在线程块集群之间进行线程束专用化</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="c1">// 和块范围流水线，从多个CUDA流启动</span>
@@ -2624,9 +2624,9 @@
 <blockquote>
 <p>This example uses a cluster launch configured with cudaLaunchKernelExC. Cooperative launches (including cluster launches) require enough resources to keep their blocks resident per the launch constraints. This often limits concurrency, but cooperative kernels may still be interleaved with other work when resources permit. Concurrency is not guaranteed as it's topology- and launch-dependent. (Note: data transfers and kernels in other streams can still overlap subject to resource limits and launch constraints.)</p>
 </blockquote>
-<p>如第10章所述，我们使用集群维度启动内核，以便块加入cluster_group并可以访问彼此的分布式共享内存。领导者块通过块范围cuda::thread_scope_block暂存其复制，而所有块使用cluster.map_shared_rank读取领导者的瓦片。</p>
+<p>如第10章所述，我们使用集群维度启动内核，以便块加入cluster<em>group并可以访问彼此的分布式共享内存。领导者块通过块范围cuda::thread</em>scope<em>block暂存其复制，而所有块使用cluster.map</em>shared_rank读取领导者的瓦片。</p>
 <blockquote>
-<p>As in Chapter 10, we launch the kernel with a cluster dimension so that blocks join a cluster_group and can access each other's distributed shared memory. The leader block stages its copies through a block-scoped cuda::thread_scope_block, while all blocks read the leader's tiles using cluster.map_shared_rank.</p>
+<p>As in Chapter 10, we launch the kernel with a cluster dimension so that blocks join a cluster<em>group and can access each other's distributed shared memory. The leader block stages its copies through a block-scoped cuda::thread</em>scope<em>block, while all blocks read the leader's tiles using cluster.map</em>shared_rank.</p>
 </blockquote>
 <p>使用集群范围和分布式共享内存，加载阶段在领导者中每个集群运行一次，而计算和存储在集群的块之间并发运行。如前所述，每个线程束的warp_id确定其角色，线程束在所有瓦片上持久循环，以同步轮转方式获取、计算和存储。</p>
 <blockquote>
@@ -2666,9 +2666,9 @@
 <blockquote>
 <p>However, as soon as stream 0 completes, stream 1's launch starts instantly. This is because its inputs were already staged by cudaMemcpyAsync-and its buffers were already allocated by cudaMallocAsync.</p>
 </blockquote>
-<p>结合线程块集群、内核内线程束专用化（三级cuda::thread_scope_cluster）和内核间CUDA流，我们创建了跨越多个线程块的两层流水线。这些两层流水线将硬件推向峰值。</p>
+<p>结合线程块集群、内核内线程束专用化（三级cuda::thread<em>scope</em>cluster）和内核间CUDA流，我们创建了跨越多个线程块的两层流水线。这些两层流水线将硬件推向峰值。</p>
 <blockquote>
-<p>Combining thread block clusters, intra‐kernel warp specialization (the three‐stage cuda::thread_scope_cluster), and inter-kernel CUDA streams, we create two layers of pipelining that span multiple thread blocks. These two-layer pipelines push the hardware to its peak.</p>
+<p>Combining thread block clusters, intra‐kernel warp specialization (the three‐stage cuda::thread<em>scope</em>cluster), and inter-kernel CUDA streams, we create two layers of pipelining that span multiple thread blocks. These two-layer pipelines push the hardware to its peak.</p>
 </blockquote>
 <p>在第一层，线程块集群流水线让加载器、计算器和存储器线程束跨所有线程块协作。线程块集群可以使用TMA多播将全局内存瓦片传输复制到集群内每个块的共享内存中。多播是线程块集群本地的。本质上，线程块集群只获取每个瓦片一次。在第二层，多个流将主机端分配、复制和内核启动隐藏在彼此之后。</p>
 <blockquote>
@@ -2705,7 +2705,7 @@
 <blockquote>
 <p>Meanwhile, on the CPU, you have already decoded or prepared the next microbatch (N+1) and issued a cudaMemcpyAsync into a pinned host buffer. This way, by the time GPU A's stream 0 finishes the forward pass for batch N, the CPU-to-GPU copy for batch N+1 can begin immediately without waiting.</p>
 </blockquote>
-<p>同时，您调用cudaStreamWaitEvent(stream1_A, eventA, 0)以确保stream1_A在启动直接NVLink/PCIe复制到GPU B内存之前等待outputActivationsA准备好，如下所示：</p>
+<p>同时，您调用cudaStreamWaitEvent(stream1<em>A, eventA, 0)以确保stream1</em>A在启动直接NVLink/PCIe复制到GPU B内存之前等待outputActivationsA准备好，如下所示：</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1">// GPU A上的流1：等待层计算完成，然后复制到GPU B</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">cudaStreamWaitEvent</span><span class="p">(</span><span class="n">stream1_A</span><span class="p">,</span><span class="w"> </span><span class="n">eventA</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">cudaMemcpyPeerAsync</span><span class="p">(</span>
@@ -2714,7 +2714,7 @@
 </span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="n">stream1_A</span><span class="p">);</span>
 </span></code></pre></div>
 <blockquote>
-<p>At the same time, you call cudaStreamWaitEvent(stream1_A, eventA, 0) to ensure that stream1_A waits until outputActivationsA is ready before launching the direct NVLink/PCIe copy into GPU B's memory, as shown here:</p>
+<p>At the same time, you call cudaStreamWaitEvent(stream1<em>A, eventA, 0) to ensure that stream1</em>A waits until outputActivationsA is ready before launching the direct NVLink/PCIe copy into GPU B's memory, as shown here:</p>
 </blockquote>
 <p>一旦您记录eventA，GPU A的stream0可以立即启动批次N+1的下一个前向内核，使用cudaMemcpyAsync将其输入从固定主机缓冲区复制到设备内存，而不会阻塞。在GPU B上，您在复制开始或结束时记录一个匹配的事件：</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// GPU A上的流1：对等复制开始后，记录eventFromA</span>
@@ -2740,9 +2740,9 @@
 <blockquote>
 <p>The P2P transfer used here runs on GPU A's DMA copy engine and doesn't use any of GPU A's SMs. This way, GPU A's compute stream can immediately proceed to batch N+1 without having to manage the data transfer.</p>
 </blockquote>
-<p>结果是三重重叠：GPU A的SM可以在stream0_A中立即启动批次N+1，GPU A的对等DMA引擎可以在stream1_A中将批次N激活传输到GPU B，GPU B的SM可以在stream0_B中运行批次N或在其stream1_B中开始批次N。通过将工作分区到单独的流中并在主机上使用固定内存，我们将P2P和H2D延迟隐藏在正在进行的计算和数据准备之后。</p>
+<p>结果是三重重叠：GPU A的SM可以在stream0<em>A中立即启动批次N+1，GPU A的对等DMA引擎可以在stream1</em>A中将批次N激活传输到GPU B，GPU B的SM可以在stream0<em>B中运行批次N或在其stream1</em>B中开始批次N。通过将工作分区到单独的流中并在主机上使用固定内存，我们将P2P和H2D延迟隐藏在正在进行的计算和数据准备之后。</p>
 <blockquote>
-<p>The result is a three-way overlap: GPU A's SMs can immediately start batch N+1 in stream0_A, GPU A's peer DMA engine can shuttle batch N activations to GPU B in stream1_A, and GPU B's SMs can run batch N in stream0_B or begin batch N in its stream1_B. By partitioning work into separate streams and using pinned memory on the host, we hide P2P and H2D latency behind ongoing computation and data preparation.</p>
+<p>The result is a three-way overlap: GPU A's SMs can immediately start batch N+1 in stream0<em>A, GPU A's peer DMA engine can shuttle batch N activations to GPU B in stream1</em>A, and GPU B's SMs can run batch N in stream0<em>B or begin batch N in its stream1</em>B. By partitioning work into separate streams and using pinned memory on the host, we hide P2P and H2D latency behind ongoing computation and data preparation.</p>
 </blockquote>
 <p>当需要在许多GPU之间同步梯度或广播参数时，NCCL使用低占用设备内核处理大规模通信，这些内核通过NVLink、PCIe或InfiniBand驱动GPUDirect P2P或RDMA。在底层，NCCL将张量分成多个连续块。</p>
 <blockquote>
@@ -3013,9 +3013,9 @@
 <blockquote>
 <p>Here, Kernel B is waiting on cudaGridDependencySynchronize() until it receives this programmatic-launch completion signal from Kernel A. Once the handoff occurs, the two kernels can overlap their execution. By pairing the trigger in Kernel A, the synchronize in Kernel B, and the launch attribute on the host, this code achieves as much overlap as possible between kernels A and B.</p>
 </blockquote>
-<p>如本例所示，使用PDL时，您需要创建cudaLaunchConfig_t并在cudaLaunchKernelExC() CUDA调用中使用特殊属性。具体来说，在主机端，PDL通过为内核B的启动配置cudaLaunchConfig_t来启用，并启用cudaLaunchAttributeProgrammaticStreamSerialization属性以允许早期、重叠的调度。</p>
+<p>如本例所示，使用PDL时，您需要创建cudaLaunchConfig<em>t并在cudaLaunchKernelExC() CUDA调用中使用特殊属性。具体来说，在主机端，PDL通过为内核B的启动配置cudaLaunchConfig</em>t来启用，并启用cudaLaunchAttributeProgrammaticStreamSerialization属性以允许早期、重叠的调度。</p>
 <blockquote>
-<p>As seen in this example, you need to create a cudaLaunchConfig_t and use special attributes with the cudaLaunchKernelExC() CUDA call when using PDL. Specifically, on the host side, PDL is enabled by configuring a cudaLaunchConfig_t for Kernel B's launch with the cudaLaunchAttributeProgrammaticStreamSerialization attribute enabled to allow early, overlapped dispatch.</p>
+<p>As seen in this example, you need to create a cudaLaunchConfig<em>t and use special attributes with the cudaLaunchKernelExC() CUDA call when using PDL. Specifically, on the host side, PDL is enabled by configuring a cudaLaunchConfig</em>t for Kernel B's launch with the cudaLaunchAttributeProgrammaticStreamSerialization attribute enabled to allow early, overlapped dispatch.</p>
 </blockquote>
 <p>使用cudaLaunchAttributeProgrammaticStreamSerialization调用cudaLaunchKernelExC()告诉CUDA运行时，即使内核A尚未完全完成，也可以安全地将内核B加入队列。然后使用cudaLaunchKernelExC()执行带有这些扩展属性的实际启动，这依赖于触发机制来执行交接。</p>
 <blockquote>
@@ -3062,9 +3062,9 @@
 <blockquote>
 <p>Figure 11-10. Warp-specialized, multistage pipeline with PDL and thread block clusters and TMA multicast for a high-performance, inter-kernel and intra-kernel GEMM implementation</p>
 </blockquote>
-<p>以下是一个CUDA C++示例，展示了如何将PDL、线程块集群和线程束专用化与简单的TMA风格异步复制+计算流水线结合。具体来说，主内核primary_gemm使用cudaTriggerProgrammaticLaunchCompletion()向次级内核发出信号，表明所有内存刷新已完成，数据已准备好被消费。因此，次级内核secondary_gemm现在可以安全地从cudaGridDependencySynchronize()继续，如下所示：</p>
+<p>以下是一个CUDA C++示例，展示了如何将PDL、线程块集群和线程束专用化与简单的TMA风格异步复制+计算流水线结合。具体来说，主内核primary<em>gemm使用cudaTriggerProgrammaticLaunchCompletion()向次级内核发出信号，表明所有内存刷新已完成，数据已准备好被消费。因此，次级内核secondary</em>gemm现在可以安全地从cudaGridDependencySynchronize()继续，如下所示：</p>
 <blockquote>
-<p>Here is a CUDA C++ example that shows how to combine PDL, thread block clusters, and warp specialization with a simple TMA-style async copy + compute pipeline. Specifically, the primary kernel, primary_gemm, uses cudaTriggerProgrammaticLaunchCompletion() to signal to the secondary kernel that all memory flushes have completed and the data is ready to be consumed. As such, it's now safe for the secondary kernel, secondary_gemm, to continue from cudaGridDependencySynchronize(), as shown here:</p>
+<p>Here is a CUDA C++ example that shows how to combine PDL, thread block clusters, and warp specialization with a simple TMA-style async copy + compute pipeline. Specifically, the primary kernel, primary<em>gemm, uses cudaTriggerProgrammaticLaunchCompletion() to signal to the secondary kernel that all memory flushes have completed and the data is ready to be consumed. As such, it's now safe for the secondary kernel, secondary</em>gemm, to continue from cudaGridDependencySynchronize(), as shown here:</p>
 </blockquote>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime.h&gt;</span>
@@ -3209,9 +3209,9 @@
 </span><span id="__span-16-141"><a id="__codelineno-16-141" name="__codelineno-16-141" href="#__codelineno-16-141"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-16-142"><a id="__codelineno-16-142" name="__codelineno-16-142" href="#__codelineno-16-142"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>在主机上，您将主内核（primary_gemm）启动到非阻塞流中，并创建一个带有ProgrammaticStreamSerialization属性的cudaLaunchConfig_t。您使用它为次级内核（secondary_gemm）调用cudaLaunchKernelExC。</p>
+<p>在主机上，您将主内核（primary<em>gemm）启动到非阻塞流中，并创建一个带有ProgrammaticStreamSerialization属性的cudaLaunchConfig</em>t。您使用它为次级内核（secondary_gemm）调用cudaLaunchKernelExC。</p>
 <blockquote>
-<p>On the host, you launch the primary kernel (primary_gemm) into a nonblocking stream and create a cudaLaunchConfig_t with the ProgrammaticStreamSerialization attribute. You use this to call cudaLaunchKernelExC for the secondary kernel (secondary_gemm).</p>
+<p>On the host, you launch the primary kernel (primary<em>gemm) into a nonblocking stream and create a cudaLaunchConfig</em>t with the ProgrammaticStreamSerialization attribute. You use this to call cudaLaunchKernelExC for the secondary kernel (secondary_gemm).</p>
 </blockquote>
 <p>在primary_gemm内部，调用cudaTriggerProgrammaticLaunchCompletion()标记内存刷新的完成，并允许依赖内核的处理开始--甚至在主内核完全拆除之前。</p>
 <blockquote>
@@ -3227,15 +3227,15 @@
 </blockquote>
 <p><img alt="图11-11 TMA多播：领导者CTA向DSMEM（集群共享内存）发出cp.async.bulk.tensor；跟随者CTA使用cluster.map_shared_rank消费瓦片；cuda::memcpy_async驱动TMA" src="../../assets/images/ch11/fig11_726_1.png" /></p>
 <blockquote>
-<p>Figure 11-11. TMA multicast: a leader CTA issues cp.async.bulk.tensor into DSMEM (cluster shared memory); the follower CTAs consume tiles using cluster.map_shared_rank; cuda::memcpy_async drives TMA</p>
+<p>Figure 11-11. TMA multicast: a leader CTA issues cp.async.bulk.tensor into DSMEM (cluster shared memory); the follower CTAs consume tiles using cluster.map<em>shared</em>rank; cuda::memcpy_async drives TMA</p>
 </blockquote>
 <p>当生产者线程束使用TMA多播加载数据时，消费者在C++块范围屏障（cuda::barrier<cuda::thread_scope_block>）上轮询，然后执行其矩阵乘步骤（do_compute()）。这让每个瓦片的加载与其融合乘加（FMA）操作以细粒度、多级软件流水线交错，在内核内隐藏全局内存延迟。</p>
 <blockquote>
 <p>While the producer warp is loading data with TMA multicast, the consumers spin on a C++ block-scope barrier (cuda::barrier<cuda::thread_scope_block>) before executing their matrix-multiply steps (do_compute()). This lets each tile's load and its fused-multiply-add (FMA) operations interleave in a fine-grained, multistage software pipeline that hides global-memory latency inside the kernel.</p>
 </blockquote>
-<p>为了协调跨SM的工作，我们使用__cluster_dims__(2,1,1)注释两个内核。这在线程块附近SM上分组。调用cluster.sync()（协作组对PTX的mbarrier指令的包装）作为集群范围屏障和共享内存栅栏。这样，集群中的所有线程块都能看到相同的TMA加载数据，并可以动态重新平衡剩余瓦片。这种块间协作防止SM空闲并增加线程束专用化流水线的收益。</p>
+<p>为了协调跨SM的工作，我们使用__cluster<em>dims</em>_(2,1,1)注释两个内核。这在线程块附近SM上分组。调用cluster.sync()（协作组对PTX的mbarrier指令的包装）作为集群范围屏障和共享内存栅栏。这样，集群中的所有线程块都能看到相同的TMA加载数据，并可以动态重新平衡剩余瓦片。这种块间协作防止SM空闲并增加线程束专用化流水线的收益。</p>
 <blockquote>
-<p>To coordinate work across SMs, we annotate both kernels with <strong>cluster_dims</strong>(2,1,1). This groups pairs of thread blocks on nearby SMs. A call to cluster.sync() (the cooperative-group's wrapper over PTX's mbarrier instructions) serves as a cluster-wide barrier and shared-memory fence. This way, all of the thread blocks in the cluster see the same TMA-loaded data and can dynamically rebalance remaining tiles. This interblock cooperation prevents idle SMs and increases the benefit of the warp-specialized pipeline.</p>
+<p>To coordinate work across SMs, we annotate both kernels with _<em>cluster<em>dims</em></em>(2,1,1). This groups pairs of thread blocks on nearby SMs. A call to cluster.sync() (the cooperative-group's wrapper over PTX's mbarrier instructions) serves as a cluster-wide barrier and shared-memory fence. This way, all of the thread blocks in the cluster see the same TMA-loaded data and can dynamically rebalance remaining tiles. This interblock cooperation prevents idle SMs and increases the benefit of the warp-specialized pipeline.</p>
 </blockquote>
 <p>生产内核通常使用Tensor Memory Accelerator (TMA) cp.async.bulk.tensor进行2D瓦片操作，并在多个线程块需要相同瓦片时在线程块集群间多播。</p>
 <blockquote>
@@ -3257,9 +3257,9 @@
 <blockquote>
 <p><strong>Inter-kernel pipelining</strong> - Uses PDL, which lets the next GEMM kernel's processing begin (using the cudaTriggerProgrammaticLaunchCompletion() → cudaGridDependencySynchronize() mechanism) before the primary kernel is completely torn down. This masks kernel-launch overhead.</p>
 </blockquote>
-<p><strong>块间协作</strong>：通过使用__cluster_dims__注释内核，此代码创建在线程块附近SM上共调度。连同调用cluster.sync()（基于mbarrier的集群屏障），这些线程块共享TMA多播数据并在网格间动态负载均衡工作。</p>
+<p><strong>块间协作</strong>：通过使用<strong>cluster_dims</strong>注释内核，此代码创建在线程块附近SM上共调度。连同调用cluster.sync()（基于mbarrier的集群屏障），这些线程块共享TMA多播数据并在网格间动态负载均衡工作。</p>
 <blockquote>
-<p><strong>Interblock cooperation</strong> - By annotating kernels with <strong>cluster_dims</strong>, this code creates thread block pairs that are coscheduled on nearby SMs. Along with calling cluster.sync() (the mbarrier-based cluster barrier), these thread blocks share TMA-multicast data and dynamically load balance work across the grid.</p>
+<p><strong>Interblock cooperation</strong> - By annotating kernels with _<em>cluster<em>dims</em></em>, this code creates thread block pairs that are coscheduled on nearby SMs. Along with calling cluster.sync() (the mbarrier-based cluster barrier), these thread blocks share TMA-multicast data and dynamically load balance work across the grid.</p>
 </blockquote>
 <p>简而言之，通过将线程束级流水线与TMA、集群级同步和多播以及使用PDL的内核间重叠分层，您形成了一个高度重叠的流水线，隐藏DRAM延迟、掩盖内核启动开销并最大化Tensor Core利用率。结果是每个阶段的高性能GEMM：在线程束复制内、跨线程块屏障期间以及内核交接期间。这些协同工作以保持硬件忙碌并避免停顿。</p>
 <blockquote>

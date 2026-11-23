@@ -2592,7 +2592,7 @@
 </blockquote>
 <p>因此，对于给定的线程束，固定的<code>threadIdx.y</code>跨线程0-31，所有线程访问<code>tile[constant_row][varying_col]</code>，意味着同一行索引跨不同列使用。这意味着所有32个地址都在分块数组的同一行中，该行占用单个内存bank段并导致32路bank冲突。因此，这些读取被串行化32倍。</p>
 <blockquote>
-<p>As such, for a given warp, fixed threadIdx.y across threads 0-31, all threads access tile[constant_row][varying_col], meaning the same row index is used across different columns. This means all 32 addresses are in the same row of the tile array, which occupies a single memory bank segment and causes a 32-way bank conflict. As a result, those reads are serialized by a factor of 32.</p>
+<p>As such, for a given warp, fixed threadIdx.y across threads 0-31, all threads access tile[constant<em>row][varying</em>col], meaning the same row index is used across different columns. This means all 32 addresses are in the same row of the tile array, which occupies a single memory bank segment and causes a 32-way bank conflict. As a result, those reads are serialized by a factor of 32.</p>
 </blockquote>
 <p>请记住，Blackwell的共享内存有32个bank。这个数字正好与线程束中的线程数量32相匹配。因此，如果所有线程索引到同一个bank（当您固定行并改变列时会发生这种情况），您将始终获得完整的32路冲突。这种一对一对应意味着在线程束粒度上的任何未对齐访问模式都将强制每个线程串行化通过同一个bank——无论GPU的架构进步如何。</p>
 <blockquote>
@@ -2750,7 +2750,7 @@
 </blockquote>
 <p>最常见的是<code>__shfl_sync</code>内建函数（shuffle）。<code>__shfl_sync</code>让您将一个值从一个线程广播到线程束中的所有其他线程。您还可以执行线程束级别的归约，而无需将数据写入共享内存。记住，这些内建函数让线程通过寄存器（而不是共享内存）交换值，这完全消除了共享内存bank冲突。</p>
 <blockquote>
-<p>The most common are the __shfl_sync intrinsics (shuffle). __shfl_sync lets you broadcast a value from one thread to all other threads in a warp. You can also perform warp-level reductions without ever writing to shared memory. And remember that these intrinsics let threads exchange values through registers (instead of shared memory), which completely eliminates shared-memory bank conflicts.</p>
+<p>The most common are the __shfl<em>sync intrinsics (shuffle). __shfl</em>sync lets you broadcast a value from one thread to all other threads in a warp. You can also perform warp-level reductions without ever writing to shared memory. And remember that these intrinsics let threads exchange values through registers (instead of shared memory), which completely eliminates shared-memory bank conflicts.</p>
 </blockquote>
 <p>现代GPU会自动广播单个共享内存值，如果所有线程访问完全相同的内存地址。这将在这个特殊的单地址情况下避免bank冲突。另一方面，线程束shuffle使用广播来避免更一般的、任意的多值数据访问模式的bank问题。</p>
 <blockquote>
@@ -2762,7 +2762,7 @@
 </blockquote>
 <p>使用<code>__shfl_sync</code>，您可以完全在寄存器中执行树形归约。例如，让我们使用一个名为<code>__shfl_down_sync</code>的便捷变体来执行蝴蝶式归约，使每个线程读取由偏移一定通道数的另一个线程持有的值，如下所示：</p>
 <blockquote>
-<p>Using __shfl_sync, you can perform a tree reduction entirely in registers. For example, let's use a convenient variant called __shfl_down_sync to perform a butterfly-style reduction that has each thread read the value held by another thread offset by a certain number of lanes, as shown here:</p>
+<p>Using __shfl<em>sync, you can perform a tree reduction entirely in registers. For example, let's use a convenient variant called __shfl</em>down_sync to perform a butterfly-style reduction that has each thread read the value held by another thread offset by a certain number of lanes, as shown here:</p>
 </blockquote>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">unsigned</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__activemask</span><span class="p">();</span>
 </span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="kt">float</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadVal</span><span class="p">;</span><span class="w">  </span><span class="c1">// each thread's partial sum</span>
@@ -2778,7 +2778,7 @@
 </span></code></pre></div>
 <p>这里，每个<code>__shfl_down_sync</code>直接读取另一个通道的寄存器，每步将活动线程减半，直到通道0累加完整的总和。因为所有通信都停留在寄存器中，没有共享内存流量，因此零bank冲突或额外同步。</p>
 <blockquote>
-<p>Here, each __shfl_down_sync directly reads another lane's register, halving the active threads each step, until lane 0 accumulates the full sum. Because all communication stays in registers, there's no shared-memory traffic and thus zero bank conflicts or extra synchronizations.</p>
+<p>Here, each __shfl<em>down</em>sync directly reads another lane's register, halving the active threads each step, until lane 0 accumulates the full sum. Because all communication stays in registers, there's no shared-memory traffic and thus zero bank conflicts or extra synchronizations.</p>
 </blockquote>
 <p>总之，<code>__shfl_sync</code>及其变体完全在线程束的执行通道内执行操作。这避免了bank冲突，因为没有使用共享内存。而且它通常更快，因为它使用寄存器并减少了共享内存指令的数量。</p>
 <blockquote>
@@ -2786,7 +2786,7 @@
 </blockquote>
 <p>许多高性能线程束级别归约通过使用shuffle内建函数完全绕过共享内存，这些内建函数只需几条指令就通过寄存器直接交换值，并且不会产生bank冲突。CUDA的协作组API构建在这些原语之上。此API提供类似<code>thread_group.shuffle()</code>的调用来简化线程束内通信。辅助内建函数如<code>__reduce_sync()</code>最终编译为这些shuffle模式，用于现代NVIDIA GPU上的线程束内数据交换。</p>
 <blockquote>
-<p>Many high-performance warp-level reductions bypass shared memory entirely by using shuffle intrinsics, which exchange values directly through registers in just a few instructions and incur no bank conflicts. CUDA's Cooperative Groups API builds on these primitives. This API provides calls like thread_group.shuffle() to simplify intrawarp communication. Helper intrinsics like __reduce_sync() ultimately compile down to these shuffle patterns for intra-warp data exchange on modern NVIDIA GPUs.</p>
+<p>Many high-performance warp-level reductions bypass shared memory entirely by using shuffle intrinsics, which exchange values directly through registers in just a few instructions and incur no bank conflicts. CUDA's Cooperative Groups API builds on these primitives. This API provides calls like thread<em>group.shuffle() to simplify intrawarp communication. Helper intrinsics like __reduce</em>sync() ultimately compile down to these shuffle patterns for intra-warp data exchange on modern NVIDIA GPUs.</p>
 </blockquote>
 <p>Shuffle仅限于单个线程束内。对于现代GPU架构上的线程束间交换，还可以考虑使用协作组进行线程块级别的归约，或在支持时使用线程块集群级别的通信。我们将在第10章讨论这些概念。</p>
 <blockquote>
@@ -2962,8 +2962,8 @@
 <thead>
 <tr>
 <th>指标</th>
-<th>之前（无__restrict__）</th>
-<th>之后（使用__restrict__）</th>
+<th>之前（无<strong>restrict</strong>）</th>
+<th>之后（使用<strong>restrict</strong>）</th>
 </tr>
 </thead>
 <tbody>
@@ -3069,7 +3069,7 @@
 <p><img alt="图7-7. TMA异步从全局HBM获取数据到共享内存" src="../../assets/images/ch07/fig07_430_1.png" /></p>
 <p>要启动TMA传输，您可以调用<code>cuda::memcpy_async()</code>。在现代GPU架构上，<code>cuda::memcpy_async()</code>与<code>cuda::pipeline</code>暴露了用于全局到共享异步传输的硬件引擎。这包括可用时的TMA。这将使用TMA的片上DMA引擎执行异步批量数据传输。这在CUDA中实现如下：</p>
 <blockquote>
-<p>To initiate a TMA transfer, you can call cuda::memcpy_async(). On modern GPU architectures, cuda::memcpy_async() with cuda::pipeline exposes the hardware engine for global-to-shared asynchronous transfers. This includes TMA when available. This performs asynchronous bulk data transfers using TMA's on-chip DMA engine. This is implemented in CUDA as follows:</p>
+<p>To initiate a TMA transfer, you can call cuda::memcpy<em>async(). On modern GPU architectures, cuda::memcpy</em>async() with cuda::pipeline exposes the hardware engine for global-to-shared asynchronous transfers. This includes TMA when available. This performs asynchronous bulk data transfers using TMA's on-chip DMA engine. This is implemented in CUDA as follows:</p>
 </blockquote>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">cuda</span><span class="o">::</span><span class="n">memcpy_async</span><span class="p">(</span><span class="n">sharedBuf</span><span class="p">,</span>
 </span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">               </span><span class="n">globalPtr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
@@ -3208,7 +3208,7 @@
 </span></code></pre></div>
 <p>在主循环内部，我们使用<code>pipe.consumer_wait();</code> + <code>processTile()</code>处理上一个tile，<code>pipe.consumer_release()</code>，<code>pipe.producer_acquire()</code> + 新的<code>cuda::memcpy_async()</code>到另一个tile，以及<code>pipe.producer_commit()</code>。然后我们重复！</p>
 <blockquote>
-<p>Inside the main loop, we use pipe.consumer_wait(); + processTile() to process the previous tile, pipe.consumer_release(), pipe.producer_acquire() + a new cuda::memcpy_async() into the other tile, and pipe.producer_commit(). Then we repeat!</p>
+<p>Inside the main loop, we use pipe.consumer<em>wait(); + processTile() to process the previous tile, pipe.consumer</em>release(), pipe.producer<em>acquire() + a new cuda::memcpy</em>async() into the other tile, and pipe.producer_commit(). Then we repeat!</p>
 </blockquote>
 <p>通过在tile0和tile1之间乒乓，每个新的<code>memcpy_async</code>与上一个缓冲区上的<code>processTile</code>重叠。SM上的加载和存储单元承受较低的压力，有更多指令发射槽可用于计算。同时，TMA并行移动数据。这消除了冗余的全局内存加载，减少了同步开销，并使线程束保持忙碌而不是在内存上停顿。</p>
 <blockquote>
@@ -3320,7 +3320,7 @@
 </blockquote>
 <p>总之，当内存访问限制内核性能时，通过结合仔细的tiling、双缓冲和TMA驱动的异步预取来卸载和重叠数据移动。通过在共享内存中暂存tile并使用<code>cuda::memcpy_async</code>配合<code>pipe.producer_commit</code>和<code>pipe.consumer_wait</code>，您将合并的多维DMA传输移交给TMA，卸载全局到共享内存的传输。</p>
 <blockquote>
-<p>In summary, when memory access limits kernel performance, offload and overlap data movement by combining careful tiling, double-buffering, and TMA-driven asynchronous prefetch. By staging tiles in shared memory and using cuda::memcpy_async with pipe.producer_commit and pipe.consumer_wait, you hand off coalesced, multidimensional DMA transfers to TMA, offloading global-to-shared-memory transfers.</p>
+<p>In summary, when memory access limits kernel performance, offload and overlap data movement by combining careful tiling, double-buffering, and TMA-driven asynchronous prefetch. By staging tiles in shared memory and using cuda::memcpy<em>async with pipe.producer</em>commit and pipe.consumer_wait, you hand off coalesced, multidimensional DMA transfers to TMA, offloading global-to-shared-memory transfers.</p>
 </blockquote>
 <p>使用TMA卸载内存传输有助于减轻SM加载/存储单元的压力，有助于保持计算流水线满载。因此，SM专注于计算，而共享内存流量使用片上TMA路径。在Blackwell的大带宽HBM3e结构上，这些技术对于隐藏DRAM延迟、维持峰值吞吐量以及将内存受限的内核转变为接近计算受限的主力至关重要。</p>
 <blockquote>
@@ -3337,7 +3337,7 @@
 </blockquote>
 <p>当每个线程束的访问落在尽可能少的128字节缓存行中时，就实现了合并。安排您的数据和线程索引，使每个线程束的线程读取连续的4字节字，让硬件将它们融合为几个128字节事务。合并的内存加载最大化有效的DRAM带宽或全局内存加载效率，并将每请求平均扇区数降至最佳的4.0值。使用现代版本的Nsight Compute时，您还可以使用<code>sm__sass_data_bytes_mem_*</code>计数器和<code>gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed</code>来分析和优化内存合并。</p>
 <blockquote>
-<p>Coalescing is achieved when each warp's accesses land in as few 128-byte cache lines as possible. Arrange your data and thread indices so that threads in each warp read contiguous 4-byte words, letting the hardware fuse them into a few 128-byte transactions. Coalesced memory loads maximize effective DRAM bandwidth or global memory load efficiency and bring average sectors per request down to the optimal 4.0 value. With modern versions of Nsight Compute, you can also use sm__sass_data_bytes_mem_* counters and gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed to analyze and optimize memory coalescing.</p>
+<p>Coalescing is achieved when each warp's accesses land in as few 128-byte cache lines as possible. Arrange your data and thread indices so that threads in each warp read contiguous 4-byte words, letting the hardware fuse them into a few 128-byte transactions. Coalesced memory loads maximize effective DRAM bandwidth or global memory load efficiency and bring average sectors per request down to the optimal 4.0 value. With modern versions of Nsight Compute, you can also use sm<strong>sass<em>data</em>bytes<em>mem</em>* counters and gpu</strong>dram<em>throughput.avg.pct</em>of<em>peak</em>sustained_elapsed to analyze and optimize memory coalescing.</p>
 </blockquote>
 <p><strong>向量化加载/存储</strong></p>
 <blockquote>
@@ -3389,7 +3389,7 @@
 </blockquote>
 <p>值得注意的是，libcu++流水线API和TMA继续发展。优先使用分阶段形式（例如<code>producer_acquire()</code>、<code>producer_commit()</code>、<code>consumer_wait()</code>、<code>consumer_release()</code>）进行两阶段乒乓缓冲。使用块范围流水线（例如<code>cuda::thread_scope_block</code>）或块范围屏障（例如<code>cuda::barrier&lt;cuda::thread_scope_block&gt;</code>），除非您特别需要集群范围或网格范围的复制。</p>
 <blockquote>
-<p>It's important to note that the libcu++ pipeline APIs and TMA continue to evolve. Prefer the staged forms (e.g., producer_acquire(), producer_commit(), consumer_wait(), consumer_release()) for two-stage ping-pong buffers. Use a block-scoped pipeline (e.g., cuda::thread_scope_block) or block-scoped barrier (e.g., cuda::barrier<cuda::thread_scope_block>) unless you specifically need cluster-scoped or grid-scoped copies.</p>
+<p>It's important to note that the libcu++ pipeline APIs and TMA continue to evolve. Prefer the staged forms (e.g., producer<em>acquire(), producer</em>commit(), consumer<em>wait(), consumer</em>release()) for two-stage ping-pong buffers. Use a block-scoped pipeline (e.g., cuda::thread<em>scope</em>block) or block-scoped barrier (e.g., cuda::barrier<cuda::thread_scope_block>) unless you specifically need cluster-scoped or grid-scoped copies.</p>
 </blockquote>
 <p><strong>以分析为指导</strong></p>
 <blockquote>

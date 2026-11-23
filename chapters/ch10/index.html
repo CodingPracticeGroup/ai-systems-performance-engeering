@@ -1646,7 +1646,7 @@
 <h3 id="cuda-pipeline-api-cooperative-tiling-and-double-buffering-with-the-cuda-pipeline-api">使用CUDA Pipeline API进行协作分块和双缓冲 (Cooperative Tiling and Double-Buffering with the CUDA Pipeline API)<a class="headerlink" href="#cuda-pipeline-api-cooperative-tiling-and-double-buffering-with-the-cuda-pipeline-api" title="Permanent link">&para;</a></h3>
 <p>您可以使用C++ Pipeline API实现传统的双缓冲分块模式，方法是实例化两阶段流水线来重叠内存加载和计算。具体来说，您可以声明一个<code>cuda::pipeline_shared_state&lt;cuda::thread_scope_block, 2&gt;</code>对象，它使用协作组（稍后讨论）作用于特定线程块。这本质上是一个生产者-消费者模式，如图10-1所示。</p>
 <blockquote>
-<p>You can implement the traditional double‐buffered tiling pattern using the C++ Pipeline API by instantiating a two‐stage pipeline to overlap memory loads and computations. Specifically, you can declare a two-stage cuda::pipeline_shared_state <cuda::thread_scope_block, 2> object, which is scoped to a specific thread block using cooperative groups (discussed in a bit). This is essentially a producer-consumer pattern, as shown in Figure 10-1.</p>
+<p>You can implement the traditional double‐buffered tiling pattern using the C++ Pipeline API by instantiating a two‐stage pipeline to overlap memory loads and computations. Specifically, you can declare a two-stage cuda::pipeline<em>shared</em>state <cuda::thread_scope_block, 2> object, which is scoped to a specific thread block using cooperative groups (discussed in a bit). This is essentially a producer-consumer pattern, as shown in Figure 10-1.</p>
 </blockquote>
 <p><img alt="图10-1 使用CUDA Pipeline API的两阶段生产者-消费者模式" src="../../assets/images/ch10/fig10_573_1.png" /></p>
 <blockquote>
@@ -1826,11 +1826,11 @@
 </blockquote>
 <p>内核然后通过定义<code>extern __shared__ float shared_mem[]</code>为A和B块分配一个连续的共享内存区域。它使用指针算术（<code>float* A_buf[2]</code>和<code>float* B_buf[2]</code>）将此缓冲区分为四个子区域，两个用于A，两个用于B。这允许真正的双缓冲而无需额外的动态分配。</p>
 <blockquote>
-<p>The kernel then allocates one contiguous shared-memory region for both A and B tiles by defining an extern <strong>shared</strong> float shared_mem[]. It divides this buffer into four subregions, two for A and two for B, using pointer arithmetic (float* A_buf[2] and float* B_buf[2]). This allows true double-buffering without extra dynamic allocations.</p>
+<p>The kernel then allocates one contiguous shared-memory region for both A and B tiles by defining an extern <strong>shared</strong> float shared<em>mem[]. It divides this buffer into four subregions, two for A and two for B, using pointer arithmetic (float* A</em>buf[2] and float* B_buf[2]). This allows true double-buffering without extra dynamic allocations.</p>
 </blockquote>
 <p>在进入主循环之前，内核使用绑定到以下流水线的异步副本异步预取前STAGES个块：<code>producer_acquire()</code> → <code>memcpy_async()</code> → <code>producer_commit()</code>。消费者线程束使用<code>consumer_wait()</code>和<code>consumer_release()</code>，以便计算恰好在预取块准备好时开始。</p>
 <blockquote>
-<p>Before entering the main loop, the kernel asynchronously prefetches the first STAGES tiles using asynchronous copies bound to the following pipeline: producer_acquire() → memcpy_async() → producer_commit(). Consumer warps use consumer_wait() and consumer_release() so the compute starts exactly when the prefetched tile is ready.</p>
+<p>Before entering the main loop, the kernel asynchronously prefetches the first STAGES tiles using asynchronous copies bound to the following pipeline: producer<em>acquire() → memcpy</em>async() → producer<em>commit(). Consumer warps use consumer</em>wait() and consumer_release() so the compute starts exactly when the prefetched tile is ready.</p>
 </blockquote>
 <p>这个初始屏障替代了将来对<code>__syncthreads()</code>的需求，并确保流水线的阶段0和阶段1缓冲区在生产者-消费者序列的第一次迭代中正确填充。</p>
 <blockquote>
@@ -1838,15 +1838,15 @@
 </blockquote>
 <p>在每次迭代中，内核通过调用<code>pipe.producer_acquire()</code>保留下一个缓冲区以加载后续块。然后它启动两个<code>cuda::memcpy_async</code>操作--一个用于A块，一个用于B块。每个加载都绑定到流水线对象<code>cuda::memcpy_async(..., pipe)</code>，它发出从全局内存到共享内存的异步副本。</p>
 <blockquote>
-<p>Within each iteration, the kernel reserves the next buffer to load subsequent tiles by calling pipe.producer_acquire(). It then launches two cuda::memcpy_async operations-one for the A tile and one for the B tile. Each load is bound to the pipeline object with cuda::memcpy_async(..., pipe), which issues asynchronous copies from global memory into shared memory.</p>
+<p>Within each iteration, the kernel reserves the next buffer to load subsequent tiles by calling pipe.producer<em>acquire(). It then launches two cuda::memcpy</em>async operations-one for the A tile and one for the B tile. Each load is bound to the pipeline object with cuda::memcpy_async(..., pipe), which issues asynchronous copies from global memory into shared memory.</p>
 </blockquote>
 <p>当访问被正确合并和分块时，这些异步副本可以与计算很好地重叠。这样，流水线保持数据供给以执行最大的有用工作。在排队<code>memcpy_async</code>调用后立即，内核使用<code>pipe.producer_commit()</code>发出完成信号。此提交记录副本的到达，并允许消费者线程束在该特定阶段上等待，而不会阻塞整个线程块。</p>
 <blockquote>
-<p>These asynchronous copies can overlap well with compute when accesses are coalesced and tiled correctly. This way, the pipeline stays fed with data to perform maximum useful work. Immediately after queuing the memcpy_async calls, the kernel signals completion with pipe.producer_commit(). This commit records the copy's arrival and allows consumer warps to wait on that specific stage without blocking the entire thread block.</p>
+<p>These asynchronous copies can overlap well with compute when accesses are coalesced and tiled correctly. This way, the pipeline stays fed with data to perform maximum useful work. Immediately after queuing the memcpy<em>async calls, the kernel signals completion with pipe.producer</em>commit(). This commit records the copy's arrival and allows consumer warps to wait on that specific stage without blocking the entire thread block.</p>
 </blockquote>
 <p>同时，块中的其他线程束调用<code>pipe.consumer_wait()</code>。这只会有效地停顿那些依赖于当前缓冲区中数据的线程，直到生产者提交它。一旦等待完成，每个线程调用设备函数<code>computeTile(...)</code>执行其<code>TILE_SIZE x TILE_SIZE</code>点积计算。结果在寄存器中增量累积。</p>
 <blockquote>
-<p>Concurrently, other warps in the block invoke pipe.consumer_wait(). This efficiently stalls only those threads dependent on the data in the curr buffer until the producer has committed it. Once the wait completes, each thread calls the device function computeTile(...) to perform its TILE_SIZE x TILE_SIZE dot-product computation. The results are incrementally accumulated in registers.</p>
+<p>Concurrently, other warps in the block invoke pipe.consumer<em>wait(). This efficiently stalls only those threads dependent on the data in the curr buffer until the producer has committed it. Once the wait completes, each thread calls the device function computeTile(...) to perform its TILE</em>SIZE x TILE_SIZE dot-product computation. The results are incrementally accumulated in registers.</p>
 </blockquote>
 <p>在完成当前缓冲区的计算后，线程束调用<code>pipe.consumer_release()</code>释放该阶段以在后续迭代中重用。这种细粒度释放防止了块范围的停顿，并最大化了计算和内存传输阶段之间的重叠。</p>
 <blockquote>
@@ -1858,11 +1858,11 @@
 </blockquote>
 <p>在处理完最后一个块后，每个线程的累加器包含完整的<code>TILE_SIZE x TILE_SIZE</code>点积结果。然后将此结果写回<code>C_global</code>的相应元素。</p>
 <blockquote>
-<p>After processing the final tile, each thread's accumulator contains the full TILE_SIZE x TILE_SIZE dot-product result. This result is then written back to the appropriate element of C_global.</p>
+<p>After processing the final tile, each thread's accumulator contains the full TILE<em>SIZE x TILE</em>SIZE dot-product result. This result is then written back to the appropriate element of C_global.</p>
 </blockquote>
 <p>使用双缓冲时，建议确保每个异步副本（<code>memcpy_async</code>）后面跟着适当的<code>producer_commit()</code>和<code>consumer_wait()</code>调用以进行同步。这保证了计算内核只会在数据正确加载后使用它。现代CUDA编译器通常会自动为简单循环执行这些优化。</p>
 <blockquote>
-<p>When using double buffering, it's recommended to make sure that each asynchronous copy (memcpy_async) is followed by the appropriate producer_commit() and consumer_wait() calls for synchronization. This guarantees that the compute kernels will use the data only after it's properly loaded. Modern CUDA compilers will often perform these optimizations automatically for simple loops.</p>
+<p>When using double buffering, it's recommended to make sure that each asynchronous copy (memcpy<em>async) is followed by the appropriate producer</em>commit() and consumer_wait() calls for synchronization. This guarantees that the compute kernels will use the data only after it's properly loaded. Modern CUDA compilers will often perform these optimizations automatically for simple loops.</p>
 </blockquote>
 <p>建议使用Nsight Compute的异步副本指标验证流水线是否按预期执行。特别注意线程束占用率和共享内存bank冲突。目标是提高SM Active百分比并减少停顿周期。完全隐藏DRAM延迟取决于占用率、访问模式和共享内存bank行为。</p>
 <blockquote>
@@ -1899,7 +1899,7 @@
 </blockquote>
 <p>在这个实验中，使用CUDA C++ Pipeline API的<code>gemm_tiled_pipeline</code>内核比朴素分块版本实现了2倍加速。通过使用细粒度的<code>pipe.producer_commit()</code>和<code>pipe.consumer_wait()</code>原语，流水线保持填充，SM Active %从68%跃升24%到92%。</p>
 <blockquote>
-<p>In this experiment, the gemm_tiled_pipeline kernel using the CUDA C++ Pipeline API achieves a 2x speedup over the naive tiling version. By using the fine-grained pipe.producer_commit() and pipe.consumer_wait() primitives, the pipeline remains filled, and SM Active % jumps 24% from 68% to 92%.</p>
+<p>In this experiment, the gemm<em>tiled</em>pipeline kernel using the CUDA C++ Pipeline API achieves a 2x speedup over the naive tiling version. By using the fine-grained pipe.producer<em>commit() and pipe.consumer</em>wait() primitives, the pipeline remains filled, and SM Active % jumps 24% from 68% to 92%.</p>
 </blockquote>
 <h2 id="-warp-specialization-and-the-producer-consumer-model">线程束专用化和生产者-消费者模式 (Warp Specialization and the Producer-Consumer Model)<a class="headerlink" href="#-warp-specialization-and-the-producer-consumer-model" title="Permanent link">&para;</a></h2>
 <p>线程束专用化是一种编程模式，其中线程块内的不同线程束被分配不同的角色。例如，一个线程束可能专门负责从全局内存加载数据，而另一个线程束专门负责对这些数据进行计算，第三个线程束专门负责将结果写回全局内存。</p>
@@ -1964,7 +1964,7 @@
 </blockquote>
 <p>另一种线程束专用化模式是三级线程束专用流水线的修改版。它像以前一样将一组线程束分配给内存加载器，但随后使用两组消费者线程束在计算和内存存储器的角色之间"乒乓"切换。这种三级线程束专用架构在CUTLASS中作为<code>gemm_tma_warpspecialized_pingpong</code>公开，如图10-6所示。</p>
 <blockquote>
-<p>Another warp specialization pattern is a modification of the three-role warp-specialized pipeline. It assigns a set of warps to the memory loader as before, but then uses two sets of consumer warps that "ping-pong" between the roles of compute and memory-storer. This three-role warp-specialization architecture is exposed in CUTLASS as gemm_tma_warpspecialized_pingpong and shown in Figure 10-6.</p>
+<p>Another warp specialization pattern is a modification of the three-role warp-specialized pipeline. It assigns a set of warps to the memory loader as before, but then uses two sets of consumer warps that "ping-pong" between the roles of compute and memory-storer. This three-role warp-specialization architecture is exposed in CUTLASS as gemm<em>tma</em>warpspecialized_pingpong and shown in Figure 10-6.</p>
 </blockquote>
 <p><img alt="图10-6 具有三级线程束专用内核的乒乓架构" src="../../assets/images/ch10/fig10_589_1.png" /></p>
 <blockquote>
@@ -2010,7 +2010,7 @@
 </blockquote>
 <p>使用CUDA Pipeline API的生产者和消费者调用（例如<code>pipe.producer_acquire()</code>、<code>pipe.producer_commit()</code>、<code>pipe.consumer_wait()</code>和<code>pipe.consumer_release()</code>）的关键优势在于，它们只同步实际需要传递数据的特定线程束或阶段。这与强制块中的每个线程等待形成对比。</p>
 <blockquote>
-<p>The key advantage of using the CUDA Pipeline API's producer and consumer calls (e.g., pipe.producer_acquire(), pipe.producer_commit(), pipe.consumer_wait(), and pipe.consumer_release()) is that they synchronize only the specific warps or stages that actually need to hand off data. This is in contrast to forcing every thread in a block to wait.</p>
+<p>The key advantage of using the CUDA Pipeline API's producer and consumer calls (e.g., pipe.producer<em>acquire(), pipe.producer</em>commit(), pipe.consumer<em>wait(), and pipe.consumer</em>release()) is that they synchronize only the specific warps or stages that actually need to hand off data. This is in contrast to forcing every thread in a block to wait.</p>
 </blockquote>
 <p>块范围屏障会停顿每个线程束--即使是那些不参与生产者-消费者流水线的线程束。该块中的所有执行必须暂停，直到每个线程到达屏障，如图10-7所示。</p>
 <blockquote>
@@ -2022,7 +2022,7 @@
 </blockquote>
 <p>相比之下，Pipeline API在内部维护每阶段状态。当生产者线程束完成其异步副本并调用<code>pipe.producer_commit</code>时，只有调用<code>pipe.consumer_wait</code>的线程束会阻塞直到数据准备好。块中其他不依赖于该阶段的线程束可以继续运行任何工作。</p>
 <blockquote>
-<p>By comparison, the Pipeline API maintains per-stage state internally. When a producer warp finishes its asynchronous copy and calls pipe.producer_commit, only the warps that call pipe.consumer_wait will block until the data is ready. Other warps in the block can continue running any work that does not depend on that stage.</p>
+<p>By comparison, the Pipeline API maintains per-stage state internally. When a producer warp finishes its asynchronous copy and calls pipe.producer<em>commit, only the warps that call pipe.consumer</em>wait will block until the data is ready. Other warps in the block can continue running any work that does not depend on that stage.</p>
 </blockquote>
 <p>在实践中，CUDA Pipeline API减少了空闲时间并减少了停顿的线程束，因为它消除了使用屏障暂停整个块的需要。使用流水线，您可以以比手工编码的异步副本序列（例如PTX <code>cp.async</code> + <code>__syncthreads()</code>）更细的粒度协调生产者和消费者传递。</p>
 <blockquote>
@@ -2111,9 +2111,9 @@
 </span><span id="__span-1-69"><a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-1-70"><a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>在这个内核中，每个线程束在独特的角色中工作。加载器线程束调用<code>producer_acquire()</code>，使用<code>cuda::memcpy_async</code>执行两次协作复制到A_tile和B_tile，然后调用<code>producer_commit()</code>。计算器线程束调用<code>pipe.consumer_wait()</code>观察新提交的数据，并立即调用<code>consumer_release()</code>释放该阶段以供重用。计算器线程束然后通过调用<code>producer_acquire()</code>、计算C_tile并调用<code>producer_commit()</code>成为下一次传递的生产者。存储器线程束调用<code>consumer_wait()</code>观察计算出的C_tile，并在线程束条带化循环中将其写入全局内存，然后调用<code>consumer_release()</code>。这个序列使用单个块范围流水线，没有显式的阶段编号，并避免任何块范围的<code>__syncthreads</code>。</p>
+<p>在这个内核中，每个线程束在独特的角色中工作。加载器线程束调用<code>producer_acquire()</code>，使用<code>cuda::memcpy_async</code>执行两次协作复制到A<em>tile和B</em>tile，然后调用<code>producer_commit()</code>。计算器线程束调用<code>pipe.consumer_wait()</code>观察新提交的数据，并立即调用<code>consumer_release()</code>释放该阶段以供重用。计算器线程束然后通过调用<code>producer_acquire()</code>、计算C<em>tile并调用<code>producer_commit()</code>成为下一次传递的生产者。存储器线程束调用<code>consumer_wait()</code>观察计算出的C</em>tile，并在线程束条带化循环中将其写入全局内存，然后调用<code>consumer_release()</code>。这个序列使用单个块范围流水线，没有显式的阶段编号，并避免任何块范围的<code>__syncthreads</code>。</p>
 <blockquote>
-<p>Here each warp works in a distinct role. The loader warp calls producer_acquire(), performs two cooperative copies with cuda::memcpy_async into A_tile and B_tile, then calls producer_commit(). The compute warp calls pipe.consumer_wait() to observe the newly committed data and immediately calls consumer_release() to free that stage for reuse. The compute warp then becomes a producer for the next handoff by calling producer_acquire(), computing C_tile, and calling producer_commit(). The storer warp calls consumer_wait() to observe the computed C_tile and writes it to global memory in a warp-striped loop, then calls consumer_release(). This sequence uses a single block-scoped pipeline with no explicit stage numbers, and it avoids any block-wide __syncthreads.</p>
+<p>Here each warp works in a distinct role. The loader warp calls producer<em>acquire(), performs two cooperative copies with cuda::memcpy</em>async into A<em>tile and B</em>tile, then calls producer<em>commit(). The compute warp calls pipe.consumer</em>wait() to observe the newly committed data and immediately calls consumer<em>release() to free that stage for reuse. The compute warp then becomes a producer for the next handoff by calling producer</em>acquire(), computing C<em>tile, and calling producer</em>commit(). The storer warp calls consumer<em>wait() to observe the computed C</em>tile and writes it to global memory in a warp-striped loop, then calls consumer_release(). This sequence uses a single block-scoped pipeline with no explicit stage numbers, and it avoids any block-wide __syncthreads.</p>
 </blockquote>
 <p>这个内核作为持久内核跨多个块运行以分摊启动开销。稍后我们将详细介绍持久内核。</p>
 <blockquote>
@@ -2121,7 +2121,7 @@
 </blockquote>
 <p>简而言之，将CUDA Pipeline API与协作组一起使用，可以实现细粒度、SM范围的生产者-消费者传递，而无需任何显式的<code>__syncthreads()</code>调用。表10-3比较了三种实现：朴素分块内核、使用<code>double_buffered_pipeline</code>的两阶段双缓冲GEMM，以及我们的线程束专用流水线内核<code>warp_specialized_pipeline</code>。</p>
 <blockquote>
-<p>In short, using the CUDA Pipeline API together with cooperative groups allows fine-grained, SM-wide producer-consumer handoffs without any explicit __syncthreads() calls. Table 10-3 compares three implementations: a naive tiled kernel, a two-stage double-buffered GEMM using double_buffered_pipeline, and our warp-specialized pipeline kernel warp_specialized_pipeline.</p>
+<p>In short, using the CUDA Pipeline API together with cooperative groups allows fine-grained, SM-wide producer-consumer handoffs without any explicit __syncthreads() calls. Table 10-3 compares three implementations: a naive tiled kernel, a two-stage double-buffered GEMM using double<em>buffered</em>pipeline, and our warp-specialized pipeline kernel warp<em>specialized</em>pipeline.</p>
 </blockquote>
 <p><strong>表10-3. 三种实现的比较：朴素分块内核、两阶段双缓冲GEMM和线程束专用流水线内核</strong></p>
 <table>
@@ -2199,11 +2199,11 @@
 </blockquote>
 <p>相比之下，<code>warp_specialized_pipeline</code>几乎线性扩展，只要您可以为加载、计算和存储分配额外的线程束。在Blackwell上，例如，您可以保持每个SM最多64个驻留线程束的架构限制。（实际驻留取决于寄存器、共享内存和块大小。）</p>
 <blockquote>
-<p>In contrast, the warp_specialized_pipeline scales almost linearly as long as you can assign additional warps for load, compute, and store. On Blackwell, for instance, you can keep up to the architectural limit of 64 resident warps per SM. (Actual residency depends on registers, shared memory, and block size.)</p>
+<p>In contrast, the warp<em>specialized</em>pipeline scales almost linearly as long as you can assign additional warps for load, compute, and store. On Blackwell, for instance, you can keep up to the architectural limit of 64 resident warps per SM. (Actual residency depends on registers, shared memory, and block size.)</p>
 </blockquote>
 <p>如表10-3所示，双缓冲和线程束专用方法都大大优于朴素分块内核。<code>double_buffer_pipeline</code>通过重叠块加载和计算将运行时间减半，而<code>warp_specialized_pipeline</code>通过避免任何隐式的块范围等待增加了额外的10.2%加速。只有专用的"计算"线程束会停顿。</p>
 <blockquote>
-<p>As Table 10-3 shows, both the double-buffered and warp-specialized approaches substantially outperform the naive tiled kernel. The double_buffer_pipeline halves the runtime by overlapping tile loads and computation, while the warp_specialized_pipeline adds another 10.2% speedup by avoiding any implicit block-wide waits. Only the dedicated "compute" warp ever stalls.</p>
+<p>As Table 10-3 shows, both the double-buffered and warp-specialized approaches substantially outperform the naive tiled kernel. The double<em>buffer</em>pipeline halves the runtime by overlapping tile loads and computation, while the warp<em>specialized</em>pipeline adds another 10.2% speedup by avoiding any implicit block-wide waits. Only the dedicated "compute" warp ever stalls.</p>
 </blockquote>
 <p>指令计数从朴素版本的17亿条下降到两阶段流水线的10.5亿条，减少38%，并进一步下降到线程束专用内核的约10亿条，额外减少4.76%。</p>
 <blockquote>
@@ -2392,7 +2392,7 @@
 </blockquote>
 <p>API包括<code>cg::this_thread_block()</code>、<code>cg::tiled_partition()</code>和<code>cg::this_cluster()</code>等调用。然后您调用<code>group.sync()</code>--或类似的集合操作--来协调这些组中的线程。</p>
 <blockquote>
-<p>The API includes calls like cg::this_thread_block(), cg::tiled_partition(), and cg::this_cluster(). You then call group.sync()-or similar collectives-to coordinate the threads in these groups.</p>
+<p>The API includes calls like cg::this<em>thread</em>block(), cg::tiled<em>partition(), and cg::this</em>cluster(). You then call group.sync()-or similar collectives-to coordinate the threads in these groups.</p>
 </blockquote>
 <p>要以协作模式启动内核，您使用<code>cudaLaunchCooperativeKernel()</code>。在协作模式下，CUDA确保您启动的网格可以同时驻留--否则，启动失败。因此，建议始终使用<code>cudaOccupancyMaxActiveBlocksPerMultiprocessor</code>调整协作网格大小，并限制网格大小以避免启动失败。在内核内部，您可以调用以下内容来实现全线程块屏障：</p>
 <blockquote>
@@ -2759,7 +2759,7 @@
 <h3 id="api-coordinating-thread-block-clusters-with-cooperative-groups-api">使用协作组API协调线程块集群 (Coordinating Thread Block Clusters with Cooperative Groups API)<a class="headerlink" href="#api-coordinating-thread-block-clusters-with-cooperative-groups-api" title="Permanent link">&para;</a></h3>
 <p>要协调集群中多个线程块的工作，您首先使用<code>cooperative_groups::this_cluster()</code>获取该块组的句柄。此集群句柄让您执行硬件加速的集群范围屏障--并直接访问另一个块的共享内存。</p>
 <blockquote>
-<p>To coordinate work across multiple thread blocks in a cluster, you first obtain a handle to that group of blocks using cooperative_groups::this_cluster(). This cluster handle lets you perform hardware-accelerated cluster-wide barriers-and directly access another block's shared memory.</p>
+<p>To coordinate work across multiple thread blocks in a cluster, you first obtain a handle to that group of blocks using cooperative<em>groups::this</em>cluster(). This cluster handle lets you perform hardware-accelerated cluster-wide barriers-and directly access another block's shared memory.</p>
 </blockquote>
 <p>这一切都在不离开内核或诉诸全局内存标志的情况下发生。以下是一个示例内核，它将每个线程块的本地值求和到线程块0的共享内存中：</p>
 <blockquote>
@@ -2814,11 +2814,11 @@
 </span></code></pre></div>
 <p>在这里，我们通过调用<code>cg::this_cluster()</code>获取集群句柄。这返回一个<code>cluster_group</code>对象，表示作为线程块集群一起启动的那些块。运行时保证此集群组中的每个线程块同时驻留--否则，启动将失败。</p>
 <blockquote>
-<p>Here, we obtain a cluster handle by calling cg::this_cluster(). This returns a cluster_group object that represents exactly those blocks launched together as one thread block cluster. The runtime guarantees that every thread block in this cluster group is resident simultaneously-otherwise, the launch will fail.</p>
+<p>Here, we obtain a cluster handle by calling cg::this<em>cluster(). This returns a cluster</em>group object that represents exactly those blocks launched together as one thread block cluster. The runtime guarantees that every thread block in this cluster group is resident simultaneously-otherwise, the launch will fail.</p>
 </blockquote>
 <p>提供了一个统一的共享内存分配。集群中的每个块必须为<code>extern __shared__ int shared_buffer[]</code>声明相同的大小。然后DSMEM硬件将逻辑上把每个块的共享内存组合成一个虚拟地址空间。因为所有块保留相同的<code>shared_buffer</code>大小，指向线程块0（或排名0）缓冲区的指针将跨SM正确协调。</p>
 <blockquote>
-<p>A uniform shared memory allocation is implicitly provided. Each block in the cluster must declare the same size for extern <strong>shared</strong> int shared_buffer[]. The DSMEM hardware will then logically combine each block's shared memory into one virtual address space. And because all blocks reserve the same shared_buffer size, a pointer to the buffer of thread block 0, or rank 0, will coordinate properly across SMs.</p>
+<p>A uniform shared memory allocation is implicitly provided. Each block in the cluster must declare the same size for extern <strong>shared</strong> int shared<em>buffer[]. The DSMEM hardware will then logically combine each block's shared memory into one virtual address space. And because all blocks reserve the same shared</em>buffer size, a pointer to the buffer of thread block 0, or rank 0, will coordinate properly across SMs.</p>
 </blockquote>
 <p>使用线程块集群时，请确保像全局内存合并一样组织每个线程块的DSMEM访问。换句话说，让每个线程束读取或写入连续的、32字节对齐的扇区。这样，硬件可以在没有存储体冲突或意外序列化的情况下路由集群范围的DSMEM传输。在实践中，布置您的块数据，使线程块j中的线程束i始终触及唯一的、对齐的范围。这将避免内存存储体争用，并使DSMEM数据传输保持全速执行。</p>
 <blockquote>
@@ -2838,7 +2838,7 @@
 </blockquote>
 <p>在前面的代码块中，您看到使用<code>map_shared_rank()</code>进行跨块共享内存访问。在第一个屏障之后，每个块的<code>shared_buffer[]</code>都已初始化。要获取指向块0共享内存的指针，其他块调用<code>int* remote_buffer = cluster.map_shared_rank(shared_buffer, 0)</code>，这指定了集群中的线程块ID（0）。</p>
 <blockquote>
-<p>In the previous code block, you see that cross-block shared memory access happens using map_shared_rank(). After the first barrier, every block's shared_buffer[] is initialized. To get a pointer into block 0's shared memory, the other blocks call int* remote_buffer = cluster.map_shared_rank(shared_buffer, 0), which specifies the thread block id (0) in the cluster.</p>
+<p>In the previous code block, you see that cross-block shared memory access happens using map<em>shared</em>rank(). After the first barrier, every block's shared<em>buffer[] is initialized. To get a pointer into block 0's shared memory, the other blocks call int* remote</em>buffer = cluster.map<em>shared</em>rank(shared_buffer, 0), which specifies the thread block id (0) in the cluster.</p>
 </blockquote>
 <p>GPU硬件自动翻译该指针，以便任何加载或存储都通过片上DSMEM网络而不是全局DRAM。因此，任何写入<code>remote_buffer</code>的操作--无论是原子操作还是常规写入--都将直接在片上更新块0的共享内存。值得强调的是，远程DSMEM访问的性能特征与本地共享内存不同。远程加载和存储受益于合并的、对齐的32字节段。</p>
 <blockquote>
@@ -2846,7 +2846,7 @@
 </blockquote>
 <p>例如，在前面的代码块中，当块1...n需要将其本地值添加到块ID 0的共享缓冲区时，它们调用<code>atomicAdd(&amp;remote_buffer[0], shared_buffer[0])</code>。因为<code>remote_buffer</code>是通过<code>cluster.map_shared_rank()</code>获得的，<code>atomicAdd</code>通过片上DSMEM网络直接进入块0的SMEM。换句话说，没有到DRAM或L2缓存的往返。每次写入都以片上速度发生。</p>
 <blockquote>
-<p>For instance, in the previous code block, when blocks 1...n need to add their local values into block ID 0's shared buffer, they call atomicAdd(&amp;remote_buffer[0], shared_buffer[0]). And because remote_buffer was obtained through cluster.map_shared_rank(), the atomicAdd goes directly into block 0's SMEM over the on-chip DSMEM network. In other words, there is no round trip to DRAM or L2 cache. Every write happens at on-chip speed.</p>
+<p>For instance, in the previous code block, when blocks 1...n need to add their local values into block ID 0's shared buffer, they call atomicAdd(&amp;remote<em>buffer[0], shared</em>buffer[0]). And because remote<em>buffer was obtained through cluster.map</em>shared_rank(), the atomicAdd goes directly into block 0's SMEM over the on-chip DSMEM network. In other words, there is no round trip to DRAM or L2 cache. Every write happens at on-chip speed.</p>
 </blockquote>
 <p>在前面的代码示例中，您看到一旦所有块执行了它们的<code>atomicAdd</code>，第二个<code>cluster.sync()</code>确保块0在继续之前在其自己的<code>shared_buffer[0]</code>中看到完整的和。</p>
 <blockquote>
@@ -2854,7 +2854,7 @@
 </blockquote>
 <p>简而言之，<code>cooperative_groups::this_cluster()</code>加上<code>cluster.sync()</code>和<code>cluster.map_shared_rank()</code>为您提供了一种简单、高效的方式来同步和共享线程块集群中多个线程块之间的数据。所有这些操作都在片上发生，避免了全局内存往返，并实现了块之间的细粒度协作。这种线程块集群和DSMEM的组合提供了比任何全局内存回退或手动原子标志方法更高的性能。</p>
 <blockquote>
-<p>In short, cooperative_groups::this_cluster() plus cluster.sync() and cluster.map_shared_rank() give you a simple, efficient way to synchronize and share data across multiple thread blocks in a thread block cluster. All of this happens on-chip, avoiding global memory round trips and enabling fine-grained cooperation between blocks. This combination of thread block clusters and DSMEM offers higher performance than any global-memory fallback or manual atomic flag approach.</p>
+<p>In short, cooperative<em>groups::this</em>cluster() plus cluster.sync() and cluster.map<em>shared</em>rank() give you a simple, efficient way to synchronize and share data across multiple thread blocks in a thread block cluster. All of this happens on-chip, avoiding global memory round trips and enabling fine-grained cooperation between blocks. This combination of thread block clusters and DSMEM offers higher performance than any global-memory fallback or manual atomic flag approach.</p>
 </blockquote>
 <h3 id="thread-block-pair">线程块对 (Thread Block Pair)<a class="headerlink" href="#thread-block-pair" title="Permanent link">&para;</a></h3>
 <p>现代NVIDIA GPU让您在单个GPC内的SM之间共同调度恰好两个线程块在一个集群中，或线程块对（又名CTA对）。通过将线程块分组在一个集群中（例如，如图10-13所示的2块集群），共享数据的内核可以使用TMA将块移动到每个块的共享内存中。</p>
@@ -3218,11 +3218,11 @@
 </blockquote>
 <p>这种"复制一次，通过DSMEM共享"模式在集群屏障后使用DSMEM和<code>map_shared_rank</code>共享领导者的块。它不执行我们之前用张量映射描述符、<code>cp.async.bulk.tensor</code>和<code>shared::cluster</code>介绍的TMA多播。</p>
 <blockquote>
-<p>This "copy once, share through DSMEM" pattern shares the leader's tiles using DSMEM and map_shared_rank following a cluster barrier. It does not perform a TMA multicast as we covered previously with tensor-map descriptors, cp.async.bulk.tensor, and shared::cluster.</p>
+<p>This "copy once, share through DSMEM" pattern shares the leader's tiles using DSMEM and map<em>shared</em>rank following a cluster barrier. It does not perform a TMA multicast as we covered previously with tensor-map descriptors, cp.async.bulk.tensor, and shared::cluster.</p>
 </blockquote>
 <p>这是一个需要理解的重要区别，因为没有DSMEM模式中的<code>cluster.sync()</code>，跟随者可能会读取陈旧的领导者SMEM数据。因此，在<code>map_shared_rank()</code>之前需要<code>cluster.sync()</code>。</p>
 <blockquote>
-<p>This is an important distinction to understand as, without the cluster.sync() in the DSMEM pattern, followers can read stale leader SMEM data. As such, cluster.sync() is required before map_shared_rank().</p>
+<p>This is an important distinction to understand as, without the cluster.sync() in the DSMEM pattern, followers can read stale leader SMEM data. As such, cluster.sync() is required before map<em>shared</em>rank().</p>
 </blockquote>
 <p>以下内容应该帮助您选择TMA多播还是DSMEM共享：如果每块块重用很高（例如，每个块多次触摸同一块）或集群大小（C）很大（8-16个CTA），TMA多播通常获胜，因为此模式写入一次，然后本地读取多次。如果SMEM紧张（例如，大块）或集群大小（C）很小（2-4个CTA）且每个跟随者触摸块一次，DSMEM共享通常是更好的选择，因为它使用更小的占用空间。</p>
 <blockquote>
@@ -3230,7 +3230,7 @@
 </blockquote>
 <p>每个块通过使用<code>map_shared_rank</code>直接从领导者的共享内存计算不同的行带，并将其结果写入全局内存。这消除了集群中的重复全局加载，并在重要的点上保持流水线的重叠优势。</p>
 <blockquote>
-<p>Every block computes a distinct band of rows directly from the leader's shared memory by using map_shared_rank and writes its results to global memory. This removes duplicate global loads across the cluster and keeps the overlap advantages of a pipeline at the points where it matters.</p>
+<p>Every block computes a distinct band of rows directly from the leader's shared memory by using map<em>shared</em>rank and writes its results to global memory. This removes duplicate global loads across the cluster and keeps the overlap advantages of a pipeline at the points where it matters.</p>
 </blockquote>
 <p>领导者块的加载器线程束调用<code>producer_commit()</code>将其本地阶段发布到该块。其他块不等待领导者的流水线。相反，它们在集群范围屏障后观察领导者的块，然后从分布式共享内存读取。</p>
 <blockquote>
@@ -3308,7 +3308,7 @@
 </blockquote>
 <p>线程块集群流水线内核进一步减少了17.2 ms的执行时间，比单块线程束专用内核提高了6.5%。这种改进来自跨多个SM共享数据而没有冗余的全局内存加载。线程束执行效率从96%上升到98%，因为更多的线程束可以并行工作，每个线程束等待的时间更少。</p>
 <blockquote>
-<p>Here, we see that the thread block cluster implementation further improves on warp-specialized by distributing loader, compute, and storer roles across multiple thread blocks in one cooperative launch. This increases overall SM utilization and reduces both execution time and redundant memory traffic. Specifically, the thread block cluster pipeline kernel implementation (warp_specialized_cluster_pipeline) squeezes out another ~1.2 ms (6.5%) over the single-thread-block, warp-specialized kernel. This is because the thread block cluster version interleaves tile loads, computes, and stores across all thread blocks.</p>
+<p>Here, we see that the thread block cluster implementation further improves on warp-specialized by distributing loader, compute, and storer roles across multiple thread blocks in one cooperative launch. This increases overall SM utilization and reduces both execution time and redundant memory traffic. Specifically, the thread block cluster pipeline kernel implementation (warp<em>specialized</em>cluster_pipeline) squeezes out another ~1.2 ms (6.5%) over the single-thread-block, warp-specialized kernel. This is because the thread block cluster version interleaves tile loads, computes, and stores across all thread blocks.</p>
 </blockquote>
 <p><strong>在手动调优之前验证编译器生成的流水线</strong></p>
 <blockquote>
@@ -3316,7 +3316,7 @@
 </blockquote>
 <p>使用性能分析工具检查框架生成的代码，例如PyTorch的编译器和NVCC。如果编译后的代码使用了使用<code>cuda::memcpy_async</code>、<code>producer_commit()</code>和<code>consumer_wait()</code>的异步流水线，手动调优可能不会产生太大的加速效果。</p>
 <blockquote>
-<p>Profile and inspect the framework's generated code from compilers like PyTorch's compiler and NVCC. If the compiled code uses an asynchronous pipeline using cuda::memcpy_async, producer_commit(), and consumer_wait(), manual tuning likely won't produce much of a speedup.</p>
+<p>Profile and inspect the framework's generated code from compilers like PyTorch's compiler and NVCC. If the compiled code uses an asynchronous pipeline using cuda::memcpy<em>async, producer</em>commit(), and consumer_wait(), manual tuning likely won't produce much of a speedup.</p>
 </blockquote>
 <h2 id="key-takeaways">关键要点 (Key Takeaways)<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
 <p>本章的关键要点如下，专注于在现代GPU上提取峰值性能。这些将使内核不会在DRAM、线程束调度器和全局屏障上空闲：</p>
@@ -3326,7 +3326,7 @@
 <p><strong>使用流水线深度隐藏延迟</strong></p>
 <p>使用两阶段（<code>cuda::pipeline_shared_state&lt;cuda::thread_scope_block, 2&gt;</code>）分块来重叠异步加载和计算，当计算超过内存时（例如，像Blackwell这样的现代GPU）添加另一个阶段（<code>cuda::pipeline_shared_state&lt;cuda::thread_scope_block, 3&gt;</code>）。这将有助于消除空闲线程束。</p>
 <blockquote>
-<p><strong>Hide latency with pipeline depth</strong> - Use two-stage (cuda::pipeline_shared_state<cuda::thread_scope_block, 2>) tiling to overlap asynchronous loads with compute and add another stage (cuda::pipeline_shared_state<cuda::thread_scope_block, 3>) when compute outweighs memory (e.g., modern GPUs like Blackwell.) This will help to eliminate idle warps.</p>
+<p><strong>Hide latency with pipeline depth</strong> - Use two-stage (cuda::pipeline<em>shared</em>state<cuda::thread_scope_block, 2>) tiling to overlap asynchronous loads with compute and add another stage (cuda::pipeline<em>shared</em>state<cuda::thread_scope_block, 3>) when compute outweighs memory (e.g., modern GPUs like Blackwell.) This will help to eliminate idle warps.</p>
 </blockquote>
 <p><strong>使用线程束专用化平衡工作负载</strong></p>
 <p>当计算阶段占主导时，将单独的线程束分配给加载、计算和存储，确保现代GPU硬件上接近峰值的线程束效率。</p>
@@ -3356,7 +3356,7 @@
 <p><strong>在手动调优之前验证编译器生成的流水线</strong></p>
 <p>分析并检查来自PyTorch编译器和NVCC等编译器的框架生成代码。如果编译后的代码使用<code>cuda::memcpy_async</code>、<code>producer_commit()</code>和<code>consumer_wait()</code>的异步流水线，手动调优可能不会产生太大的加速。</p>
 <blockquote>
-<p><strong>Verify compiler-generated pipelines before hand-tuning</strong> - Profile and inspect the framework's generated code from compilers like PyTorch's compiler and NVCC. If the compiled code uses an asynchronous pipeline using cuda::memcpy_async, producer_commit(), and consumer_wait(), manual tuning likely won't produce much of a speedup.</p>
+<p><strong>Verify compiler-generated pipelines before hand-tuning</strong> - Profile and inspect the framework's generated code from compilers like PyTorch's compiler and NVCC. If the compiled code uses an asynchronous pipeline using cuda::memcpy<em>async, producer</em>commit(), and consumer_wait(), manual tuning likely won't produce much of a speedup.</p>
 </blockquote>
 <h2 id="conclusion">结论 (Conclusion)<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
 <p>持久内核、线程束专用化、协作组和线程块集群是现代GPU编程的高级技术。它们使复杂的内核内流水线、减少的全局内存流量和更高的SM利用率成为可能。</p>

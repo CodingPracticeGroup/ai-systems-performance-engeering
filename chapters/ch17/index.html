@@ -1880,17 +1880,17 @@
 <blockquote>
 <p>Figure 17-5. Managing and reusing KV cache data between requests</p>
 </blockquote>
-<p>对于大型模型和长序列，KV内存随token线性增长，并取决于注意力布局和数据类型。一个实际的估计是bytes_per_token = 2 x n_layers x n_kv_heads x head_dim x bytes_per_element。（注意：2 x考虑了每层每个token的键和值。）</p>
+<p>对于大型模型和长序列，KV内存随token线性增长，并取决于注意力布局和数据类型。一个实际的估计是bytes<em>per</em>token = 2 x n<em>layers x n</em>kv<em>heads x head</em>dim x bytes<em>per</em>element。（注意：2 x考虑了每层每个token的键和值。）</p>
 <blockquote>
-<p>For large models and long sequences, KV memory grows linearly with tokens and depends on attention layout and dtype. A practical estimate is bytes_per_token = 2 x n_layers x n_kv_heads x head_dim x bytes_per_element. (Note: the 2 x accounts for keys and values per token per layer.)</p>
+<p>For large models and long sequences, KV memory grows linearly with tokens and depends on attention layout and dtype. A practical estimate is bytes<em>per</em>token = 2 x n<em>layers x n</em>kv<em>heads x head</em>dim x bytes<em>per</em>element. (Note: the 2 x accounts for keys and values per token per layer.)</p>
 </blockquote>
-<p>考虑一个Llama级别的13B模型，有40层，40个注意力头（头维度为128），以及FP16。对于4,096个token的上下文和标准多头注意力（MHA），KV大小约为~0.819 MB/token或总共~3.36 GB。使用FP8 KV，这变为~1.68 GB。使用分组查询注意力（GQA）和8个查询组（n_kv_heads = 8），4,096个token的KV在FP16下约为~0.671 GB，在FP8下约为~0.336 GB。对于具有1个KV头的多查询注意力（MQA），在FP16下约为~0.084 GB。</p>
+<p>考虑一个Llama级别的13B模型，有40层，40个注意力头（头维度为128），以及FP16。对于4,096个token的上下文和标准多头注意力（MHA），KV大小约为~0.819 MB/token或总共~3.36 GB。使用FP8 KV，这变为~1.68 GB。使用分组查询注意力（GQA）和8个查询组（n<em>kv</em>heads = 8），4,096个token的KV在FP16下约为~0.671 GB，在FP8下约为~0.336 GB。对于具有1个KV头的多查询注意力（MQA），在FP16下约为~0.084 GB。</p>
 <blockquote>
-<p>Consider a Llama-class 13B model with 40 layers, 40 attention heads (head dimension is 128), and FP16. For a 4,096-token context with standard multi-headed attention (MHA), the KV size is ~0.819 MB/token or ~3.36 GB total. With FP8 KV, that becomes ~1.68 GB. With grouped-query attention (GQA) with 8 query groups (n_kv_heads = 8), the 4,096-token KV is ~0.671 GB at FP16 and ~0.336 GB at FP8. And for multi-query attention (MQA) with 1 kv head, it is ~0.084 GB at FP16.</p>
+<p>Consider a Llama-class 13B model with 40 layers, 40 attention heads (head dimension is 128), and FP16. For a 4,096-token context with standard multi-headed attention (MHA), the KV size is ~0.819 MB/token or ~3.36 GB total. With FP8 KV, that becomes ~1.68 GB. With grouped-query attention (GQA) with 8 query groups (n<em>kv</em>heads = 8), the 4,096-token KV is ~0.671 GB at FP16 and ~0.336 GB at FP8. And for multi-query attention (MQA) with 1 kv head, it is ~0.084 GB at FP16.</p>
 </blockquote>
-<p>确保始终使用模型的实际n_layers、n_kv_heads、head_dim和KV精度进行计算，因为FP8和FP4会改变bytes_per_element。</p>
+<p>确保始终使用模型的实际n<em>layers、n</em>kv<em>heads、head</em>dim和KV精度进行计算，因为FP8和FP4会改变bytes<em>per</em>element。</p>
 <blockquote>
-<p>Make sure to always compute using the model's actual n_layers, n_kv_heads, head_dim, and KV precision since FP8 and FP4 change the bytes_per_element.</p>
+<p>Make sure to always compute using the model's actual n<em>layers, n</em>kv<em>heads, head</em>dim, and KV precision since FP8 and FP4 change the bytes<em>per</em>element.</p>
 </blockquote>
 <p>服务许多并发序列的GPU可能仅由于KV缓存存储而快速接近其内存限制--除了模型权重之外。因此，确保您的解码工作器使用这种优化的内存分配器，以防止在许多长序列进行时GPU内存耗尽。</p>
 <blockquote>
@@ -2038,9 +2038,9 @@
 <blockquote>
 <p>If the remaining part is short, the benefit of offloading is reduced. Also, if the entire prompt is already cached due to a complete prefix hit, then no prefill computation is needed at all. The decode can proceed immediately using the cached state.</p>
 </blockquote>
-<p>路由器通过有效考虑有效提示词长度 = (prompt_length - prefix_cached_length) 来考虑这一点。大的前缀命中不仅减少了所需的计算，还意味着大量KV数据必须传输到预填充工作器并返回，这是毫无意义的。因此，此类请求保持本地并利用缓存。</p>
+<p>路由器通过有效考虑有效提示词长度 = (prompt<em>length - prefix</em>cached_length) 来考虑这一点。大的前缀命中不仅减少了所需的计算，还意味着大量KV数据必须传输到预填充工作器并返回，这是毫无意义的。因此，此类请求保持本地并利用缓存。</p>
 <blockquote>
-<p>The router takes this into account by effectively considering effective prompt length = (prompt_length - prefix_cached_length). A large prefix hit not only reduces compute needed but also means a lot of KV data would have to be transferred to a prefill worker and back, which is pointless. Hence, such requests are kept local and leverage the cache.</p>
+<p>The router takes this into account by effectively considering effective prompt length = (prompt<em>length - prefix</em>cached_length). A large prefix hit not only reduces compute needed but also means a lot of KV data would have to be transferred to a prefill worker and back, which is pointless. Hence, such requests are kept local and leverage the cache.</p>
 </blockquote>
 <p><strong>预填充队列深度 (Prefill queue depth)</strong></p>
 <p>这本质上衡量预填充工作器集群的负载。如果预填充工作器被许多等待的任务淹没，向它们发送另一个任务可能比帮助更有损TTFT，因为请求只会坐在队列中。在这种情况下，解码工作器被指示在本地处理预填充，而不是增加预填充集群的队列。</p>
@@ -2069,9 +2069,9 @@
 <blockquote>
 <p>As new hardware is released, the thresholds might change since newer GPUs have higher FLOPS and more memory bandwidth. As such, the break-even prompt length for offload might become a bit higher since a single B200 can handle more tokens fully on the decode worker, for instance.</p>
 </blockquote>
-<p>您应该在升级硬件时根据计算FLOPS和内存带宽的改进来经验性地调整像PREFILL_LENGTH_THRESHOLD这样的阈值。</p>
+<p>您应该在升级硬件时根据计算FLOPS和内存带宽的改进来经验性地调整像PREFILL<em>LENGTH</em>THRESHOLD这样的阈值。</p>
 <blockquote>
-<p>You should empirically adjust thresholds like PREFILL_LENGTH_THRESHOLD when upgrading hardware due to improvements in compute FLOPS and memory bandwidth.</p>
+<p>You should empirically adjust thresholds like PREFILL<em>LENGTH</em>THRESHOLD when upgrading hardware due to improvements in compute FLOPS and memory bandwidth.</p>
 </blockquote>
 <p>有效路由的结果是系统两全其美。短提示词由于本地运行而具有更快的TTFT--并且它们不会产生额外开销。较长的提示词获得并行性的好处，因为预填充和解码在不同GPU上并行发生。此外，预填充工作器池仅在需要时使用--并且当它无法跟上时避免被淹没。</p>
 <blockquote>
@@ -2119,15 +2119,15 @@
 </span></code></pre></div>
 <p>在此伪代码中，<code>PREFILL_LENGTH_THRESHOLD</code>是一个系统调优参数，例如50或100个token，定义什么算作"长"提示词。<code>PREFILL_QUEUE_MAX</code>是一个阈值，超过该阈值预填充工作器池被认为已饱和，特别是如果有太多未完成的任务。</p>
 <blockquote>
-<p>In this pseudo-code, PREFILL_LENGTH_THRESHOLD is a system-tuned parameter, such as 50 or 100 tokens, that defines what counts as a "long" prompt. PREFILL_QUEUE_MAX is a threshold beyond which the prefill worker pool is considered saturated, specifically if there are too many outstanding tasks.</p>
+<p>In this pseudo-code, PREFILL<em>LENGTH</em>THRESHOLD is a system-tuned parameter, such as 50 or 100 tokens, that defines what counts as a "long" prompt. PREFILL<em>QUEUE</em>MAX is a threshold beyond which the prefill worker pool is considered saturated, specifically if there are too many outstanding tasks.</p>
 </blockquote>
 <p>解码工作器在收到新请求后立即调用<code>should_offload_prefill()</code>。如果函数返回True，解码工作器将提示词打包成消息并将其推送到全局预填充任务队列。然后它在等待KV缓存结果返回时执行其他工作。</p>
 <blockquote>
-<p>The decode worker calls should_offload_prefill() as soon as it receives a new request. If the function returns True, the decode worker will package the prompt into a message and push it onto the global prefill task queue. It then performs other work while waiting for the KV cache result to return.</p>
+<p>The decode worker calls should<em>offload</em>prefill() as soon as it receives a new request. If the function returns True, the decode worker will package the prompt into a message and push it onto the global prefill task queue. It then performs other work while waiting for the KV cache result to return.</p>
 </blockquote>
 <p>如果<code>should_offload_prefill()</code>返回False，解码工作器立即自己执行预填充计算。这样，如果预填充工作器开始滞后，新请求将回退到本地计算以避免排队延迟。这是一种自适应路由形式，平衡解码和预填充池之间的负载。</p>
 <blockquote>
-<p>If should_offload_prefill() returns False, the decode worker immediately performs the prefill computation itself. This way, if prefill workers start lagging behind, new requests will fall back to local computation to avoid queuing delays. It's a form of adaptive routing that balances the load between decode and prefill pools.</p>
+<p>If should<em>offload</em>prefill() returns False, the decode worker immediately performs the prefill computation itself. This way, if prefill workers start lagging behind, new requests will fall back to local computation to avoid queuing delays. It's a form of adaptive routing that balances the load between decode and prefill pools.</p>
 </blockquote>
 <h3 id="example-dynamic-routing-policy-configuration">动态路由策略配置示例 (Example dynamic routing policy configuration)<a class="headerlink" href="#example-dynamic-routing-policy-configuration" title="Permanent link">&para;</a></h3>
 <p>在生产部署中，路由策略应通过文件或UI配置，而不是硬编码。例如，NVIDIA的Dynamo允许在JSON或YAML配置中指定复杂的路由和自动扩展规则。以下是封装一些策略逻辑的Dynamo Planner JSON简化示例：</p>
@@ -2162,7 +2162,7 @@
 </span></code></pre></div>
 <p>在这里，配置定义了一个<code>split_policy</code>，其<code>prompt_length_threshold</code>为256个token。它还为缓存命中、队列长度、解码负载等因素指定了权重。它还配置了预填充和解码角色的自动扩展行为，包括如何根据队列长度、GPU利用率和KV缓存使用情况进行扩展或缩减。</p>
 <blockquote>
-<p>Here, the configuration defines a split_policy with a prompt_length_threshold of 256 tokens. It also specifies weights for factors like cache hit, queue length, decode load, and others. It also configures autoscale behavior for both prefill and decode roles, including how to scale up or down based on queue lengths, GPU utilization, and KV cache usage.</p>
+<p>Here, the configuration defines a split<em>policy with a prompt</em>length_threshold of 256 tokens. It also specifies weights for factors like cache hit, queue length, decode load, and others. It also configures autoscale behavior for both prefill and decode roles, including how to scale up or down based on queue lengths, GPU utilization, and KV cache usage.</p>
 </blockquote>
 <p>此外，它可以应用一些QoS规则，如早期拒绝，并调整阈值以将请求视为"慢"。实际上，Dynamo的路由器在启动时读取此JSON--或动态获取--以决定整个集群中请求的每个路由决策。</p>
 <blockquote>
@@ -2264,7 +2264,7 @@
 </blockquote>
 <p>NVIDIA Dynamo执行类似但相反的计算，其中越高越好。具体来说，它计算远程预填充分数，如果分数超过阈值，它将卸载到预填充工作器池。以下是配置系统使用条件分离的示例YAML片段，如果计算分数高于可配置的<code>remote_prefill_min_score</code>值：</p>
 <blockquote>
-<p>NVIDIA Dynamo performs a similar but opposite calculation where higher is better. Specifically, it calculates a remote prefill score, and if the score exceeds a threshold, it offloads to the prefill worker pool. Here is an example YAML snippet configuring the system to use conditional disaggregation if the calculated score is higher than a configurable remote_prefill_min_score value:</p>
+<p>NVIDIA Dynamo performs a similar but opposite calculation where higher is better. Specifically, it calculates a remote prefill score, and if the score exceeds a threshold, it offloads to the prefill worker pool. Here is an example YAML snippet configuring the system to use conditional disaggregation if the calculated score is higher than a configurable remote<em>prefill</em>min_score value:</p>
 </blockquote>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">disaggregated_router</span><span class="p">:</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
@@ -2281,11 +2281,11 @@
 </span></code></pre></div>
 <p>在这里，路由器根据<code>prefill_length</code>和<code>prefill_queue_depth</code>计算分数。在这种情况下，如果提示词长于256个token，它会投票给<code>prefill_remote</code>并卸载预填充。这部分分数计算的权重为0.7，如此配置。</p>
 <blockquote>
-<p>Here, the router calculates a score based on prefill_length and prefill_queue_depth. In this case, if the prompt is longer than 256 tokens, it votes for prefill_remote and offloads the prefill. This part of the score calculation has a weight of 0.7, as configured.</p>
+<p>Here, the router calculates a score based on prefill<em>length and prefill</em>queue<em>depth. In this case, if the prompt is longer than 256 tokens, it votes for prefill</em>remote and offloads the prefill. This part of the score calculation has a weight of 0.7, as configured.</p>
 </blockquote>
 <p>但如果预填充队列非常深，超过10个等待任务（如此配置），它将投票给<code>prefill_local</code>，权重为0.3。如果组合分数大于<code>remote_prefill_min_score</code>（本例中为0.5），Dynamo将卸载预填充。否则，它将保持预填充在本地而不卸载。</p>
 <blockquote>
-<p>But if the prefill queue is very deep, more than 10 waiting tasks as configured, it will vote for prefill_local with a weight of 0.3. If the combined score is greater than remote_prefill_min_score, 0.5 in this example, Dynamo will offload the prefill. Otherwise, it will keep the prefill local without offloading.</p>
+<p>But if the prefill queue is very deep, more than 10 waiting tasks as configured, it will vote for prefill<em>local with a weight of 0.3. If the combined score is greater than remote</em>prefill<em>min</em>score, 0.5 in this example, Dynamo will offload the prefill. Otherwise, it will keep the prefill local without offloading.</p>
 </blockquote>
 <h3 id="multipath-inference-racing">多路径推理（竞速）(Multipath inference (racing))<a class="headerlink" href="#multipath-inference-racing" title="Permanent link">&para;</a></h3>
 <p>多路径推理，或将同一请求发送到两个不同的模型大小或两个不同的路由，用于高可靠性。它本质上是竞速到最快的结果，通常称为竞速。Google和Meta的生产系统已知竞速模型以减少尾延迟。这是一种昂贵但有效的技术。</p>
@@ -2356,7 +2356,7 @@
 </blockquote>
 <p>例如，推理服务器可以为每个请求标记优先级，并在预填充工作器忙于高优先级任务时让路由器忽略低优先级请求的<code>should_offload_prefill</code>逻辑。</p>
 <blockquote>
-<p>For instance, an inference server could tag each request with a priority and have the router ignore the should_offload_prefill logic for low-priority requests when prefill workers are busy with high-priority tasks.</p>
+<p>For instance, an inference server could tag each request with a priority and have the router ignore the should<em>offload</em>prefill logic for low-priority requests when prefill workers are busy with high-priority tasks.</p>
 </blockquote>
 <p>以下是早期拒绝策略的示例。这可以在每个解码工作器上运行，甚至在上游LLM网关上运行：</p>
 <blockquote>
@@ -2387,7 +2387,7 @@
 </blockquote>
 <p>如果估计的TTFT超过允许的最大值（SLO），那么对于低优先级请求，我们拒绝它并从<code>should_offload_prefill</code>函数返回False。</p>
 <blockquote>
-<p>If the estimated TTFT exceeds the allowed maximum, the SLO, then for a low-priority request we reject it and return False from the should_offload_prefill function.</p>
+<p>If the estimated TTFT exceeds the allowed maximum, the SLO, then for a low-priority request we reject it and return False from the should<em>offload</em>prefill function.</p>
 </blockquote>
 <p>对于高优先级请求，我们仍然接受它，并在必要时可能牺牲一些其他排队的工作。更复杂的方法是抢占已经排队的低优先级请求，为新高优先级请求腾出空间。这通常通过维护每个优先级级别的独立队列来实现。</p>
 <blockquote>
@@ -2395,11 +2395,11 @@
 </blockquote>
 <p>深入一点，在前面的示例中，<code>avg_prefill_time_per_req()</code>和<code>avg_decode_time_per_req()</code>函数使用观察到的每请求预填充和解码持续时间的指数移动平均值即时计算值。它们按提示词token数（预填充）和生成的token数（解码）进行归一化。对于不同长度的输入，引擎通过将这些每token平均值乘以每个请求的实际token计数来推断。</p>
 <blockquote>
-<p>Diving a bit deeper, in the preceding example, the avg_prefill_time_per_req() and avg_decode_time_per_req() functions compute the values on the fly using an exponential moving average of the observed per-request prefill and decode durations. They're normalized by the number of prompt tokens (prefill) and generated tokens (decode). And for inputs of varying length, the engine extrapolates by multiplying these per-token averages by the actual token count for each request.</p>
+<p>Diving a bit deeper, in the preceding example, the avg<em>prefill</em>time<em>per</em>req() and avg<em>decode</em>time<em>per</em>req() functions compute the values on the fly using an exponential moving average of the observed per-request prefill and decode durations. They're normalized by the number of prompt tokens (prefill) and generated tokens (decode). And for inputs of varying length, the engine extrapolates by multiplying these per-token averages by the actual token count for each request.</p>
 </blockquote>
 <p><code>get_current_prefill_queue_length()</code>和<code>get_current_decode_queue_length()</code>函数检索调度器内部队列跟踪的待处理预填充和解码任务数量。这些值由调度器维护。</p>
 <blockquote>
-<p>The get_current_prefill_queue_length() and get_current_decode_queue_length() functions retrieve the number of pending prefill and decode tasks tracked by the scheduler's internal queues. These values are maintained by the scheduler.</p>
+<p>The get<em>current</em>prefill<em>queue</em>length() and get<em>current</em>decode<em>queue</em>length() functions retrieve the number of pending prefill and decode tasks tracked by the scheduler's internal queues. These values are maintained by the scheduler.</p>
 </blockquote>
 <p>这些每token时间估计使用调度器循环实时刷新，默认情况下，每秒从<code>/metrics</code>端点更新。这捕获了动态工作负载变化。</p>
 <blockquote>
