@@ -508,7 +508,7 @@ _打包作业以提升利用率_ 通过智能地打包作业来最大化利用�
 
 ### 并行加载数据 (Load data in parallel)
 
-_并行加载数据_ 使用多个工作进程/线程为 GPU 加载和预处理数据。默认的一到两个数据加载器工作进程可能不够用。对其进行剖析，并逐步增加数据加载进程/线程的数量，例如使用 PyTorch 的 DataLoader(num_workers=N)，直到数据输入不再是瓶颈为止。高核心数的 CPU 正是为喂饱这些 GPU 而存在的，所以务必充分利用它们。
+_并行加载数据_ 使用多个工作进程/线程为 GPU 加载和预处理数据。默认的一到两个数据加载器工作进程可能不够用。剖析其，并逐步增加数据加载进程/线程的数量，例如使用 PyTorch 的 DataLoader(num_workers=N)，直到数据输入不再是瓶颈为止。高核心数的 CPU 正是为喂饱这些 GPU 而存在的，所以务必充分利用它们。
 
 > Use multiple workers/threads to load and preprocess data for the GPUs. The default of one to two data loader workers may be insufficient. Profile and increase the number of data loader processes/threads using PyTorch DataLoader(num_workers=N), for example, until the data input is no longer the bottleneck. High core-count CPUs exist to feed those GPUs, so make sure you utilize them.
 
