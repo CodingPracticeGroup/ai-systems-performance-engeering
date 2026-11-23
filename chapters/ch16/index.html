@@ -1807,6 +1807,7 @@
 <p>There are a lot of moving parts in modern LLM inference engines-especially with disaggregated prefill and decode. The lifecycle of a typical request involves many components, as shown in Figure 16-1.</p>
 </blockquote>
 <p><img alt="图16-1 分离式prefill和解码LLM推理系统中典型请求的生命周期" src="../../assets/images/ch16/fig16_1048_1.png" /></p>
+<p><em>图16-1 分离式prefill和解码LLM推理系统中典型请求的生命周期</em></p>
 <blockquote>
 <p>Figure 16-1. Lifecycle of a typical request in a disaggregated prefill and decode LLM inference system</p>
 </blockquote>
@@ -1904,6 +1905,7 @@
 <p>Unlike traditional microservice invocations, which are relatively uniform and predictable in their execution time, LLM requests are nonuniform and can vary wildly in terms of latency. This difference is shown in Figure 16-2.</p>
 </blockquote>
 <p><img alt="图16-2 传统微服务调用和LLM调用之间的差异" src="../../assets/images/ch16/fig16_1052_1.png" /></p>
+<p><em>图16-2 传统微服务调用和LLM调用之间的差异</em></p>
 <blockquote>
 <p>Figure 16-2. Difference between traditional microservice invocations and LLM invocations</p>
 </blockquote>
@@ -1944,6 +1946,7 @@
 <p>You can set up Prometheus node exporters to gather all of these metrics from each node, collect the data in one place, and even set up alerts for critical thresholds. Grafana can then plot these metrics for real-time dashboards to share with your team. Figure 16-3 shows how the metrics are collected from each GPU in a Kubernetes cluster and exported to Prometheus to be visualized with Grafana, for example.</p>
 </blockquote>
 <p><img alt="图16-3 DCGM从Kubernetes GPU节点收集指标并将其发送到Prometheus" src="../../assets/images/ch16/fig16_1055_1.png" /></p>
+<p><em>图16-3 DCGM从Kubernetes GPU节点收集指标并将其发送到Prometheus</em></p>
 <blockquote>
 <p>Figure 16-3. DCGM collects metrics from the Kubernetes GPU nodes and sends them to Prometheus</p>
 </blockquote>
@@ -2122,6 +2125,7 @@
 <p>Another super useful tool that isn't well known is Nsight Compute's CUDA Program Counter (PC) Sampling feature. This samples program counters and identifies hotspots without requiring full, heavyweight instrumentation, as shown in Figure 16-4.</p>
 </blockquote>
 <p><img alt="图16-4 Nsight Compute的CUDA程序计数器(PC)采样功能有助于以低开销方式识别热点" src="../../assets/images/ch16/fig16_1062_1.png" /></p>
+<p><em>图16-4 Nsight Compute的CUDA程序计数器(PC)采样功能有助于以低开销方式识别热点</em></p>
 <blockquote>
 <p>Figure 16-4. Nsight Compute's CUDA Program Counter (PC) sampling feature helps identify hotspots in a low-overhead manner (source: https://oreil.ly/DyKWR)</p>
 </blockquote>
@@ -2540,6 +2544,7 @@
 <p>With its on-the-fly sizing, dynamic batching lets you amortize kernel launch overhead across multiple sequences-while avoiding the worst-case latencies of static batching. This improves GPU utilization and predictable latency under variable loads. Figure 16-5 shows the difference between static and dynamic batching.</p>
 </blockquote>
 <p><img alt="图16-5 静态批处理和动态批处理之间的差异" src="../../assets/images/ch16/fig16_1076_1.png" /></p>
+<p><em>图16-5 静态批处理和动态批处理之间的差异</em></p>
 <blockquote>
 <p>Figure 16-5. Difference between static and dynamic batching</p>
 </blockquote>
@@ -2593,6 +2598,7 @@
 <p>Compared to timeout-driven approaches like dynamic batching, event-driven continuous batching strategies eliminate idle compute slots and padding overhead of other methods. By never relying on a fixed "max delay" timer, continuous batching allows new requests to join an ongoing batch mid-generation-and doesn't block on the longest sequence, as shown in Figure 16-6.</p>
 </blockquote>
 <p><img alt="图16-6 连续批处理允许新序列（请求）在生成过程中加入批次" src="../../assets/images/ch16/fig16_1079_1.png" /></p>
+<p><em>图16-6 连续批处理允许新序列（请求）在生成过程中加入批次</em></p>
 <blockquote>
 <p>Figure 16-6. Continuous batching allows new sequences (requests) to join a batch mid-generation</p>
 </blockquote>
@@ -3264,6 +3270,7 @@
 <p>TE applies per-tensor scaling to maintain numerical stability, using scaling factors typically chosen in one of two ways: a fixed ahead-of-time calibration step using representative data during training, called static calibration-or a dynamically computed value tracking the tensor's maximum absolute value, called amax-based dynamic scaling. Figure 16-7 shows TE performing precision conversion on a transformer layer using range analysis, scaling factors, and target format.</p>
 </blockquote>
 <p><img alt="图16-7 NVIDIA Transformer Engine (TE)在transformer层上使用范围分析、缩放因子和目标格式进行精度转换" src="../../assets/images/ch16/fig16_1101_1.png" /></p>
+<p><em>图16-7 NVIDIA Transformer Engine (TE)在transformer层上使用范围分析、缩放因子和目标格式进行精度转换</em></p>
 <blockquote>
 <p>Figure 16-7. NVIDIA Transformer Engine (TE) using range analysis, scaling factor, and target format for the precision conversion on a transformer layer</p>
 </blockquote>
@@ -3589,6 +3596,7 @@
 <p>In a token sequence trie, each observed prompt prefix is stored as its own token path. This enables fast lookup of shared prefixes. When a new request arrives, the inference engine traverses the trie token by token starting from the root-until it can no longer match the next token. The matching token sequence lands on the node that completes the longest cached prefix, as shown in Figure 16-8, with an example system prompt "You are ChatGPT, a friendly assistant designed to help users..."</p>
 </blockquote>
 <p><img alt="图16-8 作为trie数据结构实现的前缀缓存" src="../../assets/images/ch16/fig16_1116_1.png" /></p>
+<p><em>图16-8 作为trie数据结构实现的前缀缓存</em></p>
 <blockquote>
 <p>Figure 16-8. Prefix cache implemented as a trie data structure</p>
 </blockquote>
@@ -3663,6 +3671,7 @@
 <p>This is a prefix cache tree structure-and LRU eviction policy-used by SGLang for multiple incoming requests. This example is based on an awesome SGLang blog post from LMSys.</p>
 </blockquote>
 <p><img alt="图16-9 多个请求的前缀缓存演变（来源：https://oreil.ly/7LBoC）" src="../../assets/images/ch16/fig16_1119_1.png" /></p>
+<p><em>图16-9 多个请求的前缀缓存演变（来源：https://oreil.ly/7LBoC）</em></p>
 <blockquote>
 <p>Figure 16-9. Prefix cache evolution for multiple requests (source: https://oreil.ly/7LBoC)</p>
 </blockquote>
@@ -3946,6 +3955,7 @@
 <p>Many production systems also implement UX features called debouncing and request coalescing. By debouncing, or pausing, before responding, the system can recognize if a user sends multiple requests in quick succession-either by accident or from rage clicking, as shown in Figure 16-10.</p>
 </blockquote>
 <p><img alt="图16-10 防抖在执行操作前暂停一下" src="../../assets/images/ch16/fig16_1129_1.png" /></p>
+<p><em>图16-10 防抖在执行操作前暂停一下</em></p>
 <blockquote>
 <p>Figure 16-10. Debouncing pauses a bit before performing an action</p>
 </blockquote>

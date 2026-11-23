@@ -1423,6 +1423,7 @@
 <p>A CUDA stream is a sequence of operations-kernel launches, memory copies, and memory allocations-that execute in the order they are issued. Consider launching 5 kernels from the CPU onto the GPU using 2 streams, as shown in Figure 11-1.</p>
 </blockquote>
 <p><img alt="图11-1 从CPU向GPU上运行的两个流启动五个核函数" src="../../assets/images/ch11/fig11_659_1.png" /></p>
+<p><em>图11-1 从CPU向GPU上运行的两个流启动五个核函数</em></p>
 <blockquote>
 <p>Figure 11-1. Launching five kernels from the CPU onto the two streams running on the GPU</p>
 </blockquote>
@@ -1597,6 +1598,7 @@
 <p>For example, consider an AI model training or inference workload that breaks work into batches. Here, you would launch a kernel on batch 0 in stream 0 at the same time that stream 1 invokes cudaMemcpyAsync() to copy batch 1 from the host to device, as shown in Figure 11-2.</p>
 </blockquote>
 <p><img alt="图11-2 三重重叠时间线" src="../../assets/images/ch11/fig11_664_1.png" /></p>
+<p><em>图11-2 三重重叠时间线</em></p>
 <blockquote>
 <p>Figure 11-2. Timeline of three-way overlap</p>
 </blockquote>
@@ -1801,6 +1803,7 @@
 <p>For instance, consider a stream that needs a scratch buffer of 16 MB for attention on a batch of input data. It would invoke cudaMallocAsync(&amp;scratchPtr, scratchBytes, stream1), which records this allocation request in its operation queue but does not force any other stream to wait, as shown in Figure 11-3.</p>
 </blockquote>
 <p><img alt="图11-3 流有序内存分配" src="../../assets/images/ch11/fig11_673_1.png" /></p>
+<p><em>图11-3 流有序内存分配</em></p>
 <blockquote>
 <p>Figure 11-3. Stream-ordered memory allocation</p>
 </blockquote>
@@ -1899,6 +1902,7 @@
 <p>In short, by enabling per-thread default streams, the legacy default-stream synchronization barrier is removed. Each host thread's default stream never waits on other threads' streams. This allows full overlap of multiple kernel launches across threads. And if you issue kernel launches (or memory copies) from different CPU threads without specifying an explicit stream, the operations will overlap on the GPU whenever resources permit. This is shown in Figure 11-4.</p>
 </blockquote>
 <p><img alt="图11-4 显示多个GPU核函数在启用PTDS的情况下跨不同线程的各自默认流上的单独CUDA流并发运行的时间线" src="../../assets/images/ch11/fig11_678_1.png" /></p>
+<p><em>图11-4 显示多个GPU核函数在启用PTDS的情况下跨不同线程的各自默认流上的单独CUDA流并发运行的时间线</em></p>
 <blockquote>
 <p>Figure 11-4. Timeline showing multiple GPU kernels running concurrently across separate CUDA streams issued from different threads on their respective default streams with PTDS enabled</p>
 </blockquote>
@@ -2006,6 +2010,7 @@
 <p>In this case, it is tempting to synchronize these streams on the host side and block the CPU with a full cudaDeviceSynchronize(). However, this will block the CPU until all streams and all operations on the GPU complete. This is very bad for performance. You can also use cudaStreamSynchronize(), as shown in Figure 11-5, but this will block until all operations in the stream's queue complete.</p>
 </blockquote>
 <p><img alt="图11-5 使用cudaStreamSynchronize()将阻塞CPU，直到流中的所有操作都已同步" src="../../assets/images/ch11/fig11_683_1.png" /></p>
+<p><em>图11-5 使用cudaStreamSynchronize()将阻塞CPU，直到流中的所有操作都已同步</em></p>
 <blockquote>
 <p>Figure 11-5. Using cudaStreamSynchronize() will block the CPU until all operations in the stream have synchronized</p>
 </blockquote>
@@ -2018,6 +2023,7 @@
 <p>For instance, you would launch a producer kernel on stream 0 and call cudaEventRecord(doneEvent, stream0) when the data is ready to be consumed. In stream 1, you would then call cudaStreamWaitEvent(stream1, doneEvent, 0) before launching the consumer kernel. In this way, only stream 1 is stalled waiting for the event to be recorded-the host thread and all other streams will continue executing, as shown in Figure 11-6.</p>
 </blockquote>
 <p><img alt="图11-6 使用CUDA事件以细粒度方式进行同步" src="../../assets/images/ch11/fig11_684_1.png" /></p>
+<p><em>图11-6 使用CUDA事件以细粒度方式进行同步</em></p>
 <blockquote>
 <p>Figure 11-6. Using CUDA events to synchronize in a fine-grained manner</p>
 </blockquote>
@@ -2067,6 +2073,7 @@
 <p>To ensure stream B doesn't start processing until stream A produces the data, we can record an event in stream A and make stream B wait for that before continuing. Similarly, stream D can wait on stream B as shown here. By chaining events in this manner, we maintain correct ordering between streams while still running different batches concurrently.</p>
 </blockquote>
 <p><img alt="图11-7 使用CUDA事件同步流（来源：https://oreil.ly/MynOA）" src="../../assets/images/ch11/fig11_687_1.png" /></p>
+<p><em>图11-7 使用CUDA事件同步流（来源：https://oreil.ly/MynOA）</em></p>
 <blockquote>
 <p>Figure 11-7. Synchronizing CUDA streams with events (source: https://oreil.ly/MynOA)</p>
 </blockquote>
@@ -2760,6 +2767,7 @@
 <p>NCCL will choose a ring or tree algorithm based on NVLink or PCIe topology. Consider a four-GPU ring, as shown in Figure 11-8, with four chunks (1-4).</p>
 </blockquote>
 <p><img alt="图11-8 四个GPU在环形中的分块all-reduce" src="../../assets/images/ch11/fig11_709_1.png" /></p>
+<p><em>图11-8 四个GPU在环形中的分块all-reduce</em></p>
 <blockquote>
 <p>Figure 11-8. Chunked all-reduce with four GPUs in a ring</p>
 </blockquote>
@@ -2906,6 +2914,7 @@
 <p>This trigger can happen even before Kernel A finishes execution. To do this, it uses cudaTriggerProgrammaticLaunchCompletion(), as shown in Figure 11-9. Here, Kernel B is waiting on Kernel A with a call to cudaGridDependencySynchronize().</p>
 </blockquote>
 <p><img alt="图11-9 使用PDL从核函数A启动核函数B--部分重叠核函数B的执行与核函数A的收尾阶段（在同一个CUDA流中）" src="../../assets/images/ch11/fig11_715_1.png" /></p>
+<p><em>图11-9 使用PDL从核函数A启动核函数B--部分重叠核函数B的执行与核函数A的收尾阶段（在同一个CUDA流中）</em></p>
 <blockquote>
 <p>Figure 11-9. Using PDL to launch Kernel B from Kernel A-partially overlapping Kernel B's execution with Kernel A's epilogue (in the same CUDA stream)</p>
 </blockquote>
@@ -3060,6 +3069,7 @@
 <p>For example, you can overlap the movement of model weights (data transfer) with GEMMs (compute) inside the same kernel so that one tile is being computed while the next tile is in flight. A warp-specialized, multistage software pipeline (stages 0...N) can coordinate these roles using PDL and mbarrier primitives, as shown in Figure 11-10.</p>
 </blockquote>
 <p><img alt="图11-10 使用PDL和线程块集群以及TMA多播的warp 专门化多级流水线，用于高性能的核函数间和核函数内GEMM实现" src="../../assets/images/ch11/fig11_721_1.png" /></p>
+<p><em>图11-10 使用PDL和线程块集群以及TMA多播的warp 专门化多级流水线，用于高性能的核函数间和核函数内GEMM实现</em></p>
 <blockquote>
 <p>Figure 11-10. Warp-specialized, multistage pipeline with PDL and thread block clusters and TMA multicast for a high-performance, inter-kernel and intra-kernel GEMM implementation</p>
 </blockquote>
@@ -3227,6 +3237,7 @@
 <p>Within each thread block, we use warp specialization to overlap data movement and computation. By splitting each block into a single "producer" warp and multiple "consumer" warps, the producer issues cuda::memcpy_async calls into shared memory. This uses TMA multicast to broadcast a single DMA transfer to all thread blocks in the cluster, as shown in Figure 11-11.</p>
 </blockquote>
 <p><img alt="图11-11 TMA多播：领导者CTA向DSMEM（集群共享内存）发出cp.async.bulk.tensor；跟随者CTA使用cluster.map_shared_rank消费瓦片；cuda::memcpy_async驱动TMA" src="../../assets/images/ch11/fig11_726_1.png" /></p>
+<p><em>图11-11 TMA多播：领导者CTA向DSMEM（集群共享内存）发出cp.async.bulk.tensor；跟随者CTA使用cluster.map<em>shared</em>rank消费瓦片；cuda::memcpy_async驱动TMA</em></p>
 <blockquote>
 <p>Figure 11-11. TMA multicast: a leader CTA issues cp.async.bulk.tensor into DSMEM (cluster shared memory); the follower CTAs consume tiles using cluster.map<em>shared</em>rank; cuda::memcpy_async drives TMA</p>
 </blockquote>
@@ -3350,7 +3361,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:58:13 UTC">2026年11月23日 04:58:13</span>
   </span>
 
     

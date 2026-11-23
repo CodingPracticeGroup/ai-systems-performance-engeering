@@ -1374,6 +1374,7 @@
 <p>As shown in a previous chapter, a roofline chart uses one horizontal line to represent the hardware's peak compute throughput (the roof)-and a diagonal line from the origin represents the peak achievable throughput limited by memory bandwidth. A kernel's arithmetic intensity determines where it falls on the x-axis, and its performance can be compared against these ceilings, as shown in Figure 9-1.</p>
 </blockquote>
 <p><img alt="图9-1 示例屋顶线模型（GFLOP/s与算术强度FLOPs/byte）" src="../../assets/images/ch09/fig09_520_1.png" /></p>
+<p><em>图9-1 示例屋顶线模型（GFLOP/s与算术强度FLOPs/byte）</em></p>
 <blockquote>
 <p>Figure 9-1. Example Roofline model (GFLOP/s versus arithmetic intensity in FLOPs/byte)</p>
 </blockquote>
@@ -1415,6 +1416,7 @@
 <p>Beyond simple shared-memory tiling, you can further increase intensity and expose more ILP with multilevel tiling. With multilevel tiling, after staging a tile into shared memory, you have each thread load microtiles into registers using vectorized types such as float4 and <half2>. This way, repeated operations happen entirely in registers. An example of multilevel tiling is shown in Figure 9-2.</p>
 </blockquote>
 <p><img alt="图9-2 全局内存（DRAM）、共享内存（SMEM）和寄存器之间的多级分块" src="../../assets/images/ch09/fig09_523_1.png" /></p>
+<p><em>图9-2 全局内存（DRAM）、共享内存（SMEM）和寄存器之间的多级分块</em></p>
 <blockquote>
 <p>Figure 9-2. Multilevel tiling between global memory (DRAM), shared memory (SMEM), and registers</p>
 </blockquote>
@@ -1448,6 +1450,7 @@
 <p>On modern GPUs, you can extend the tiling-reuse idea using CUDA thread-block clusters from Cooperative Groups (discussed in Chapter 10). These allow multiple thread blocks to share data using distributed shared memory (DSMEM), as shown in Figure 9-3.</p>
 </blockquote>
 <p><img alt="图9-3 CGA内的CTA（线程块）共享的DSMEM" src="../../assets/images/ch09/fig09_526_1.png" /></p>
+<p><em>图9-3 CGA内的CTA（线程块）共享的DSMEM</em></p>
 <blockquote>
 <p>Figure 9-3. DSMEM shared by CTAs (thread blocks) within a CGA</p>
 </blockquote>
@@ -1456,6 +1459,7 @@
 <p>We cover CGAs and thread block clusters in detail in the next chapter, but they're worth mentioning here, as they can directly increase arithmetic intensity. For example, a cluster of four thread blocks can cooperatively load one tile using the Tensor Memory Accelerator (TMA) multicast feature, as shown in Figure 9-4, which uses four CTAs to demonstrate this mechanism.</p>
 </blockquote>
 <p><img alt="图9-4 对于这四个（2x2）线程块集群，A和B的每个块使用多播同时加载到四个CTA（线程块）中（来源：https://oreil.ly/EEO_O）" src="../../assets/images/ch09/fig09_528_1.png" /></p>
+<p><em>图9-4 对于这四个（2x2）线程块集群，A和B的每个块使用多播同时加载到四个CTA（线程块）中（来源：https://oreil.ly/EEO_O）</em></p>
 <blockquote>
 <p>Figure 9-4. For these four (2 x 2) thread block clusters, each tile of A and B is loaded into four CTAs (thread blocks) simultaneously using multicast (source: https://oreil.ly/EEO_O)</p>
 </blockquote>
@@ -1617,6 +1621,7 @@
 <p>By pruning half of the weights into a 2:4 pattern, each memory load now delivers twice as many nonzero values that actually participate in multiplication. In other words, you are no longer fetching weights that turn out to be zero. As such, you are not wasting a matrix multiply operation on something that you know is zero, as shown in Figure 9-5.</p>
 </blockquote>
 <p><img alt="图9-5 2:4结构化稀疏" src="../../assets/images/ch09/fig09_535_1.png" /></p>
+<p><em>图9-5 2:4结构化稀疏</em></p>
 <blockquote>
 <p>Figure 9-5. 2:4 structured sparsity</p>
 </blockquote>
@@ -1737,6 +1742,7 @@
 <p>At the heart of high‐throughput tensor computation is TMEM, a 256 KB SRAM buffer per SM. At a high level, programmers do not explicitly allocate or manage TMEM, however. TMEM is handled by the hardware or libraries when you use Tensor Core operations. TMEM is shown in Figure 9-6.</p>
 </blockquote>
 <p><img alt="图9-6 TMEM通过累加部分结果支持Tensor Core（而不是寄存器）" src="../../assets/images/ch09/fig09_542_1.png" /></p>
+<p><em>图9-6 TMEM通过累加部分结果支持Tensor Core（而不是寄存器）</em></p>
 <blockquote>
 <p>Figure 9-6. TMEM supports the Tensor Cores by accumulating partial results (instead of registers)</p>
 </blockquote>
@@ -1865,6 +1871,7 @@
 <p>In PyTorch, these mixed-precision decisions are integrated into the compiler so you get optimal dtype selection (e.g., FP16/FP8 for compute, FP32 for accumulations) without requiring manual intervention. This is shown in Figure 9-7 as a mixed-precision matrix multiply-accumulate (MMA).</p>
 </blockquote>
 <p><img alt="图9-7 混合精度和矩阵乘累加（MMA）" src="../../assets/images/ch09/fig09_547_1.png" /></p>
+<p><em>图9-7 混合精度和矩阵乘累加（MMA）</em></p>
 <blockquote>
 <p>Figure 9-7. Mixed-precision and matrix multiply-accumulate (MMA)</p>
 </blockquote>
@@ -2082,6 +2089,7 @@
 <p>CUTLASS then emits asynchronous memory copies (cp.async or TMA) that stream each tile from DRAM into shared memory. The cp.async instruction stages data from global memory into shared memory without using per-thread registers (or optionally L1 cache), as shown in Figure 9-8. The caching behavior is controlled using cp.async modifiers or by using TMA for bulk tensor transfers.</p>
 </blockquote>
 <p><img alt="图9-8 使用异步内存复制指令（cp.async）从全局内存加载数据到共享内存，不涉及寄存器文件，可选地也不涉及L1缓存" src="../../assets/images/ch09/fig09_555_1.png" /></p>
+<p><em>图9-8 使用异步内存复制指令（cp.async）从全局内存加载数据到共享内存，不涉及寄存器文件，可选地也不涉及L1缓存</em></p>
 <blockquote>
 <p>Figure 9-8. Using the asynchronous memory copy instruction (cp.async) to load data from global memory into shared memory without involving the register file and optionally the L1 cache</p>
 </blockquote>

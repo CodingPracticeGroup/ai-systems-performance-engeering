@@ -1199,6 +1199,7 @@
 <p>In the coalesced case, however, threads load from consecutive addresses combined into a single wide transaction. Figure 7-1 compares coalesced and uncoalesced memory access.</p>
 </blockquote>
 <p><img alt="图7-1 合并与非合并内存访问模式比较" src="../../assets/images/ch07/fig07_374_1.png" /></p>
+<p><em>图7-1 合并与非合并内存访问模式比较</em></p>
 <blockquote>
 <p>Figure 7-1. Comparing coalesced versus uncoalesced memory access pattern</p>
 </blockquote>
@@ -1215,6 +1216,7 @@
 <p>To break out of this memory‐bound regime, you can reorganize your data so that each warp's 32 threads load contiguous elements. Either index the array with input[idx] where idx = blockIdx.x * blockDim.x + threadIdx.x or switch to a structure‐of‐arrays (SoA) layout so that thread i always touches element i. The difference between an array of structures (AoS) and an SoA is shown in Figure 7-2.</p>
 </blockquote>
 <p><img alt="图7-2 结构数组（AoS）与数组结构（SoA）" src="../../assets/images/ch07/fig07_376_1.png" /></p>
+<p><em>图7-2 结构数组（AoS）与数组结构（SoA）</em></p>
 <blockquote>
 <p>Figure 7-2. Array of structures (AoS) versus structure of arrays (SoA)</p>
 </blockquote>
@@ -1321,6 +1323,7 @@
 <p>This does not allow a single wide transaction and instead generates 32 separate loads. Each thread loads a value from inp that is far apart in memory from the value loaded by the next thread, which prevents coalescing. Figure 7-3 shows the coalesced versus strided access pattern-as well as random access.</p>
 </blockquote>
 <p><img alt="图7-3 合并、跨步和随机内存访问模式" src="../../assets/images/ch07/fig07_379_1.png" /></p>
+<p><em>图7-3 合并、跨步和随机内存访问模式</em></p>
 <blockquote>
 <p>Figure 7-3. Coalesced, strided, and random memory access patterns</p>
 </blockquote>
@@ -2465,6 +2468,7 @@
 <p>In code, bank conflicts typically occur when threads access a shared-memory array with a stride that causes them to land in the same bank. Figure 7-4 shows two examples of memory access without bank conflicts.</p>
 </blockquote>
 <p><img alt="图7-4 无bank冲突" src="../../assets/images/ch07/fig07_410_1.png" /></p>
+<p><em>图7-4 无bank冲突</em></p>
 <blockquote>
 <p>Figure 7-4. No bank conflicts</p>
 </blockquote>
@@ -2473,6 +2477,7 @@
 <p>Here, no two threads access the same memory bank at the same time. This is ideal. Figure 7-5 shows examples of 2-way and 16-way bank conflicts.</p>
 </blockquote>
 <p><img alt="图7-5 2路和16路bank冲突" src="../../assets/images/ch07/fig07_411_1.png" /></p>
+<p><em>图7-5 2路和16路bank冲突</em></p>
 <blockquote>
 <p>Figure 7-5. 2-way and 16-way bank conflicts</p>
 </blockquote>
@@ -2524,6 +2529,7 @@
 <p>A common technique is padding shared arrays so that each row, or each memory-access pattern, maps to different banks. For instance, if you have a 32 x 32 shared tile, you can declare it as [32][33] by adding one extra padding column so that each row now occupies 33 floats. This extra 1-element offset means that when thread k of a warp accesses tile[i][k], successive rows start at addresses that shift across shared-memory banks. This keeps all threads from hitting the same bank, as shown in Figure 7-6.</p>
 </blockquote>
 <p><img alt="图7-6 使用填充避免bank冲突" src="../../assets/images/ch07/fig07_414_1.png" /></p>
+<p><em>图7-6 使用填充避免bank冲突</em></p>
 <blockquote>
 <p>Figure 7-6. Avoiding bank conflicts with padding</p>
 </blockquote>
@@ -3067,6 +3073,7 @@
 <p>CUDA's Pipeline API with the Tensor Memory Accelerator (TMA) hardware engine takes this concept to the thread-block level. Instead of having each warp use the SM's load and store (LD/ST) units to fetch data from global memory, you can have the TMA engine asynchronously fetch entire tiles from global memory into shared memory, as shown in Figure 7-7.</p>
 </blockquote>
 <p><img alt="图7-7. TMA异步从全局HBM获取数据到共享内存" src="../../assets/images/ch07/fig07_430_1.png" /></p>
+<p><em>图7-7. TMA异步从全局HBM获取数据到共享内存</em></p>
 <p>要启动 TMA 传输，你可以调用<code>cuda::memcpy_async()</code>。在现代 GPU 架构上，<code>cuda::memcpy_async()</code>与<code>cuda::pipeline</code>暴露了用于全局到共享异步传输的硬件引擎。这包括可用时的 TMA。这将使用 TMA 的片上 DMA 引擎执行异步批量数据传输。这在 CUDA 中实现如下：</p>
 <blockquote>
 <p>To initiate a TMA transfer, you can call cuda::memcpy<em>async(). On modern GPU architectures, cuda::memcpy</em>async() with cuda::pipeline exposes the hardware engine for global-to-shared asynchronous transfers. This includes TMA when available. This performs asynchronous bulk data transfers using TMA's on-chip DMA engine. This is implemented in CUDA as follows:</p>

@@ -1492,6 +1492,7 @@
 <p>On modern GPUs, global atomics are serviced and serialized in the on-device L2 cache. This reduces latency versus DRAM round trips when the target line is resident. Atomic counters still incur latency and serialize under contention. But uncontended atomicAdd operations happen extremely quickly by remaining on-chip. An example of two threads incrementing an atomic is shown in Figure 12-1.</p>
 </blockquote>
 <p><img alt="图12-1 在直方图计算上下文中，跨多个线程的超快速片上原子内存加操作" src="../../assets/images/ch12/fig12_736_1.png" /></p>
+<p><em>图12-1 在直方图计算上下文中，跨多个线程的超快速片上原子内存加操作</em></p>
 <blockquote>
 <p>Figure 12-1. Superfast, on-chip atomic-memory add operations across multiple threads in the context of a histogram computation</p>
 </blockquote>
@@ -1556,6 +1557,7 @@
 <p>Let's now use a global atomic counter to coordinate a dynamic work queue. The goal is to use the atomic counter and atomicAdd to balance arbitrary workloads across all SMs so that no thread, or warp, sits idle. An example of this dynamic work queue is shown in Figure 12-2.</p>
 </blockquote>
 <p><img alt="图12-2 使用原子计数器和atomicAdd作为动态工作队列来平衡SM和warp之间的工作负载" src="../../assets/images/ch12/fig12_739_1.png" /></p>
+<p><em>图12-2 使用原子计数器和atomicAdd作为动态工作队列来平衡SM和warp之间的工作负载</em></p>
 <blockquote>
 <p>Figure 12-2. Using atomic counter and atomicAdd as a dynamic work queue to balance workloads across SMs and warps</p>
 </blockquote>
@@ -1758,6 +1760,7 @@
 <p>When your pipeline consists of multiple kernels, copies, stream-event records, and callbacks, launching them one by one on the host every iteration still incurs CPU overhead. CUDA Graphs let you capture that entire workflow once and replay it repeatedly with essentially zero CPU overhead. Figure 12-3 compares kernel launches without (top) and with (bottom) CUDA Graphs.</p>
 </blockquote>
 <p><img alt="图12-3 没有（上图）和有（下图）CUDA图的核函数启动时间线" src="../../assets/images/ch12/fig12_745_1.png" /></p>
+<p><em>图12-3 没有（上图）和有（下图）CUDA图的核函数启动时间线</em></p>
 <blockquote>
 <p>Figure 12-3. Kernel-launch timeline without (top) and with (bottom) CUDA Graphs</p>
 </blockquote>
@@ -1796,6 +1799,7 @@
 <p>You generally want to avoid allocating GPU memory inside your graph and preallocating memory outside of the graph. Many frameworks, such as PyTorch, use static memory pools with CUDA Graphs, as shown in Figure 12-4. The use of static memory pools keeps memory allocations from becoming part of the captured graph sequence.</p>
 </blockquote>
 <p><img alt="图12-4 PyTorch使用静态内存池进行CUDA图操作" src="../../assets/images/ch12/fig12_747_1.png" /></p>
+<p><em>图12-4 PyTorch使用静态内存池进行CUDA图操作</em></p>
 <blockquote>
 <p>Figure 12-4. PyTorch uses static memory pools for CUDA Graphs</p>
 </blockquote>
@@ -2038,6 +2042,7 @@
 <p>In practice, this embeds a "graph launch" node, or calls the device‐side graph API, inside your persistent or dynamic kernel. When the time comes, the GPU will kick off the entire graph on a stream that it owns, as shown in Figure 12-5.</p>
 </blockquote>
 <p><img alt="图12-5 由CUDA图启动的操作序列（核函数和数据传输节点）及其依赖关系（边）" src="../../assets/images/ch12/fig12_756_1.png" /></p>
+<p><em>图12-5 由CUDA图启动的操作序列（核函数和数据传输节点）及其依赖关系（边）</em></p>
 <blockquote>
 <p>Figure 12-5. Sequence of operations (nodes for kernels and data transfers) and their dependencies (edges) launched by a CUDA Graph</p>
 </blockquote>
@@ -2078,6 +2083,7 @@
 <p>By contrast, a device-initiated graph tail launch defers execution of the graph until the launching kernel reaches a synchronization point or completes. This effectively queues the graph to run after the current kernel as a continuation, as shown in Figure 12-6.</p>
 </blockquote>
 <p><img alt="图12-6 由给定图排队的尾部启动将按排队的顺序一次执行一个" src="../../assets/images/ch12/fig12_758_1.png" /></p>
+<p><em>图12-6 由给定图排队的尾部启动将按排队的顺序一次执行一个</em></p>
 <blockquote>
 <p>Figure 12-6. Tail launches enqueued by a given graph will execute one at a time, in order of when they were enqueued</p>
 </blockquote>
@@ -2090,6 +2096,7 @@
 <p>Additionally, tail graphs can perform additional tail launches. In this case, the new tail launches will execute before the previous graph's tail launch, as shown in Figure 12-7.</p>
 </blockquote>
 <p><img alt="图12-7 来自多个图的尾部启动排队" src="../../assets/images/ch12/fig12_759_1.png" /></p>
+<p><em>图12-7 来自多个图的尾部启动排队</em></p>
 <blockquote>
 <p>Figure 12-7. Tail launches enqueued from multiple graphs</p>
 </blockquote>
@@ -2102,6 +2109,7 @@
 <p>A sibling launch is a variation of fire-and-forget in which the launched graph executes as a peer to the parent graph-instead of as a child. Additionally, the sibling runs in the parent's stream environment. This means it runs immediately and independently but without delaying any tail launches of the parent graph, as shown in Figure 12-8.</p>
 </blockquote>
 <p><img alt="图12-8 在父图流环境中的兄弟图启动" src="../../assets/images/ch12/fig12_760_1.png" /></p>
+<p><em>图12-8 在父图流环境中的兄弟图启动</em></p>
 <blockquote>
 <p>Figure 12-8. Sibling graph launch in the parent's stream environment</p>
 </blockquote>
@@ -2172,6 +2180,7 @@
 <p>SWITCH - Holds N body graphs and executes the ith one when the condition equals i; if the condition ≥ N, it skips execution altogether.</p>
 </blockquote>
 <p><img alt="图12-9 条件图节点的类型" src="../../assets/images/ch12/fig12_764_1.png" /></p>
+<p><em>图12-9 条件图节点的类型</em></p>
 <blockquote>
 <p>Figure 12-9. Types of conditional graph nodes</p>
 </blockquote>
@@ -2299,6 +2308,7 @@
 <p>Launching with cudaGraphLaunch on a CUDA stream triggers execution of the upstream set-handle kernel, the conditional check, and then, if the flag was set, the body kernel. And all of this happens directly on the GPU, as shown in Figure 12-10.</p>
 </blockquote>
 <p><img alt="图12-10 如果满足条件，则进行额外处理（主体子图）" src="../../assets/images/ch12/fig12_768_1.png" /></p>
+<p><em>图12-10 如果满足条件，则进行额外处理（主体子图）</em></p>
 <blockquote>
 <p>Figure 12-10. Additional processing (body subgraph) if condition is met</p>
 </blockquote>
@@ -2315,6 +2325,7 @@
 <p>Conditional nodes can be nested as well. For instance, a WHILE node's body can contain an IF node, as shown in Figure 12-11. This allows multilevel decision logic without requiring CPU hops.</p>
 </blockquote>
 <p><img alt="图12-11 嵌套条件图节点" src="../../assets/images/ch12/fig12_769_1.png" /></p>
+<p><em>图12-11 嵌套条件图节点</em></p>
 <blockquote>
 <p>Figure 12-11. Nested conditional graph nodes</p>
 </blockquote>
@@ -2426,6 +2437,7 @@
 <p>In the host-driven version, the GPU runs parentKernel and then idles while the CPU prepares and launches each childKernel in turn. Note the explicit cudaDeviceSynchronize() calls after the parent and between children. These calls lead to idle gaps that should be eliminated, as shown in Figure 12-12.</p>
 </blockquote>
 <p><img alt="图12-12 子核函数启动导致的空闲间隙" src="../../assets/images/ch12/fig12_774_1.png" /></p>
+<p><em>图12-12 子核函数启动导致的空闲间隙</em></p>
 <blockquote>
 <p>Figure 12-12. Idle gaps caused by child-kernel launches</p>
 </blockquote>
@@ -2501,6 +2513,7 @@
 <p>With the device-side DP approach, there are no idle gaps for CPU decision making. As such, it collapses the latency between dependent stages and keeps SMs busy end to end. This increases GPU utilization at the slight cost of a small amount of per-launch overhead incurred on the device, as you see in Figure 12-13's timeline.</p>
 </blockquote>
 <p><img alt="图12-13 设备端启动和动态并行没有间隙" src="../../assets/images/ch12/fig12_776_1.png" /></p>
+<p><em>图12-13 设备端启动和动态并行没有间隙</em></p>
 <blockquote>
 <p>Figure 12-13. No gaps with device-side launch and dynamic parallelism</p>
 </blockquote>
@@ -2709,6 +2722,7 @@
 <p>Meanwhile, GPU/PE 1's kernel spins on nvshmem<em>int</em>wait_until() and, as soon as the flag is set, reads the payload. This requires no CPU intervention or extra copies-just hardware-accelerated, GPU-to-GPU transfers over NVLink.</p>
 </blockquote>
 <p><img alt="图12-14 NVSHMEM单边通信示例" src="../../assets/images/ch12/fig12_784_1.png" /></p>
+<p><em>图12-14 NVSHMEM单边通信示例</em></p>
 <blockquote>
 <p>Figure 12-14. NVSHMEM one-sided communication example</p>
 </blockquote>
@@ -2841,6 +2855,7 @@
 <p>In practice, this bucketed all-reduce approach is standard in large-model training. By overlapping chunks of gradient reduction with computation of the next layers, you hide nearly all network time. An example of a bucketed all-reduce with DDP running in separate processes (process 1 and process 2) is shown in Figure 12-15.</p>
 </blockquote>
 <p><img alt="图12-15 重叠all-reduce与计算" src="../../assets/images/ch12/fig12_789_1.png" /></p>
+<p><em>图12-15 重叠all-reduce与计算</em></p>
 <blockquote>
 <p>Figure 12-15. Overlapping all-reduce with computation</p>
 </blockquote>
@@ -2882,6 +2897,7 @@
 <p>As you increase GPUs, you need to use more aggressive pipelining of data transfers and computations-and use less CPU-side orchestration and synchronization. As such, you should offload more orchestration to the devices using asynchronous copies, NCCL collectives in graphs, and NVSHMEM's PGAS primitives. This shifts even more responsibility to software.</p>
 </blockquote>
 <p><img alt="图12-16 每个GPU并行计算，同时并发交换数据--没有空闲GPU，没有停滞的数据传输" src="../../assets/images/ch12/fig12_792_1.png" /></p>
+<p><em>图12-16 每个GPU并行计算，同时并发交换数据--没有空闲GPU，没有停滞的数据传输</em></p>
 <blockquote>
 <p>Figure 12-16. Each GPU computes in parallel while exchanging data concurrently-no idle GPUs and no stalled data transfers</p>
 </blockquote>
@@ -2903,6 +2919,7 @@
 <p>If your kernel lies near the memory roof (e.g., low FLOPS/byte) and is therefore memory bound, the best optimizations are those that hide or overlap memory transfers with computation. That means you should use asynchronous copies with CUDA streams-or even run multiple memory‐bound kernels concurrently. This way, you can better saturate different parts of the memory system.</p>
 </blockquote>
 <p><img alt="图12-17 具有两个硬件天花板的算术强度：内存受限（例如，数据变换操作）和计算受限（例如，矩阵乘法）" src="../../assets/images/ch12/fig12_794_1.png" /></p>
+<p><em>图12-17 具有两个硬件天花板的算术强度：内存受限（例如，数据变换操作）和计算受限（例如，矩阵乘法）</em></p>
 <blockquote>
 <p>Figure 12-17. Arithmetic intensity with two hardware ceilings: memory bound (e.g., data transform operation) and compute bound (e.g., matrix multiply)</p>
 </blockquote>
@@ -3018,7 +3035,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:50:40 UTC">2026年11月23日 04:50:40</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:58:13 UTC">2026年11月23日 04:58:13</span>
   </span>
 
     

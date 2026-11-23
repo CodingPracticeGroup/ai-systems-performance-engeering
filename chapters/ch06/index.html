@@ -1345,6 +1345,7 @@
 <p>Unlike CPUs, which optimize for low-latency single-thread performance, GPUs are throughput‐optimized processors built to run thousands of threads in parallel. A simple CUDA programming flow between the CPU and GPU is shown in Figure 6-1.</p>
 </blockquote>
 <p><img alt="图6-1 简单的CUDA编程流程" src="../../assets/images/ch06/fig06_294_1.png" /></p>
+<p><em>图6-1 简单的CUDA编程流程</em></p>
 <blockquote>
 <p>Figure 6-1. Simple CUDA programming flow</p>
 </blockquote>
@@ -1369,6 +1370,7 @@
 <p>In the best case, one warp from each scheduler can issue an instruction concurrently each cycle, allowing four warps to execute in parallel per cycle. This further boosts throughput when instruction mixing is utilized, as shown in Figure 6-2.</p>
 </blockquote>
 <p><img alt="图6-2 Blackwell SM包含四个独立的warp调度器，每个调度器能够每周期发射一条warp指令，并支持每个调度器双发射一条数学指令和一条内存操作" src="../../assets/images/ch06/fig06_296_1.png" /></p>
+<p><em>图6-2 Blackwell SM包含四个独立的warp调度器，每个调度器能够每周期发射一条warp指令，并支持每个调度器双发射一条数学指令和一条内存操作</em></p>
 <blockquote>
 <p>Figure 6-2. Blackwell SMs contain four independent warp schedulers, each capable of issuing one warp instruction per cycle with dual-issue of one math and one memory operation per scheduler</p>
 </blockquote>
@@ -1450,6 +1452,7 @@
 <p>CUDA structures parallel work into a three-level hierarchy-threads, thread blocks (aka cooperative thread arrays [CTAs]), and grids-to balance programmability with massive throughput. At the lowest level, each thread executes your kernel code. You group threads into thread blocks of up to 1,024 threads each on modern GPUs. Thread blocks form a grid when you launch your kernel, as shown in Figure 6-3.</p>
 </blockquote>
 <p><img alt="图6-3 线程、线程块（也称为CTA）和网格" src="../../assets/images/ch06/fig06_300_1.png" /></p>
+<p><em>图6-3 线程、线程块（也称为CTA）和网格</em></p>
 <blockquote>
 <p>Figure 6-3. Threads, thread blocks (aka CTAs), and grids</p>
 </blockquote>
@@ -1458,6 +1461,7 @@
 <p>By sizing your grid appropriately, you can scale to millions of threads without changing your kernel logic. CUDA's runtime (and frameworks like PyTorch) handle scheduling and distribution across all SMs. Figure 6-4 shows another view of the thread hierarchy, including the CPU-based host, which invokes a CUDA kernel running on the GPU device.</p>
 </blockquote>
 <p><img alt="图6-4 线程层次结构视图，包括调用在GPU设备上运行的核函数的基于CPU的主机" src="../../assets/images/ch06/fig06_301_1.png" /></p>
+<p><em>图6-4 线程层次结构视图，包括调用在GPU设备上运行的核函数的基于CPU的主机</em></p>
 <blockquote>
 <p>Figure 6-4. View of thread hierarchy, including the CPU-based host, which launches a kernel running on the GPU device</p>
 </blockquote>
@@ -1470,6 +1474,7 @@
 <p>Specifically, within a thread block cluster, threads in different thread blocks can access one another's shared memory and use hardware-supported, cluster-scoped barriers. These allow for much larger compute operations, including matrix multiplies, which are very common in today's massive LLM workloads. Thread block clusters share a distributed shared-memory (DSMEM) address space between SMs that participate in the thread block cluster, as shown in Figure 6-5.</p>
 </blockquote>
 <p><img alt="图6-5 包含多个线程块的线程块集群中使用的硬件支持DSMEM" src="../../assets/images/ch06/fig06_303_1.png" /></p>
+<p><em>图6-5 包含多个线程块的线程块集群中使用的硬件支持DSMEM</em></p>
 <blockquote>
 <p>Figure 6-5. Hardware-supported DSMEM used in thread block clusters containing multiple thread blocks</p>
 </blockquote>
@@ -1486,6 +1491,7 @@
 <p>Within each thread block, threads share data using low-latency on-chip shared memory and synchronize with __syncthreads(). Because each barrier incurs overhead, you should minimize synchronization points, as shown in Figure 6-6.</p>
 </blockquote>
 <p><img alt="图6-6 在代码的两个部分之间同步线程块内的所有线程" src="../../assets/images/ch06/fig06_304_1.png" /></p>
+<p><em>图6-6 在代码的两个部分之间同步线程块内的所有线程</em></p>
 <blockquote>
 <p>Figure 6-6. Synchronizing all threads within a thread block between two sections of code</p>
 </blockquote>
@@ -1494,6 +1500,7 @@
 <p>The goal is to minimize synchronization points. However, the GPU hardware will attempt to hide long-latency events such as global-memory loads, cache fills, and pipeline stalls by rapidly switching among warps. Thread blocks are subdivided into warps of 32 threads that execute in lockstep under the SIMT model using a warp scheduler. This is shown in Figure 6-7.</p>
 </blockquote>
 <p><img alt="图6-7 warp（32个线程）作为一个整体前进，指令由warp调度器管理" src="../../assets/images/ch06/fig06_306_1.png" /></p>
+<p><em>图6-7 warp（32个线程）作为一个整体前进，指令由warp调度器管理</em></p>
 <blockquote>
 <p>Figure 6-7. Warps (32 threads) advance as a whole with instructions managed by the warp scheduler</p>
 </blockquote>
@@ -1518,6 +1525,7 @@
 <p>Throughput also hinges on warp execution efficiency. Threads in a warp must follow the same control-flow path and perform coalesced memory accesses. If some threads diverge such that one branch takes the if path and others take the else path, the warp serializes execution, processing each branch path sequentially. This is called warp divergence, and it's shown in Figure 6-8.</p>
 </blockquote>
 <p><img alt="图6-8 SIMTwarp分支发散（左）与一致性（右）" src="../../assets/images/ch06/fig06_308_1.png" /></p>
+<p><em>图6-8 SIMTwarp分支发散（左）与一致性（右）</em></p>
 <blockquote>
 <p>Figure 6-8. SIMT warp divergence (left) versus uniformity (right)</p>
 </blockquote>
@@ -1551,6 +1559,7 @@
 <p>It's important to understand the relevant scale and hardware thread limits for your GPU generation, including the number of threads, thread blocks, warps, and SMs. Figure 6-9 shows the relative scale of these resources, including their limits.</p>
 </blockquote>
 <p><img alt="图6-9 Blackwell GPU上线程的相对规模和硬件限制" src="../../assets/images/ch06/fig06_310_1.png" /></p>
+<p><em>图6-9 Blackwell GPU上线程的相对规模和硬件限制</em></p>
 <blockquote>
 <p>Figure 6-9. Relative scale and hardware limits for threads on a Blackwell GPU</p>
 </blockquote>
@@ -2163,6 +2172,7 @@
 <p>Global memory (HBM or DRAM) is high-capacity, off-chip, and relatively slow. Registers are low-capacity, on-chip, and extremely fast. L1 cache, L2 cache, and shared memory sit in between. The benefit of caches and shared memory is that they hide the relatively long latency of accessing large off-chip memory stores. Figure 6-10 shows a high-level view of the GPU memory hierarchy (including the CPU).</p>
 </blockquote>
 <p><img alt="图6-10 GPU内存层次结构，包括CPU" src="../../assets/images/ch06/fig06_327_1.png" /></p>
+<p><em>图6-10 GPU内存层次结构，包括CPU</em></p>
 <blockquote>
 <p>Figure 6-10. GPU memory hierarchy, including the CPU</p>
 </blockquote>
@@ -2171,6 +2181,7 @@
 <p>TMEM is a dedicated 256 KB per-SM buffer that transparently communicates with the Tensor Cores at tens of terabytes per second of bandwidth. This reduces the Tensor Core's reliance on global memory. Figure 6-11 shows TMEM servicing the Tensor Cores-along with SMEM-to compute a C = A x B matrix multiply.</p>
 </blockquote>
 <p><img alt="图6-11 TMEM和SMEM为张量核心服务，执行C = A x B矩阵乘法" src="../../assets/images/ch06/fig06_328_1.png" /></p>
+<p><em>图6-11 TMEM和SMEM为张量核心服务，执行C = A x B矩阵乘法</em></p>
 <blockquote>
 <p>Figure 6-11. TMEM and SMEM servicing the Tensor Cores for C = A x B matrix multiply</p>
 </blockquote>
@@ -2266,6 +2277,7 @@
 <p><strong>Registers</strong>: On Blackwell, each thread begins its journey with the register file, a small on-chip SM SRAM array that holds per-thread local variables with essentially no extra latency. Each SM houses 64K 32-bit registers (256 KB total), but the hardware exposes at most 255 registers per thread. Because reads and writes complete in a single cycle and contend with almost nothing else, register bandwidth can reach tens of TB per second per SM. However, if your kernel needs more registers-whether through many thread-local variables or compiler temporaries-spilling occurs into local memory, which maps to off-chip DRAM and incurs hundreds to over a thousand cycles of latency. This local memory is shown in Figure 6-12.</p>
 </blockquote>
 <p><img alt="图6-12 每线程的本地内存" src="../../assets/images/ch06/fig06_333_1.png" /></p>
+<p><em>图6-12 每线程的本地内存</em></p>
 <blockquote>
 <p>Figure 6-12. Local memory per thread</p>
 </blockquote>
@@ -2274,6 +2286,7 @@
 <p><strong>Shared Memory and L1 Data Cache</strong>: One level up is the unified L1/data cache and shared-memory block. This is 256 KB of on-chip SRAM per SM, and you can dynamically partition user-managed shared memory (up to 228 KB per block) using cudaFuncSetAttribute() with cudaFuncAttributePreferredSharedMemoryCarveout on architectures like Blackwell that have unified L1/texture/shared memory. The maximum dynamic shared memory per block is 227 KB (CUDA reserves 1KB per block), and the total amount of shared memory allocatable per SM is also subject to this limit. Access costs around 20-30 cycles here, but if you design your thread blocks to avoid bank conflicts, you can achieve TB/s-level throughput. Thread-block shared memory is shown in Figure 6-13.</p>
 </blockquote>
 <p><img alt="图6-13 线程块共享内存" src="../../assets/images/ch06/fig06_334_1.png" /></p>
+<p><em>图6-13 线程块共享内存</em></p>
 <blockquote>
 <p>Figure 6-13. Thread-block shared memory</p>
 </blockquote>
@@ -2294,6 +2307,7 @@
 <p><strong>Global Memory (HBM or DRAM)</strong>: The global memory tier, local spill space, and HBM live off-chip. Any spilled registers or oversized automatic arrays reside in local memory, paying full DRAM latency (hundreds to more than 1,000 cycles) despite HBM3e's ~8 TB/s bandwidth. For Blackwell, the HBM3e tier provides up to 180 GB of device-wide storage at ~8 TB/s total. However, its high latency makes it the slowest link in the chain. Per-device global memory is shown in Figure 6-14.</p>
 </blockquote>
 <p><img alt="图6-14 每设备全局内存或HBM" src="../../assets/images/ch06/fig06_336_1.png" /></p>
+<p><em>图6-14 每设备全局内存或HBM</em></p>
 <blockquote>
 <p>Figure 6-14. Per-device global memory, or HBM</p>
 </blockquote>
@@ -2310,6 +2324,7 @@
 <p>The point of coherency (PoC) for the different levels in the memory hierarchy depends on your needs and the level at which the threads are communicating. It typically happens at the following levels: thread, thread-block (aka CTA), thread block cluster (aka CTA cluster), device, or system, as shown in Figure 6-15.</p>
 </blockquote>
 <p><img alt="图6-15 GPU线程的内存一致性点" src="../../assets/images/ch06/fig06_337_1.png" /></p>
+<p><em>图6-15 GPU线程的内存一致性点</em></p>
 <blockquote>
 <p>Figure 6-15. Point-of-memory coherency for your GPU threads</p>
 </blockquote>
@@ -2347,14 +2362,17 @@
 <p>Here, you can use PreferredLocation to tell the driver where you'll primarily use the data, and ReadMostly when it's mostly read-only, as shown in Figure 6-18.</p>
 </blockquote>
 <p><img alt="图6-16 CPU-GPU统一内存的自动页面迁移" src="../../assets/images/ch06/fig06_340_1.png" /></p>
+<p><em>图6-16 CPU-GPU统一内存的自动页面迁移</em></p>
 <blockquote>
 <p>Figure 6-16. Automatic page migrations with CPU-GPU Unified Memory</p>
 </blockquote>
 <p><img alt="图6-17 使用cudaMemPrefetchAsync()通过NVLink-C2C从CPU流式传输数据到GPU" src="../../assets/images/ch06/fig06_341_1.png" /></p>
+<p><em>图6-17 使用cudaMemPrefetchAsync()通过NVLink-C2C从CPU流式传输数据到GPU</em></p>
 <blockquote>
 <p>Figure 6-17. Streaming data from CPU to GPU over NVLink-C2C with cudaMemPrefetchAsync()</p>
 </blockquote>
 <p><img alt="图6-18 指定&quot;首选位置&quot;告诉CUDA驱动程序数据主要如何使用（例如，对于主要只读的工作负载使用ReadMostly）" src="../../assets/images/ch06/fig06_343_1.png" /></p>
+<p><em>图6-18 指定"首选位置"告诉CUDA驱动程序数据主要如何使用（例如，对于主要只读的工作负载使用ReadMostly）</em></p>
 <blockquote>
 <p>Figure 6-18. Specifying "preferred location" to tell the CUDA driver how the data is mostly used (e.g., ReadMostly for largely read-only workloads)</p>
 </blockquote>
@@ -2533,6 +2551,7 @@
 <p>Let's optimize the CUDA kernel and PyTorch code to implement a parallel version of the vector addition operation. Figure 6-19 shows how vectorized addition operations work.</p>
 </blockquote>
 <p><img alt="图6-19 向量化加法在向量中的元素之间并行进行" src="../../assets/images/ch06/fig06_349_1.png" /></p>
+<p><em>图6-19 向量化加法在向量中的元素之间并行进行</em></p>
 <blockquote>
 <p>Figure 6-19. Vectorized addition operating happening in parallel across elements in the vectors</p>
 </blockquote>
@@ -2733,6 +2752,7 @@
 <p>In a sequential kernel, there are no other warps to run while one waits, so the hardware pipeline is often idle. The timeline is a series of long operations with idle gaps during memory waits. In the parallel version, those gaps are filled by other warps' work, so the GPU stays busy. The comparison is shown in Figure 6-20.</p>
 </blockquote>
 <p><img alt="图6-20 并行与顺序时间线比较" src="../../assets/images/ch06/fig06_355_1.png" /></p>
+<p><em>图6-20 并行与顺序时间线比较</em></p>
 <blockquote>
 <p>Figure 6-20. Parallel versus sequential timeline comparison</p>
 </blockquote>
@@ -2905,6 +2925,7 @@
 <p>Compare this to the GPU's ridge point of 10 FLOPs per byte (10 FLOPs = ~80 TFLOPs / 8 TB/s). This floating-point addition kernel's ridge point of 0.083 is orders of magnitude lower on the left side of the roofline (memory-bound side). This is more than 100x below that threshold, so it cannot keep the arithmetic logic units (ALUs) busy. This kernel is memory bound, with performance dominated by memory stalls rather than computation. Figure 6-21 shows a representative roofline model for Blackwell, including peak compute performance (horizontal line at ~80 FLOPs/sec) and peak memory bandwidth (diagonal line corresponding to 8 TB/s).</p>
 </blockquote>
 <p><img alt="图6-21 Blackwell级GPU的Roofline模型（~80 TFLOPs/sec FP32，~8 TB/s HBM3e），显示核函数的点和~10 FLOPs/byte算术强度脊" src="../../assets/images/ch06/fig06_363_1.png" /></p>
+<p><em>图6-21 Blackwell级GPU的Roofline模型（~80 TFLOPs/sec FP32，~8 TB/s HBM3e），显示核函数的点和~10 FLOPs/byte算术强度脊</em></p>
 <blockquote>
 <p>Figure 6-21. Roofline model for a Blackwell-class GPU (~80 TFLOPs/sec FP32, ~8 TB/s HBM3e) showing our kernel's point and the ~10 FLOPs/byte arithmetic intensity ridge</p>
 </blockquote>
@@ -2969,6 +2990,7 @@
 <p>For example, to verify overlap, you can use NVTX markers to mark the start/end of data transfers and kernel calls. Nsight Systems will display these NVTX ranges on the timeline, making it easy to see the overlap. With asynchronous memory copies (cudaMemcpyAsync), data transfers overlap with kernel execution on the GPU (see Figure 6-22), comparing synchronous and asynchronous memory transfers.</p>
 </blockquote>
 <p><img alt="图6-22 同步（顺序）和异步（重叠）数据传输与核函数计算" src="../../assets/images/ch06/fig06_367_1.png" /></p>
+<p><em>图6-22 同步（顺序）和异步（重叠）数据传输与核函数计算</em></p>
 <blockquote>
 <p>Figure 6-22. Synchronous (sequential) and asynchronous (overlapping) data transfers with kernel computations</p>
 </blockquote>

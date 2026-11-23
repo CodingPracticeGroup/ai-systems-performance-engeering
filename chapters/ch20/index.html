@@ -1170,6 +1170,7 @@
 <p>These AI-assisted approaches can help improve performance, reduce training time, and lower operating costs. They can also enable the efficient deployment of larger models on smaller systems, which will unlock future advances in AI. In other words, this is AI helping to create better AI. We love it!</p>
 </blockquote>
 <p><img alt="图20-1 使用强化学习为你的环境找到最优的GPU核函数代码" src="../../assets/images/ch20/fig20_1376_1.png" /></p>
+<p><em>图20-1 使用强化学习为你的环境找到最优的GPU核函数代码</em></p>
 <blockquote>
 <p>Figure 20-1. Using reinforcement learning to find the most optimal GPU kernel code for your environment</p>
 </blockquote>
@@ -1191,6 +1192,7 @@
 <p>But the real proof came when those algorithms were tested on actual hardware. AlphaTensor discovered a method specific to the NVIDIA Volta V100 GPU generation, which multiplied large matrices 10%-20% faster than the standard NVIDIA V100-era cuBLAS library could at the time. A 10%-20% speedup in GEMM performance is huge. It's like gaining an extra 10%-20% in free compute for every model's forward and backward pass.</p>
 </blockquote>
 <p><img alt="图20-2 Strassen用于乘法2x2矩阵的次二次算法（来源：https://oreil.ly/5jzLn）" src="../../assets/images/ch20/fig20_1378_1.png" /></p>
+<p><em>图20-2 Strassen用于乘法2x2矩阵的次二次算法（来源：https://oreil.ly/5jzLn）</em></p>
 <blockquote>
 <p>Figure 20-2. Strassen's subquadratic algorithm for multiplying 2 x 2 matrices (source: https://oreil.ly/5jzLn)</p>
 </blockquote>
@@ -1240,6 +1242,7 @@
 <p>This feedback loop provides guidance for an improved prompt to use for the next kernel-code iteration. The loop continues until the code meets the given criteria, as shown in Figure 20-3.</p>
 </blockquote>
 <p><img alt="图20-3 在NVIDIA Hopper平台上使用DeepSeek-R1进行推理时扩展（来源：Automating GPU Kernel Generation with DeepSeek-R1 and Inference Time Scaling | NVIDIA Technical Blog）" src="../../assets/images/ch20/fig20_1381_1.png" /></p>
+<p><em>图20-3 在NVIDIA Hopper平台上使用DeepSeek-R1进行推理时扩展（来源：Automating GPU Kernel Generation with DeepSeek-R1 and Inference Time Scaling | NVIDIA Technical Blog）</em></p>
 <blockquote>
 <p>Figure 20-3. Inference-time scaling with DeepSeek-R1 on the NVIDIA Hopper platform (source: Automating GPU Kernel Generation with DeepSeek-R1 and Inference Time Scaling | NVIDIA Technical Blog)</p>
 </blockquote>
@@ -1266,6 +1269,7 @@
 <p>With this prompt, the AI produced a functionally correct CUDA kernel for attention. (Note that 1.44269504 = 1/ln(2). Using this value, the prompt scales the relative-position term accordingly when forming qk. In addition to correctness, the generated kernel also achieved a 1.1-2.1x speedup over the built-in PyTorch FlexAttention API. Figure 20-4 shows the performance comparison between the generated kernel and PyTorch's optimized FlexAttention across various attention patterns, including causal masks and long-document masks.</p>
 </blockquote>
 <p><img alt="图20-4 自动生成的注意力核函数相比PyTorch FlexAttention实现了1.1x-2.1x加速（来源：Automating GPU Kernel Generation with DeepSeek-R1 and Inference Time Scaling | NVIDIA Technical Blog）" src="../../assets/images/ch20/fig20_1383_1.png" /></p>
+<p><em>图20-4 自动生成的注意力核函数相比PyTorch FlexAttention实现了1.1x-2.1x加速（来源：Automating GPU Kernel Generation with DeepSeek-R1 and Inference Time Scaling | NVIDIA Technical Blog）</em></p>
 <blockquote>
 <p>Figure 20-4. Automatically generated attention kernels achieved 1.1x-2.1x speedups compared to PyTorch FlexAttention (source: Automating GPU Kernel Generation with DeepSeek-R1 and Inference Time Scaling | NVIDIA Technical Blog)</p>
 </blockquote>
@@ -1311,6 +1315,7 @@
 <p>Through many iterations of this RL-based trial-and-error approach, the model steadily improved. Within a few days of training, the AI went from near-0% success to producing working kernels ~40% of the time after only 5,000 training steps. Some of the generated Triton kernels ran up to 3x faster than baseline. Additionally, the model continued to improve as training progressed.</p>
 </blockquote>
 <p><img alt="图20-5 为生成正确和高性能的OpenAI Triton代码分配基于RL的奖励（相对于基线）（来源：https://oreil.ly/JBxdW）" src="../../assets/images/ch20/fig20_1386_1.png" /></p>
+<p><em>图20-5 为生成正确和高性能的OpenAI Triton代码分配基于RL的奖励（相对于基线）（来源：https://oreil.ly/JBxdW）</em></p>
 <blockquote>
 <p>Figure 20-5. Assigning an RL-based reward for generating correct and high-performing OpenAI Triton code (relative to a baseline) (source: https://oreil.ly/JBxdW)</p>
 </blockquote>
@@ -1352,6 +1357,7 @@
 <p>These massive AI systems are expected to allow continuous model fine-tuning and improvement. The follow-up model, Agent-2, might be an always-learning AI that never actually finishes training. So instead of checkpointing and deploying a static model, Agent-2 is designed to update its weights every day based on freshly generated synthetic data.</p>
 </blockquote>
 <p><img alt="图20-6 训练GPT-3和GPT-4所需的计算量与AI Futures Project研究人员所称的&quot;下一代&quot;模型Agent-1的预期计算量比较（来源：https://ai-2027.com）" src="../../assets/images/ch20/fig20_1389_1.png" /></p>
+<p><em>图20-6 训练GPT-3和GPT-4所需的计算量与AI Futures Project研究人员所称的"下一代"模型Agent-1的预期计算量比较（来源：https://ai-2027.com）</em></p>
 <blockquote>
 <p>Figure 20-6. Amount of compute needed to train GPT-3 and GPT-4 compared to the expected compute for the "next-generation" model called Agent-1 by the researchers at the AI Futures Project (source: https://ai-2027.com)</p>
 </blockquote>
@@ -1425,6 +1431,7 @@
 <p>Beyond kernel generation, modern frameworks are getting smarter about execution graphs and scheduling. Graph execution helps to reduce CPU-GPU synchronization overhead and opens the door to global optimizations across the whole graph. Technologies like NVIDIA's CUDA Graphs allow capturing a sequence of GPU operations-along with their dependencies-as a static graph that can then be instantiated and launched with minimal CPU overhead using the cudaGraphInstantiate() and cudaGraphLaunch() APIs, as shown in Figure 20-7.</p>
 </blockquote>
 <p><img alt="图20-7 CUDA中的图执行减少了按顺序启动多个核函数时的开销（来源：https://oreil.ly/kxSDm）" src="../../assets/images/ch20/fig20_1393_1.png" /></p>
+<p><em>图20-7 CUDA中的图执行减少了按顺序启动多个核函数时的开销（来源：https://oreil.ly/kxSDm）</em></p>
 <blockquote>
 <p>Figure 20-7. Graph execution in CUDA reduces overhead when launching multiple kernels in a sequence (source: https://oreil.ly/kxSDm)</p>
 </blockquote>
@@ -1498,6 +1505,7 @@
 <p>Similarly, AI assistants could watch over training jobs and inference servers and flag anomalies. For instance, the assistant could be monitoring a training job and say, "Hey, the loss is diverging early in training; maybe check if your data input has an issue or reduce the learning rate," as shown in Figure 20-8.</p>
 </blockquote>
 <p><img alt="图20-8 AI助手监视长时间运行的训练作业并建议修复异常的操作" src="../../assets/images/ch20/fig20_1398_1.png" /></p>
+<p><em>图20-8 AI助手监视长时间运行的训练作业并建议修复异常的操作</em></p>
 <blockquote>
 <p>Figure 20-8. AI assistant monitoring a long-running training job and suggesting actions to fix an anomaly</p>
 </blockquote>

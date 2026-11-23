@@ -1925,6 +1925,7 @@
 <p>The main idea is to ensure that data transfers occur concurrently with ongoing computations so that when one task finishes, the results needed for the next stage are already in progress or have been delivered. Modern frameworks such as PyTorch support asynchronous operations so that collective communication (e.g., all-reduce of gradients) can run alongside compute tasks. This reduces idle GPU time (see Figure 4-1)-and improves overall system throughput.</p>
 </blockquote>
 <p><img alt="图4-1 在多个CUDA流0-3上重叠主机到设备（H2D）和设备到主机（D2H）通信与计算" src="../../assets/images/ch04/fig04_165_1.png" /></p>
+<p><em>图4-1 在多个CUDA流0-3上重叠主机到设备（H2D）和设备到主机（D2H）通信与计算</em></p>
 <blockquote>
 <p>Figure 4-1. Overlapping host-to-device (H2D) and device-to-host (D2H) communication with computation on multiple CUDA streams 0-3</p>
 </blockquote>
@@ -2283,6 +2284,7 @@
 <p>Magnum IO, NVIDIA's overarching I/O acceleration platform, brings together a range of technologies to speed up data movement, access, and management across GPUs, CPUs, storage, and network interfaces. There are four key components of the Magnum IO architecture spanning storage, network, in-network computing, and I/O management, as shown in Figure 4-2.</p>
 </blockquote>
 <p><img alt="图4-2 NVIDIA Magnum IO加速平台的四个组件" src="../../assets/images/ch04/fig04_178_1.png" /></p>
+<p><em>图4-2 NVIDIA Magnum IO加速平台的四个组件</em></p>
 <blockquote>
 <p>Figure 4-2. Four components of NVIDIA's Magnum IO acceleration platform</p>
 </blockquote>
@@ -2344,6 +2346,7 @@
 <p>NVIDIA's RDMA implementation for GPUs is called GPUDirect RDMA. GPUDirect RDMA lets an RDMA-capable NIC such as InfiniBand and RDMA over Converged Ethernet (RoCE) perform direct memory access (DMA) to and from the GPU's device memory across two servers-bypassing host CPU and system RAM entirely. A data transfer with RoCE is shown in Figure 4-3.</p>
 </blockquote>
 <p><img alt="图4-3 使用RoCE实现GPU到GPU直接数据传输" src="../../assets/images/ch04/fig04_182_1.png" /></p>
+<p><em>图4-3 使用RoCE实现GPU到GPU直接数据传输</em></p>
 <blockquote>
 <p>Figure 4-3. GPU-to-GPU direct data transfer with RoCE</p>
 </blockquote>
@@ -2409,6 +2412,7 @@
 <p><strong>Utilize optimized "direct NIC" mode when available</strong>: Favor high-bandwidth, multirail NIC configurations that give each GPU or small groups of GPUs sufficient dedicated network bandwidth. Physically, NICs attach using PCIe to the host CPU or to a DPU. With modern GPU systems, NCCL supports GPU-initiated networking with InfiniBand GPUDirect Async (IBGDA) and the direct NIC path, as shown in Figure 4-4. This lets the GPU drive full-bandwidth RDMA without CPU intervention.</p>
 </blockquote>
 <p><img alt="图4-4 通过GPU和NIC之间的直接连接绕过CPU瓶颈" src="../../assets/images/ch04/fig04_187_1.png" /></p>
+<p><em>图4-4 通过GPU和NIC之间的直接连接绕过CPU瓶颈</em></p>
 <blockquote>
 <p>Figure 4-4. Bypassing CPU bottlenecks with direct connectivity between GPUs and NICs</p>
 </blockquote>
@@ -3522,6 +3526,7 @@
 <p>NIXL has a consistent asynchronous API for moving data across GPUs, CPUs, SSDs, and shared network storage. It always picks the fastest path for the placement of each cache chunk of data being moved. This hierarchy is shown in Figure 4-5 in the context of NVIDIA Dynamo's KV Cache Manager, which uses NIXL to choose the fastest path available for each KV cache transfer.</p>
 </blockquote>
 <p><img alt="图4-5 NVIDIA Dynamo分布式KV缓存管理器将访问频率较低的KV缓存卸载到更经济的内存层次结构" src="../../assets/images/ch04/fig04_230_1.png" /></p>
+<p><em>图4-5 NVIDIA Dynamo分布式KV缓存管理器将访问频率较低的KV缓存卸载到更经济的内存层次结构</em></p>
 <blockquote>
 <p>Figure 4-5. NVIDIA Dynamo Distributed KV Cache Manager offloads less frequently accessed KV cache to more economical memory hierarchies (source: https://oreil.ly/nsxdl)</p>
 </blockquote>
@@ -3567,6 +3572,7 @@
 <p>This prefill/decode split is implemented in common inference engines vLLM, SGLang, and NVIDIA's Dynamo and TensorRT-LLM. The prefill (prompt ingestion) creates the KV cache, and the decode (generation) uses this cache. NIXL specifically accelerates the transfer of the KV cache between nodes in this workflow. Figure 4-6 compares the traditional "monolithic" serving model to the "disaggregated" serving model in which two stages run on different GPU-based compute nodes to increase scale and maximize throughput.</p>
 </blockquote>
 <p><img alt="图4-6 分解服务将prefill和解码阶段分离到不同的GPU集群" src="../../assets/images/ch04/fig04_233_1.png" /></p>
+<p><em>图4-6 分解服务将prefill和解码阶段分离到不同的GPU集群</em></p>
 <blockquote>
 <p>Figure 4-6. Disaggregated serving separates prefill and decode stages onto different GPU clusters (source: https://oreil.ly/nsxdl)</p>
 </blockquote>
@@ -3629,6 +3635,7 @@
 <p>For instance, a NIXL transfer request could send a KV cache segment to another GPU, a CPU host memory buffer, or even an object storage service. And it can do this all within the same API, as shown in Figure 4-7.</p>
 </blockquote>
 <p><img alt="图4-7 NIXL架构" src="../../assets/images/ch04/fig04_237_1.png" /></p>
+<p><em>图4-7 NIXL架构</em></p>
 <blockquote>
 <p>Figure 4-7. NIXL architecture (source: https://oreil.ly/nsxdl)</p>
 </blockquote>
@@ -3784,6 +3791,7 @@
 <p>NIXL, in conjunction with the KV Cache Manager in Dynamo, for instance, can manage this transfer hierarchy efficiently. Consider NVIDIA's Grace Hopper and Grace Blackwell Superchips with a huge amount of unified CPU and GPU memory shared over the fast NVLink interconnect (see Figure 4-8).</p>
 </blockquote>
 <p><img alt="图4-8 基于ARM的Grace Hopper Superchip架构利用900 GB/s NVLink-C2C并克服传统PCIe瓶颈" src="../../assets/images/ch04/fig04_243_1.png" /></p>
+<p><em>图4-8 基于ARM的Grace Hopper Superchip架构利用900 GB/s NVLink-C2C并克服传统PCIe瓶颈</em></p>
 <blockquote>
 <p>Figure 4-8. ARM-based Grace Hopper Superchip architecture leverages the 900 GB/s NVLink-C2C and overcomes traditional PCIe bottlenecks (source: https://oreil.ly/zf6rF)</p>
 </blockquote>
@@ -3792,6 +3800,7 @@
 <p>The inference server can quickly offload a large KV cache to the large CPU memory to free up the limited GPU HBM. This yields a huge boost in inference performance. Specifically, a PCIe-based x86 + H100 system can improve time-to-first-token (TTFT) latency by as much as 14x for long input sequences compared to recomputing the cache. This speedup is shown in Figure 4-9.</p>
 </blockquote>
 <p><img alt="图4-9 与从头重新计算相比，基于x86的NVIDIA H100 GPU系统在大输入序列长度上通过KV缓存卸载测量到14倍TTFT加速" src="../../assets/images/ch04/fig04_244_1.png" /></p>
+<p><em>图4-9 与从头重新计算相比，基于x86的NVIDIA H100 GPU系统在大输入序列长度上通过KV缓存卸载测量到14倍TTFT加速</em></p>
 <blockquote>
 <p>Figure 4-9. Measure 14x TTFT speedup with KV cache offloading for an x86-based NVIDIA H100 GPU system on large input sequence lengths compared to recalculating it from scratch (source: https://oreil.ly/zf6rF)</p>
 </blockquote>
@@ -3800,6 +3809,7 @@
 <p>Furthermore, with its 900 GB/s NVLink-C2C interconnect, the ARM-based Grace Hopper Superchip delivers 2x faster TTFT latency compared to the non-superchip, x86-based H100 version described previously. This speedup is shown in Figure 4-10.</p>
 </blockquote>
 <p><img alt="图4-10 由于900 GB/s NVLink-C2C互连的KV缓存卸载，基于ARM的Grace Hopper Superchip与基于x86的H100 GPU系统相比，TTFT加速2倍" src="../../assets/images/ch04/fig04_246_1.png" /></p>
+<p><em>图4-10 由于900 GB/s NVLink-C2C互连的KV缓存卸载，基于ARM的Grace Hopper Superchip与基于x86的H100 GPU系统相比，TTFT加速2倍</em></p>
 <blockquote>
 <p>Figure 4-10. 2x speedup in TTFT for the ARM-based Grace Hopper Superchip compared to the x86-based H100 GPU system due to KV cache offloading with the 900 GB/s NVLink-C2C interconnect (source: https://oreil.ly/zf6rF)</p>
 </blockquote>

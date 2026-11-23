@@ -1661,6 +1661,7 @@
 </blockquote>
 <p>图 18-1 显示了在 Hopper H100 GPU 上，MLA 与其他注意力实现（如分组查询注意力（GQA）和多查询注意力（MQA））相比在算术强度方面的改进。（注：Blackwell 通过更高的 TFLOPs 和 HBM 带宽将两条 roofline 都向上移动。）</p>
 <p><img alt="图18-1 MLA接近计算受限区域（在NVIDIA Hopper H100架构上测量）" src="../../assets/images/ch18/fig18_1197_1.png" /></p>
+<p><em>图18-1 MLA接近计算受限区域（在NVIDIA Hopper H100架构上测量）</em></p>
 <blockquote>
 <p>Figure 18-1. MLA approaches the compute-bound regime (measured on the NVIDIA Hopper H100 architecture)</p>
 </blockquote>
@@ -1711,6 +1712,7 @@
 <p>A key feature of FlexAttention and FlexDecoding is support for nested jagged-layout tensors (NJT). These allow for ragged batching of variable-length sequences-common in LLM workloads-during decoding. Figure 18-2 shows the jagged tensor representation of various sequences.</p>
 </blockquote>
 <p><img alt="图18-2 不规则批次作为嵌套锯齿张量（偏移量）；三个序列（上图）表示为具有偏移量的单个嵌套锯齿张量表示（下图）；解码时批处理优先使用PyTorch NJT" src="../../assets/images/ch18/fig18_1201_1.png" /></p>
+<p><em>图18-2 不规则批次作为嵌套锯齿张量（偏移量）；三个序列（上图）表示为具有偏移量的单个嵌套锯齿张量表示（下图）；解码时批处理优先使用PyTorch NJT</em></p>
 <blockquote>
 <p>Figure 18-2. Ragged batch as a nested jagged tensor (offsets); three sequences (top) represented as a single nested jagged tensor representation with offsets (bottom); prefer PyTorch NJT for decode-time batching</p>
 </blockquote>
@@ -1723,6 +1725,7 @@
 <p>FlexDecoding leverages captured tensors to vary certain mask or bias values during each iteration-without requiring a recompile. And it integrates with PagedAttention. To use a global KV cache such as vLLM LMCache, map the cache's page table to FlexAttention's BlockMask. This will translate logical KV pages into physical memory addresses on the fly.</p>
 </blockquote>
 <p><img alt="图18-3 PagedAttention将逻辑KV块分散到物理KV块中，以优化序列间的缓存重用；块大小与LMCache页大小对齐--较大的页（例如64-128个token）减少分离设置中的RDMA开销" src="../../assets/images/ch18/fig18_1203_1.png" /></p>
+<p><em>图18-3 PagedAttention将逻辑KV块分散到物理KV块中，以优化序列间的缓存重用；块大小与LMCache页大小对齐--较大的页（例如64-128个token）减少分离设置中的RDMA开销</em></p>
 <blockquote>
 <p>Figure 18-3. PagedAttention scatters logical KV blocks into physical KV blocks for optimal cache reuse between sequences; align block sizes with LMCache page size-larger pages (e.g., 64-128 tokens) reduce RDMA overhead in disaggregated setups</p>
 </blockquote>
@@ -1773,6 +1776,7 @@
 <p>With a disaggregated KV cache pool, when prefill calculates the prompt's KV tensors-or decode extends the KV tensors-the KV blocks are stored in a distributed manner across many compute nodes. This is shown in Figure 18-4, adapted from disaggregated KV pooling research efforts.</p>
 </blockquote>
 <p><img alt="图18-4 分离式（分布式）KV缓存池（来源：https://oreil.ly/2xtK-）" src="../../assets/images/ch18/fig18_1206_1.png" /></p>
+<p><em>图18-4 分离式（分布式）KV缓存池（来源：https://oreil.ly/2xtK-）</em></p>
 <blockquote>
 <p>Figure 18-4. Disaggregated (distributed) KV cache pool (source: https://oreil.ly/2xtK-)</p>
 </blockquote>
@@ -1927,6 +1931,7 @@
 <p>Another technique, called POD-Attention, similarly reorganizes attention computation to reduce HBM traffic. Specifically, it uses SM-aware thread-block (or cooperative thread array [CTA]) scheduling. This enables runtime operation binding that dynamically assigns each CTA running on an SM to perform either prefill or decode tasks. This is shown in Figure 18-5.</p>
 </blockquote>
 <p><img alt="图18-5 SM感知线程块（CTA）调度，将prefill任务与SM上的decode任务匹配以最小化内存移动" src="../../assets/images/ch18/fig18_1213_1.png" /></p>
+<p><em>图18-5 SM感知线程块（CTA）调度，将prefill任务与SM上的decode任务匹配以最小化内存移动</em></p>
 <blockquote>
 <p>Figure 18-5. SM-aware thread-block (CTA) scheduling to match prefill tasks with decode tasks on SMs to minimize memory movement</p>
 </blockquote>
@@ -2148,6 +2153,7 @@
 <p>For instance, NVIDIA Dynamo implements a global scheduling queue in which the decode workers push new prompt tasks into a queue that prefill workers consume. In this design, a decode node enqueues a request for prompt processing, as shown in the "Put RemovePrefillRequest" (step 6) in Figure 18-6.</p>
 </blockquote>
 <p><img alt="图18-6 NVIDIA Dynamo中的请求生命周期；decode拉取提示，prefill使用NIXL推送KV" src="../../assets/images/ch18/fig18_1223_1.png" /></p>
+<p><em>图18-6 NVIDIA Dynamo中的请求生命周期；decode拉取提示，prefill使用NIXL推送KV</em></p>
 <blockquote>
 <p>Figure 18-6. Request lifecycle in NVIDIA Dynamo; decode pulls prompts and prefill pushes KV using NIXL</p>
 </blockquote>
@@ -2292,6 +2298,7 @@
 <p>For instance, you can run prefill with TP=8 to span 8 GPUs and minimize prompt latency. You can then run decode with TP=1, or a single GPU, to maximize per-token throughput and minimize step latency. In this way, each phase's throughput and latency can be tuned separately, as shown in Figure 18-7.</p>
 </blockquote>
 <p><img alt="图18-7 为prefill和decode使用不同的并行策略（来源：https://oreil.ly/1-Ti0）" src="../../assets/images/ch18/fig18_1230_1.png" /></p>
+<p><em>图18-7 为prefill和decode使用不同的并行策略（来源：https://oreil.ly/1-Ti0）</em></p>
 <blockquote>
 <p>Figure 18-7. Using different parallelism strategies for prefill and decode (source: https://oreil.ly/1-Ti0)</p>
 </blockquote>
@@ -2562,6 +2569,7 @@
 <p>This is analogous to how web servers shed load under extreme overload to keep serving the remaining requests with acceptable latency-the dreaded HTTP 503 error. This is better than timing out all requests.</p>
 </blockquote>
 <p><img alt="图18-8 应用早期拒绝时的实例负载（来源：https://oreil.ly/2xtK-）" src="../../assets/images/ch18/fig18_1242_1.png" /></p>
+<p><em>图18-8 应用早期拒绝时的实例负载（来源：https://oreil.ly/2xtK-）</em></p>
 <blockquote>
 <p>Figure 18-8. Instance load when applying early rejection (source: https://oreil.ly/2xtK-)</p>
 </blockquote>
@@ -2738,6 +2746,7 @@
 <p>The name TetriInfer hints at "packing" requests like Tetris pieces to fill GPU time without interference.</p>
 </blockquote>
 <p><img alt="图18-9 现有系统与TetriInfer架构的比较（来源：https://oreil.ly/_3KGj）" src="../../assets/images/ch18/fig18_1249_1.png" /></p>
+<p><em>图18-9 现有系统与TetriInfer架构的比较（来源：https://oreil.ly/_3KGj）</em></p>
 <blockquote>
 <p>Figure 18-9. Comparison between existing systems and TetriInfer's architecture (source: https://oreil.ly/_3KGj)</p>
 </blockquote>
@@ -2751,6 +2760,7 @@
 <p>Arrow continuously analyzes the workload by measuring input token rate versus output token rate-and the backlog in each worker pool in the cluster. It then dynamically adjusts the allocation of workers, as shown in Figure 18-10.</p>
 </blockquote>
 <p><img alt="图18-10 Arrow架构" src="../../assets/images/ch18/fig18_1251_1.png" /></p>
+<p><em>图18-10 Arrow架构</em></p>
 <blockquote>
 <p>Figure 18-10. Arrow architecture</p>
 </blockquote>
@@ -2920,7 +2930,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:47:39 UTC">2026年11月23日 04:47:39</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:58:13 UTC">2026年11月23日 04:58:13</span>
   </span>
 
     

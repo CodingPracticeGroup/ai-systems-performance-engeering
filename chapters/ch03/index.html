@@ -1902,6 +1902,7 @@
 <p>Running a multi-petaFLOP GPU cluster involves more than just writing high-level PyTorch, TensorFlow, or JAX code. There is a whole software stack underpinning GPU operations, and each layer can affect performance. Figure 3-1 shows a common set of frameworks, libraries, compilers, runtimes, and tools used to develop and productionize modern LLM workloads.</p>
 </blockquote>
 <p><img alt="图3-1 用于开发和生产化现代LLM工作负载的常见框架、库、编译器、运行时和工具集" src="../../assets/images/ch03/fig03_98_1.png" /></p>
+<p><em>图3-1 用于开发和生产化现代LLM工作负载的常见框架、库、编译器、运行时和工具集</em></p>
 <blockquote>
 <p>Figure 3-1. Common set of frameworks, libraries, compilers, runtimes, and tools used to develop and productionize modern LLM workloads</p>
 </blockquote>
@@ -1937,6 +1938,7 @@
 <p>An important feature of NVIDIA's GPU programming model is its compatibility across hardware generations. When you compile CUDA code, the resulting binary includes virtual, or intermediate, PTX code as well as physical device code (e.g., ARM, x86, GPU instructions), as shown in Figure 3-2.</p>
 </blockquote>
 <p><img alt="图3-2 使用nvcc将CUDA程序编译为PTX--最终编译为GPU目标设备的低级指令" src="../../assets/images/ch03/fig03_101_1.png" /></p>
+<p><em>图3-2 使用nvcc将CUDA程序编译为PTX--最终编译为GPU目标设备的低级指令</em></p>
 <blockquote>
 <p>Figure 3-2. Using nvcc to compile a CUDA program into PTX-and ultimately the low-level instructions for the GPU target device</p>
 </blockquote>
@@ -1987,6 +1989,7 @@
 <p>When you perform operations on PyTorch tensors using GPUs, they are moved from the CPU to the GPU in what appears to be a single Python call. However, this single call is actually translated into a series of calls to the CUDA runtime utilizing various CUDA libraries, as shown in Figure 3-3.</p>
 </blockquote>
 <p><img alt="图3-3 从PyTorch代码到GPU设备的流程" src="../../assets/images/ch03/fig03_104_1.png" /></p>
+<p><em>图3-3 从PyTorch代码到GPU设备的流程</em></p>
 <blockquote>
 <p>Figure 3-3. Flow from PyTorch code to GPU device</p>
 </blockquote>
@@ -2057,6 +2060,7 @@
 <p>If you launch eight training processes, one per GPU, you should bind each training process to a CPU core-or set of CPU cores-connected to the same NUMA node as the GPUs. In this case, GPUs 0-3 are connected to NUMA node 0 and GPUs 4-7 are connected to NUMA node 1's cores, as shown in Figure 3-4.</p>
 </blockquote>
 <p><img alt="图3-4 节点中的八个GPU，四个连接到NUMA节点0，另外四个连接到NUMA节点1" src="../../assets/images/ch03/fig03_108_1.png" /></p>
+<p><em>图3-4 节点中的八个GPU，四个连接到NUMA节点0，另外四个连接到NUMA节点1</em></p>
 <blockquote>
 <p>Figure 3-4. Eight GPUs in a node, with four GPUs connected to NUMA node 0 and the other four to NUMA node 1</p>
 </blockquote>
@@ -2370,6 +2374,7 @@
 <p>Deep learning frameworks provide options to use pinned memory for data loaders. For example, PyTorch's DataLoader has a flag pin_memory=True, which, when true, means the batches loaded will be placed in pinned RAM, as shown in Figure 3-5.</p>
 </blockquote>
 <p><img alt="图3-5 固定内存（也称为页锁定或不可分页）是一种不能交换到磁盘的内存类型" src="../../assets/images/ch03/fig03_119_1.png" /></p>
+<p><em>图3-5 固定内存（也称为页锁定或不可分页）是一种不能交换到磁盘的内存类型</em></p>
 <blockquote>
 <p>Figure 3-5. Pinned memory (aka page-locked or nonpageable) is a type of memory that cannot be swapped out to disk</p>
 </blockquote>
@@ -2619,6 +2624,7 @@
 <p>For instance, two training processes that each would take one hour on their own-on the same GPU, running sequentially-can run together with MPS and finish in a bit over one hour total in parallel instead of two hours sequentially. The speedup from MPS can approach a near-doubling when kernels and memory bandwidth from concurrent clients complement one another. To visualize, imagine Process A and Process B each launching kernels periodically without MPS. The GPU schedule might look like A-B-A-B with gaps in between while each one waits, as shown in Figure 3-6.</p>
 </blockquote>
 <p><img alt="图3-6 进程A和B在没有MPS的情况下启动核函数时的GPU调度" src="../../assets/images/ch03/fig03_131_1.png" /></p>
+<p><em>图3-6 进程A和B在没有MPS的情况下启动核函数时的GPU调度</em></p>
 <blockquote>
 <p>Figure 3-6. GPU schedule when processes A and B launch kernels without MPS</p>
 </blockquote>
@@ -2627,6 +2633,7 @@
 <p>With MPS, the schedule overlaps A and B so that whenever A isn't using some parts of the GPU, B's work can use them simultaneously, and vice versa. This overlapping eliminates idle gaps, as shown in Figure 3-7.</p>
 </blockquote>
 <p><img alt="图3-7 使用MPS减少进程A和B的空闲间隙" src="../../assets/images/ch03/fig03_131_2.png" /></p>
+<p><em>图3-7 使用MPS减少进程A和B的空闲间隙</em></p>
 <blockquote>
 <p>Figure 3-7. Reducing idle gaps for processes A and B using MPS</p>
 </blockquote>
@@ -2672,6 +2679,7 @@
 <p>MIG allows a GPU to be sliced into as many as seven smaller logical GPUs-each with its own dedicated portion of memory and compute units, or SMs, as shown in Figure 3-8.</p>
 </blockquote>
 <p><img alt="图3-8 现代GPU上的七个MIG切片" src="../../assets/images/ch03/fig03_134_1.png" /></p>
+<p><em>图3-8 现代GPU上的七个MIG切片</em></p>
 <blockquote>
 <p>Figure 3-8. Seven MIG slices on a modern GPU</p>
 </blockquote>

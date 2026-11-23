@@ -1927,6 +1927,7 @@
 <p>Expert parallelism, used in mixture-of-experts (MoE) model architectures, assigns each expert subnetwork its own GPU. A lightweight gating network then directs each input request or token to only the top-k active experts identified by the router. In this case, each GPU processes just the subset of experts that it hosts.</p>
 </blockquote>
 <p><img alt="图19-1 PP导致的流水线气泡" src="../../assets/images/ch19/fig19_1261_1.png" /></p>
+<p><em>图19-1 PP导致的流水线气泡</em></p>
 <blockquote>
 <p><em>Figure 19-1. Pipeline bubbles caused by PP</em></p>
 </blockquote>
@@ -1951,6 +1952,7 @@
 <p>You can also use a different number of shards. This is shown in Figure 19-2, which uses two different numbers of TP shards in two different hybrid TP + PP parallelism configurations across eight GPUs.</p>
 </blockquote>
 <p><img alt="图19-2 为给定模型跨八个GPU预配置两种不同的混合分片池（TP=4, PP=1和TP=2, PP=1）" src="../../assets/images/ch19/fig19_1263_1.png" /></p>
+<p><em>图19-2 为给定模型跨八个GPU预配置两种不同的混合分片池（TP=4, PP=1和TP=2, PP=1）</em></p>
 <blockquote>
 <p><em>Figure 19-2. Preprovisioning two different hybrid-sharding pools (TP = 4, PP = 1 and TP = 2, PP = 1) for a given model across eight GPUs</em></p>
 </blockquote>
@@ -2761,6 +2763,7 @@
 <p>Integrate speculative prefetch techniques only after validating your access patterns and storage tiers.</p>
 </blockquote>
 <p><img alt="图19-3 使用SpeCache的推测性解码" src="../../assets/images/ch19/fig19_1288_1.png" /></p>
+<p><em>图19-3 使用SpeCache的推测性解码</em></p>
 <blockquote>
 <p><em>Figure 19-3. Speculative decoding with SpeCache (source: https://oreil.ly/b21E5)</em></p>
 </blockquote>
@@ -3008,6 +3011,7 @@
 <p>Policy switching means that the compression strategy can change based on the current context. The goal is to free up memory and network bandwidth when needed—without impacting model accuracy or slowing down computations that involve the KV cache data. Figure 19-4 shows a few different types of KV cache compression algorithms.</p>
 </blockquote>
 <p><img alt="图19-4 不同的KV缓存算法，包括无缓存（例如，密集）" src="../../assets/images/ch19/fig19_1294_1.png" /></p>
+<p><em>图19-4 不同的KV缓存算法，包括无缓存（例如，密集）</em></p>
 <blockquote>
 <p><em>Figure 19-4. Different KV cache algorithms, including no caching (e.g., dense)</em></p>
 </blockquote>
@@ -3339,6 +3343,7 @@
 <p>A buddy allocator splits memory into blocks whose sizes are powers of two. A slab allocator works on top of the buddy system to efficiently manage small, fixed-size objects. It preallocates slabs, or collections of objects of a given type, and maintains a free list within each slab, as shown in Figure 19-6.</p>
 </blockquote>
 <p><img alt="图19-6 Slab分配器在每个预分配的slab内维护内存对象的空闲列表" src="../../assets/images/ch19/fig19_1313_1.png" /></p>
+<p><em>图19-6 Slab分配器在每个预分配的slab内维护内存对象的空闲列表</em></p>
 <blockquote>
 <p><em>Figure 19-6. Slab allocator maintains a free list of memory objects within each preallocated slab</em></p>
 </blockquote>
@@ -3636,6 +3641,7 @@
 <p><em>Chunked prefill</em> is a well-supported pattern used by all modern LLM inference engines to reduce pipeline bubbles. It effectively time-slices a big task (prefill) to create room for small tasks (decode) to execute in the pipeline gaps created by the chunks, as shown in Figure 19-7.</p>
 </blockquote>
 <p><img alt="图19-7 四个请求的分块prefill对解码最大化批处理的好处" src="../../assets/images/ch19/fig19_1332_1.png" /></p>
+<p><em>图19-7 四个请求的分块prefill对解码最大化批处理的好处</em></p>
 <blockquote>
 <p><em>Figure 19-7. Benefits of chunked prefills for decode-maximal batching across four requests</em></p>
 </blockquote>
@@ -3673,6 +3679,7 @@
 <p>However, achieving peak performance for large-scale inference requires more than raw bandwidth. It needs intelligent and adaptive communication scheduling. Congestion-aware and topology-aware strategies make sure that data transfers avoid bottlenecks in real time, as shown in Figure 19-8.</p>
 </blockquote>
 <p><img alt="图19-8 拓扑感知路由以避免GPU和多节点集群中的瓶颈" src="../../assets/images/ch19/fig19_1340_1.png" /></p>
+<p><em>图19-8 拓扑感知路由以避免GPU和多节点集群中的瓶颈</em></p>
 <blockquote>
 <p><em>Figure 19-8. Topology-aware routing to avoid bottlenecks across GPUs and multinode clusters</em></p>
 </blockquote>
@@ -3764,6 +3771,7 @@
 <p>With adaptive process-GPU mapping, the system dynamically assigns processes to GPUs such that communication is kept as local (and balanced) as possible. For instance, consider our LLM layers (processes) partitioned across many GPUs in an NVL72 rack. If layer/process 0 on GPU 0 feeds layer/process 2 on GPU 2, but their GPUs are on opposite ends of the NVSwitch network, the data has to traverse more links. In this case, moving layer/process 2 to GPU 1 is the preferred process-GPU mapping, as shown in Figure 19-9 , in the context of NVIDIA's Topology-Aware GPU Selection (NVTAGS) system .</p>
 </blockquote>
 <p><img alt="图19-9 NVIDIA的拓扑感知GPU选择（NVTAGS）进程到GPU映射" src="../../assets/images/ch19/fig19_1345_1.png" /></p>
+<p><em>图19-9 NVIDIA的拓扑感知GPU选择（NVTAGS）进程到GPU映射</em></p>
 <blockquote>
 <p><em>Figure 19-9. NVIDIA's Topology-Aware GPU Selection (NVTAGS) process-to-GPU mapping</em></p>
 </blockquote>
@@ -3817,6 +3825,7 @@
 <p>Many inference workloads involve collective communication patterns, such as gathering outputs from multiple experts, broadcasting parameters, or performing all-reduce operations, as shown in Figure 19-10 . Here, NCCL communication (stream 1) overlaps with GEMM computations (stream 0).</p>
 </blockquote>
 <p><img alt="图19-10 使用多个GPU和跨NVLink的all-reduce的分布式GEMM" src="../../assets/images/ch19/fig19_1348_1.png" /></p>
+<p><em>图19-10 使用多个GPU和跨NVLink的all-reduce的分布式GEMM</em></p>
 <blockquote>
 <p><em>Figure 19-10. Distributed GEMM using multiple GPUs and all-reduce across NVLink</em></p>
 </blockquote>
@@ -3838,6 +3847,7 @@
 <p>A tree algorithm, in contrast, reduces or broadcasts data in a logarithmic fashion since GPUs are organized into a logical binary tree where each step halves the number of participants. However, the GPUs are physically connected linearly, link-by-link, into what can be logically considered a <em>tree-chain</em> . Figure 19-11 compares tree-based and ring-based communication among GPUs.</p>
 </blockquote>
 <p><img alt="图19-11 基于树（链）与基于环的通信" src="../../assets/images/ch19/fig19_1350_1.png" /></p>
+<p><em>图19-11 基于树（链）与基于环的通信</em></p>
 <blockquote>
 <p><em>Figure 19-11. Tree-based (chain) versus ring-based communication</em></p>
 </blockquote>
@@ -3929,6 +3939,7 @@
 <p>To maintain high performance in a multinode and multirack environment, modern AI systems use GPUDirect RDMA. As covered in Chapter 4 , GPUDirect RDMA allows GPUs to directly send/receive data with remote GPUs' memory—and without host CPU involvement, as shown in Figure 19-12.</p>
 </blockquote>
 <p><img alt="图19-12 使用GPUDirect RDMA的直接GPU到GPU内存传输——不涉及主机CPU内存" src="../../assets/images/ch19/fig19_1355_1.png" /></p>
+<p><em>图19-12 使用GPUDirect RDMA的直接GPU到GPU内存传输——不涉及主机CPU内存</em></p>
 <blockquote>
 <p><em>Figure 19-12. Direct GPU-to-GPU memory transfers with GPUDirect RDMA—and without involving the host CPU memory (source: https://oreil.ly/445a9)</em></p>
 </blockquote>
@@ -4051,6 +4062,7 @@
 <p>Congestion-aware scheduling and routing helps reduce bottlenecks and maintains high performance under dynamic conditions. This is analogous to network-level dynamic packet routing, as shown in Figure 19-13.</p>
 </blockquote>
 <p><img alt="图19-13 网络级数据包路由以避免拥塞" src="../../assets/images/ch19/fig19_1361_1.png" /></p>
+<p><em>图19-13 网络级数据包路由以避免拥塞</em></p>
 <blockquote>
 <p><em>Figure 19-13. Network-level packet routing to avoid congestion</em></p>
 </blockquote>
@@ -4128,6 +4140,7 @@
 <p>Consider all 72 GPUs in a NVL72 rack needing to send data to a specific peer, such as a central parameter server in which GPU 0 collects all the results from all 72 GPUs. If all 71 other GPUs send their data at the exact same time, GPU 0's 18 NVLink links—and the NVSwitch that connects them—will experience a huge burst of 71 inputs, as shown in Figure 19-14 . This will exceed the amount of bandwidth that can be delivered at that moment.</p>
 </blockquote>
 <p><img alt="图19-14 所有72个GPU向中央参数服务器发送数据" src="../../assets/images/ch19/fig19_1365_1.png" /></p>
+<p><em>图19-14 所有72个GPU向中央参数服务器发送数据</em></p>
 <blockquote>
 <p><em>Figure 19-14. All 72 GPUs sending data to a centralized parameter server</em></p>
 </blockquote>
@@ -4366,7 +4379,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:50:40 UTC">2026年11月23日 04:50:40</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:58:13 UTC">2026年11月23日 04:58:13</span>
   </span>
 
     
