@@ -2910,9 +2910,9 @@
 </span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>      <span class="s1">'num_buffers_warp_spec'</span><span class="p">:</span> <span class="mi">3</span> <span class="p">}</span>
 </span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="p">)</span>
 </span></code></pre></div>
-<p>这种特化方法对于迭代 GEMM 中大 K 维度的长时间运行循环特别有效。这种专用方法使内存子系统和 ALU 始终保持忙碌，并最大化硬件利用率。</p>
+<p>这种特化方法对于 GEMM 中迭代大 K 维度的长时间运行循环特别有效。这种专用方法使内存子系统和 ALU 始终保持忙碌，并最大化硬件利用率。</p>
 <blockquote>
-<p>TorchInductor can target Triton's warp specialization support for many of its generated GPU kernels. It will try to split each thread block's warps into "producer" (memory) and "consumer" (compute) roles by emitting tl.range() loops with warp<em>specialize=True, similar to the example shown here: ... The memory warp prefetches the next tile while another warp computes the current tile. This will overlap memory latency with computation to produce higher throughput. Warp specialization works hand-in-hand with descriptor-based TMA copies. You can also use this in your own custom Triton kernels by passing warp</em>specialize=True to tl.range(), as shown in the code. You can also drive warp specialization through Triton autotune configs by setting num<em>consumer</em>groups&gt;0 (e.g., 2) and num<em>buffers</em>warp_spec (e.g., 3) in triton.Config as shown in the following code snippet. This will keep the producers and consumers busy with work. If provided, TorchInductor will use these values under the hood: ... This specialization approach is especially effective for long-running loops that iterate over a large K dimension in a GEMM. This dedicated approach keeps both the memory subsystem and the ALUs busy at all times and maximizes hardware utilization.</p>
+<p>This specialization approach is especially effective for long-running loops that iterate over a large K dimension in a GEMM. This dedicated approach keeps both the memory subsystem and the ALUs busy at all times and maximizes hardware utilization.</p>
 </blockquote>
 <h4 id="gemm-triton-tiled-and-persistent-gemm-kernel-triton">分块和持久 GEMM 核函数 (Triton) (Tiled and Persistent GEMM Kernel (Triton))<a class="headerlink" href="#gemm-triton-tiled-and-persistent-gemm-kernel-triton" title="Permanent link">&para;</a></h4>
 <p>这个 Triton 核函数高效地计算矩阵乘法（C = A * B），因为每次核函数启动都通过内部对 K 维度循环来完成全部工作，而不是为每个 K 分块启动多个核函数。这样，我们只需支付一次启动开销，并且 warp 会一直保持忙碌，直到每个分块都完成。下面的示例在一次启动内对 K 进行分块，但不会在多个输出分块之间复用同一个线程块：</p>
@@ -3595,7 +3595,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:09:21 UTC">2026年11月23日 05:09:21</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:33:40 UTC">2026年11月23日 05:33:40</span>
   </span>
 
     
