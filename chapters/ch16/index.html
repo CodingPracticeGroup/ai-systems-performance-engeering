@@ -2522,8 +2522,8 @@
 <blockquote>
 <p>Even after the model has been optimally partitioned and parallelized across the cluster, there are still more application-level optimization opportunities in multinode inference cluster deployments. In this section, we focus on techniques to maximize GPU utilization, minimize latency, and boost throughput by dynamically batching requests and using optimized scheduling and routing strategies.</p>
 </blockquote>
-<h3 id="dynamic-batching">动态批处理 (Dynamic Batching)<a class="headerlink" href="#dynamic-batching" title="Permanent link">&para;</a></h3>
 <p>推理服务系统中最强大的性能技术之一就是批处理（batching）。通过把多个到来的输入合并为一个批（batch）交给模型一起处理，批处理把核函数启动、内存加载等固定开销摊薄到多个输入上，从而提升吞吐量。不过，这是以单个请求的延迟为代价的。某些单个请求可能需要等待一段时间（例如 2 ms）才能加入一个批并被处理。</p>
+<h3 id="dynamic-batching">动态批处理 (Dynamic Batching)<a class="headerlink" href="#dynamic-batching" title="Permanent link">&para;</a></h3>
 <blockquote>
 <p>One of the most powerful performance techniques in an inference serving system is batching. By combining multiple incoming inputs into a single batch for the model to process together, batching improves throughput by amortizing fixed costs-like kernel launches and memory loads-across multiple inputs. But this comes at the cost of latency for individual requests. Some individual requests may have to wait a bit (e.g., 2 ms) to join a batch and get processed.</p>
 </blockquote>
@@ -3365,8 +3365,8 @@
 <blockquote>
 <p>Always validate on downstream tasks, as the assumptions made by PTQ may miss subtle distribution shifts. Therefore, when using reduced-precision quantized models, you should do extensive A/B testing of responses to ensure your evaluations show no regression in quality or safety. If you see regression, you should keep the model at higher precision-or try light fine-tuning in quantized form to recover performance.</p>
 </blockquote>
-<h3 id="combining-weight-and-activation-quantization">结合权重和激活量化 (Combining Weight and Activation Quantization)<a class="headerlink" href="#combining-weight-and-activation-quantization" title="Permanent link">&para;</a></h3>
 <p>激活量化到 4 位仍然具有挑战性。将低精度权重量化与较高精度激活量化结合通常产生内存节省、计算效率和准确性之间的最佳权衡。因此，许多生产系统使用仅权重 4 位（例如 GPTQ/AWQ）量化结合 8 位激活量化。</p>
+<h3 id="combining-weight-and-activation-quantization">结合权重和激活量化 (Combining Weight and Activation Quantization)<a class="headerlink" href="#combining-weight-and-activation-quantization" title="Permanent link">&para;</a></h3>
 <blockquote>
 <p>Quantizing activations to 4 bits remains challenging. Combining low-precision weight quantization with higher-precision activation quantization often yields the best trade-off between memory savings, compute efficiency, and accuracy. As such, many production systems use weight-only 4-bit (e.g., GPTQ/AWQ) quantization combined with 8-bit activation quantization.</p>
 </blockquote>

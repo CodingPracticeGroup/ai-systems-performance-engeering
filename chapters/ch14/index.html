@@ -947,6 +947,23 @@
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gemm-triton-tiled-and-persistent-gemm-kernel-triton_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        分块持久化 GEMM 核函数（Triton） (Tiled and Persistent GEMM Kernel (Triton))
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="分块持久化 GEMM 核函数（Triton） (Tiled and Persistent GEMM Kernel (Triton))">
+      <ul class="md-nav__list">
+        
           <li class="md-nav__item">
   <a href="#triton-proton-profiling-with-triton-proton-profiler" class="md-nav__link">
     <span class="md-ellipsis">
@@ -1451,6 +1468,23 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gemm-triton-tiled-and-persistent-gemm-kernel-triton_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        分块持久化 GEMM 核函数（Triton） (Tiled and Persistent GEMM Kernel (Triton))
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="分块持久化 GEMM 核函数（Triton） (Tiled and Persistent GEMM Kernel (Triton))">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#triton-proton-profiling-with-triton-proton-profiler" class="md-nav__link">
@@ -2915,6 +2949,7 @@
 <p>This specialization approach is especially effective for long-running loops that iterate over a large K dimension in a GEMM. This dedicated approach keeps both the memory subsystem and the ALUs busy at all times and maximizes hardware utilization.</p>
 </blockquote>
 <h4 id="gemm-triton-tiled-and-persistent-gemm-kernel-triton">分块和持久 GEMM 核函数 (Triton) (Tiled and Persistent GEMM Kernel (Triton))<a class="headerlink" href="#gemm-triton-tiled-and-persistent-gemm-kernel-triton" title="Permanent link">&para;</a></h4>
+<h2 id="gemm-triton-tiled-and-persistent-gemm-kernel-triton_1">分块持久化 GEMM 核函数（Triton） (Tiled and Persistent GEMM Kernel (Triton))<a class="headerlink" href="#gemm-triton-tiled-and-persistent-gemm-kernel-triton_1" title="Permanent link">&para;</a></h2>
 <p>这个 Triton 核函数高效地计算矩阵乘法（C = A * B），因为每次核函数启动都通过内部对 K 维度循环来完成全部工作，而不是为每个 K 分块启动多个核函数。这样，我们只需支付一次启动开销，并且 warp 会一直保持忙碌，直到每个分块都完成。下面的示例在一次启动内对 K 进行分块，但不会在多个输出分块之间复用同一个线程块：</p>
 <blockquote>
 <p>This Triton kernel computes a matrix multiplication (C = A * B) efficiently since each kernel launch does all the work by looping over the K dimension internally, instead of launching multiple kernels for each K chunk. This way, we pay the launch overhead only once, and warps stay busy until every tile is done. The following example tiles over K inside one launch but does not reuse the same thread block across multiple output tiles:</p>
@@ -3595,7 +3630,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:33:40 UTC">2026年11月23日 05:33:40</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 05:34:12 UTC">2026年11月23日 05:34:12</span>
   </span>
 
     
