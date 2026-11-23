@@ -1865,9 +1865,6 @@
 <p>实现这一点需要一种 all-to-all 通信模式，使 token（严格来说是它们的激活向量）在 GPU 之间被动态打乱，从而让每个 token 落到其被分配专家所在的 GPU 上。在每个专家为其分配到的 token 计算出输出之后，会再执行一次 all-to-all，把各 token 的输出按原始顺序返回。</p>
 <blockquote>
 <p>Implementing this requires an all-to-all communication pattern such that tokens (technically, their activation vectors) are dynamically shuffled between GPUs so that each token lands on the GPU of its assigned expert. After each expert computes its output for its assigned tokens, another all-to-all is performed to return the token outputs back to their original order.</p>
-</blockquote>
-<p>这种动态路由在每个 MoE 层引入了一个通信密集的步骤。如果不仔细优化，这可能成为性能瓶颈--特别是随着专家/GPU 数量的增加。好处是专家并行允许总模型容量几乎随 GPU 数量线性扩展。</p>
-<blockquote>
 <p>Implementing this requires an all-to-all communication pattern such that tokens (technically, their activation vectors) are dynamically shuffled between GPUs so that each token lands on the GPU of its assigned expert. After each expert computes its output for its assigned tokens, another all-to-all is performed to return the token outputs back to their original order.</p>
 </blockquote>
 <p>这种动态路由在每个 MoE 层都引入了一个通信密集的步骤。如果不加以精心优化，它可能成为性能瓶颈——尤其是随着专家/GPU 数量的增加。好处在于，专家并行使模型总容量能够随 GPU 数量近乎线性地扩展。</p>
@@ -1894,7 +1891,7 @@
 <blockquote>
 <p>Another technique is to use top-1 gating, where each token goes to only one expert. This reduces communication volume relative to top-2 gating described earlier, which doubles the expert outputs. While top-1 gating is faster, it can lead to lower model quality and uneven load.</p>
 </blockquote>
-<p>许多 MoE LLM 至少使用 top-2 门控以获得更好的质量、良好的速度和平衡的负载。此外，重要的是战略性地放置专家--甚至使用备份专家副本来避免专家过载。</p>
+<p>许多 MoE LLM 至少使用 top-2 门控以获得更好的质量、良好的速度和平衡的负载。</p>
 <blockquote>
 <p>However, in most production serving environments, top-2 gating with a moderate capacity factor-and occasional load-based expert swapping or replication-remains the most common compromise technique for balancing quality and performance.</p>
 </blockquote>
@@ -2420,7 +2417,7 @@
 <blockquote>
 <p>Dynamically spawning new expert replicas at inference time is nontrivial. This approach requires pre-provisioned capacity or rapid model loading for those experts. This is an advanced optimization technique.</p>
 </blockquote>
-<p>把某些专家在各 GPU 上以不同方式分组，可以带来更均匀的 token 路由，并因更好的并行性而提升整体吞吐量。这是因为 GPU 可以更同步地完成每一层的工作。如果检测到持续的不均衡，现代 MoE 调度器可以通过调整容量因子即时派发额外的专家副本。这能缓解由门控不均衡引起的热点。</p>
+<p>把某些专家在各 GPU 上以不同方式分组，可以带来更均匀的 token 路由，并因更好的并行性而提升整体吞吐量。这是因为 GPU 可以更同步地完成每一层的工作。</p>
 <blockquote>
 <p>Grouping certain experts differently across GPUs can lead to more uniform token routing and increased overall throughput due to better parallelism. This is because the GPUs can finish each layer's work more synchronously.</p>
 </blockquote>

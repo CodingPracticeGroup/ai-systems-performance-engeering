@@ -1655,7 +1655,7 @@
 <blockquote>
 <p>FlashMLA (decode) is to inference what FlashAttention (prefill) is to training. It reduces memory access overhead and latency. With FlashMLA, you can significantly reduce decode phase latency compared to standard kernels.</p>
 </blockquote>
-<p>FlashMLA 通过把多个注意力运算融合成一个，从而提升算术强度（arithmetic intensity）。这样，它就能在一次融合核函数启动中处理多个头和多个时间步。即便批量很小，也能让数学计算单元保持繁忙，从而提高 decode 期间的 GPU 利用率。图 18-1 展示了在 Hopper H100 GPU 上，MLA（多头潜在注意力，Multi-head Latent Attention）相较于其他注意力实现（如分组查询注意力（grouped-query attention，GQA）和多查询注意力（multi-query attention，MQA））在算术强度上的提升。（注：Blackwell 凭借更高的 TFLOPs 与 HBM 带宽，将两条 roofline 都向上抬升。）</p>
+<p>FlashMLA 通过把多个注意力运算融合成一个，从而提升算术强度（arithmetic intensity）。这样，它就能在一次融合核函数启动中处理多个头和多个时间步。即便批量很小，也能让数学计算单元保持繁忙，从而提高 decode 期间的 GPU 利用率。</p>
 <blockquote>
 <p>FlashMLA increases arithmetic intensity by fusing multiple attention operations into one. In doing so, it can process multiple heads and multiple timesteps in one fused kernel launch. This improves GPU utilization during decode by keeping the math units busy-even with small batch sizes.</p>
 </blockquote>
@@ -1780,7 +1780,7 @@
 <blockquote>
 <p>Consider a very long 250,000-token context (e.g., a chat session with many turns) using a 70 billion-parameter transformer model with 80 layers and 32 heads in which each head is dimension 128. This generates a huge KV cache footprint per token.</p>
 </blockquote>
-<p>每个 token 会生成一个键向量和一个值向量，其长度等于模型的隐藏维度（num<em>heads × head</em>dim）。我们假设本模型该值为 4,096。于是每层产生 8,192 个浮点数。跨 80 层求和，每个 token 会产生 655,360 个浮点数的 KV 数据。假设采用 16 位精度，即每个浮点数 2 字节。这样每个 token 大约需要 1.31 MB。扩展到 250,000 个 token，大约会产生 328 GB——而这仅仅是 KV 数据！</p>
+<p>每个 token 会生成一个键向量和一个值向量，其长度等于模型的隐藏维度（num<em>heads × head</em>dim）。我们假设本模型该值为 4,096。于是每层产生 8,192 个浮点数。跨 80 层求和，每个 token 会产生 655,360 个浮点数的 KV 数据。假设采用 16 位精度，即每个浮点数 2 字节。这样每个 token 大约需要 1.31 MB。</p>
 <blockquote>
 <p>Each token generates a key and value vector of length equal to the model's hidden dimension (num<em>heads x head</em>dim). Let's assume this is 4,096 for our model. This results in 8,192 floats per layer. Summing across 80 layers, this creates 655,360 floats of KV data per token. Let's assume 16-bit precision, or 2 bytes per float. This is roughly 1.31 MB needed per token.</p>
 </blockquote>
@@ -1800,7 +1800,7 @@
 <blockquote>
 <p>With a disaggregated KV pool, however, older parts of the context's KV can be evicted from the GPU and pushed out to the KV cache pool spread across the cluster-and in CPU DRAM or NVMe storage. The data is then fetched back into GPU memory when it's needed.</p>
 </blockquote>
-<p>分离式 KV 缓存池实现了一个多层内存层次结构，其中 GPU 设备内存保存活跃的 KV 缓存，而 CPU 主机 RAM（或 NVMe 存储）充当溢出的后备存储。现代推理引擎可以选择把 KV 缓存卸载到 CPU 内存或 NVMe。这有效地虚拟化了 GPU 内存，很像操作系统的虚拟内存子系统。</p>
+<p>分离式 KV 缓存池实现了一个多层内存层次结构，其中 GPU 设备内存保存活跃的 KV 缓存，而 CPU 主机 RAM（或 NVMe 存储）充当溢出的后备存储。</p>
 <blockquote>
 <p>A disaggregated KV cache pool implements a multitier memory hierarchy in which GPU device memory holds the active KV cache while the CPU host RAM (or NVMe storage) serves as the overflow backing store.</p>
 </blockquote>
@@ -2069,7 +2069,7 @@
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="nt">pd_buffer_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1073741824</span><span class="w">     </span><span class="c1"># 1 GiB传输缓冲区大小</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="nt">pd_buffer_device</span><span class="p">:</span><span class="w"> </span><span class="s">"cuda"</span><span class="w">       </span><span class="c1"># 缓冲区保持在GPU内存中</span>
 </span></code></pre></div>
-<p>这里，prefill 服务器被配置为 RDMA 发送方。它以 decode 主机的 7500 端口为目标，并为 KV 传输分配了一个 1 GB 的 GPU 缓冲区。decode 服务器则被配置为该端口上的接收方，并配有一个匹配的 1 GB GPU 缓冲区，如下所示：</p>
+<p>这里，prefill 服务器被配置为 RDMA 发送方。它以 decode 主机的 7500 端口为目标，并为 KV 传输分配了一个 1 GB 的 GPU 缓冲区。</p>
 <blockquote>
 <p>Here, the prefill server is configured as the RDMA sender. It targets the decode host's port 7500 with a 1 GB GPU buffer allocated for KV transfers.</p>
 </blockquote>
@@ -2135,7 +2135,7 @@
 <p>Use a deterministic hash for KV-chunk routing in multiprocess runs by setting export PYTHONHASHSEED=0.</p>
 </blockquote>
 <h3 id="connector-and-data-path-design">连接器和数据路径设计 (Connector and Data Path Design)<a class="headerlink" href="#connector-and-data-path-design" title="Permanent link">&para;</a></h3>
-<p>在零拷贝优化的基础上，让我们看看 prefill 与 decode 节点如何端到端地协调传输——而不仅仅是搬运比特。prefill 与 decode worker 通常使用调度器或路由器进行通信。在实践中，这个调度器常被实现为一个集中式组件（如 NVIDIA Dynamo 所采用），或一种去中心化的协调方式（如 SGLang 所采用）。</p>
+<p>在零拷贝优化的基础上，让我们看看 prefill 与 decode 节点如何端到端地协调传输——而不仅仅是搬运比特。prefill 与 decode worker 通常使用调度器或路由器进行通信。</p>
 <blockquote>
 <p>Building on the zero-copy optimization, let's see how the prefill and decode nodes coordinate the transfer end to end-beyond just moving the bits. The prefill and decode workers often communicate using a scheduler or router.</p>
 </blockquote>
@@ -2155,7 +2155,7 @@
 <blockquote>
 <p>A prefill node picks up this request and, when done, knows exactly which decode node to send the results to since the request carries an origin or reply-to ID for the decode node. The KV is then transferred directly to that decode worker's GPU using NIXL RDMA.</p>
 </blockquote>
-<p>在 vLLM + LMCache 实现中，采用了一种更去中心化的方式。decode 与 prefill 进程为每个请求的 KV 使用一个管道或缓冲区建立一条直接通道。在底层，这可能使用在请求开始时协商的一对一 TCP 或 RDMA 连接。它不使用全局队列，而是每个请求各自建立自己的传输通道。两种方式各有利弊。全局队列在负载均衡和故障处理方面更简单。直接通道则可以最小化排队。</p>
+<p>在 vLLM + LMCache 实现中，采用了一种更去中心化的方式。decode 与 prefill 进程为每个请求的 KV 使用一个管道或缓冲区建立一条直接通道。在底层，这可能使用在请求开始时协商的一对一 TCP 或 RDMA 连接。它不使用全局队列，而是每个请求各自建立自己的传输通道。</p>
 <blockquote>
 <p>In the vLLM + LMCache implementation, a more decentralized approach is used. The decode and prefill processes establish a direct channel using a pipe or buffer for each request's KV. Under the hood, this might use a one-to-one TCP or RDMA connection negotiated at request start. Rather than a global queue, each request sets up its own transfer channel.</p>
 </blockquote>

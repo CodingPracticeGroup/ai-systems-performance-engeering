@@ -2020,7 +2020,7 @@
 <blockquote>
 <p>Figure 10-7. Block-wide barrier prevents threads from proceeding until they synchronize and load the new data</p>
 </blockquote>
-<p>相比之下，Pipeline API 在内部维护逐阶段的状态。当一个生产者 warp 完成其异步拷贝并调用 pipe.producer<em>commit 时，只有那些调用 pipe.consumer</em>wait 的 warp 才会阻塞，直到数据就绪。块中的其他 warp 可以继续运行任何不依赖该阶段的工作。在实践中，CUDA Pipeline API 减少了空闲时间并降低了停顿的 warp 数，因为它消除了用屏障暂停整个块的需要。借助流水线，你能以比手写异步拷贝序列（例如 PTX cp.async + __syncthreads()）更细的粒度来协调生产者与消费者的交接。</p>
+<p>相比之下，Pipeline API 在内部维护逐阶段的状态。当一个生产者 warp 完成其异步拷贝并调用 pipe.producer<em>commit 时，只有那些调用 pipe.consumer</em>wait 的 warp 才会阻塞，直到数据就绪。块中的其他 warp 可以继续运行任何不依赖该阶段的工作。</p>
 <blockquote>
 <p>By comparison, the Pipeline API maintains per-stage state internally. When a producer warp finishes its asynchronous copy and calls pipe.producer<em>commit, only the warps that call pipe.consumer</em>wait will block until the data is ready. Other warps in the block can continue running any work that does not depend on that stage.</p>
 </blockquote>
@@ -2659,7 +2659,7 @@
 <blockquote>
 <p>Figure 10-12. Thread block swizzling to read tiles A and B in a single wave out of L2 cache</p>
 </blockquote>
-<p>线程块交错让同一波所需的 A 矩阵和 B 矩阵的分块都留在 L2 中以实现最大复用。当应用于持久化和分块的 GEMM 工作负载时，这类交错可以通过减少内存未命中和带宽压力，带来两位数的性能提升。线程块交错是一种简单却强大的模式重排技术，它把核函数的启动次序与缓存局部性对齐。</p>
+<p>线程块交错让同一波所需的 A 矩阵和 B 矩阵的分块都留在 L2 中以实现最大复用。当应用于持久化和分块的 GEMM 工作负载时，这类交错可以通过减少内存未命中和带宽压力，带来两位数的性能提升。</p>
 <blockquote>
 <p>Thread block swizzling lets tiles of both A and B matrices, needed by the same wave, stay in L2 for maximum reuse. When applied to persistent and tiled GEMM workloads, this type of swizzling can produce double-digit performance gains by reducing memory misses and bandwidth pressure.</p>
 </blockquote>
@@ -3216,7 +3216,7 @@
 <blockquote>
 <p>Here, the leader performs one pair of cooperative copies of each tile into its shared memory using a block-scoped pipeline. The cluster-wide barrier makes the data visible to all cluster members through DSMEM.</p>
 </blockquote>
-<p>这种"加载一次、通过 DSMEM 共享"的模式在一次簇级屏障之后，使用 DSMEM 与 map<em>shared</em>rank 共享主导块的分块。它并不像我们前面介绍的那样，用张量映射描述符（tensor-map descriptor）、cp.async.bulk.tensor 和 shared::cluster 来执行 TMA 多播。这是一个需要理解的重要区别：在 DSMEM 模式中，如果没有 cluster.sync()，跟随块可能读到过期的主导块 SMEM 数据。因此，在调用 map<em>shared</em>rank() 之前必须先执行 cluster.sync()。</p>
+<p>这种"加载一次、通过 DSMEM 共享"的模式在一次簇级屏障之后，使用 DSMEM 与 map<em>shared</em>rank 共享主导块的分块。它并不像我们前面介绍的那样，用张量映射描述符（tensor-map descriptor）、cp.async.bulk.tensor 和 shared::cluster 来执行 TMA 多播。</p>
 <blockquote>
 <p>This "copy once, share through DSMEM" pattern shares the leader's tiles using DSMEM and map<em>shared</em>rank following a cluster barrier. It does not perform a TMA multicast as we covered previously with tensor-map descriptors, cp.async.bulk.tensor, and shared::cluster.</p>
 </blockquote>
@@ -3393,7 +3393,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:08:14 UTC">2026年11月23日 04:08:14</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:29:18 UTC">2026年11月23日 04:29:18</span>
   </span>
 
     

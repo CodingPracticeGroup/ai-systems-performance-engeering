@@ -1783,7 +1783,7 @@
 <blockquote>
 <p>Specifically, by converting in-place mutations into functional operations plus distinct copy nodes, the compiler no longer has to reason about aliasing or hidden side effects. As a result, fusion passes and memory-planning algorithms can operate on a purely functional dataflow. This allows more aggressive kernel fusion and predictable, high-performance code generation.</p>
 </blockquote>
-<p>PrimTorch IR 还有助于消除图中的别名和变更等问题。它会尽可能把操作转换为不执行原地更新的形式，因为这些原地更新会使优化复杂化。PrimTorch IR 这一处理阶段的输出是一个只包含 aten IR 与 PrimTorch IR 操作的 FX 图。随后，该 FX 图便可交由后端进行下降。</p>
+<p>PrimTorch IR 还有助于消除图中的别名和变更等问题。它会尽可能把操作转换为不执行原地更新的形式，因为这些原地更新会使优化复杂化。</p>
 <blockquote>
 <p>PrimTorch IR also helps with things like eliminating aliasing and mutation in the graph. It tries to convert operations into a form that does not perform in-place updates when possible since these can complicate optimization.</p>
 </blockquote>
@@ -2374,7 +2374,7 @@
 <blockquote>
 <p>Besides graph breaks, you should also monitor the number of recompilations. TorchDynamo might be compiling the graph many times if its guards keep invalidating input tensor shapes, etc. If a tensor's shape changes at runtime, the guard fails and triggers a recompile. If you see more recompiles than expected, investigate which guard (shape, dtype, etc.) is causing it-and address the issue.</p>
 </blockquote>
-<p>通常，你会注意到重新编译正在发生，因为迭代会持续很慢——即便在最初的预热/编译迭代之后也是如此。幸运的是，你可以让 PyTorch 用 TORCH<em>LOGS="graph</em>breaks,recompiles,guards" 记录每次保护条件求值以及任何触发的重新编译。</p>
+<p>通常，你会注意到重新编译正在发生，因为迭代会持续很慢——即便在最初的预热/编译迭代之后也是如此。</p>
 <blockquote>
 <p>Typically, you'll notice recompilations happening because iterations will continue to be slow-even after the initial warm-up/compile iterations.</p>
 </blockquote>
@@ -2630,7 +2630,7 @@
 <blockquote>
 <p>As mentioned, Inductor uses Triton to generate optimized GPU kernels under the hood. By examining, understanding, and customizing these kernels, you can further improve performance beyond what TorchInductor could produce. Learning Triton is critical to performance optimizations in a PyTorch and NVIDIA GPU environment.</p>
 </blockquote>
-<p>从高层看，OpenAI Triton 是一种开源、Python 原生的领域特定语言，用于以熟悉的 Python 编写 GPU 核函数。Triton 还包含一个 JIT 编译器，可将 Triton 代码直接转换为 NVIDIA PTX 代码。换言之，Triton 让你能够用 Python 创建高性能的自定义 GPU 算子——而无需手写 CUDA C++。Triton 与 PyTorch 保持紧密集成，使其成为该生态系统中编写自定义 GPU 核函数的首选。</p>
+<p>从高层看，OpenAI Triton 是一种开源、Python 原生的领域特定语言，用于以熟悉的 Python 编写 GPU 核函数。Triton 还包含一个 JIT 编译器，可将 Triton 代码直接转换为 NVIDIA PTX 代码。换言之，Triton 让你能够用 Python 创建高性能的自定义 GPU 算子——而无需手写 CUDA C++。</p>
 <blockquote>
 <p>At a high level, OpenAI Triton is an open source, Python-native domain-specific language (DSL) for writing GPU kernels in familiar Python. Triton also includes a JIT compiler that converts Triton code into NVIDIA PTX code directly. In other words, Triton lets you create high-performance custom GPU operations in Python-without writing CUDA C++ by hand.</p>
 </blockquote>
@@ -3444,7 +3444,7 @@
 <blockquote>
 <p>To deeply profile Triton kernel performance, use Triton's Proton profiler. This is a separate profiling package that integrates with Triton and emits NVTX ranges visible in Nsight Systems timelines. These NVTX ranges instrument code regions, collect timings, and track key metrics. The NVTX markers then appear in Nsight Systems timelines. Use these NVTX regions to jump from Proton summaries into Nsight Compute for more focused kernel-level analysis.</p>
 </blockquote>
-<p>在实践中，你使用 with proton.scope("name", metadata) 这个 Python 上下文管理器来包裹 Triton 代码的关键区段。在运行工作负载之前，你用 proton.start("matmul", hook="triton") 激活剖析器。</p>
+<p>在实践中，你使用 with proton.scope("name", metadata) 这个 Python 上下文管理器来包裹 Triton 代码的关键区段。</p>
 <blockquote>
 <p>In practice, you wrap critical sections of Triton code using the with proton.scope("name", metadata) Python context manager.</p>
 </blockquote>

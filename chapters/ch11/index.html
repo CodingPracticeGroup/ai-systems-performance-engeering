@@ -1584,10 +1584,8 @@
 <p>We'll continue to build out the complexity later in the chapter by layering in thread block clusters, but let's first dive into how streams help to overlap compute with data transfers. This will help solidify the fundamentals of CUDA streams and their role in GPU-based performance engineering.</p>
 </blockquote>
 <h3 id="using-streams-to-overlap-compute-with-data-transfers">使用流重叠计算和数据传输 (Using Streams to Overlap Compute with Data Transfers)<a class="headerlink" href="#using-streams-to-overlap-compute-with-data-transfers" title="Permanent link">&para;</a></h3>
-<p>例如，您可以将每个核函数启动和内存复制加入其自己的流中。这允许 SM 执行核函数，而两个专用 DMA 引擎（一个用于主机→设备传输，一个用于设备→主机传输）并发移动数据。</p>
+<p>例如，你可以把每次核函数启动与内存拷贝入队到各自的 stream 中。这让 SM 得以执行核函数，而两个专用 DMA 引擎（一个负责主机 → 设备传输，一个负责设备 → 主机传输）并发地搬运数据。</p>
 <blockquote>
-<p>For instance, you can enqueue each kernel launch and memory copy into its own stream. This allows the SMs to execute kernels while the two dedicated DMA engines (one for Host → Device transfers and one for Device → Host transfers) move data concurrently.
-例如，你可以把每次核函数启动与内存拷贝入队到各自的 stream 中。这让 SM 得以执行核函数，而两个专用 DMA 引擎（一个负责主机 → 设备传输，一个负责设备 → 主机传输）并发地搬运数据。</p>
 <p>For instance, you can enqueue each kernel launch and memory copy into its own stream. This allows the SMs to execute kernels while the two dedicated DMA engines (one for Host → Device transfers and one for Device → Host transfers) move data concurrently. Since the SM compute pipeline runs independently of the two DMA engines, you can fully overlap the kernel's computation with the two data transfers using CUDA streams. However, if the compute is fully maxed out by a kernel using all SM throughput-or a copy pipeline is saturating the memory bandwidth with excessive, additional overlapping-it will not improve performance.</p>
 </blockquote>
 <p>当计算与内存吞吐都饱和时，你会开始看到两个并发操作各自只跑到 50%（举例而言），因为它们都在争抢同一资源。你可以对 GPU 利用率做剖析，以识别这些饱和阈值。</p>
@@ -2684,7 +2682,7 @@
 <p>In many scenarios, memory-hierarchy bottlenecks like DRAM bandwidth and model‐parallel communication like NCCL all‐reduce will dominate the workload. So once your kernel is close to saturating the HBM bandwidth and your streams already hide CPU → GPU latency, the additional few percent of SM utilization that you'd get by adding warp specialization on top of that-and then adding thread block clusters on top of that-rarely justifies the steep engineering cost. In practice, most real-world LLM training and inference workloads benefit sufficiently from simpler designs presented earlier, such as double-buffered kernels or two-stage pipelines with CUDA streams.</p>
 </blockquote>
 <h2 id="cuda-gpu-multi-gpu-compute-and-data-transfer-overlap-with-cuda-streams">使用 CUDA 流进行多 GPU 计算和数据传输重叠 (Multi-GPU Compute and Data Transfer Overlap with CUDA Streams)<a class="headerlink" href="#cuda-gpu-multi-gpu-compute-and-data-transfer-overlap-with-cuda-streams" title="Permanent link">&para;</a></h2>
-<p>在跨多个 GPU 训练或服务 LLM 时，CUDA streams 让你能够重叠本地计算、点对点传输、集合通信、数据准备与内存管理，从而让任何设备都不空闲。例如，假设你把一个 transformer 模型切分到两个 GPU 上，让 GPU 0 处理第 0–3 层，GPU B 处理第 4–7 层。在 GPU A 上，你可能会这样写：</p>
+<p>在跨多个 GPU 训练或服务 LLM 时，CUDA streams 让你能够重叠本地计算、点对点传输、集合通信、数据准备与内存管理，从而让任何设备都不空闲。例如，假设你把一个 transformer 模型切分到两个 GPU 上，让 GPU 0 处理第 0–3 层，GPU B 处理第 4–7 层。</p>
 <blockquote>
 <p>When training or serving LLMs across multiple GPUs, CUDA streams let you overlap local compute, peer-to-peer transfers, collective communication, data preparation, and memory management so that no device idles. For instance, suppose you split a transformer model across two GPUs such that GPU 0 handles layers 0-3 and GPU B handles layers 4-7.</p>
 </blockquote>
@@ -2781,7 +2779,7 @@
 </span></code></pre></div></p>
 <p>By pipelining these chunked sends and receives, NCCL keeps NVLink fully saturated. While chunk i traverses from GPU 0 → GPU 1, chunk i-1 moves GPU 1 → GPU 2, and so on. This minimizes idle gaps. In code, you would see something like the following:</p>
 </blockquote>
-<p>由于 NCCL 只使用少量 SM 线程块，它以低占用率的方式在 SM 上编排跨 NVLink 或 NVSwitch 的分块发送/接收 + 归约。与此同时，例如正在运行第 k+1 层反向传播的主计算 stream 可以继续运行。当 all-reduce 完成时，会记录事件，如下所示：</p>
+<p>由于 NCCL 只使用少量 SM 线程块，它以低占用率的方式在 SM 上编排跨 NVLink 或 NVSwitch 的分块发送/接收 + 归约。与此同时，例如正在运行第 k+1 层反向传播的主计算 stream 可以继续运行。</p>
 <blockquote>
 <p>Because NCCL uses only a few SM thread blocks, it orchestrates the chunked send/recv + reduce across NVLink or NVSwitch in a low-occupancy manner on the SMs. Meanwhile, your main compute stream running a backward pass for layer k+1, for instance, can continue running.</p>
 </blockquote>

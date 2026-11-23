@@ -2072,7 +2072,7 @@
 <blockquote>
 <p>When optimizing, you'll often progress through these states in this order: underutilized → latency bound → memory bound → compute bound. After each fix, you may encounter a new bottleneck and apply the corresponding strategy. When optimizing GPU code, you should follow a structured approach as described next.</p>
 </blockquote>
-<p>首先，你应当剖析。接下来，你可以识别瓶颈。你可以用 Nsight Compute 获取核函数级指标（例如 warp 停顿、实测占用率、内存与计算利用率），用 Nsight Systems 获取应用级时间线（例如并发、空闲间隙）。一旦识别出瓶颈，你就能判断核函数是访存受限、计算受限、延迟受限，还是仅仅是 GPU 利用不足。当 GPU 没有发出足够的工作时，它就处于利用不足的状态。表 8-2 总结了这四种区间，包括常见的剖析指标和补救措施。</p>
+<p>首先，你应当剖析。接下来，你可以识别瓶颈。你可以用 Nsight Compute 获取核函数级指标（例如 warp 停顿、实测占用率、内存与计算利用率），用 Nsight Systems 获取应用级时间线（例如并发、空闲间隙）。</p>
 <blockquote>
 <p>First, you should profile. Next, you can identify the bottleneck. You can use Nsight Compute for kernel-level metrics (e.g., warp stalls, achieved occupancy, memory vs. compute utilization) and Nsight Systems for application-level timelines (e.g., concurrency, idle gaps).</p>
 </blockquote>
@@ -2754,7 +2754,7 @@
 <blockquote>
 <p>Note that predication isn't free. Some threads still compute values (e.g., val = x) and their results are never used. If each branch carries substantial work, computing both sides for every thread can actually cost more than a mild divergence.</p>
 </blockquote>
-<p>在像我们的阈值例子这样的简单情形中，谓词化胜出，但你始终应做基准测试。在 Nsight Compute 的 warp 执行效率指标下同时试验基于分支和谓词化的两个版本。如果效率低且每条分支都很轻，谓词化很可能有帮助。如果分支很重，允许一些分歧——或使用单独的核函数——可能是更好的路径。归根结底，最小化分歧对 SIMT 性能至关重要，因此在可能时构造你的算法让 warp 保持在单一路径上，并把任何残余的分歧逻辑隔离进它自己的核函数或 warp 大小的区域中。</p>
+<p>在像我们的阈值例子这样的简单情形中，谓词化胜出，但你始终应做基准测试。在 Nsight Compute 的 warp 执行效率指标下同时试验基于分支和谓词化的两个版本。如果效率低且每条分支都很轻，谓词化很可能有帮助。</p>
 <blockquote>
 <p>In simple cases like our threshold example, predication wins, but you should always benchmark. Try both branch-based and predicated versions under Nsight Compute's warp execution efficiency metric. If efficiency is low and each branch is light, predication will likely help.</p>
 </blockquote>
@@ -2771,7 +2771,7 @@
 <blockquote>
 <p>When threads within a warp must share data to compute a reduction/aggregation, for instance, you can use warp shuffle intrinsics, including __shfl<em>sync and __shfl</em>down_sync (introduced in Chapter 6) to exchange values directly through registers. This is in contrast to staging them in shared memory and calling __syncthreads(), which negatively impacts performance. Unlike the shared memory approach that generates extra L1/L2 traffic and requires a full-block barrier, shuffles move data only between registers and implicitly synchronize the 32 lanes in a warp with each instruction. This adds only a few clock cycles of latency.</p>
 </blockquote>
-<p>关于完整讨论，包括性能对比、代码示例，以及如何实现 warp 级归约或前缀和，请参见第 6 章。如果你的协作跨越多个 warp，你仍必须使用块级或网格级同步（例如 __syncthreads()）或使用协作组（第 10 章介绍）。但对于纯粹的 warp 内通信，shuffle 几乎总是最快的选择。</p>
+<p>关于完整讨论，包括性能对比、代码示例，以及如何实现 warp 级归约或前缀和，请参见第 6 章。</p>
 <blockquote>
 <p>For a full discussion, including performance comparisons, code examples, and how to implement warp-level reductions or prefix sums, see Chapter 6.</p>
 </blockquote>

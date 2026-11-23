@@ -1440,7 +1440,7 @@
 <blockquote>
 <p>As of this writing, fully automatic pipeline parallelism remains an active area of research. Current AI frameworks still require explicit pipeline-parallel implementations and do not yet transparently distribute sequential layers across GPUs without user guidance.</p>
 </blockquote>
-<p>我们已经了解了如何实现 3D、4D 和 5D 并行（数据、张量、模型、专家以及上下文/序列），以在训练和服务大语言模型时最大化 GPU 利用率。这类技术是一门艺术，也是一门科学，目前很大程度上依赖人类的直觉与经验。虽然这些技术目前记载于诸如 Hugging Face 的 Ultra-Scale Playbook 这样的专家指南中，但我们希望它们不久后能被内建进编译器、库与框架之中。</p>
+<p>我们已经了解了如何实现 3D、4D 和 5D 并行（数据、张量、模型、专家以及上下文/序列），以在训练和服务大语言模型时最大化 GPU 利用率。这类技术是一门艺术，也是一门科学，目前很大程度上依赖人类的直觉与经验。</p>
 <blockquote>
 <p>We've seen how to implement 3D, 4D, and 5D parallelism (data, tensor, model, expert, and context/sequence) to maximize GPU utilization when training and serving large models. Techniques like these are an art and science that currently involve a lot of human intuition and experience.</p>
 </blockquote>
@@ -1574,7 +1574,7 @@
 <blockquote>
 <p>In addition to multichip architectures like the Grace Blackwell Superchip, multiple racks of NVL72s each can be linked into one giant cluster to create hundreds of GPUs sharing a unified fast network. Essentially, your cluster behaves like a single mega-GPU from a communication standpoint. This is important for scaling to 100 trillion parameters because it means we can keep adding GPUs to get more total memory and compute-without hitting a communication bottleneck wall. This assumes that NVLink (or similar) continues to scale to those ultrascale sizes.</p>
 </blockquote>
-<p>然而，仅靠硬件无法解决 100 万亿参数的挑战。软件与算法上的创新同样重要，甚至更为重要。举例来说，用朴素的数据并行来训练如此规模的模型会慢得离谱、成本高得吓人。想象一下优化器每一步都要更新 100 万亿个权重！我们将不得不重度依赖那些能减少有效计算量的技术。我们探讨过的一个重要领域是低数值精度。除了 FP8 与 FP4，未来的硬件甚至可能对网络的某些部分支持更低（1 比特）的精度。混合方案很可能至关重要——对模型的大部分使用较低精度，而对敏感部分使用较高精度。</p>
+<p>然而，仅靠硬件无法解决 100 万亿参数的挑战。软件与算法上的创新同样重要，甚至更为重要。举例来说，用朴素的数据并行来训练如此规模的模型会慢得离谱、成本高得吓人。想象一下优化器每一步都要更新 100 万亿个权重！我们将不得不重度依赖那些能减少有效计算量的技术。</p>
 <blockquote>
 <p>However, hardware alone won't solve the 100-trillion-parameter challenge. Software and algorithmic innovations are equally, if not more, important. Training a model of that size with naive data parallelism, for example, would be incredibly slow and expensive. Imagine the optimizers having to update 100 trillion weights every step! We will need to lean heavily on techniques that reduce the effective computation.</p>
 </blockquote>
@@ -1610,7 +1610,7 @@
 <blockquote>
 <p>These kinds of ideas blur into the algorithm design realm, but a performance-aware perspective is useful. We should ask, "Do we really need to do X this often or at this precision?" for every aspect of training and inference. Often the answer is that we can find a cheaper approximation that still works. At a 100-trillion-parameter scale, these approximations can save months of time or millions of dollars.</p>
 </blockquote>
-<p>超大规模训练中一个常被忽视的方面是基础设施与网络。当你谈论的是 10,000 块以上 GPU 协同处理同一个模型的集群时，网络结构（fabric）就变得与 GPU 本身同等重要。以太网与 InfiniBand 技术正在吞吐提升、更智能的自适应路由等方面不断进步。NVIDIA 的 Spectrum-X 是一种为 AI 优化的以太网网络结构（例如 RoCE、自适应路由、高对分带宽），可减少大规模训练与推理工作负载中的拥塞。</p>
+<p>超大规模训练中一个常被忽视的方面是基础设施与网络。当你谈论的是 10,000 块以上 GPU 协同处理同一个模型的集群时，网络结构（fabric）就变得与 GPU 本身同等重要。以太网与 InfiniBand 技术正在吞吐提升、更智能的自适应路由等方面不断进步。</p>
 <blockquote>
 <p>An often overlooked aspect of ultrascale training is infrastructure and networking. When you're talking about clusters of 10,000+ GPUs working on one model, the network fabric becomes as important as the GPUs themselves. Ethernet and InfiniBand technologies are advancing in terms of increased throughput and smarter adaptive routing techniques, etc.</p>
 </blockquote>

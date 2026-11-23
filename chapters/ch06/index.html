@@ -1788,7 +1788,7 @@
 5. Transfer the results (d<em>input) from the device to the host (h</em>input) using cudaMemcpy with cudaMemcpyDeviceToHost.
 6. Clean up memory on both the device and host using cudaFree and cudaFreeHost.</p>
 </blockquote>
-<p>你可以在启动时用 &lt;&lt;&lt; &gt;&gt;&gt; 向核函数传入额外的、高级的、CUDA 特有的参数，包括共享内存大小（以及许多其他参数），但两个核心启动参数 blocksPerGrid 和 threadsPerBlock 是任何 CUDA 核函数调用的基础。在下一节中，我们将讨论如何最好地选择这些启动参数的取值。</p>
+<p>你可以在启动时用 &lt;&lt;&lt; &gt;&gt;&gt; 向核函数传入额外的、高级的、CUDA 特有的参数，包括共享内存大小（以及许多其他参数），但两个核心启动参数 blocksPerGrid 和 threadsPerBlock 是任何 CUDA 核函数调用的基础。</p>
 <blockquote>
 <p>You can pass additional, advanced, CUDA-specific parameters to your kernel at launch time with &lt;&lt;&lt; &gt;&gt;&gt;, including shared-memory size (and many others), but the two core launch parameters, blocksPerGrid and threadsPerBlock, are the foundation of any CUDA kernel invocation.</p>
 </blockquote>
@@ -2141,7 +2141,7 @@
 <blockquote>
 <p>You can further tune the behavior of stream-ordered allocations from the device's memory pool-for example, by setting cudaMemPoolAttrReleaseThreshold to hint how much reserved memory the pool should retain before attempting to release it. You can also use cudaMemPoolTrimTo to proactively return memory. These will help balance total GPU memory footprint against fragmentation.</p>
 </blockquote>
-<p>对于简单的一次性缓冲区，阻塞式的 cudaMalloc 和 cudaFree 或许就够用了。然而在更复杂、长时间运行、反复分配和释放内存的循环中，改用专用流上的 cudaMallocAsync 和 cudaFreeAsync 并利用其内存池，将带来更一致的性能和更高的吞吐量。</p>
+<p>对于简单的一次性缓冲区，阻塞式的 cudaMalloc 和 cudaFree 或许就够用了。</p>
 <blockquote>
 <p>For simple, one-time buffers, a blocking cudaMalloc and cudaFree may suffice. In more complex, long-running loops where you repeatedly allocate and free memory, however, switching to cudaMallocAsync and cudaFreeAsync on dedicated streams and leveraging their pools will yield more consistent performance and higher throughput.</p>
 </blockquote>
@@ -2417,7 +2417,7 @@
 <blockquote>
 <p>Conversely, if occupancy is already moderate to high but the kernel is memory-throughput bottlenecked, pushing it to 100% may not help. You typically just need enough warps to hide latency; beyond that, the bottleneck is likely elsewhere (e.g., memory bandwidth).</p>
 </blockquote>
-<p>为说明占用率的影响，考虑一个非常简单的操作：把两个长度为 <em>N</em> 的向量相加（计算 C = A + B）。我们将考察两种核函数实现：addSequential 和 addParallel。addSequential 使用单个线程（或单个 warp）在循环中把全部 <em>N</em> 个元素相加。addParallel 使用许多线程，使加法在整个数组上并发完成。</p>
+<p>为说明占用率的影响，考虑一个非常简单的操作：把两个长度为 <em>N</em> 的向量相加（计算 C = A + B）。我们将考察两种核函数实现：addSequential 和 addParallel。</p>
 <blockquote>
 <p>To illustrate the impact of occupancy, consider a very simple operation: adding two vectors of length N (computing C = A + B). We'll examine two kernel implementations: addSequential and addParallel.</p>
 </blockquote>

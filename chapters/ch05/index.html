@@ -1533,7 +1533,7 @@
 <blockquote>
 <p>In practice, GDS creates a direct DMA path that bypasses host memory bounce buffers between storage and GPU memory. This broadens the applicability of GDS to cluster filesystems and even some object storage systems. (Note: the CPU still configures and orchestrates the I/O.)</p>
 </blockquote>
-<p>启用 GDS 需要一块现代 NVIDIA GPU 和一套支持直接内存访问的存储栈——以及正确的 NVIDIA 驱动和 CUDA 工具包。通常使用的是本地 NVMe SSD 或 RAID 卷。GDS 的支持取决于文件系统和具备 RDMA 能力的存储栈。截至本书撰写时，受支持的栈包括：在带 O_DIRECT 的 XFS/EXT4 上的本地 NVMe 与 NVMe-oF、NFS over RDMA，以及若干并行文件系统，如 BeeGFS、WekaFS、VAST、IBM Storage Scale，以及其他与 nvidia-fs 集成的方案。</p>
+<p>启用 GDS 需要一块现代 NVIDIA GPU 和一套支持直接内存访问的存储栈——以及正确的 NVIDIA 驱动和 CUDA 工具包。通常使用的是本地 NVMe SSD 或 RAID 卷。</p>
 <blockquote>
 <p>Enabling GDS requires a modern NVIDIA GPU and a storage stack that supports direct memory access-as well as the correct NVIDIA drivers and CUDA toolkit. Typically, local NVMe SSDs or RAID volumes are used.</p>
 </blockquote>
@@ -1545,7 +1545,7 @@
 <blockquote>
 <p>The application needs to use the correct APIs. You can use CUDA's cuFile library to read files through GDS. cuFile supports features like automatic buffer alignment and integration with common filesystems.</p>
 </blockquote>
-<p>从实际角度看，如果你已配置好 GDS，并且你的读取路径使用了 cuFileRead，数据就可以从磁盘直接流向 GPU 内存。这会降低 CPU 利用率（让 CPU 得以去做其他预处理），并且可以提升吞吐量，尤其是在 CPU 成为瓶颈的时候。cuFileRead 直接与 Linux 文件系统集成。你也可以使用 cuFile 的异步 API，例如 cuFileReadAsync 和 cuFileWriteAsync，把存储 I/O 集成到 CUDA 流（stream）上（在第 11 章讨论），以实现重叠和流水线化。</p>
+<p>从实际角度看，如果你已配置好 GDS，并且你的读取路径使用了 cuFileRead，数据就可以从磁盘直接流向 GPU 内存。这会降低 CPU 利用率（让 CPU 得以去做其他预处理），并且可以提升吞吐量，尤其是在 CPU 成为瓶颈的时候。</p>
 <blockquote>
 <p>In practical terms, if you have GDS set up and your read path uses cuFileRead, the data can flow from disk to GPU memory directly. This reduces CPU utilization (allowing CPUs to do other preprocessing) and can improve throughput, especially when the CPU is a bottleneck.</p>
 </blockquote>

@@ -2339,7 +2339,7 @@
 <blockquote>
 <p>A related container pitfall arises when the container's GID assignments don't match the host, as in some "rdma-shared" Docker images. This prevents GPUDirect registration and uses CPU-driven RDMA copies instead of using true GPU-based RDMA.</p>
 </blockquote>
-<p>始终验证是否为真正的 GPUDirect RDMA。使用<code>lsmod | grep nvidia_peermem</code>确认核函数模块已加载，并检查 dmesg 以确认初始化。要进行端到端检查，请使用<code>NCCL_DEBUG=INFO</code>运行 NCCL 以确认 NET/IB 路径，并使用带有<code>--use_cuda</code>的 RDMA 性能测试来验证 GPU 到 GPU 传输。验证将有助于防止隐蔽的性能下降。吞吐量的下降会在分析器中显示为数量级的吞吐量下降。但您必须意识到这种可能性，并持续监控系统是否存在这些类型的微妙回退。</p>
+<p>始终验证是否为真正的 GPUDirect RDMA。使用<code>lsmod | grep nvidia_peermem</code>确认内核模块已加载，并检查 dmesg 以确认初始化。要进行端到端检查，请使用<code>NCCL_DEBUG=INFO</code>运行 NCCL 以确认 NET/IB 路径，并使用带有<code>--use_cuda</code>的 RDMA 性能测试来验证 GPU 到 GPU 传输。验证将有助于防止隐蔽的性能下降。吞吐量的下降会在分析器中显示为数量级的吞吐量下降。但您必须意识到这种可能性，并持续监控系统是否存在这些类型的微妙回退。</p>
 <blockquote>
 <p>Always verify that it is true GPUDirect RDMA. Confirm that the kernel module is loaded with <code>lsmod | grep nvidia_peermem</code>, and check dmesg for initialization. For an end-to-end check, run NCCL with NCCL<em>DEBUG=INFO to confirm NET/IB paths and use RDMA perftests with --use</em>cuda to validate GPU-to-GPU transfers. Verifying will help prevent stealthy performance degradations. The reduced throughput would show up in the profiler as an order-of-magnitude reduction in throughput. But you have to be aware of this possibility and continuously monitor your system for these types of subtle fallbacks.</p>
 </blockquote>
@@ -2861,7 +2861,7 @@
 <blockquote>
 <p>During the backward pass, gradients are exchanged, or all-reduced, directly among GPUs. This all-reduce communication is typically overlapped with the backward computation, which is ideal, as we discussed earlier.</p>
 </blockquote>
-<p>DDP 通过使用独立进程完全规避了 GIL 问题，并由 NCCL 高效的 C++ 核函数负责通信。其结果是，在多 GPU 训练中 DDP 几乎总是优于 DP。事实上，PyTorch 开发者建议在任何正式的多 GPU 工作中使用 <code>DistributedDataParallel</code> 而非 <code>DataParallel</code>，因为 DP 的 Python 线程受制于令人头疼的 GIL，往往会成为瓶颈。</p>
+<p>DDP 通过使用独立进程完全规避了 GIL 问题，并由 NCCL 高效的 C++ 核函数负责通信。其结果是，在多 GPU 训练中 DDP 几乎总是优于 DP。</p>
 <blockquote>
 <p>DDP avoids the GIL issue entirely by using separate processes. And NCCL's efficient C++ kernels handle communication. The result is that DDP nearly always outperforms DP for multi-GPU training.</p>
 </blockquote>
@@ -3227,7 +3227,7 @@
 <blockquote>
 <p>NCCL launches background CPU threads for network polling and kernel dispatch. When you start multiple processes with torch.multiprocessing or Message Passing Interface (MPI), each process inherits a CPU affinity mask that may target all cores or only a subset if bound with tools such as taskset or numactl.</p>
 </blockquote>
-<p>NCCL 通常会把它的线程分配到离所服务 GPU 最近的核心上，但如果进程被固定到一小组核心上，它可能把所有 NCCL 线程都挤到单个核心上，从而遭受糟糕的调度和低吞吐量。为防止这种情况，可设置环境变量 <code>NCCL_IGNORE_CPU_AFFINITY=1</code>，让 NCCL 忽略继承来的 CPU 亲和性掩码，自由地把工作线程分散到本地 NUMA 域内的各个核心上。推荐的做法是：把每个 GPU 进程绑定到其 NUMA 域对应的 CPU 核心上，然后设置 <code>NCCL_IGNORE_CPU_AFFINITY=1</code>，这样 NCCL 就能在这些核心内部微调线程放置。</p>
+<p>NCCL 通常会把它的线程分配到离所服务 GPU 最近的核心上，但如果进程被固定到一小组核心上，它可能把所有 NCCL 线程都挤到单个核心上，从而遭受糟糕的调度和低吞吐量。为防止这种情况，可设置环境变量 <code>NCCL_IGNORE_CPU_AFFINITY=1</code>，让 NCCL 忽略继承来的 CPU 亲和性掩码，自由地把工作线程分散到本地 NUMA 域内的各个核心上。</p>
 <blockquote>
 <p>NCCL normally assigns its threads to the cores nearest the GPUs they serve, but if the process is pinned to a narrow set of cores, it may collapse all NCCL threads onto a single core and suffer from poor scheduling and low throughput. To prevent this, set the environment variable NCCL<em>IGNORE</em>CPU_AFFINITY=1 so that NCCL ignores the inherited CPU affinity mask and freely spreads its worker threads across the cores in the local NUMA domain.</p>
 </blockquote>
@@ -3460,7 +3460,7 @@
 <blockquote>
 <p>All-gather has no arithmetic reduction, so NVLS mainly helps by performing multicast replication. The speedup depends on topology and message size, but it's smaller than the performance gains for NVLS with all-reduce and reduce-scatter.</p>
 </blockquote>
-<p>NCCL 可以通过使用 NCCL RDMA SHARP 插件，配合交换机上的 SHARP 固件，以及在管理服务器上与 Subnet Manager 一同运行的 SHARP Aggregation Manager，将 all-reduce 等集合操作卸载到支持 SHARP 的 InfiniBand 结构上。此外，每台主机都必须加载 GPUDirect RDMA 核函数模块。一旦结构和主机完成配置并选定了 NCCL RDMA SHARP 插件，NCCL 就能把符合条件的集合操作卸载给 SHARP。SHARP 对性能的影响可能非常显著。在某些情况下，NVIDIA 报告称，在大规模 AI 系统上使用 SHARP 可使 all-reduce 获得 2× 到 5× 的加速。</p>
+<p>NCCL 可以通过使用 NCCL RDMA SHARP 插件，配合交换机上的 SHARP 固件，以及在管理服务器上与 Subnet Manager 一同运行的 SHARP Aggregation Manager，将 all-reduce 等集合操作卸载到支持 SHARP 的 InfiniBand 结构上。此外，每台主机都必须加载 GPUDirect RDMA 内核模块。一旦结构和主机完成配置并选定了 NCCL RDMA SHARP 插件，NCCL 就能把符合条件的集合操作卸载给 SHARP。SHARP 对性能的影响可能非常显著。在某些情况下，NVIDIA 报告称，在大规模 AI 系统上使用 SHARP 可使 all-reduce 获得 2× 到 5× 的加速。</p>
 <blockquote>
 <p>NCCL can offload collective operations such as all-reduce to SHARP-enabled InfiniBand fabrics by using the NCCL RDMA SHARP plugin with SHARP firmware on the switches and a SHARP Aggregation Manager running on a management server alongside the Subnet Manager. Additionally, each host must load the GPUDirect RDMA kernel module. Once the fabric and hosts are configured and the NCCL RDMA SHARP plugin is selected, NCCL can offload eligible collectives to SHARP.</p>
 </blockquote>
@@ -3551,7 +3551,7 @@
 <p>NIXL's use in NVIDIA's Dynamo inference framework demonstrates NIXL's throughput boost in multinode LLM serving scenarios. NIXL complements-not replaces-NCCL for high-performance inference pipelines.</p>
 </blockquote>
 <h3 id="4111-prefill-separate-prefill-and-decode-inference-stages">4.11.1 分离的 prefill 和解码推理阶段 (Separate Prefill and Decode Inference Stages)<a class="headerlink" href="#4111-prefill-separate-prefill-and-decode-inference-stages" title="Permanent link">&para;</a></h3>
-<p>我们会在后面的章节更深入地探讨一个高度调优的推理系统的性能细节，但在进一步讨论 NIXL 之前，理解一点背景很重要。基于 Transformer 的模型的推理路径实际上被拆分为两个不同的阶段：prefill 与解码。</p>
+<p>我们会在后面的章节更深入地探讨一个高度调优的推理系统的性能细节，但在进一步讨论 NIXL 之前，理解一点背景很重要。</p>
 <blockquote>
 <p>We will dive deeper into the performance details of a highly tuned inference system in a later chapter, but it's important to understand a bit of context before going further with NIXL.</p>
 </blockquote>
