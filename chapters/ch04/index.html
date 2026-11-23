@@ -2020,7 +2020,10 @@
 <blockquote>
 <p>Suppose we don't use DDP's built-in overlap and instead implement distributed training manually such that each process computes all gradients locally, then performs an all-reduce on those gradients at the end of the backward pass. This will mimic the unoptimized, nonoverlapping scenario since communication happens only after all computation is done.</p>
 </blockquote>
-<p>在以下代码中，我们在单个节点上的 gpu/rank 0 和 gpu/rank 1 上启动两个进程，使用一个简单模型。我们运行前向和反向传播，然后手动在两个进程之间平均梯度：</p>
+<p>在下面的代码中，我们在单个节点上于 gpu/rank 0 与 gpu/rank 1 启动两个进程，这里使用一个简单的模型。我们将执行一次前向和反向传播，然后在两个进程间手动对梯度求平均：</p>
+<blockquote>
+<p>In the code that follows, we launch two processes on gpu/rank 0 and gpu/rank 1 on a single node, in this case, with a simple model. We'll run a forward and backward pass, then manually average gradients across the two processes:</p>
+</blockquote>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">optim</span>
@@ -2071,13 +2074,6 @@
 </span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>    <span class="k">else</span><span class="p">:</span>
 </span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>        <span class="n">train_no_overlap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 </span></code></pre></div>
-<blockquote>
-<p>We launch two processes on gpu/rank 0 and gpu/rank 1 on a single node, in this case, with a simple model. We'll run a forward and backward pass, then manually average gradients across the two processes:</p>
-</blockquote>
-<p>在下面的代码中，我们在单个节点上于 gpu/rank 0 与 gpu/rank 1 启动两个进程，这里使用一个简单的模型。我们将执行一次前向和反向传播，然后在两个进程间手动对梯度求平均：</p>
-<blockquote>
-<p>In the code that follows, we launch two processes on gpu/rank 0 and gpu/rank 1 on a single node, in this case, with a simple model. We'll run a forward and backward pass, then manually average gradients across the two processes:</p>
-</blockquote>
 <p>在这段代码中，每个进程独立地为 MultiLayerNet 计算梯度。在 loss.backward() 之后，我们显式地对每个参数的梯度执行一次 all-reduce 来求平均。这本质上就是 DDP 在内部所做的事情，但这里我们是在整个反向传播完成之后才等待并执行——而不是在反向传播过程中并发地进行 all-reduce。</p>
 <blockquote>
 <p>In this code, each process computes gradients for MultiLayerNet independently. After loss.backward(), we explicitly perform an all-reduce for each parameter's gradient to average them. This is effectively what DDP does internally, but here we wait and do it after the entire backward pass has finished-rather than doing the all-reduce concurrently during the backward pass.</p>
@@ -2418,7 +2414,7 @@
 </blockquote>
 <p>一个常见陷阱是网络配置不匹配，导致回退到较慢的路径。例如，如果 RDMA 因配置错误而无法工作，NCCL 可能会在 100 Gbps Ethernet 网络上使用 TCP，却由于核函数开销只能得到其中一小部分带宽。更糟的是，如果集群的高速网络被错误识别，流量可能会走一条仅有 10 Gbps Ethernet 的较慢管理网络，而用户却毫无察觉。像 NCCL 的调试输出以及网络接口计数器（ibstat、ifstat）这样的工具，可以帮助你验证哪个接口被更多地使用。对于具备 200–400 Gbps 大带宽路径的现代系统来说，跌落到 10 Gbps 会造成严重瓶颈。</p>
 <blockquote>
-<p><strong>Check for misconfigurations</strong>: A common pitfall is a mismatch in network configuration that causes a fallback to a slower path. If RDMA is not working due to a misconfiguration, for instance, NCCL might be using TCP on a 100 Gbps Ethernet network but getting only a fraction of that due to kernel overhead. Even worse, if the cluster's high-speed network is misidentified, traffic might go over a slower management network running only 10 Gbps Ethernet without the user realizing. Tools like NCCL's debugging output and network interface counters (ibstat, ifstat) can help verify which interface is being used more heavily.</p>
+<p><strong>Check for misconfigurations</strong>: A common pitfall is a mismatch in network configuration that causes a fallback to a slower path. If RDMA is not working due to a misconfiguration, for instance, NCCL might be using TCP on a 100 Gbps Ethernet network but getting only a fraction of that due to kernel overhead. Even worse, if the cluster's high-speed network is misidentified, traffic might go over a slower management network running only 10 Gbps Ethernet without the user realizing. Tools like NCCL's debugging output and network interface counters (ibstat, ifstat) can help verify which interface is being used more heavily. For modern systems with large 200–400 Gbps paths, dropping to 10 Gbps would be a crippling bottleneck.</p>
 </blockquote>
 <h2 id="45-multinode-communication-pitfalls">4.5 多节点通信陷阱 (Multinode Communication Pitfalls)<a class="headerlink" href="#45-multinode-communication-pitfalls" title="Permanent link">&para;</a></h2>
 <p>将训练扩展到集群中的多个节点会引入一类新的陷阱。这里我们重点介绍几个常见问题，并用具体示例演示如何修复它们。</p>
@@ -2426,7 +2422,7 @@
 <p>Scaling training across multiple nodes in a cluster introduces a new class of pitfalls. Here we highlight a few common issues and demonstrate how to fix them with concrete examples.</p>
 </blockquote>
 <h3 id="451-1-cpu-gloo-nccl-pitfall-1-using-a-cpu-bound-gloo-backend-instead-of-nccl">4.5.1 陷阱#1：使用 CPU 绑定的 Gloo 后端而不是 NCCL (Pitfall #1: Using a CPU-bound Gloo Backend Instead of NCCL)<a class="headerlink" href="#451-1-cpu-gloo-nccl-pitfall-1-using-a-cpu-bound-gloo-backend-instead-of-nccl" title="Permanent link">&para;</a></h3>
-<p>PyTorch 的分布式框架支持多种通信后端。对于多 GPU 训练，NCCL 是 NVIDIA GPU 的首选后端，但还有一个名为 Gloo 的回退后端，它使用 CPU 和 TCP 套接字。如果有人错误地为 GPU 训练用 Gloo 初始化 ProcessGroup--——或者 NCCL 初始化失败并回退到 Gloo，训练仍能正确运行，但所有跨 GPU 通信都会走 CPU 和 Ethernet 协议栈。这会导致性能极其低下。</p>
+<p>PyTorch 的分布式框架支持多种通信后端。对于多 GPU 训练，NCCL 是 NVIDIA GPU 的首选后端，但还有一个名为 Gloo 的回退后端，它使用 CPU 和 TCP 套接字。如果有人错误地为 GPU 训练用 Gloo 初始化 ProcessGroup——或者 NCCL 初始化失败并回退到 Gloo，训练仍能正确运行，但所有跨 GPU 通信都会走 CPU 和 Ethernet 协议栈。这会导致性能极其低下。</p>
 <blockquote>
 <p>PyTorch's distributed framework supports multiple backends for communication. For multi-GPU training, NCCL is the preferred backend for NVIDIA GPUs, but there is also a fallback backend called Gloo, which uses CPUs and TCP sockets. If one mistakenly initializes ProcessGroup with Gloo for GPU training-or if NCCL fails to initialize and it falls back to Gloo, the training will still function correctly but all cross-GPU communication will go through the CPU and Ethernet stack. This results in extremely slow performance.</p>
 </blockquote>
@@ -2497,7 +2493,7 @@
 <blockquote>
 <p>For 400 MB of data, 200 ms is quite slow since this is 2 GB/s aggregated throughput-far below expectations or 100 GB/s for our 800 Gb/s InfiniBand hardware that we're using in this example. This indicates a lot of extra overhead incurred on the CPU path. We confirm this by profiling the CPU utilization, which, in this case, is near 100%.</p>
 </blockquote>
-<p>让我们把后端改为 NCCL，看看差异。我们只需设置 back end='nccl'，并确保环境配置允许 GPU 直连通信。假设 NCCL 已正确配置，这段代码将使用 GPU 到 GPU 的直接通信。改进是惊人的。带计时运行更新后的代码会显示类似如下的结果：</p>
+<p>让我们把后端改为 NCCL，看看差异。我们只需设置 backend='nccl'，并确保环境配置允许 GPU 直连通信。假设 NCCL 已正确配置，这段代码将使用 GPU 到 GPU 的直接通信。改进是惊人的。带计时运行更新后的代码会显示类似如下的结果：</p>
 <blockquote>
 <p>Let's change the backend to NCCL and see the difference. We simply set backend='nccl' and ensure the environment is configured to allow GPU-direct communication. Assuming NCCL is properly configured, this code will use direct GPU-to-GPU communication. The improvement is dramatic. Running the updated code with timing would show something like the following:</p>
 </blockquote>
@@ -2525,7 +2521,7 @@
 <p>If you run PyTorch's bundled NCCL (e.g., torch.cuda.nccl.version() == ()) against a different version of the system-installed libnccl, you will hang the system. Or worse, you will silently fall back to a slower implementation. This can be difficult to detect. Make sure you have alignment by matching nvidia-nccl-cu* packages or rebuilding PyTorch against the system NCCL and avoid these compatibility pitfalls.</p>
 </blockquote>
 <h3 id="453-3nccl-tcp-pitfall-3-tcp-port-exhaustion-during-nccl-bootstrap">4.5.3 陷阱#3：NCCL 引导期间 TCP 端口耗尽 (Pitfall #3: TCP Port Exhaustion During NCCL Bootstrap)<a class="headerlink" href="#453-3nccl-tcp-pitfall-3-tcp-port-exhaustion-during-nccl-bootstrap" title="Permanent link">&para;</a></h3>
-<p>NCCL 使用临时（ephemeral）TCP 端口进行其带外（out-of-band）建立，如果你操作系统的 net.ipv4.ip<em>local</em>port<em>range 过窄，可能会耗尽可用端口，导致握手失败或停滞。建议你在 /proc/sys/net/ipv4/ip</em>local<em>port</em>range 中拓宽端口范围（例如 50000 51000），以避免隐藏的引导启动失败。请注意，现代 NCCL 版本已改进了引导启动处理，但在大型集群上，主动设置一个较宽的端口范围仍是最佳做法。</p>
+<p>NCCL 使用临时（ephemeral）TCP 端口进行其带外（out-of-band）建立，如果你操作系统的 <code>net.ipv4.ip_local_port_range</code> 过窄，可能会耗尽可用端口，导致握手失败或停滞。建议你在 /proc/sys/net/ipv4/ip<em>local</em>port_range 中拓宽端口范围（例如 50000 51000），以避免隐藏的引导启动失败。请注意，现代 NCCL 版本已改进了引导启动处理，但在大型集群上，主动设置一个较宽的端口范围仍是最佳做法。</p>
 <blockquote>
 <p>NCCL uses ephemeral TCP ports for its out-of-band setup, and if your OS's net.ipv4.ip<em>local</em>port<em>range is too narrow, you can exhaust available ports, causing failed or stalled handshakes. It's recommended that you widen your port range in /proc/sys/net/ipv4/ip</em>local<em>port</em>range (e.g., 50000 51000) to avoid hidden bootstrap failures. Note that modern NCCL versions have improved bootstrap handling, but it's still best to proactively set a broad port range on large clusters.</p>
 </blockquote>
@@ -2602,8 +2598,6 @@
 </blockquote>
 <h3 id="456-6ucxrdma-gpu-pitfall-6-gpu-memory-fragmentation-under-ucxrdma">4.5.6 陷阱#6：UCX/RDMA 下的 GPU 内存碎片化 (Pitfall #6: GPU Memory Fragmentation Under UCX/RDMA)<a class="headerlink" href="#456-6ucxrdma-gpu-pitfall-6-gpu-memory-fragmentation-under-ucxrdma" title="Permanent link">&para;</a></h3>
 <p>PyTorch 的缓存分配器在迭代之间保留 GPU 内存。在使用 UCX/RDMA 的分布式设置中，这些长期存在的分配可能会耗尽注册池或使内存碎片化，导致零星的分配失败或性能悬崖。监控<code>torch.cuda.memory_reserved()</code>与<code>memory_allocated()</code>有助于发现这些边缘情况：</p>
-<blockquote>
-<p>PyTorch's caching allocator holds onto GPU memory across iterations. In distributed settings using UCX/RDMA, these long-lived allocations can exhaust registration pools or fragment memory, causing sporadic allocation failures or performance cliffs. Monitoring torch.cuda.memory<em>reserved() versus memory</em>allocated() helps surface these edge cases:
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">torch.distributed</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dist</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -2642,7 +2636,8 @@
 </span><span id="__span-5-36"><a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a>
 </span><span id="__span-5-37"><a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
 </span><span id="__span-5-38"><a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a>    <span class="n">run</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</span></code></pre></div></p>
+</span></code></pre></div>
+<blockquote>
 <p>PyTorch's caching allocator holds onto GPU memory across iterations. In distributed settings using UCX/RDMA, these long-lived allocations can exhaust registration pools or fragment memory, causing sporadic allocation failures or performance cliffs. Monitoring torch.cuda.memory<em>reserved() versus memory</em>allocated() helps surface these edge cases:</p>
 </blockquote>
 <h2 id="46-gpu-nccl-nccl-for-distributed-multi-gpu-communication">4.6 用于分布式多 GPU 通信的 NCCL (NCCL for Distributed Multi-GPU Communication)<a class="headerlink" href="#46-gpu-nccl-nccl-for-distributed-multi-gpu-communication" title="Permanent link">&para;</a></h2>
@@ -3964,7 +3959,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:49:28 UTC">2026年11月23日 04:49:28</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 04:53:48 UTC">2026年11月23日 04:53:48</span>
   </span>
 
     
