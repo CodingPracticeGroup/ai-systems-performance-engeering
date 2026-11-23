@@ -904,13 +904,13 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 融合小核函数以摊销启动开销 (Fuse small kernels to amortize launch overhead)
 
-*融合小核函数以摊薄启动开销* 如果你有许多相继背靠背启动的微小 GPU 核函数，尽量考虑把它们的运算合并到单个核函数中执行。每次核函数启动都有一个数十微秒量级的固定成本，因此通过手工 CUDA 核函数融合（kernel fusion）、XLA 融合、或借助 NVIDIA CUTLASS/Triton 等工具编写自定义算子来合并运算，都能提升吞吐量。融合后的核函数把更多时间花在实际计算上，减少了启动开销或内存往返的时间。这在推理或预处理流水线中尤其有用，因为一连串逐元素运算可以一次性执行完毕。先试试 torch.compile(mode="reduce-overhead")。编译器能融合运算链，并把稳态区域包进 CUDA Graphs。这会降低 CPU 侧的启动开销。对于未融合的热点，可考虑将其迁移到 Triton 核函数，并在适用处使用异步 TMA 与自动 warp 特化。
+如果你有许多相继背靠背启动的微小 GPU 核函数，尽量考虑把它们的运算合并到单个核函数中执行。每次核函数启动都有一个数十微秒量级的固定成本，因此通过手工 CUDA 核函数融合（kernel fusion）、XLA 融合、或借助 NVIDIA CUTLASS/Triton 等工具编写自定义算子来合并运算，都能提升吞吐量。融合后的核函数把更多时间花在实际计算上，减少了启动开销或内存往返的时间。这在推理或预处理流水线中尤其有用，因为一连串逐元素运算可以一次性执行完毕。先试试 torch.compile(mode="reduce-overhead")。编译器能融合运算链，并把稳态区域包进 CUDA Graphs。这会降低 CPU 侧的启动开销。对于未融合的热点，可考虑将其迁移到 Triton 核函数，并在适用处使用异步 TMA 与自动 warp 特化。
 
 > If you have many tiny GPU kernels launching back-to-back, consider merging their operations to run in a single kernel where possible. Every kernel launch has a fixed cost on the order of tens of microseconds, so combining operations through manual CUDA kernel fusion, XLA fusion, or tools like NVIDIA CUTLASS/Triton for custom ops can improve throughput. Fused kernels spend more time doing actual work and less time in launch overhead or memory round trips. This is especially helpful in inference or preprocessing pipelines where chains of elementwise ops can be executed in one go. Try torch.compile(mode="reduce-overhead") first. The compiler can fuse operation chains and wrap steady regions in CUDA Graphs. This will reduce CPU launch overhead. For unfused hotspots, consider migrating them to Triton kernels and using asynchronous TMA and automatic warp specialization where applicable.
 
 ### 利用 GPU 动态并行性进行 GPU 内工作调度 (Utilize GPU dynamic parallelism for intra-GPU work scheduling)
 
-*利用 GPU 动态并行进行 GPU 内部的工作调度* 利用 CUDA 的动态并行，让 GPU 核函数无需返回 CPU 即可从 GPU 上启动其他核函数。在工作不可预测或迭代式的场景中（例如某算法需要根据中间结果派生额外任务），动态并行通过消除 CPU 启动瓶颈来削减延迟。例如，父核函数可以直接在设备上划分并启动子核函数以做进一步处理。这让整个工作流保持在 GPU 上，避免 CPU 介入，实现更好的重叠与利用率。但要审慎使用，因为过度使用会引入其自身的开销。
+利用 CUDA 的动态并行，让 GPU 核函数无需返回 CPU 即可从 GPU 上启动其他核函数。在工作不可预测或迭代式的场景中（例如某算法需要根据中间结果派生额外任务），动态并行通过消除 CPU 启动瓶颈来削减延迟。例如，父核函数可以直接在设备上划分并启动子核函数以做进一步处理。这让整个工作流保持在 GPU 上，避免 CPU 介入，实现更好的重叠与利用率。但要审慎使用，因为过度使用会引入其自身的开销。
 
 > Utilize CUDA's Dynamic Parallelism to let GPU kernels launch other kernels from the GPU without returning to the CPU. In scenarios with unpredictable or iterative work, such as an algorithm that needs to spawn additional tasks based on intermediate results, dynamic parallelism cuts latency by removing the CPU launch bottleneck. For example, a parent kernel can divide and launch child kernels for further processing directly on the device. This keeps the entire workflow on the GPU, avoiding CPU intervention and enabling better overlap and utilization. Use this judiciously, however, as it can introduce its own overhead if overused.
 
@@ -938,7 +938,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 使用混合精度训练 (Use mixed-precision training)
 
-*使用混合精度训练* 借助 FP16 或 BF16 进行训练，以加速数学运算并减少内存占用。现代 GPU 拥有 Tensor Core，能大幅加速 FP16/BF16 矩阵运算。把最终累加或权重副本等关键部分保留在 FP32 以保证数值稳定性，但让大批量计算以半精度运行。这通常能带来约 1.5–3.5× 的加速（取决于模型与核函数组合，在矩阵乘密集的工作负载上收益更大），且准确率损失极小；如今借助自动混合精度（AMP），这已是大多数框架中的标准做法。
+借助 FP16 或 BF16 进行训练，以加速数学运算并减少内存占用。现代 GPU 拥有 Tensor Core，能大幅加速 FP16/BF16 矩阵运算。把最终累加或权重副本等关键部分保留在 FP32 以保证数值稳定性，但让大批量计算以半精度运行。这通常能带来约 1.5–3.5× 的加速（取决于模型与核函数组合，在矩阵乘密集的工作负载上收益更大），且准确率损失极小；如今借助自动混合精度（AMP），这已是大多数框架中的标准做法。
 
 > Leverage FP16 or BF16 for training to speed up math operations and reduce memory usage. Modern GPUs have Tensor Cores that massively accelerate FP16/BF16 matrix operations. Keep critical parts like the final accumulation or a copy of weights in FP32 for numerical stability, but run bulk computations in half-precision. This often gives about a 1.5-3.5x speedup (depending on the model and kernel mix, with larger gains on matmul-heavy workloads) with minimal accuracy loss and is now standard in most frameworks with automatic mixed precision (AMP).
 
@@ -956,31 +956,31 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 利用 FP8、新颖精度和缩放技术 (Exploit FP8, novel precisions, and scaling techniques)
 
-*利用 FP8、新型精度与缩放技术* 在现代 GPU 上，FP8 Tensor Core 在计算受限的核函数上提供大约两倍于 FP16 或 BF16 的数学吞吐量，同时降低激活与权重的带宽。此外，FP4（NVFP4）Tensor Core 的吞吐量是 FP8 的两倍，并配合微张量缩放（一种维持准确率的纠错技术）用于推理，以提升 token 吞吐量。对于训练，配合 NVIDIA Transformer Engine 使用 FP8，并在需要时保留 FP16 或 FP32 累加器。对于推理，先评估 FP8，只有在校准显示对你的任务质量可接受后再采用 NVFP4。训练时建议使用混合 FP8（前向激活/权重用 E4M3，梯度用 E5M2）。具体而言，可考虑前向传播（如激活与权重）用 E4M3，反向传播（如梯度）用 E5M2。使用 256–1024 的延迟缩放窗口通常是有益的。对于推理，可在校准后考虑 NVFP4。TE 与 PyTorch 集成，并受现代 GPU 硬件支持。优先使用框架内的 TE 核函数，而非临时拼凑的 FP8 自定义算子。端到端加速取决于核函数组合、内存带宽与校准，因此请在你的模型与工作负载上验证准确率与性能。
+在现代 GPU 上，FP8 Tensor Core 在计算受限的核函数上提供大约两倍于 FP16 或 BF16 的数学吞吐量，同时降低激活与权重的带宽。此外，FP4（NVFP4）Tensor Core 的吞吐量是 FP8 的两倍，并配合微张量缩放（一种维持准确率的纠错技术）用于推理，以提升 token 吞吐量。对于训练，配合 NVIDIA Transformer Engine 使用 FP8，并在需要时保留 FP16 或 FP32 累加器。对于推理，先评估 FP8，只有在校准显示对你的任务质量可接受后再采用 NVFP4。训练时建议使用混合 FP8（前向激活/权重用 E4M3，梯度用 E5M2）。具体而言，可考虑前向传播（如激活与权重）用 E4M3，反向传播（如梯度）用 E5M2。使用 256–1024 的延迟缩放窗口通常是有益的。对于推理，可在校准后考虑 NVFP4。TE 与 PyTorch 集成，并受现代 GPU 硬件支持。优先使用框架内的 TE 核函数，而非临时拼凑的 FP8 自定义算子。端到端加速取决于核函数组合、内存带宽与校准，因此请在你的模型与工作负载上验证准确率与性能。
 
 > On modern GPUs, FP8 Tensor Cores provide roughly double the math throughput of FP16 or BF16 on compute-bound kernels while, at the same time, reducing activation and weight bandwidth. Additionally, FP4 (NVFP4) Tensor Cores double the throughput of FP8 and are used for inference with micro tensor scaling (an error-correction technique to maintain accuracy) to raise token throughput. For training, use FP8 with the NVIDIA Transformer Engine and maintain FP16 or FP32 accumulators when required. For inference, evaluate FP8 first and adopt NVFP4 only after calibration shows acceptable quality for your task. It's recommended to use hybrid FP8 (E4M3 for forward activations/weights and E5M2 for gradients) for training. Specifically, consider using E4M3 for the forward pass (e.g., activations and weights) and E5M2 for the backward pass (e.g., gradients). It's often beneficial to use a delayed scaling window of 256-1024. For inference, consider NVFP4 after calibration. TE integrates with PyTorch and is supported by modern GPU hardware. Prefer framework TE kernels over ad-hoc FP8 custom operations. End-to-end speedup depends on kernel mix, memory bandwidth, and calibration, so validate accuracy and performance on your model and workload.
 
 ### 利用 Tensor Core 和张量内存加速器（TMA）(Leverage Tensor Cores and the Tensor Memory Accelerator (TMA))
 
-*利用 Tensor Core 与张量内存加速器（TMA）* 尽可能确保你的自定义 CUDA 核函数在矩阵运算中利用 Tensor Core。这可能涉及为简便起见使用 CUTLASS 模板。通过使用 Tensor Core 以及用于向共享内存异步搬运张量的 TMA，你能为 GEMM、卷积及其他张量运算实现显著加速——往往能接近 GPU 的峰值 FLOPS。确保你的数据按需处于 FP16/BF16/TF32，并对齐到 Tensor Core 的分块维度（8 或 16 的倍数）。
+尽可能确保你的自定义 CUDA 核函数在矩阵运算中利用 Tensor Core。这可能涉及为简便起见使用 CUTLASS 模板。通过使用 Tensor Core 以及用于向共享内存异步搬运张量的 TMA，你能为 GEMM、卷积及其他张量运算实现显著加速——往往能接近 GPU 的峰值 FLOPS。确保你的数据按需处于 FP16/BF16/TF32，并对齐到 Tensor Core 的分块维度（8 或 16 的倍数）。
 
 > Make sure your custom CUDA kernels utilize Tensor Cores for matrix ops if possible. This might involve using CUTLASS templates for simplicity. By using Tensor Cores and TMA for asynchronous tensor movement to shared memory, you can achieve dramatic speedups for GEMM, convolutions, and other tensor operations-often reaching near-peak FLOPS of the GPU. Ensure your data is in FP16/BF16/TF32 as needed and aligned to Tensor Core tile dimensions, which are multiples of 8 or 16.
 
 ### 使用 TF32 轻松加速 (Use TF32 for easy speedup)
 
-*使用 TF32 轻松加速* 对于 32 位矩阵乘法，设置 torch.set_float32_matmul_precision("high") 以为 PyTorch 中数值上安全的运算启用 TF32（快速 FP32）。cuBLAS 与 cuDNN 等库会在现代 GPU 硬件上自动挑选最优的 Tensor Core 代码路径。如果你用 "highest"（而非 "high"）强制全精度 FP32，务必理解其对性能的影响。
+对于 32 位矩阵乘法，设置 torch.set_float32_matmul_precision("high") 以为 PyTorch 中数值上安全的运算启用 TF32（快速 FP32）。cuBLAS 与 cuDNN 等库会在现代 GPU 硬件上自动挑选最优的 Tensor Core 代码路径。如果你用 "highest"（而非 "high"）强制全精度 FP32，务必理解其对性能的影响。
 
 > For 32-bit matrix multiplies, set torch.set_float32_matmul_precision("high") to enable TF32 (fast FP32) for operations that are numerically safe in PyTorch. Libraries like cuBLAS and cuDNN will automatically pick optimal Tensor Core code paths on modern GPU hardware. If you force full-precision FP32 with "highest" (instead of "high"), make sure to understand the performance impact.
 
 ### 利用结构化稀疏性 (Exploit structured sparsity)
 
-*利用结构化稀疏性* 现代 NVIDIA GPU 在矩阵乘法中支持 2:4 结构化稀疏性，它以结构化模式将 50% 的权重清零。这让硬件的吞吐量翻倍。通过对模型剪枝来利用这一点。如果你能把权重剪枝到符合 2:4 稀疏模式，这些层的 GEMM 就能快约 2×。使用 NVIDIA 的 SDK 或库支持来施加结构化稀疏性，并确保用上了稀疏 Tensor Core 通路。如果你的模型能容忍这种稀疏性、或能以此训练，这就能带来免费的速度提升；这通常需要用稀疏性正则化重新训练。
+现代 NVIDIA GPU 在矩阵乘法中支持 2:4 结构化稀疏性，它以结构化模式将 50% 的权重清零。这让硬件的吞吐量翻倍。通过对模型剪枝来利用这一点。如果你能把权重剪枝到符合 2:4 稀疏模式，这些层的 GEMM 就能快约 2×。使用 NVIDIA 的 SDK 或库支持来施加结构化稀疏性，并确保用上了稀疏 Tensor Core 通路。如果你的模型能容忍这种稀疏性、或能以此训练，这就能带来免费的速度提升；这通常需要用稀疏性正则化重新训练。
 
 > Modern NVIDIA GPUs support 2:4 structured sparsity in matrix multiply, which zeros out 50% of weights in a structured pattern. This allows the hardware to double its throughput. Leverage this by pruning your model. If you can prune weights to meet the 2:4 sparsity pattern, your GEMMs can run ~2x faster for those layers. Use NVIDIA's SDK or library support to apply structured sparsity and ensure the sparse Tensor Core paths are used. This can give a free speed boost if your model can tolerate or be trained with that sparsity, which often requires retraining with sparsity regularization.
 
 ### 在可能时降低梯度和激活的精度 (Reduce precision for gradients and activations when possible)
 
-*在可能时降低梯度与激活的精度* 即便你把权重保持在更高精度，也可考虑把梯度或激活压缩到更低精度。例如，对梯度使用 FP16/BF16 或 FP8 通信。许多框架支持 FP16 梯度 all-reduce。类似地，对于激活检查点，以 16 位而非 FP32 存储激活能节省内存。关于 FP8 与 FP4 优化器及量化梯度的研究仍在继续。这些做法有助于在降低内存与带宽成本的同时保住模型质量。在带宽受限的环境中，梯度压缩尤其可能带来质变。DeepSeek 就通过压缩梯度在受限的 GPU 上训练，证明了这一点。
+即便你把权重保持在更高精度，也可考虑把梯度或激活压缩到更低精度。例如，对梯度使用 FP16/BF16 或 FP8 通信。许多框架支持 FP16 梯度 all-reduce。类似地，对于激活检查点，以 16 位而非 FP32 存储激活能节省内存。关于 FP8 与 FP4 优化器及量化梯度的研究仍在继续。这些做法有助于在降低内存与带宽成本的同时保住模型质量。在带宽受限的环境中，梯度压缩尤其可能带来质变。DeepSeek 就通过压缩梯度在受限的 GPU 上训练，证明了这一点。
 
 > Even if you keep weights at higher precision, consider compressing gradients or activations to lower precision. For instance, use FP16/BF16 or FP8 communication for gradients. Many frameworks support FP16 gradient all-reduce. Similarly, for activation checkpointing, storing activations in 16-bit instead of FP32 saves memory. Research continues on FP8 and FP4 optimizers and quantized gradients. These help maintain model quality while reducing memory and bandwidth costs. In bandwidth-limited environments, gradient compression in particular can be a game changer. DeepSeek demonstrated this by compressing gradients to train on constrained GPUs.
 
@@ -992,7 +992,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 在可能时融合缩放和计算操作 (Fuse scaling and computing operations when possible)
 
-*在可能时融合缩放与计算操作* 使用更低精度时，记得融合运算以保住准确率。例如，Blackwell 的 FP4 "微缩放（microscaling）"建议为每一组数值各保留一个缩放因子。把这些融合运算纳入其中，在一趟中完成缩放与计算——而不是分成多趟，那样可能导致精度损失。其中许多都已由现有库处理，所以直接用它们即可，不必从零实现。
+使用更低精度时，记得融合运算以保住准确率。例如，Blackwell 的 FP4 "微缩放（microscaling）"建议为每一组数值各保留一个缩放因子。把这些融合运算纳入其中，在一趟中完成缩放与计算——而不是分成多趟，那样可能导致精度损失。其中许多都已由现有库处理，所以直接用它们即可，不必从零实现。
 
 > When using lower precision, remember to fuse operations to retain accuracy. For example, Blackwell's FP4 "microscaling" suggests keeping a scale per group of values. Incorporate these fused operations by scaling and computing in one pass-rather than using separate passes, which could cause precision loss. Many of these are handled by existing libraries, so just use them rather than implementing them from scratch.
 
@@ -1008,19 +1008,19 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 自动调优核函数参数 (Autotune kernel parameters)
 
-*自动调优核函数参数* 针对目标 GPU 自动调优你的自定义 CUDA 核函数。选择正确的块大小、分块大小、展开因子等都会影响性能，而最优设置往往在不同代 GPU（如 Ampere、Hopper、Blackwell 及更新代）之间各不相同。使用自动调优脚本或 OpenAI Triton 等框架——甚至在预处理阶段做暴力搜索——来找到最佳启动配置。这轻松就能带来 20%–30% 的提升，而静态的"合理"设置往往会与之失之交臂。在你的自动调优循环中使用 Triton 特性——例如设置 num_warps 与 num_stages、启用自动 warp 特化、测试异步 TMA 布局。优先使用张量映射描述符 API 来做共享内存暂存。迁移到不同硬件时要重新基准测试分块形状，因为最优选择会随 GPU 代际而不同。
+针对目标 GPU 自动调优你的自定义 CUDA 核函数。选择正确的块大小、分块大小、展开因子等都会影响性能，而最优设置往往在不同代 GPU（如 Ampere、Hopper、Blackwell 及更新代）之间各不相同。使用自动调优脚本或 OpenAI Triton 等框架——甚至在预处理阶段做暴力搜索——来找到最佳启动配置。这轻松就能带来 20%–30% 的提升，而静态的"合理"设置往往会与之失之交臂。在你的自动调优循环中使用 Triton 特性——例如设置 num_warps 与 num_stages、启用自动 warp 特化、测试异步 TMA 布局。优先使用张量映射描述符 API 来做共享内存暂存。迁移到不同硬件时要重新基准测试分块形状，因为最优选择会随 GPU 代际而不同。
 
 > Autotune your custom CUDA kernels for the target GPU. Choosing the correct block size, tile size, unroll factors, etc., can affect performance, and the optimal settings often differ between GPUs' generations, such as Ampere, Hopper, Blackwell, and beyond. Use autotuning scripts or frameworks like OpenAI Triton-or even brute-force search in a preprocessing step-to find the best launch config. This can easily yield 20%-30% improvements that you'd miss with static "reasonable" settings. Use Triton features in your autotuning loop-for instance, set num_warps and num_stages, enable automatic warp specialization, and test asynchronous TMA layouts. Prefer tensor map descriptor APIs for shared-memory staging. Re-benchmark tile shapes when migrating to different hardware, as optimal choices will differ across GPU generations.
 
 ### 在 ML 工作负载中使用核函数融合 (Use kernel fusion in ML workloads)
 
-*在 ML 工作负载中使用核函数融合* 利用深度学习库提供的融合核函数。例如，启用融合优化器会融合权重更新、动量等逐元素运算。这还会用到融合的多头注意力实现与融合的归一化核函数。NVIDIA 的库以及一些开源项目（如 Transformer Engine 与 FasterTransformer）为常见模式提供融合运算，例如融合的 LayerNorm + dropout。这些能减少启动开销并更高效地使用内存。
+利用深度学习库提供的融合核函数。例如，启用融合优化器会融合权重更新、动量等逐元素运算。这还会用到融合的多头注意力实现与融合的归一化核函数。NVIDIA 的库以及一些开源项目（如 Transformer Engine 与 FasterTransformer）为常见模式提供融合运算，例如融合的 LayerNorm + dropout。这些能减少启动开销并更高效地使用内存。
 
 > Utilize fused kernels provided by deep learning libraries. For example, enabling fused optimizers will fuse elementwise ops like weight update, momentum, etc. This will also use fused multihead attention implementations and fused normalization kernels. NVIDIA's libraries and some open source projects like Transformer Engine and FasterTransformer provide fused operations for common patterns, such as fused LayerNorm + dropout. These reduce launch overhead and use memory more efficiently.
 
 ### 利用内存高效注意力如 FlashAttention (Utilize memory-efficient attention like FlashAttention)
 
-*利用 FlashAttention 等内存高效注意力* 为 transformer 模型集成 FlashAttention 等先进算法。FlashAttention 以分块、流式的方式计算注意力，避免物化大型中间矩阵，从而大幅降低内存占用并提升速度——尤其是对长序列。用 FlashAttention 替换标准注意力可同时改善吞吐量与内存占用，让相同硬件上能用更大的批大小或序列长度。
+为 transformer 模型集成 FlashAttention 等先进算法。FlashAttention 以分块、流式的方式计算注意力，避免物化大型中间矩阵，从而大幅降低内存占用并提升速度——尤其是对长序列。用 FlashAttention 替换标准注意力可同时改善吞吐量与内存占用，让相同硬件上能用更大的批大小或序列长度。
 
 > Integrate advanced algorithms like FlashAttention for transformer models. FlashAttention computes attention in a tiled, streaming fashion to avoid materializing large intermediate matrices, drastically reducing memory usage and increasing speed-especially for long sequences. Replacing the standard attention with FlashAttention can improve both throughput and memory footprint, allowing larger batch sizes or sequence lengths on the same hardware.
 
@@ -1038,13 +1038,13 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 利用分布式优化器分片 (Utilize distributed optimizer sharding)
 
-*利用分布式优化器分片* 使用像零冗余优化器（Zero Redundancy Optimizer，ZeRO）这样的省内存优化策略，它把优化器状态与梯度等张量跨 GPU 分片，而不是复制它们。这通过分摊内存与通信负载，让你能扩展到极大的模型规模。它通过降低每 GPU 的内存压力、避免换出到 CPU、以及在分块进行时减少通信量，来提升吞吐量。DeepSpeed 与 Megatron-LM 等许多框架都提供这类分片。对大语言模型加以利用，就能在不触发 OOM 或因换出而变慢的情况下保持高速。
+使用像零冗余优化器（Zero Redundancy Optimizer，ZeRO）这样的省内存优化策略，它把优化器状态与梯度等张量跨 GPU 分片，而不是复制它们。这通过分摊内存与通信负载，让你能扩展到极大的模型规模。它通过降低每 GPU 的内存压力、避免换出到 CPU、以及在分块进行时减少通信量，来提升吞吐量。DeepSpeed 与 Megatron-LM 等许多框架都提供这类分片。对大语言模型加以利用，就能在不触发 OOM 或因换出而变慢的情况下保持高速。
 
 > Use a memory-saving optimization strategy like Zero Redundancy Optimizer (ZeRO), which shards tensors like optimizer states and gradients across GPUs instead of replicating them. This allows scaling to extreme model sizes by distributing the memory and communication load. It improves throughput by reducing per-GPU memory pressure, avoiding swapping to CPU, and reducing communication volume if done in chunks. Many frameworks like DeepSpeed and Megatron-LM provide this type of sharding. Leverage it for large models to maintain high speed without running OOM or hitting slowdown from swapping.
 
 ### 在可能时异步训练 (Train asynchronously when possible)
 
-*在可能时异步训练* 若适用，可考虑异步更新。例如，你可以使用陈旧的随机梯度下降（stochastic gradient descent，SGD），其中各 worker 并不总是互相等待以共享更新。这种方式能提升吞吐量，不过可能需要仔细调优以免影响收敛。异步训练若处理得当，可带来巨大的性能收益。
+若适用，可考虑异步更新。例如，你可以使用陈旧的随机梯度下降（stochastic gradient descent，SGD），其中各 worker 并不总是互相等待以共享更新。这种方式能提升吞吐量，不过可能需要仔细调优以免影响收敛。异步训练若处理得当，可带来巨大的性能收益。
 
 > If applicable, consider asynchronous updates. For example, you can use stale stochastic gradient descent (SGD) in which workers don't always wait for one another to share updates. This approach can increase throughput, though it may require careful tuning to not impact convergence. Asynchronous training can provide large performance benefits if done properly.
 
@@ -1066,7 +1066,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 在可用时使用 RDMA 网络 (Use RDMA networking when available)
 
-*在可用时使用 RDMA 网络* 为你的多节点集群配备 InfiniBand 或 RoCE，以获得低延迟与高吞吐。确保 NCCL 与 MPI 在训练中使用 RDMA。NCCL 会自动检测 InfiniBand，并在可用时使用 GPUDirect RDMA。RDMA 绕过核函数网络栈，相比传统 TCP 可显著降低延迟。如果你只有以太网，在支持 RDMA 的 NIC 上启用 RoCE，即可获得类 RDMA 的性能。在 NVLink 域系统（NVL72、GB200/GB300 等）上，尽可能让集合通信保持在网络结构内进行。把主机网络保留给孤岛间链路。让 NCCL 的拓扑提示与你的 NVLink/NVSwitch 域对齐。
+为你的多节点集群配备 InfiniBand 或 RoCE，以获得低延迟与高吞吐。确保 NCCL 与 MPI 在训练中使用 RDMA。NCCL 会自动检测 InfiniBand，并在可用时使用 GPUDirect RDMA。RDMA 绕过核函数网络栈，相比传统 TCP 可显著降低延迟。如果你只有以太网，在支持 RDMA 的 NIC 上启用 RoCE，即可获得类 RDMA 的性能。在 NVLink 域系统（NVL72、GB200/GB300 等）上，尽可能让集合通信保持在网络结构内进行。把主机网络保留给孤岛间链路。让 NCCL 的拓扑提示与你的 NVLink/NVSwitch 域对齐。
 
 > Equip your multinode cluster with InfiniBand or RoCE for low latency and high throughput. Ensure NCCL and MPI are using RDMA for training. NCCL will autodetect InfiniBand and use GPUDirect RDMA if available. RDMA bypasses the kernel networking stack and can reduce latency significantly versus traditional TCP. If you only have Ethernet, enable RoCE on RDMA-capable NICs to get RDMA-like performance. On NVLink domain systems (NVL72, GB200/GB300, etc.), keep collectives on-fabric when possible. Reserve host networking for inter-island links. Align NCCL topology hints with your NVLink/NVSwitch domains.
 
@@ -1078,7 +1078,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 为 NIC 分配 CPU 亲和性 (Assign CPU affinity for NICs)
 
-*为 NIC 分配 CPU 亲和性* 把网络中断与线程绑定到与 NIC 同一 NUMA 节点上的 CPU 核心。这避免了网络流量的跨 NUMA 惩罚，并让网络栈的内存访问保持本地。检查 /proc/interrupts 并使用 irqaffinity 设置，例如确保处于 NUMA 节点 0 的 NIC 由 NUMA 节点 0 中的某个核心处理。这能改善网络性能与一致性，尤其是在高包速率下。
+把网络中断与线程绑定到与 NIC 同一 NUMA 节点上的 CPU 核心。这避免了网络流量的跨 NUMA 惩罚，并让网络栈的内存访问保持本地。检查 /proc/interrupts 并使用 irqaffinity 设置，例如确保处于 NUMA 节点 0 的 NIC 由 NUMA 节点 0 中的某个核心处理。这能改善网络性能与一致性，尤其是在高包速率下。
 
 > Pin network interrupts and threads to the CPU core(s) on the same NUMA node as the NIC. This avoids cross-NUMA penalties for network traffic and keeps the networking stack's memory accesses local. Check /proc/interrupts and use irqaffinity settings to ensure, for example, your NIC in NUMA node 0 is handled by a core in NUMA node 0. This can improve network performance and consistency, especially under high packet rates.
 
@@ -1096,25 +1096,25 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 优化全归约拓扑 (Optimize all-reduce topologies)
 
-*优化 all-reduce 拓扑* 确保你为集群拓扑使用了最优的 all-reduce 算法。NCCL 会自动选择环形或树形算法，但在混合互连（如每个节点内 GPU 通过 NVLink 相连、节点间用 InfiniBand 或以太网）上，分层 all-reduce 可能更有利。分层 all-reduce 会先在节点内执行 all-reduce 操作，然后再跨节点进行。大多数框架默认会执行基于 NCCL 的分层聚合，但请通过剖析加以验证。在传统 MPI 设置中，你可以考虑手工做同样的两级归约——先节点内、再节点间。
+确保你为集群拓扑使用了最优的 all-reduce 算法。NCCL 会自动选择环形或树形算法，但在混合互连（如每个节点内 GPU 通过 NVLink 相连、节点间用 InfiniBand 或以太网）上，分层 all-reduce 可能更有利。分层 all-reduce 会先在节点内执行 all-reduce 操作，然后再跨节点进行。大多数框架默认会执行基于 NCCL 的分层聚合，但请通过剖析加以验证。在传统 MPI 设置中，你可以考虑手工做同样的两级归约——先节点内、再节点间。
 
 > Ensure you're using the optimal all-reduce algorithm for your cluster topology. NCCL will choose ring or tree algorithms automatically, but on mixed interconnects like GPUs connected by NVLink on each node and InfiniBand or Ethernet between nodes, hierarchical all-reduce can be beneficial. Hierarchical all-reduce will first perform the all-reduce operation within the node, then it will proceed across nodes. Most frameworks will perform NCCL-based hierarchical aggregations by default but verify by profiling. In traditional MPI setups, you may consider manually doing this same two-level reduction-first intranode and then internode.
 
 ### 避免网络超额订阅 (Avoid network oversubscription)
 
-*避免网络超额订阅* 在多 GPU 服务器上，确保各 GPU 的合并流量不会超额订阅 NIC。例如，八块 GPU 在 all-reduce 期间轻松就能产生超过 200 Gbps 的流量，因此仅有单块 100 Gbps 的 NIC 会成为掣肘。如果每节点扩展到很多 GPU，可考虑每节点配备多块 NIC 以及 200/400 Gbps 的 InfiniBand。同样地，如果你的 NIC 与 GPU 共享同一个 PCIe 根复合体，要留意 PCIe 带宽上限。
+在多 GPU 服务器上，确保各 GPU 的合并流量不会超额订阅 NIC。例如，八块 GPU 在 all-reduce 期间轻松就能产生超过 200 Gbps 的流量，因此仅有单块 100 Gbps 的 NIC 会成为掣肘。如果每节点扩展到很多 GPU，可考虑每节点配备多块 NIC 以及 200/400 Gbps 的 InfiniBand。同样地，如果你的 NIC 与 GPU 共享同一个 PCIe 根复合体，要留意 PCIe 带宽上限。
 
 > On multi-GPU servers, ensure the combined traffic of GPUs doesn't oversubscribe the NIC. For example, eight GPUs can easily generate more than 200 Gbps of traffic during all-reduce, so having only a single 100 Gbps NIC will constrain you. Consider multiple NICs per node and 200/400 Gbps InfiniBand if scaling to many GPUs per node. Likewise, watch out for PCIe bandwidth limits if your NIC and GPUs share the same PCIe root complex.
 
 ### 压缩通信 (Compress communication)
 
-*压缩通信* 就像单节点内存那样，可考虑为网络传输压缩数据。技术包括 16 位或 8 位梯度压缩、为跨节点流水线传输量化激活，甚至像草图（sketching）这样更奇特的方法。如果网络是最慢的环节，那么为压缩/解压数据略微增加一点计算成本可能是值得的。NVIDIA 的 NCCL 本身不做压缩，但你可以在框架中集成压缩（例如 Horovod 中的梯度压缩，或 PyTorch 中的自定义 AllReduce 钩子）。这是 DeepSeek 成功的关键之一——通过压缩梯度来应对受限的节点间带宽。
+就像单节点内存那样，可考虑为网络传输压缩数据。技术包括 16 位或 8 位梯度压缩、为跨节点流水线传输量化激活，甚至像草图（sketching）这样更奇特的方法。如果网络是最慢的环节，那么为压缩/解压数据略微增加一点计算成本可能是值得的。NVIDIA 的 NCCL 本身不做压缩，但你可以在框架中集成压缩（例如 Horovod 中的梯度压缩，或 PyTorch 中的自定义 AllReduce 钩子）。这是 DeepSeek 成功的关键之一——通过压缩梯度来应对受限的节点间带宽。
 
 > Just as with single-node memory, consider compressing data for network transfer. Techniques include 16-bit or 8-bit gradient compression, quantizing activations for cross-node pipeline transfers, or even more exotic methods like sketching. If your network is the slowest component, a slightly higher compute cost to compress/decompress data can be worth it. NVIDIA's NCCL doesn't natively compress, but you can integrate compression in frameworks (e.g., gradient compression in Horovod or custom AllReduce hooks in PyTorch). This was one key to DeepSeek's success-compressing gradients to cope with limited internode bandwidth.
 
 ### 监控网络健康 (Monitor network health)
 
-*监控网络健康* 确保没有静默的问题在拖累你的分布式训练。检查丢包（它会表现为重试或超时——在 InfiniBand 上使用重发计数器，在以太网上检查 TCP 重传）。由于拥塞控制会随之启动，即使是很小的丢包也会严重降低吞吐量。使用带外网络测试（如 iPerf 或 NCCL tests）来验证你获得了预期的带宽与延迟。如果没有，就排查交换机配置、NIC 固件或 CPU 亲和性。
+确保没有静默的问题在拖累你的分布式训练。检查丢包（它会表现为重试或超时——在 InfiniBand 上使用重发计数器，在以太网上检查 TCP 重传）。由于拥塞控制会随之启动，即使是很小的丢包也会严重降低吞吐量。使用带外网络测试（如 iPerf 或 NCCL tests）来验证你获得了预期的带宽与延迟。如果没有，就排查交换机配置、NIC 固件或 CPU 亲和性。
 
 > Ensure no silent issues are hampering your distributed training. Check for packet loss (which would show up as retries or timeouts-on InfiniBand, use counters for resend, and on Ethernet, check for TCP retransmits). Even a small packet loss can severely degrade throughput due to congestion control kicking in. Use out-of-band network tests (like iPerf or NCCL tests) to validate you're getting expected bandwidth and latency. If not, investigate switch configurations, NIC firmware, or CPU affinity.
 
@@ -1130,7 +1130,7 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 高效编排动态资源 (Orchestrate dynamic resources efficiently)
 
-*高效编排动态资源* 集成先进的容器编排平台，例如用自定义性能指标增强的 Kubernetes。这能基于实时使用模式与吞吐量目标来动态扩缩并均衡工作负载。
+集成先进的容器编排平台，例如用自定义性能指标增强的 Kubernetes。这能基于实时使用模式与吞吐量目标来动态扩缩并均衡工作负载。
 
 > Integrate advanced container orchestration platforms, such as Kubernetes augmented with custom performance metrics. This enables dynamic scaling and balancing workloads based on live usage patterns and throughput targets.
 
@@ -1148,13 +1148,13 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 利用 NIXL 进行分布式推理 (Leverage NIXL for distributed inference)
 
-*利用 NIXL 做分布式推理* 当跨 GPU 或跨节点服务大语言模型时，使用 NVIDIA Inference Xfer Library（NIXL）通过 RDMA 在 prefill 与 decode 工作节点之间流式传输 KV 缓存。在 NIXL 的场景中，基于 transformer 的大型 KV 缓存在节点之间传输。NIXL 提供了一个高吞吐、低延迟的 API，用于在分离式 LLM 推理集群中把 KV 缓存从 prefill GPU 流式传输到 decode GPU。它借助 GPUDirect RDMA 与最优路径来完成——且无需 CPU 介入。这降低了跨节点分离式 prefill decode 服务的尾延迟。
+当跨 GPU 或跨节点服务大语言模型时，使用 NVIDIA Inference Xfer Library（NIXL）通过 RDMA 在 prefill 与 decode 工作节点之间流式传输 KV 缓存。在 NIXL 的场景中，基于 transformer 的大型 KV 缓存在节点之间传输。NIXL 提供了一个高吞吐、低延迟的 API，用于在分离式 LLM 推理集群中把 KV 缓存从 prefill GPU 流式传输到 decode GPU。它借助 GPUDirect RDMA 与最优路径来完成——且无需 CPU 介入。这降低了跨节点分离式 prefill decode 服务的尾延迟。
 
 > When serving large models across GPUs or nodes, use the NVIDIA Inference Xfer Library to stream KV cache between prefill and decode workers over RDMA. In the case of NIXL, the large transformer-based KV cache is transferred between nodes. NIXL provides a high-throughput, low-latency API for streaming the KV cache from a prefill GPU to a decode GPU in a disaggregated LLM inference cluster. It does this using GPUDirect RDMA and optimal paths-and without involving the CPU. This reduces tail latency for disaggregated prefill decode serving across nodes.
 
 ### 在必要时卸载 KV 缓存 (Offload KV cache if necessary)
 
-*必要时卸载 KV 缓存* 如果 LLM 的注意力 KV 缓存增长到超出 GPU 内存，使用分层卸载。NVIDIA Dynamo 的分布式 KV 缓存管理器会把访问频率较低的 KV 页卸载到 CPU 内存、SSD 或联网存储，而 TensorRT-LLM 与 vLLM 等推理引擎则支持分页与量化的 KV 缓存。复用缓存以降低内存压力与首 token 延迟。要验证端到端影响，因为被卸载后的未命中会引入额外的 I/O 延迟。这让原本会超出 GPU 内存的序列也能进行推理——并且得益于快速 NVMe 与计算-I/O 重叠，性能损失极小。如果你预期会有很长的提示词或对话，确保你的推理服务器配置为使用这一功能。卸载到磁盘总比彻底失败要好。
+如果 LLM 的注意力 KV 缓存增长到超出 GPU 内存，使用分层卸载。NVIDIA Dynamo 的分布式 KV 缓存管理器会把访问频率较低的 KV 页卸载到 CPU 内存、SSD 或联网存储，而 TensorRT-LLM 与 vLLM 等推理引擎则支持分页与量化的 KV 缓存。复用缓存以降低内存压力与首 token 延迟。要验证端到端影响，因为被卸载后的未命中会引入额外的 I/O 延迟。这让原本会超出 GPU 内存的序列也能进行推理——并且得益于快速 NVMe 与计算-I/O 重叠，性能损失极小。如果你预期会有很长的提示词或对话，确保你的推理服务器配置为使用这一功能。卸载到磁盘总比彻底失败要好。
 
 > If an LLM's attention KV cache grows beyond GPU memory, use hierarchical offloading. NVIDIA Dynamo's Distributed KV Cache Manager offloads less frequently accessed KV pages to CPU memory, SSD, or networked storage, while inference engines like TensorRT-LLM and vLLM support paged and quantized KV caches. Reuse caches to lower memory pressure and first-token latency. Validate end-to-end impact because offloaded misses introduce extra I/O latency. This allows inference on sequences that would otherwise exceed GPU memory-and with minimal performance hit thanks to fast NVMe and compute-I/O overlapping. Ensure your inference server is configured to use this if you expect very long prompts or chats. Offloading to disk is better than failing completely.
 
@@ -1172,13 +1172,13 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 ### 预热以避免冷启动延迟 (Warm up to avoid cold-start latency)
 
-*预热以避免冷启动延迟* 通过把模型加载到 GPU 并运行几次虚拟推理来预热 GPU。这样当第一个真实请求到达推理服务器时，就能避免一次性的冷启动延迟冲击。
+通过把模型加载到 GPU 并运行几次虚拟推理来预热 GPU。这样当第一个真实请求到达推理服务器时，就能避免一次性的冷启动延迟冲击。
 
 > Warm up the GPUs by loading the model into the GPU and running a few dummy inferences. This will avoid one-time, cold-start latency hits when the first real request comes into the inference server.
 
 ### 为服务质量（QoS）高效分区资源 (Partition resources efficiently for quality of service (QoS))
 
-*为服务质量（quality of service，QoS）高效地划分资源* 如果在同一套基础设施上运行混合的异构工作负载（例如训练与推理——或不同架构的模型），可考虑划分资源以确保延迟敏感的推理获得优先级。这可能意味着把一些 GPU 完全专用于推理，或者在推理服务不需要整块 GPU 但要求可预测延迟时，用 MIG 为它划出一块有保障的 GPU 切片。如果可能，把推理与训练分到不同节点上，因为训练会以繁重的 I/O 或突发的通信引入抖动。
+如果在同一套基础设施上运行混合的异构工作负载（例如训练与推理——或不同架构的模型），可考虑划分资源以确保延迟敏感的推理获得优先级。这可能意味着把一些 GPU 完全专用于推理，或者在推理服务不需要整块 GPU 但要求可预测延迟时，用 MIG 为它划出一块有保障的 GPU 切片。如果可能，把推理与训练分到不同节点上，因为训练会以繁重的 I/O 或突发的通信引入抖动。
 
 > If running mixed, heterogeneous workloads, such as training and inference-or models with different architectures-on the same infrastructure, consider partitioning resources to ensure the latency-sensitive inference gets priority. This could mean dedicating some GPUs entirely to inference or using MIG to give an inference service a guaranteed slice of a GPU if it doesn't need a full GPU but requires predictable latency. Separate inference from training on different nodes if possible, as training can introduce jitter with heavy I/O or sudden bursts of communication.
 
