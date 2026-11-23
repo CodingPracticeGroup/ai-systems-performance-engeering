@@ -916,10 +916,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#13101-capturing-the-graph" class="md-nav__link">
+  <a href="#13101-cuda-capturing-a-cuda-graph-and-preallocating-memory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        13.10.1 捕获图 (Capturing the Graph)
+        13.10.1 捕获 CUDA 图并预分配内存 (Capturing a CUDA Graph and Preallocating Memory)
       
     </span>
   </a>
@@ -1686,10 +1686,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#13101-capturing-the-graph" class="md-nav__link">
+  <a href="#13101-cuda-capturing-a-cuda-graph-and-preallocating-memory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        13.10.1 捕获图 (Capturing the Graph)
+        13.10.1 捕获 CUDA 图并预分配内存 (Capturing a CUDA Graph and Preallocating Memory)
       
     </span>
   </a>
@@ -3390,7 +3390,7 @@
 <blockquote>
 <p>We've seen in earlier chapters that CUDA Graphs eliminate per-iteration launch overhead, reduce CPU launch overhead, and eliminate tiny idle gaps between kernels. And removing even the smallest idle gaps leads to higher effective utilization-and more consistent iteration times. Now let's show how to use them in PyTorch.</p>
 </blockquote>
-<h3 id="13101-capturing-the-graph">13.10.1 捕获图 (Capturing the Graph)<a class="headerlink" href="#13101-capturing-the-graph" title="Permanent link">&para;</a></h3>
+<h3 id="13101-cuda-capturing-a-cuda-graph-and-preallocating-memory">13.10.1 捕获 CUDA 图并预分配内存 (Capturing a CUDA Graph and Preallocating Memory)<a class="headerlink" href="#13101-cuda-capturing-a-cuda-graph-and-preallocating-memory" title="Permanent link">&para;</a></h3>
 <p>要使用 CUDA 图，首先需要预热 GPU 以确保所有内存分配和核函数编译已完成。然后，你可以使用<code>torch.cuda.graph()</code>捕获操作序列。</p>
 <p>PyTorch 提供了 torch.cuda.CUDAGraph API 来捕获并重放（graph replay）CUDA Graphs。一般的使用模式是：首先通过正常运行几次迭代来对模型进行预热，以初始化所有必要的数据和内存分配。接着，你创建一个 CUDAGraph 对象，以及一条专用的、非默认的 CUDA 流来隔离此次捕获。</p>
 <blockquote>
