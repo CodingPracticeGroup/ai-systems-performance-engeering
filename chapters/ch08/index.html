@@ -2173,7 +2173,7 @@
 <blockquote>
 <p><strong>Further optimize compute-bound workloads</strong></p>
 </blockquote>
-<p><em>进一步优化计算受限的工作负载</em> 如果是计算受限（例如 ALU 利用率高但因依赖关系而未达峰值），就按如下方式提高有效指令吞吐：使用 ILP 技术（例如展开循环、用多累加器重叠独立操作），检查分支分歧（见 Chapter 6）并尝试重组工作以减少分歧，因为分歧会浪费 ALU 周期，以及转向 Tensor Core 和更低精度以提升计算天花板。如果核函数已处于计算屋顶（compute roof），可以看看降低精度（FP32 → FP16 → FP8 → FP4）能否带来进一步加速。</p>
+<p>如果是计算受限（例如 ALU 利用率高但因依赖关系而未达峰值），就按如下方式提高有效指令吞吐：使用 ILP 技术（例如展开循环、用多累加器重叠独立操作），检查分支分歧（见 Chapter 6）并尝试重组工作以减少分歧，因为分歧会浪费 ALU 周期，以及转向 Tensor Core 和更低精度以提升计算天花板。如果核函数已处于计算屋顶（compute roof），可以看看降低精度（FP32 → FP16 → FP8 → FP4）能否带来进一步加速。</p>
 <blockquote>
 <p>If compute bound (e.g., high ALU utilization but not at peak due to dependencies), increase effective instruction throughput as follows: use ILP techniques (e.g., unroll loops, multiple accumulators to overlap independent operations), check for branch divergence (see Chapter 6) and try to reorganize work to reduce it since divergence wastes ALU cycles, move to Tensor Cores and lower precision to raise the compute ceiling. If the kernel is at the compute roof, see if lowering precision (FP32 → FP16 → FP8 → FP4) can provide further speedups.</p>
 </blockquote>
@@ -2205,7 +2205,7 @@
 <blockquote>
 <p><strong>Leverage specialized hardware and reduced/mixed precision</strong></p>
 </blockquote>
-<p><em>利用专用硬件和降精度/混合精度</em> Blackwell Tensor Core 在 PTX 中以 tcgen05.mma 及相关的 load/store（例如 tcgen05.ld 和 tcgen05.st）形式暴露第五代 MMA 指令。Tensor Core 可加速包括 MXFP8、MXFP4（OCP MX formats）以及 NVIDIA 的 NVFP4 格式在内的微缩放格式。它们还支持块缩放矩阵乘法（K-grouped），当存在缩放元数据时库会自动选用。TMEM 和 TMA 支撑着这些高吞吐的数据通路。我们会在本章后面以及 Chapter 9 中更详细地讨论这些技术。</p>
+<p>Blackwell Tensor Core 在 PTX 中以 tcgen05.mma 及相关的 load/store（例如 tcgen05.ld 和 tcgen05.st）形式暴露第五代 MMA 指令。Tensor Core 可加速包括 MXFP8、MXFP4（OCP MX formats）以及 NVIDIA 的 NVFP4 格式在内的微缩放格式。它们还支持块缩放矩阵乘法（K-grouped），当存在缩放元数据时库会自动选用。TMEM 和 TMA 支撑着这些高吞吐的数据通路。我们会在本章后面以及 Chapter 9 中更详细地讨论这些技术。</p>
 <blockquote>
 <p>Blackwell Tensor Cores expose fifth-generation MMA instructions in PTX as tcgen05.mma and related load/store (e.g., tcgen05.ld and tcgen05.st). Tensor Cores accelerate microscaling formats including MXFP8, MXFP4 (OCP MX formats), and NVIDIA's NVFP4 format. They also support block-scaled matrix multiplication (K-grouped) that libraries automatically select when scaling metadata is present. TMEM and TMA underpin these high-throughput data paths. We'll discuss these techniques in more detail later in this chapter and in Chapter 9.</p>
 </blockquote>
@@ -2296,7 +2296,7 @@
 <blockquote>
 <p><strong>Increase parallelism (launch more threads)</strong></p>
 </blockquote>
-<p><em>增加并行度（启动更多线程）</em> 提高占用率最简单的方法是：如果当前的核函数启动尚未用满所有 SM，就启动更多工作。例如，如果你每个 SM 只启动了 20 warps，而 GPU 能支持 64，那么增大网格大小或每块线程数就能提高占用率（前提是有足够的数据要处理）。</p>
+<p>提高占用率最简单的方法是：如果当前的核函数启动尚未用满所有 SM，就启动更多工作。例如，如果你每个 SM 只启动了 20 warps，而 GPU 能支持 64，那么增大网格大小或每块线程数就能提高占用率（前提是有足够的数据要处理）。</p>
 <blockquote>
 <p>The simplest way to improve occupancy is to launch more work if your current kernel launch isn't already using all SMs. For instance, if you launch only 20 warps per SM while the GPU can support 64, increasing the grid size or threads per block can raise occupancy (assuming there's enough data to process).</p>
 </blockquote>
@@ -2552,7 +2552,7 @@
 <blockquote>
 <p><strong>Utilize warp-vote parallel algorithms</strong></p>
 </blockquote>
-<p><em>利用 warp 投票并行算法</em> warp 内建函数（__ballot<em>sync、__any</em>sync、__all_sync）、协作组（cooperative groups）的 warp.ballot/any/all，以及设备端投票掩码（%WarpVote），能让一个 warp 集体决定，或投票，出哪些通道（lane）需要"特殊"工作。随后该 warp 动态地把这些工作委派、重划分并压紧到一个（或少数几个）通道中，而不是让全部 32 个线程分歧。这避免了逐通道的分支分歧，但引入了一些潜在的负载不均衡权衡，你应剖析其影响。稍后我们会更详细地介绍 warp 内建函数。</p>
+<p>warp 内建函数（__ballot<em>sync、__any</em>sync、__all_sync）、协作组（cooperative groups）的 warp.ballot/any/all，以及设备端投票掩码（%WarpVote），能让一个 warp 集体决定，或投票，出哪些通道（lane）需要"特殊"工作。随后该 warp 动态地把这些工作委派、重划分并压紧到一个（或少数几个）通道中，而不是让全部 32 个线程分歧。这避免了逐通道的分支分歧，但引入了一些潜在的负载不均衡权衡，你应剖析其影响。稍后我们会更详细地介绍 warp 内建函数。</p>
 <blockquote>
 <p>Warp intrinsics (__ballot<em>sync, __any</em>sync, __all_sync), cooperative-groups' warp.ballot/any/all, and device-side vote masks (%WarpVote) let a warp collectively decide, or vote, which lanes need "special" work. The warp then dynamically delegates, repartitions, and compacts that work into one (or a few) lane(s) instead of diverging all 32 threads. This avoids per-lane branch divergence but introduces some potential load-imbalance trade-offs that you should profile for impact. We'll cover warp intrinsics in more detail in a bit.</p>
 </blockquote>

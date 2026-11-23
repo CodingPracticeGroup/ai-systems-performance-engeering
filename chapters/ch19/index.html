@@ -3631,7 +3631,7 @@
 <blockquote>
 <p>You can interleave large prefill requests with latency-sensitive decode tasks by slicing the prefill into small chunks and piggybacking decodes between them. This keeps all pipeline stages busy and minimizes idle "bubbles" in your GPU schedule.</p>
 </blockquote>
-<p><em>分块 prefill（chunked prefill）</em> 是所有现代 LLM 推理引擎都很好支持的一种模式，用于减少流水线气泡。它有效地对一个大任务（prefill）做时间切片，为小任务（decode）腾出空间，让它们在由分块所制造的流水线间隙中执行，如图 19-7 所示。</p>
+<p>是所有现代 LLM 推理引擎都很好支持的一种模式，用于减少流水线气泡。它有效地对一个大任务（prefill）做时间切片，为小任务（decode）腾出空间，让它们在由分块所制造的流水线间隙中执行，如图 19-7 所示。</p>
 <blockquote>
 <p><em>Chunked prefill</em> is a well-supported pattern used by all modern LLM inference engines to reduce pipeline bubbles. It effectively time-slices a big task (prefill) to create room for small tasks (decode) to execute in the pipeline gaps created by the chunks, as shown in Figure 19-7.</p>
 </blockquote>
@@ -4285,7 +4285,7 @@
 <p>Prefer <code>mode="reduce-overhead"</code> or autotune modes if you can afford the warmup time. This will help minimize runtime overhead for low-latency inference workloads.</p>
 </blockquote>
 <h3 id="kernel-level-autotuning">核函数级自动调优 (Kernel-level autotuning)<a class="headerlink" href="#kernel-level-autotuning" title="Permanent link">&para;</a></h3>
-<p><em>核函数级自动调优</em> 动态优化 GPU 核函数和分块大小。在可能时利用张量内存加速器（TMA）进行异步内存预取。使用像 CUTLASS 和 Triton 这样提供自动调优的库和编译器——而不是手动调优它们，除非为了性能而绝对必要。</p>
+<p>动态优化 GPU 核函数和分块大小。在可能时利用张量内存加速器（TMA）进行异步内存预取。使用像 CUTLASS 和 Triton 这样提供自动调优的库和编译器——而不是手动调优它们，除非为了性能而绝对必要。</p>
 <blockquote>
 <p>Dynamically optimize GPU kernels and tile sizes. Leverage the Tensor Memory Accelerator (TMA) for asynchronous memory prefetch when possible. Use libraries and compilers that provide autotuning like CUTLASS and Triton—rather than hand-tuning them, unless absolutely necessary for performance.</p>
 </blockquote>
@@ -4300,7 +4300,7 @@
 <p>Separate the prefill (prompt processing) and decode (generation) phases across resources, and context-aware request routing based on real-time factors like KV cache hits, queue depth, and load. This maintains high throughput with long prompts—without slowing down short-prompt responses.</p>
 </blockquote>
 <h3 id="dynamic-parallelism-strategies">动态并行策略 (Dynamic parallelism strategies)<a class="headerlink" href="#dynamic-parallelism-strategies" title="Permanent link">&para;</a></h3>
-<p><em>动态并行策略</em> 根据输入/输出序列长度和模型结构（包括 MoE 路由），在数据并行、张量并行、流水线并行以及混合执行组合之间即时做出决策。这些决策包括复制或分片模型。</p>
+<p>根据输入/输出序列长度和模型结构（包括 MoE 路由），在数据并行、张量并行、流水线并行以及混合执行组合之间即时做出决策。这些决策包括复制或分片模型。</p>
 <blockquote>
 <p>Perform on-the-fly decisions between data-parallel, tensor- parallel, pipeline-parallel, and hybrid execution combinations depending on input/output sequence lengths and model structure—including MoE routing. These decisions include replicating or sharding the model.</p>
 </blockquote>

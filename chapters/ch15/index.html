@@ -1821,7 +1821,7 @@
 <p>While it's possible to extend TP across racks, it's recommended to choose your TP group sizes with topology-awareness in mind and within a single NVLink/NVSwitch island whenever possible. This will avoid unnecessary inter-rack switch latency and help to increase overall system efficiency.</p>
 </blockquote>
 <h3 id="pipeline-parallelism">流水线并行 (Pipeline Parallelism)<a class="headerlink" href="#pipeline-parallelism" title="Permanent link">&para;</a></h3>
-<p><em>流水线并行</em>（pipeline parallelism，PP）按<em>层</em>（layer-wise）将模型划分到不同的 GPU 上。例如，在一个基于 transformer 的 60 层模型中，GPU 0 可能持有第 1–20 层，GPU 1 持有第 21–40 层，GPU 2 持有第 41–60 层。</p>
+<p>（pipeline parallelism，PP）按<em>层</em>（layer-wise）将模型划分到不同的 GPU 上。例如，在一个基于 transformer 的 60 层模型中，GPU 0 可能持有第 1–20 层，GPU 1 持有第 21–40 层，GPU 2 持有第 41–60 层。</p>
 <blockquote>
 <p>Pipeline parallelism (PP) partitions the model layer-wise across different GPUs. For example, in a 60-layer transformer-based model, GPU 0 might hold layers 1-20, GPU 1 holds layers 21-40, and GPU 2 holds layers 41-60.</p>
 </blockquote>
@@ -1854,7 +1854,7 @@
 <p>PP splits the model across layers, and TP splits the model within layers. TP is mainly used for models with layers or experts that are too wide for a single GPU, while PP is primarily used for models that are too deep to fit into a single GPU. Note that TP and PP can be combined, which we'll see in a bit.</p>
 </blockquote>
 <h3 id="expert-parallelism">专家并行 (Expert Parallelism)<a class="headerlink" href="#expert-parallelism" title="Permanent link">&para;</a></h3>
-<p><em>专家并行</em>（expert parallelism，EP）专用于 MoE 架构。在一个 MoE 层中，存在许多专家网络（即前馈子层）。对于每个输入 token，只有一个或少数几个专家被激活。这天然地适合把不同的专家分布到不同的 GPU 上。</p>
+<p>（expert parallelism，EP）专用于 MoE 架构。在一个 MoE 层中，存在许多专家网络（即前馈子层）。对于每个输入 token，只有一个或少数几个专家被激活。这天然地适合把不同的专家分布到不同的 GPU 上。</p>
 <blockquote>
 <p>Expert parallelism (EP) is specific to MoE architectures. In an MoE layer, there are many expert networks, or feed-forward sublayers. For each input token, only one or a few experts are activated. This naturally lends itself to distributing different experts on different GPUs.</p>
 </blockquote>
@@ -1955,7 +1955,7 @@
 <p>Modern inference servers treat each replica as a separate model instance behind a load balancer. This requires careful request routing, but it's relatively straightforward compared to other complex model-sharding methods.</p>
 </blockquote>
 <h3 id="context-parallelism">上下文并行 (Context Parallelism)<a class="headerlink" href="#context-parallelism" title="Permanent link">&para;</a></h3>
-<p><em>上下文并行</em>（context parallelism，CP）更像是一种专门化的策略，它把单条 token 序列切分到多块 GPU 上。这一技术对数万乃至数百万 token 量级的超长上下文输入很有帮助——否则这些输入要么太慢、太耗内存，要么根本无法装进单块 GPU。</p>
+<p>（context parallelism，CP）更像是一种专门化的策略，它把单条 token 序列切分到多块 GPU 上。这一技术对数万乃至数百万 token 量级的超长上下文输入很有帮助——否则这些输入要么太慢、太耗内存，要么根本无法装进单块 GPU。</p>
 <blockquote>
 <p>Context parallelism (CP) is more of a specialized strategy that partitions a single sequence of tokens across multiple GPUs. This technique benefits extremely long context inputs on the order of tens of thousands and millions of tokens. These would otherwise be too slow or memory-heavy or simply not fit on a single GPU.</p>
 </blockquote>

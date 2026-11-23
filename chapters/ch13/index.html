@@ -1777,32 +1777,32 @@
 <p>Here is a detailed description of each profiling tool in Table 13-1:</p>
 </blockquote>
 <p><strong>PyTorch profiler (Kineto)</strong></p>
-<p><em>PyTorch 剖析器（PyTorch profiler，Kineto）</em> 在 PyTorch 内部，torch.profiler 基于开源项目 Kineto，提供 CPU 与 CUDA/GPU 运行时（runtime）的算子级（op-level）拆解。此外，它还能通过简单的 Python 上下文管理器记录输入形状并抓取内存快照。PyTorch 剖析器可以在训练与推理工作负载中捕获详细的时间线追踪和硬件计数器，并利用 NVTX 区间对齐事件。它提供从 Python 代码一直到 CUDA 核函数的端到端可观测性——甚至还能针对数据加载停顿、低效 CUDA 代码等常见问题给出性能建议。</p>
+<p>在 PyTorch 内部，torch.profiler 基于开源项目 Kineto，提供 CPU 与 CUDA/GPU 运行时（runtime）的算子级（op-level）拆解。此外，它还能通过简单的 Python 上下文管理器记录输入形状并抓取内存快照。PyTorch 剖析器可以在训练与推理工作负载中捕获详细的时间线追踪和硬件计数器，并利用 NVTX 区间对齐事件。它提供从 Python 代码一直到 CUDA 核函数的端到端可观测性——甚至还能针对数据加载停顿、低效 CUDA 代码等常见问题给出性能建议。</p>
 <blockquote>
 <p>Within PyTorch, the torch.profiler, based on the Kineto open source project, provides operator-level breakdowns of CPU and CUDA/GPU runtimes. In addition, it can record input shapes and take memory snapshots using simple Python context managers. The PyTorch profiler can capture detailed timeline traces and hardware counters across training and inference workloads using NVTX ranges to align the events. It provides end-to-end observability from Python code down to the CUDA kernels-and even provides performance tips for common issues like data-loading stalls and inefficient CUDA code.</p>
 </blockquote>
 <p><strong>Nsight Systems (nsys)</strong></p>
-<p><em>Nsight Systems (<em>nsys</em>)</em> 为了实现系统级关联——涵盖 CPU 线程、GPU 核函数、操作系统事件、I/O 与互连流量——NVIDIA Nsight Systems 生成一条统一的时间线视图。它的 GUI 和 CLI 报告可以在多进程、多节点运行中合并 NVTX 区域、Python 调用栈与 CUDA 流。这让人很容易发现 I/O 和同步停顿在何处影响了计算性能。</p>
+<p>nsys*)* 为了实现系统级关联——涵盖 CPU 线程、GPU 核函数、操作系统事件、I/O 与互连流量——NVIDIA Nsight Systems 生成一条统一的时间线视图。它的 GUI 和 CLI 报告可以在多进程、多节点运行中合并 NVTX 区域、Python 调用栈与 CUDA 流。这让人很容易发现 I/O 和同步停顿在何处影响了计算性能。</p>
 <blockquote>
 <p>For system-wide correlation, including CPU threads, GPU kernels, OS events, I/O, and interconnect traffic, NVIDIA Nsight Systems produces a unified timeline view. Its GUI and CLI reports can merge NVTX zones, Python call stacks, and CUDA streams across multiprocess and multinode runs. This makes it easy to spot where I/O and synchronization stalls might be impacting compute performance.</p>
 </blockquote>
 <p><strong>Nsight Compute (ncu)</strong></p>
-<p><em>Nsight Compute (<em>ncu</em>)</em> 与 Nsight Systems 互补的是用于逐核函数分析的 NVIDIA Nsight Compute。Nsight Compute 收集详细的硬件指标，例如占用率（occupancy）、内存带宽和 SM（流式多处理器，streaming multiprocessor）利用率。它甚至能生成映射到源码的 Roofline 图。在其他更高层的工具识别出哪些核函数是热点之后，Nsight Compute 有助于回答某个核函数为何缓慢（例如访存受限（memory bound）、占用率偏低）。</p>
+<p>ncu*)* 与 Nsight Systems 互补的是用于逐核函数分析的 NVIDIA Nsight Compute。Nsight Compute 收集详细的硬件指标，例如占用率（occupancy）、内存带宽和 SM（流式多处理器，streaming multiprocessor）利用率。它甚至能生成映射到源码的 Roofline 图。在其他更高层的工具识别出哪些核函数是热点之后，Nsight Compute 有助于回答某个核函数为何缓慢（例如访存受限（memory bound）、占用率偏低）。</p>
 <blockquote>
 <p>Complementing Nsight Systems is NVIDIA Nsight Compute for per-kernel analysis. Nsight Compute collects detailed hardware metrics such as occupancy, memory bandwidth, and SM utilization. It can even generate roofline charts mapped to source code. Nsight Compute helps answer why a particular kernel is slow (e.g., memory bound, low occupancy) after other higher-level tools identify which kernels are the hotspots.</p>
 </blockquote>
 <p><strong>PyTorch memory profiler</strong></p>
-<p><em>PyTorch 内存剖析器（PyTorch memory profiler）</em> PyTorch 还内置了一个内存剖析器，你可以在 torch.profiler 中通过 profile_memory=True 启用它。PyTorch 内存剖析器会按操作拆解 GPU 内存的峰值分配和累计分配。这能揭示那些原本可能被忽视的内存使用热点。</p>
+<p>PyTorch 还内置了一个内存剖析器，你可以在 torch.profiler 中通过 profile_memory=True 启用它。PyTorch 内存剖析器会按操作拆解 GPU 内存的峰值分配和累计分配。这能揭示那些原本可能被忽视的内存使用热点。</p>
 <blockquote>
 <p>PyTorch also includes a memory profiler, which you can enable with profile_memory=True in torch.profiler. The PyTorch memory profiler breaks down peak and cumulative GPU memory allocations per operation. This reveals memory usage hotspots that might otherwise go unnoticed.</p>
 </blockquote>
 <p><strong>Linux perf</strong></p>
-<p><em>Linux</em> perf 在主机侧，Linux 的 perf 工具可以采样 CPU 硬件计数器，包括周期数、指令数和缓存缺失——并展开完整的 C/C++ 与 Python 调用图。从 perf sched 入手，你能看到 CPU 线程何时因 I/O 或线程调度/同步而处于空闲。这能揭示数据预处理循环、Python 的 GIL 或同步中可能使 GPU 挨饿的瓶颈。</p>
+<p>perf 在主机侧，Linux 的 perf 工具可以采样 CPU 硬件计数器，包括周期数、指令数和缓存缺失——并展开完整的 C/C++ 与 Python 调用图。从 perf sched 入手，你能看到 CPU 线程何时因 I/O 或线程调度/同步而处于空闲。这能揭示数据预处理循环、Python 的 GIL 或同步中可能使 GPU 挨饿的瓶颈。</p>
 <blockquote>
 <p>On the host side, Linux's perf tool can sample CPU hardware counters, including cycles, instructions, and cache misses-and unwind full C/C++ and Python call graphs. Starting with perf sched, you can see when CPU threads sit idle due to I/O or thread scheduling/synchronizing. This uncovers bottlenecks in data preprocessing loops, Python's GIL, or synchronization that can starve the GPU.</p>
 </blockquote>
 <p><strong>Holistic Trace Analysis</strong></p>
-<p><em>全局追踪分析（Holistic Trace Analysis）</em> Meta 开源的全局追踪分析（HTA）工具会摄取 PyTorch 剖析器的追踪，帮助诊断多 GPU 瓶颈。借助 HTA，你可以把带有 NVTX 区间的分布式训练时间线与 CUDA 核函数追踪并列可视化。通过深入分析内存分配模式随时间的变化，你能识别出 GPU 空闲的时段——包括 GPU 相互等待的时刻。</p>
+<p>Meta 开源的全局追踪分析（HTA）工具会摄取 PyTorch 剖析器的追踪，帮助诊断多 GPU 瓶颈。借助 HTA，你可以把带有 NVTX 区间的分布式训练时间线与 CUDA 核函数追踪并列可视化。通过深入分析内存分配模式随时间的变化，你能识别出 GPU 空闲的时段——包括 GPU 相互等待的时刻。</p>
 <blockquote>
 <p>Meta's open source Holistic Trace Analysis (HTA) tool ingests PyTorch profiler traces to help diagnose multi-GPU bottlenecks. With HTA, one can visualize distributed training timelines with NVTX ranges alongside CUDA kernel traces. By drilling into memory allocation patterns over time, you can identify periods of idle GPU-including when GPUs are waiting on each other.</p>
 </blockquote>
@@ -1814,7 +1814,7 @@
 <blockquote>
 <p>Chrome trace and Perfetto viewer</p>
 </blockquote>
-<p><em>Chrome 追踪与 Perfetto 查看器</em> 要在网页端探索大型 PyTorch 剖析器追踪文件，你可以使用 Chrome tracing（例如在浏览器中打开 chrome://tracing）和 Perfetto 界面。它们会加载 JSON 追踪文件，让你交互式地探索时间线视图和火焰图。它们甚至支持对追踪数据做细粒度过滤和 SQL 查询——在事件追踪与关联层面可细至亚毫秒级。Chrome 追踪与 Perfetto 界面非常适合在组织成员之间共享剖析结果，以进行跨团队分析。（注：Chrome 的旧版追踪查看器已被弃用，因此查看和分析追踪时应优先使用 Perfetto 的网页界面和 SQL 引擎。）</p>
+<p>要在网页端探索大型 PyTorch 剖析器追踪文件，你可以使用 Chrome tracing（例如在浏览器中打开 chrome://tracing）和 Perfetto 界面。它们会加载 JSON 追踪文件，让你交互式地探索时间线视图和火焰图。它们甚至支持对追踪数据做细粒度过滤和 SQL 查询——在事件追踪与关联层面可细至亚毫秒级。Chrome 追踪与 Perfetto 界面非常适合在组织成员之间共享剖析结果，以进行跨团队分析。（注：Chrome 的旧版追踪查看器已被弃用，因此查看和分析追踪时应优先使用 Perfetto 的网页界面和 SQL 引擎。）</p>
 <blockquote>
 <p>For web-based exploration of large PyTorch profiler trace files, you can use Chrome tracing (e.g., chrome://tracing in the browser) and Perfetto UIs. These will load the JSON traces and let you interactively explore timeline views and flame charts. They even let you perform fine-grained filtering and SQL queries on the trace data-down to the submillisecond level for event tracing and correlation. Chrome traces and the Perfetto UI are ideal for sharing profile results between members of your organization for cross-team analysis. (Note: Chrome's legacy trace viewer is deprecated, so you should prefer the Perfetto web UI and SQL engine for viewing and analyzing traces.)</p>
 </blockquote>
@@ -1827,7 +1827,7 @@
 <p>Another project, TorchEval, lets you log and monitor model throughput, latency, and quality metrics alongside training and evaluation metrics-all within a unified interface. TorchEval is PyTorch's official metrics library and provides a simple API for end-to-end performance and quality metrics. This library makes it easy to plug into training loops and integrate across distributed environments.</p>
 </blockquote>
 <p><strong>ExecuTorch</strong></p>
-<p><em>ExecuTorch</em> 面向嵌入式、移动和边缘设备，ExecuTorch 项目支持在诸如 Meta 眼镜等轻量级运行时环境中对 PyTorch 模型进行剖析、可视化和调试。ExecuTorch 具有小而动态的内存占用，并支持 Linux、iOS、Android 和嵌入式系统。Hugging Face 通过其 Optimum ExecuTorch 项目支持 ExecuTorch；如果你已经在使用 Hugging Face 生态（如 Hugging Face Transformers），这个环境会很容易集成。</p>
+<p>面向嵌入式、移动和边缘设备，ExecuTorch 项目支持在诸如 Meta 眼镜等轻量级运行时环境中对 PyTorch 模型进行剖析、可视化和调试。ExecuTorch 具有小而动态的内存占用，并支持 Linux、iOS、Android 和嵌入式系统。Hugging Face 通过其 Optimum ExecuTorch 项目支持 ExecuTorch；如果你已经在使用 Hugging Face 生态（如 Hugging Face Transformers），这个环境会很容易集成。</p>
 <blockquote>
 <p>For embedded, mobile, and edge devices, the ExecuTorch project allows profiling, visualizing, and debugging PyTorch models in lightweight runtime environments like Meta glasses. ExecuTorch has a small, dynamic memory footprint and supports Linux, iOS, Android, and embedded systems. Hugging Face supports ExecuTorch through its Optimum ExecuTorch project, which makes the environment easy to integrate if you're already using the Hugging Face ecosystem, like Hugging Face Transformers.</p>
 </blockquote>
@@ -2303,7 +2303,7 @@
 <blockquote>
 <p>Excess Python overhead (45% in py::forward)</p>
 </blockquote>
-<p><em>Python 开销过大（占 45%，位于</em> py::forward*）* 使用 PyTorch 的 JIT 编译器 torch.compile（下一节讨论），以消除解释器开销，并把 Python 侧的操作融合进优化后的 CUDA 代码。</p>
+<p>py::forward*）* 使用 PyTorch 的 JIT 编译器 torch.compile（下一节讨论），以消除解释器开销，并把 Python 侧的操作融合进优化后的 CUDA 代码。</p>
 <blockquote>
 <p>Excess Python overhead (45% in py::forward): Use PyTorch's JIT compiler using torch.compile (discussed in the next section) to eliminate interpreter overhead and fuse Python-side operations into optimized CUDA code.</p>
 </blockquote>
@@ -2335,7 +2335,7 @@
 <blockquote>
 <p>Host I/O bottleneck (5.3% in read syscalls)</p>
 </blockquote>
-<p><em>主机 I/O 瓶颈（占 5.3%，位于</em> read <em>系统调用）</em> 在 DataLoader 中使用锁页内存（pin<em>memory=True）和非阻塞的 GPU 拷贝（.to(device, non</em>blocking=True)），以重叠 CPU 到 GPU 的数据传输。此外，你可以批量读取文件，或把大量小文件打包成有利于大块顺序读取的优化数据集格式，例如 Arrow、WebDataset（tar 分片）、TFRecord 或 Parquet 分块。最好优先选用连续的分片格式，而不是每样本一个文件。在使用较大的预取深度（例如 prefetch<em>factor=4 或 8）时，优先使用锁页的主机缓冲区。再配合 persistent</em>workers=True，由于计算与通信高效重叠，你的系统会让加载线程持续保持繁忙。这样在读取大型语料库中的大量小文件时，就能消除逐文件的开销。</p>
+<p>read <em>系统调用）</em> 在 DataLoader 中使用锁页内存（pin<em>memory=True）和非阻塞的 GPU 拷贝（.to(device, non</em>blocking=True)），以重叠 CPU 到 GPU 的数据传输。此外，你可以批量读取文件，或把大量小文件打包成有利于大块顺序读取的优化数据集格式，例如 Arrow、WebDataset（tar 分片）、TFRecord 或 Parquet 分块。最好优先选用连续的分片格式，而不是每样本一个文件。在使用较大的预取深度（例如 prefetch<em>factor=4 或 8）时，优先使用锁页的主机缓冲区。再配合 persistent</em>workers=True，由于计算与通信高效重叠，你的系统会让加载线程持续保持繁忙。这样在读取大型语料库中的大量小文件时，就能消除逐文件的开销。</p>
 <blockquote>
 <p>Host I/O bottleneck (5.3% in read syscalls): Use pinned memory (pin<em>memory=True) and nonblocking GPU copies (.to(device, non</em>blocking=True)) in the DataLoader to overlap CPU-to-GPU data transfers. Also, you can batch file reads or bundle many small files into an optimized dataset format like Arrow, WebDataset (tar shards), TFRecord, or Parquet chunks that facilitate large sequential reads. It's best to prefer contiguous shard formats over per-sample files. Prefer pinned host buffers when using a larger prefetch depth (e.g., prefetch<em>factor=4 or 8). Combined with persistent</em>workers=True, your system will keep loader threads busy since compute-communication are overlapping efficiently. This will eliminate per-file overhead when reading many small files in large corpora.</p>
 </blockquote>
@@ -2764,7 +2764,7 @@
 <p>PyTorch's high-level API torch.nn.functional.scaled<em>dot</em>product_attention, or SDPA, automatically uses the fastest available attention kernel for the given hardware (e.g., FlashAttention). Use this for a no-hassle speedup when your model's attention pattern and dtype are supported by the selected backend (Flash, memory-efficient, or math). If it's not supported, it will fall back to the standard attention implementation.</p>
 </blockquote>
 <p><strong>FlexAttention</strong></p>
-<p><em>FlexAttention</em> 一种基于编译器、用于注意力中自定义稀疏模式（sparsity pattern）的方法。通过为特定稀疏注意力模式（例如块稀疏或滑动窗口注意力）生成优化核函数，FlexAttention 可以显著更快，如图 13-3 所示。对于 scaled<em>dot</em>product_attention 不支持的特殊情形，请使用 FlexAttention。</p>
+<p>一种基于编译器、用于注意力中自定义稀疏模式（sparsity pattern）的方法。通过为特定稀疏注意力模式（例如块稀疏或滑动窗口注意力）生成优化核函数，FlexAttention 可以显著更快，如图 13-3 所示。对于 scaled<em>dot</em>product_attention 不支持的特殊情形，请使用 FlexAttention。</p>
 <blockquote>
 <p>A compiler-based approach for custom sparsity patterns in attention. FlexAttention can be substantially faster for specific sparse attention patterns (e.g., block-sparse or sliding-window attention) by generating optimized kernels for these patterns, as shown in Figure 13-3. Use FlexAttention for special cases that scaled<em>dot</em>product_attention does not support.</p>
 </blockquote>
@@ -2773,7 +2773,7 @@
 <p>Figure 13-3. FlexAttention provides support for custom attention variants</p>
 </blockquote>
 <p><strong>FlexDecoding</strong></p>
-<p><em>FlexDecoding</em> 它是 FlexAttention 的对应物，用于优化解码或文本生成阶段。FlexDecoding 与 torch.compile 及动态缓存布局集成。它对序列生成的解码器一侧运用编译时优化，包括跨时间步高效地进行 KV 缓存。FlexDecoding 通过减少解码期间的冗余计算，能够加速自回归生成。FlexDecoding 面向 LLM 推理工作负载，包括那些具有长生成序列的场景。它不改变训练时的注意力语义。</p>
+<p>它是 FlexAttention 的对应物，用于优化解码或文本生成阶段。FlexDecoding 与 torch.compile 及动态缓存布局集成。它对序列生成的解码器一侧运用编译时优化，包括跨时间步高效地进行 KV 缓存。FlexDecoding 通过减少解码期间的冗余计算，能够加速自回归生成。FlexDecoding 面向 LLM 推理工作负载，包括那些具有长生成序列的场景。它不改变训练时的注意力语义。</p>
 <blockquote>
 <p>This is a counterpart to FlexAttention that optimizes the decoding or text generation phases. FlexDecoding integrates with torch.compile and dynamic cache layouts. It uses compile-time optimizations for the decoder side of sequence generation, including KV caching efficiently across time steps. FlexDecoding can speed up autoregressive generation by reducing redundant compute during decoding. FlexDecoding is intended for LLM inference workloads, including those with long-generation sequences. It does not change training-time attention semantics.</p>
 </blockquote>
@@ -3139,7 +3139,7 @@
 <blockquote>
 <p><strong>Capture as much as possible</strong></p>
 </blockquote>
-<p><em>尽可能多地捕获</em> 尽量把训练循环中尽可能多的部分纳入图中——理想情况下是一整次迭代（前向传播、反向传播、优化器步进以及任何 all-reduce 通信）。你捕获得越多，消除的 CPU 开销和启动延迟就越多。</p>
+<p>尽量把训练循环中尽可能多的部分纳入图中——理想情况下是一整次迭代（前向传播、反向传播、优化器步进以及任何 all-reduce 通信）。你捕获得越多，消除的 CPU 开销和启动延迟就越多。</p>
 <blockquote>
 <p>Include as much of the training loop in the graph as possible-ideally the entire iteration (forward pass, backward pass, optimizer step, and any all-reduce communication). The more you capture, the more CPU overhead and launch latency you eliminate.</p>
 </blockquote>
@@ -3517,11 +3517,11 @@
 <blockquote>
 <p><strong>Leverage Tensor Cores</strong>：It's surprisingly easy, and not ideal, to fall back to full FP32-and not use the Tensor Cores-without realizing it. To ensure you are using the Tensor Cores, wrap the forward pass and loss computation in torch.autocast and choose a lower-precision dtype so that GEMMs can use the Tensor Cores. (Note that autocast does not change the storage dtype of model weights unless you explicitly cast the model. Instead, it selects compute dtypes for eligible operations and leaves numerically sensitive operations in float32.)</p>
 </blockquote>
-<p><em>用 TF32 替代 FP32 以启用 Tensor Core</em> 对于能够容忍 TF32 精度的 FP32 工作负载，使用 torch.set<em>float32</em>matmul<em>precision() 并传入 "high" 或 "medium" 来启用 TF32。在 CUDA 设备上，该设置底层会映射到 torch.backends.cuda.matmul.fp32</em>precision。在现代 GPU 上，TF32 会使用 Tensor Core，这正是我们所期望的。务必用 Nsight Compute 的 SpeedOfLight 视图或 sm__inst<em>executed</em>pipe_tensor 指标来确认你的核函数确实使用了 Tensor Core。（注：使用 "highest" 会强制启用真正的 FP32 并禁用 TF32，因此要小心。这在调试时可能有用，但如果你的目标是提升性能，则不建议使用。）</p>
+<p>对于能够容忍 TF32 精度的 FP32 工作负载，使用 torch.set<em>float32</em>matmul<em>precision() 并传入 "high" 或 "medium" 来启用 TF32。在 CUDA 设备上，该设置底层会映射到 torch.backends.cuda.matmul.fp32</em>precision。在现代 GPU 上，TF32 会使用 Tensor Core，这正是我们所期望的。务必用 Nsight Compute 的 SpeedOfLight 视图或 sm__inst<em>executed</em>pipe_tensor 指标来确认你的核函数确实使用了 Tensor Core。（注：使用 "highest" 会强制启用真正的 FP32 并禁用 TF32，因此要小心。这在调试时可能有用，但如果你的目标是提升性能，则不建议使用。）</p>
 <blockquote>
 <p><strong>Use TF32 instead of FP32 to activate Tensor Cores</strong>：For FP32 workloads that can tolerate TF32 precision, use torch.set<em>float32</em>matmul<em>precision() with either "high" or "medium" to enable TF32. This setting maps to torch.backends.cuda.matmul.fp32</em>precision under the hood on CUDA devices. On modern GPUs, TF32 uses Tensor Cores, which is ideal. Be sure to verify that your kernel uses Tensor Cores with Nsight Compute's SpeedOfLight view or the sm__inst<em>executed</em>pipe_tensor metric. (Note: using "highest" will enforce true FP32 and disable TF32, so be careful. This can be useful for debugging but is discouraged if your goal is to improve performance.)</p>
 </blockquote>
-<p><em>确认 Tensor Core 确实被启用</em> 要确认核函数使用了 Tensor Core 以及预期的数据类型，你应当借助剖析器。在 PyTorch 中，先用 torch.profiler 检查算子耗时，再用 Nsight Compute 确认 Tensor 流水线的活动情况。Nsight Compute 的 SpeedOfLight 与 Compute Workload Analysis 小节会通过性能监视器（performance monitor，PM）采样报告 Tensor 流水线利用率以及核函数执行的时间线。</p>
+<p>要确认核函数使用了 Tensor Core 以及预期的数据类型，你应当借助剖析器。在 PyTorch 中，先用 torch.profiler 检查算子耗时，再用 Nsight Compute 确认 Tensor 流水线的活动情况。Nsight Compute 的 SpeedOfLight 与 Compute Workload Analysis 小节会通过性能监视器（performance monitor，PM）采样报告 Tensor 流水线利用率以及核函数执行的时间线。</p>
 <blockquote>
 <p><strong>Verify that Tensor Cores are actually being used</strong>：To verify that kernels are using the Tensor Cores and the intended dtype, you should use your profilers. In PyTorch, inspect operator timing with torch.profiler, then use Nsight Compute to confirm Tensor pipeline activity. The SpeedOfLight and Compute Workload Analysis sections in Nsight Compute will report Tensor pipeline utilization and a kernel-execution timeline using performance monitor (PM) sampling.</p>
 </blockquote>

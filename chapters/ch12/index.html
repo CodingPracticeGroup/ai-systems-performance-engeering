@@ -2959,7 +2959,7 @@
 <blockquote>
 <p><strong>CUDA Graphs for fixed pipelines</strong>：Record a sequence of GPU operations once and then replay it with a single host call each iteration. This reduces per-iteration CPU scheduling overhead, often a 20%-30% latency reduction (more at a larger scale). Make sure you're achieving maximum overlap of dependent operations on the GPU.</p>
 </blockquote>
-<p><em>用 CUDA Graphs 做低开销启动</em> 把一系列异步拷贝、核函数启动、事件记录和分配捕获进一个 CUDA Graph（cudaStreamBeginCapture/cudaStreamEndCapture）。用 cudaGraphLaunch 重放该图，可在保留所有流间依赖的同时消除每次调用的 CPU 入队开销，进一步减少运行时瓶颈。</p>
+<p>把一系列异步拷贝、核函数启动、事件记录和分配捕获进一个 CUDA Graph（cudaStreamBeginCapture/cudaStreamEndCapture）。用 cudaGraphLaunch 重放该图，可在保留所有流间依赖的同时消除每次调用的 CPU 入队开销，进一步减少运行时瓶颈。</p>
 <blockquote>
 <p><strong>Low-overhead launch with CUDA Graphs</strong>：Capture a sequence of asynchronous copies, kernel launches, event records, and allocations in a CUDA Graph (cudaStreamBeginCapture/cudaStreamEndCapture). Replaying the graph with cudaGraphLaunch eliminates per-call CPU enqueue overhead while preserving all interstream dependencies, further reducing runtime bottlenecks.</p>
 </blockquote>

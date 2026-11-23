@@ -2014,11 +2014,11 @@
 <blockquote>
 <p>Common strategies for fast KV transfer include prefill-side push, decode-side pull, shared-memory (CUDA IPC) buffer, connector/queue abstraction, and nonblocking overlap. Let's discuss each of these:</p>
 </blockquote>
-<p><em>prefill 侧推送</em> prefill worker 在完成提示词后，发起一次 RDMA 写，把 KV 数据直接写入 decode worker GPU 上一块预留的缓冲区。这可以非阻塞地完成；prefill 可以启动传输，然后在 DMA 于后台进行的同时转去处理其他工作。</p>
+<p>prefill worker 在完成提示词后，发起一次 RDMA 写，把 KV 数据直接写入 decode worker GPU 上一块预留的缓冲区。这可以非阻塞地完成；prefill 可以启动传输，然后在 DMA 于后台进行的同时转去处理其他工作。</p>
 <blockquote>
 <p><strong>Prefill-side push</strong>: The prefill worker, upon finishing the prompt, initiates an RDMA write of the KV data directly into a reserved buffer on the decode worker's GPU. This can be done nonblockingly; the prefill can start the transfer and then move on to other work while the DMA occurs in the background.</p>
 </blockquote>
-<p><em>decode 侧拉取</em> 或者，decode worker 在准备开始 decode 时，可以直接从 prefill GPU 的内存进行 RDMA 读。推送或拉取都能达到相同的最终结果（无 CPU 拷贝）。一些实现可能偏好推送，以把协调工作卸给发送方；另一些则偏好拉取，让接收方控制时机。</p>
+<p>或者，decode worker 在准备开始 decode 时，可以直接从 prefill GPU 的内存进行 RDMA 读。推送或拉取都能达到相同的最终结果（无 CPU 拷贝）。一些实现可能偏好推送，以把协调工作卸给发送方；另一些则偏好拉取，让接收方控制时机。</p>
 <blockquote>
 <p><strong>Decode-side pull</strong>: Alternatively, the decode worker can RDMA-read directly from the prefill GPU's memory when it's ready to begin decoding. Either push or pull achieves the same end result (no CPU copies). Some implementations might prefer push to offload coordination to the sender; others prefer pull for the receiver to control timing.</p>
 </blockquote>
@@ -2869,7 +2869,7 @@
 <blockquote>
 <p>This chapter covered various techniques, such as unified megakernels, efficient memory allocations, fast data transfers, prefill/decode disaggregation, KV cache pools, dynamic scaling, and continuous SLO awareness. Here are some key takeaways:</p>
 </blockquote>
-<p><em>加速 decode 阶段</em> 利用包括 FlashMLA、ThunderMLA 和 FlexDecoding 在内的融合注意力核函数，decode 阶段可以被大幅加速。这些核函数能够提升单 token 吞吐量和 GPU 利用率。</p>
+<p>利用包括 FlashMLA、ThunderMLA 和 FlexDecoding 在内的融合注意力核函数，decode 阶段可以被大幅加速。这些核函数能够提升单 token 吞吐量和 GPU 利用率。</p>
 <blockquote>
 <p><strong>Accelerate the decode phase</strong>: The decode phase can be greatly accelerated using fused attention kernels including FlashMLA, ThunderMLA, and FlexDecoding. These kernels can improve single-token throughput and GPU utilization.</p>
 </blockquote>
