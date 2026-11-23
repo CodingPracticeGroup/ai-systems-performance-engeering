@@ -562,7 +562,7 @@
   <a href="#74-bank-avoid-shared-memory-bank-conflicts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.4 避免共享内存bank冲突 (Avoid Shared-Memory Bank Conflicts)
+        7.4 避免共享内存 bank 冲突 (Avoid Shared-Memory Bank Conflicts)
       
     </span>
   </a>
@@ -570,10 +570,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#75-warp-shuffle-intrinsics-avoid-shared-memory-and-explicit-synchronization" class="md-nav__link">
+  <a href="#75-warp-warp-shuffle-intrinsics-avoid-shared-memory-and-explicit-synchronization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.5 线程束洗牌内建函数：避免共享内存和显式同步 (Warp Shuffle Intrinsics: Avoid Shared Memory and Explicit Synchronization)
+        7.5 warp 洗牌内建函数：避免共享内存和显式同步 (Warp Shuffle Intrinsics: Avoid Shared Memory and Explicit Synchronization)
       
     </span>
   </a>
@@ -1073,7 +1073,7 @@
   <a href="#74-bank-avoid-shared-memory-bank-conflicts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.4 避免共享内存bank冲突 (Avoid Shared-Memory Bank Conflicts)
+        7.4 避免共享内存 bank 冲突 (Avoid Shared-Memory Bank Conflicts)
       
     </span>
   </a>
@@ -1081,10 +1081,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#75-warp-shuffle-intrinsics-avoid-shared-memory-and-explicit-synchronization" class="md-nav__link">
+  <a href="#75-warp-warp-shuffle-intrinsics-avoid-shared-memory-and-explicit-synchronization" class="md-nav__link">
     <span class="md-ellipsis">
       
-        7.5 线程束洗牌内建函数：避免共享内存和显式同步 (Warp Shuffle Intrinsics: Avoid Shared Memory and Explicit Synchronization)
+        7.5 warp 洗牌内建函数：避免共享内存和显式同步 (Warp Shuffle Intrinsics: Avoid Shared Memory and Explicit Synchronization)
       
     </span>
   </a>
@@ -1160,41 +1160,41 @@
   
 
 
-<h1 id="7-gpu">第7章 GPU内存访问模式的分析与调优<a class="headerlink" href="#7-gpu" title="Permanent link">&para;</a></h1>
-<p>随着AI模型规模和复杂度的增长，GPU的内存系统往往成为理论计算能力与实际性能之间的瓶颈。正如您在第6章中所见，现代NVIDIA GPU将数千个简单、针对吞吐量优化的核心与专用张量核心相结合。它们还包括高带宽内存（HBM）、一致的CPU-GPU统一内存地址空间（例如Grace Blackwell超级芯片）、片上共享内存、缓存以及专用的直接内存访问（DMA）引擎，如张量内存加速器（TMA）。</p>
+<h1 id="7-gpu">第 7 章 GPU 内存访问模式的分析与调优<a class="headerlink" href="#7-gpu" title="Permanent link">&para;</a></h1>
+<p>随着 AI 模型规模与复杂度不断增长，GPU 的内存系统往往会成为横亘在理论计算能力与真实性能之间的瓶颈。正如你在第 6 章所见，现代 NVIDIA GPU 将数千个简单、面向吞吐优化的核心与专用的 Tensor Core 组合在一起。它们还包含高带宽内存（HBM）、CPU 与 GPU 一致的统一内存地址空间（例如 Grace Blackwell Superchip）、片上共享内存、缓存，以及像 Tensor Memory Accelerator（TMA）这样的专用直接内存访问（DMA）引擎。</p>
 <blockquote>
 <p>As AI models grow in size and complexity, a GPU's memory system often becomes the bottleneck that stands between theoretical compute capability and real-world performance. As you saw in Chapter 6, modern NVIDIA GPUs combine thousands of simple, throughput-optimized cores with specialized Tensor Cores. They also include high-bandwidth memory (HBM), coherent CPU-GPU unified memory address space (e.g., Grace Blackwell Superchip), on-chip shared memory, caches, and specialized direct memory access (DMA) engines like the Tensor Memory Accelerator (TMA).</p>
 </blockquote>
-<p>在本章中，您将看到各种CUDA C++和PyTorch优化技术，用于对齐数据结构以实现高效内存访问、消除冗余数据加载，以及使用硬件重叠数据传输与计算。</p>
+<p>本章将展示各种 CUDA C++ 与 PyTorch 优化技巧，用于对齐数据结构以实现高效内存访问、消除冗余的数据加载，以及借助硬件把数据传输与计算重叠起来。</p>
 <blockquote>
 <p>In this chapter, you'll see various CUDA C++ and PyTorch optimization techniques to align data structures for efficient memory access, eliminate redundant data loads, and overlap data transfers with computation using hardware.</p>
 </blockquote>
-<p>通过矩阵乘法、张量操作等具体的优化前后示例，您将看到内存访问模式、分块策略和异步数据传输的微小变化如何减少带宽浪费、提高算术效率，并将内核从内存密集型转变为计算密集型。</p>
+<p>通过矩阵乘法、张量运算等一系列具体的前后对比示例，你将看到内存访问模式、分块策略与异步数据传输上的微小改动如何减少浪费的带宽、提升算术效率，并把核函数从访存受限（memory-bound）转变为计算受限（compute-bound）。</p>
 <blockquote>
 <p>Through concrete before-and-after examples of matrix multiplies, tensor operations, and more, you'll see how small changes in memory access patterns, tiling strategies, and asynchronous data transfers can reduce wasted bandwidth, boost arithmetic efficiency, and transform kernels from memory bound to compute bound.</p>
 </blockquote>
-<p>在本章结束时，您将知道如何编写能够更好地利用GPU内存层次结构和硬件优化数据传输引擎的CUDA内核。</p>
+<p>读完本章后，你将懂得如何编写能更好地利用 GPU 内存层级（memory hierarchy）与硬件优化数据传输引擎的 CUDA 核函数。</p>
 <blockquote>
 <p>By the end of this chapter, you'll know how to write CUDA kernels that can better utilize the GPU's memory hierarchy and hardware-optimized data transfer engines.</p>
 </blockquote>
 <h2 id="71-coalesced-versus-uncoalesced-global-memory-access">7.1 合并与非合并的全局内存访问 (Coalesced Versus Uncoalesced Global Memory Access)<a class="headerlink" href="#71-coalesced-versus-uncoalesced-global-memory-access" title="Permanent link">&para;</a></h2>
-<p>代码的内存访问模式会极大地影响性能。当线程束中的线程访问连续的内存地址时，全局内存访问最快，硬件可以将这些访问合并为更少、更大的事务。如果线程访问分散或未对齐的地址，设备就无法将请求合并为最少数量的缓存行事务，现代GPU上的缓存行是128字节，由四个32字节扇区组成。这会导致更多的内存事务获取未使用的数据，从而迅速消耗内存带宽。</p>
+<p>代码的内存访问模式会极大地影响性能。当一个 warp（warp）中的线程访问连续的内存地址，且硬件能够把它们合并为更少、更大的事务时，全局内存（global memory）访问速度最快。如果线程访问的是分散或未对齐的地址，设备就无法把请求合并（coalesce）为最少数量的缓存行（cache line）事务——在现代 GPU 上，缓存行是由四个 32 字节扇区（sector）组成的 128 字节缓存行。其结果是产生多得多的内存事务去取回未被使用的数据，很快便耗尽内存带宽。</p>
 <blockquote>
 <p>The memory access pattern of your code can greatly impact performance. Global memory accesses are fastest when threads in a warp access contiguous memory addresses that the hardware can combine into fewer, larger transactions. If threads access scattered or misaligned addresses, the device cannot coalesce requests into the minimal number of cache line transactions, which on modern GPUs are 128-byte lines composed of four 32-byte sectors. This results in many more memory transactions retrieving unused data, which quickly eats up memory bandwidth.</p>
 </blockquote>
-<p>在Blackwell GPU上，每设备HBM3e带宽高达8 TB/s。在Grace Blackwell GB200和GB300（双GPU超级芯片）中，跨两个GPU的带宽增加到16 TB/s。使用非合并内存访问将由于过多的内存事务和停顿而使大部分带宽未被利用。</p>
+<p>在 Blackwell GPU 上，单设备 HBM3e 带宽可达 8 TB/s。在 Grace Blackwell GB200 和 GB300（双 GPU 超级芯片）内部，跨两颗 GPU 的带宽提升到 16 TB/s。使用非合并（uncoalesced）内存访问会因为过多的内存事务与停顿，而让这些带宽的绝大部分闲置浪费。</p>
 <blockquote>
 <p>On a Blackwell GPU, per-device HBM3e bandwidth is up to 8 TB/s. Within the Grace Blackwell GB200 and GB300 (two GPU superchips), this increases 16 TB/s across both GPUs. Using uncoalesced memory accesses will leave most of this bandwidth unused due to excess memory transactions and stalls.</p>
 </blockquote>
-<p>在非合并情况下，线程束中的每个线程从分散的地址加载。这导致许多独立的内存事务。即使线程束中的线程访问连续地址，如果第一个地址不是128字节对齐的，线程束的请求也将跨越两个128字节缓存行。</p>
+<p>在非合并的情形下，一个 warp 中的每个线程都从分散的地址加载。这会产生许多彼此独立的内存事务。即便一个 warp 中的线程访问的是连续地址，只要第一个地址不是 128 字节对齐的，该 warp 的请求就会横跨两个 128 字节缓存行。</p>
 <blockquote>
 <p>In the uncoalesced case, each thread in a warp loads from scattered addresses. This results in many separate memory transactions. Even if threads in a warp access consecutive addresses, if the first address isn't 128-byte aligned, the warp's request will span two 128-byte cache lines.</p>
 </blockquote>
-<p>例如，如果线程束的第一个线程从一个非128字节对齐的地址开始，线程束的内存请求将跨越缓存行边界，通常导致两个128字节事务而不是一个。在这种情况下，线程束可能会获取比最佳四个扇区多一个扇区，总共跨两行五个扇区。这是带宽的浪费。未对齐的连续128字节线程束加载是触及5x32 B扇区还是8x32 B扇区取决于起始偏移量。对齐访问保持为4x32 B扇区。</p>
+<p>例如，如果 warp 的第一个线程从一个非 128 字节对齐的地址开始，warp 的内存请求将跨越缓存行边界，通常导致两个 128 字节事务而不是一个。在这种情况下，warp 可能会获取比最佳四个扇区多一个扇区，总共跨两行五个扇区。这是带宽的浪费。未对齐的连续 128 字节 warp 加载是触及 5x32 B 扇区还是 8x32 B 扇区取决于起始偏移量。对齐访问保持为 4x32 B 扇区。</p>
 <blockquote>
 <p>For example, if a warp's first thread starts at an address that isn't 128-byte aligned, the warp's memory request will cross a cache-line boundary, often resulting in two 128-byte transactions instead of one. In that case the warp may fetch an extra sector beyond the optimal four sectors, for a total of five sectors across the two lines. This is a waste of bandwidth. Whether a misaligned, contiguous 128-byte warp load touches 5x 32 B sectors or 8x 32 B sectors depends on the start offset. Aligned accesses keep it to 4x 32 B sectors.</p>
 </blockquote>
-<p>在合并情况下，线程从连续地址加载，这些地址被合并为单个宽事务。图7-1比较了合并和非合并内存访问。</p>
+<p>然而在合并的情形下，线程从连续地址加载，这些加载被合并成单个宽事务。图 7-1 对比了合并与非合并的内存访问。</p>
 <blockquote>
 <p>In the coalesced case, however, threads load from consecutive addresses combined into a single wide transaction. Figure 7-1 compares coalesced and uncoalesced memory access.</p>
 </blockquote>
@@ -1202,15 +1202,15 @@
 <blockquote>
 <p>Figure 7-1. Comparing coalesced versus uncoalesced memory access pattern</p>
 </blockquote>
-<p>在内核代码中，这个问题通常表现为跨步或不规则索引，使得每个线程访问不同的缓存行。当内核的线程使用跨步或不规则索引获取数据时，GPU会发出许多小型非合并全局内存事务，而不是少量全宽加载。</p>
+<p>在核函数代码里，这个问题通常表现为<em>跨步</em>（strided）或不规则的索引，使得每个线程都伸向不同的缓存行。当一个核函数的线程用跨步或不规则的索引取数据时，GPU 会发出许多小而非合并的全局内存事务，而不是少数几个全宽加载。</p>
 <blockquote>
 <p>In kernel code, this problem typically appears as strided or irregular indexing such that each thread reaches into different cache lines. When a kernel's threads fetch data with strided or irregular indices, the GPU issues many small, uncoalesced global‐memory transactions rather than a handful of full‐width loads.</p>
 </blockquote>
-<p>在Nsight Compute中，当存在非合并模式时，内存工作负载分析部分将显示较低的"全局内存加载效率"、较高的DRAM扇区读取计数以及平均每请求扇区数超过4.0。这是因为获取的扇区比正确合并的内存访问模式更多，这表明您正在通过获取大部分未使用的字节来浪费带宽。DRAM吞吐量百分比将远低于峰值。这确认了您的线程束在内存上停顿，而不是驱动ALU。</p>
+<p>在 Nsight Compute 中，当存在非合并模式时，内存工作负载分析（Memory Workload Analysis）小节会显示更低的全局内存加载效率（Global Memory Load Efficiency）、更高的 DRAM 扇区读取计数，以及高于 4.0 的每次请求平均扇区数。这是因为相比恰当合并的内存访问模式，此时取回了更多扇区，表明你正因为取回的大多是无用字节而浪费带宽。同时 DRAM 吞吐百分比会一直远低于峰值。这印证了你的 warp 正把周期消耗在等待内存上，而不是驱动 ALU。</p>
 <blockquote>
 <p>In Nsight Compute, the Memory Workload Analysis section will show lower Global Memory Load Efficiency, higher DRAM sector read counts, and average sectors per request above 4.0 when uncoalesced patterns are present. This is because more sectors are being fetched than a properly coalesced memory access pattern, and it indicates that you're wasting bandwidth by fetching mostly unused bytes. And DRAM throughput percentage will remain well below peak. This confirms that your warp is spending cycles stalled on memory rather than driving the ALUs.</p>
 </blockquote>
-<p>要摆脱这种内存密集型状态，您可以重新组织数据，使每个线程束的32个线程加载连续元素。要么使用<code>input[idx]</code>索引数组，其中<code>idx = blockIdx.x * blockDim.x + threadIdx.x</code>，要么切换到数组结构（SoA）布局，使线程i始终访问元素i。结构数组（AoS）与SoA的区别如图7-2所示。</p>
+<p>要摆脱这种访存受限的境地，你可以重新组织数据，让每个 warp 的 32 个线程加载连续元素。要么用 input[idx] 来索引数组（其中 idx = blockIdx.x * blockDim.x + threadIdx.x），要么切换到数组结构体（Structure of Arrays，SoA）布局，使得线程 i 始终触及元素 i。结构体数组（Array of Structures，AoS）与 SoA 之间的区别如图 7-2 所示。</p>
 <blockquote>
 <p>To break out of this memory‐bound regime, you can reorganize your data so that each warp's 32 threads load contiguous elements. Either index the array with input[idx] where idx = blockIdx.x * blockDim.x + threadIdx.x or switch to a structure‐of‐arrays (SoA) layout so that thread i always touches element i. The difference between an array of structures (AoS) and an SoA is shown in Figure 7-2.</p>
 </blockquote>
@@ -1218,15 +1218,15 @@
 <blockquote>
 <p>Figure 7-2. Array of structures (AoS) versus structure of arrays (SoA)</p>
 </blockquote>
-<p>一旦您进行了更改，硬件将自动将线程束的全局内存加载合并为更少、更宽的事务，返回更多可用（更少浪费）的数据。Nsight Compute计数器将立即显示改进。</p>
+<p>一旦做出改动，硬件就会自动把该 warp 的全局内存加载合并为更少、更宽的事务，返回更多可用（更少浪费）的数据。Nsight Compute 的计数器会立刻显示出改善。</p>
 <blockquote>
 <p>Once you make the change, the hardware will automatically combine the warp's global memory loads into fewer, wider transactions with more usable (less wasted) data being returned. The Nsight Compute counters will immediately show improvement.</p>
 </blockquote>
-<p>让我们用一个示例来演示这一点。以下优化前后的代码演示了将全局内存访问从跨步模式重构为连续模式如何产生显著的性能提升。</p>
+<p>我们用一个例子来演示这一点。下面的前后对比代码展示了如何把全局内存访问从跨步模式重构为连续模式，从而带来显著的性能提升。</p>
 <blockquote>
 <p>Let's demonstrate this with an example. The following before-and-after code demonstrates how restructuring global memory accesses from a strided pattern to a contiguous pattern produces a significant performance gain.</p>
 </blockquote>
-<p><strong>优化前示例（C++）：非合并跨步访问</strong>。在此示例中，每个线程以跨步2从输入数组复制，导致未对齐的内存访问：</p>
+<p><em>前置示例（C++）：非合并的跨步访问。</em> 在这个示例中，每个线程都以步长 2 从输入数组拷贝数据，导致未对齐的内存访问：</p>
 <blockquote>
 <p>Before example (C++): uncoalesced strided access. In this example, each thread copies from an input array with a stride of 2, causing misaligned memory accesses:</p>
 </blockquote>
@@ -1282,11 +1282,11 @@
 </span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>CUDA C++内核以跨步&gt;1的地址发出全局内存加载，根据定义，这是非连续的。这导致每个线程束生成多个小事务，而不是单个宽事务。</p>
+<p>这个 CUDA C++ 核函数在彼此相距一个 stride &gt; 1 的地址上发出全局内存加载，按定义即是非连续的。这导致每个 warp 生成多个小事务，而非单个宽事务。</p>
 <blockquote>
 <p>The CUDA C++ kernel issues global memory loads at addresses separated by a stride &gt; 1, which is, by definition, noncontiguous. This causes each warp to generate multiple small transactions instead of a single wide transaction.</p>
 </blockquote>
-<p><strong>优化前示例（PyTorch）</strong>。在PyTorch中，可以使用跨步索引为gather操作创建类似情况：</p>
+<p><em>前置示例（PyTorch）。</em> 在 PyTorch 中，可以用带跨步索引的 gather 操作制造出类似情形：</p>
 <blockquote>
 <p>Before example (PyTorch). In PyTorch, an analogous situation can be created using a strided index for a gather operation:</p>
 </blockquote>
@@ -1312,11 +1312,11 @@
 </span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>                   <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="n">out</span> <span class="o">=</span> <span class="n">uncoalesced_copy</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">stride</span><span class="p">)</span>
 </span></code></pre></div>
-<p>这个PyTorch代码片段使用带有跨步索引模式的<code>torch.index_select</code>，这导致底层GPU gather内核执行非合并加载。具体来说，32个线程的线程束将访问相隔<code>stride * 4</code>字节的地址。</p>
+<p>这段 PyTorch 代码使用带跨步索引模式的 torch.index_select，导致底层的 GPU gather 核函数执行非合并加载。具体来说，一个含 32 个线程的 warp 会访问彼此相距 stride * 4 字节的地址。</p>
 <blockquote>
 <p>This PyTorch snippet uses torch.index_select with a strided index pattern, which causes the underlying GPU gather kernel to perform uncoalesced loads. Specifically, a warp of 32 threads will access addresses that are stride * 4 bytes apart.</p>
 </blockquote>
-<p>这不允许单个宽事务，而是生成32个独立的加载。每个线程从<code>inp</code>加载一个值，该值在内存中与下一个线程加载的值相距很远，这阻止了合并。图7-3显示了合并与跨步访问模式--以及随机访问。</p>
+<p>这就无法完成单个宽事务，反而生成 32 次独立的加载。每个线程从 inp 加载的值，与相邻线程加载的值在内存中相距甚远，从而阻碍了合并。图 7-3 展示了合并访问与跨步访问模式——以及随机访问。</p>
 <blockquote>
 <p>This does not allow a single wide transaction and instead generates 32 separate loads. Each thread loads a value from inp that is far apart in memory from the value loaded by the next thread, which prevents coalescing. Figure 7-3 shows the coalesced versus strided access pattern-as well as random access.</p>
 </blockquote>
@@ -1324,19 +1324,19 @@
 <blockquote>
 <p>Figure 7-3. Coalesced, strided, and random memory access patterns</p>
 </blockquote>
-<p>在GPU上运行C++和PyTorch代码后，我们测量性能指标。在非合并版本中，每个线程束的内存请求平均被分解为8个独立的32字节扇区。由于每个128字节缓存行获取被分成4个独立的32字节扇区（稍后详细介绍这个数字4），访问模式跨越每个线程束两行以检索8个独立的32字节扇区。</p>
+<p>在 GPU 上运行这些 C++ 与 PyTorch 代码后，我们测量性能指标。在非合并版本中，每个 warp 的内存请求平均被拆成 8 个独立的 32 字节扇区。由于每次 128 字节缓存行取数会被拆为 4 个独立的 32 字节扇区（稍后详述这个数字 4），该访问模式每个 warp 会横跨两条缓存行，以取回那 8 个独立的 32 字节扇区。</p>
 <blockquote>
 <p>After running the C++ and PyTorch codes on a GPU, we measure performance metrics. In the uncoalesced version, each warp's memory request is broken into 8 separate 32-byte sectors on average. Since each 128-byte cache line fetch is split into 4 separate 32-byte sectors (more on this number 4 in a bit), the access pattern spans two lines per warp to retrieve the 8 separate 32-byte sectors.</p>
 </blockquote>
-<p>在未优化版本中，每个线程束的非合并加载将单个逻辑请求分解为多达八个独立的32字节扇区，使事务计数膨胀并使内存管道饥饿。因此，Nsight Compute仅报告约25%的持续峰值动态随机访问内存（DRAM）吞吐量。</p>
+<p>在未优化版本中，每个 warp 的非合并加载会把单个逻辑请求拆成多达八个独立的 32 字节扇区，令事务数量急剧膨胀，并使内存流水线陷入"饥饿"。结果是，Nsight Compute 报告的持续动态随机存取存储器（DRAM）吞吐仅约为峰值的 25%。</p>
 <blockquote>
 <p>In the unoptimized version, each warp's uncoalesced loads break a single logical request into up to eight separate 32-byte sectors, ballooning transaction counts and starving the memory pipeline. As a result, Nsight Compute reports only about 25% of sustained peak dynamic random-access memory (DRAM) throughput.</p>
 </blockquote>
-<p>现在，让我们通过合并内存访问并使线程读取连续元素来优化这一点，以便每个线程束发出更少、更大的事务。</p>
+<p>现在，让我们通过合并内存访问、让线程读取连续元素来优化它，从而使每个 warp 发出更少、更大的事务。</p>
 <blockquote>
 <p>Now, let's optimize this by coalescing the memory accesses and making threads read contiguous elements so each warp issues fewer, larger transactions.</p>
 </blockquote>
-<p><strong>优化后示例（C++）：合并访问</strong>。通过简单地移除跨步（或将其设置为1），每个线程复制一个连续元素。这种线程访问的对齐允许硬件将内存请求合并为完整的128字节事务：</p>
+<p><em>后置示例（C++）：合并访问。</em> 只需去掉步长（或将其设为 1），每个线程就拷贝一个连续元素。这种线程访问的对齐让硬件能把内存请求合并为完整的 128 字节事务：</p>
 <blockquote>
 <p>After example (C++): coalesced access. By simply removing the stride (or setting it to 1), each thread copies a contiguous element. This alignment of thread accesses allows the hardware to coalesce memory requests into full 128-byte transactions:</p>
 </blockquote>
@@ -1396,19 +1396,19 @@
 </span><span id="__span-2-54"><a id="__codelineno-2-54" name="__codelineno-2-54" href="#__codelineno-2-54"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-2-55"><a id="__codelineno-2-55" name="__codelineno-2-55" href="#__codelineno-2-55"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>为了简洁起见，我们省略了合并的PyTorch实现，因为它已经内置在PyTorch中。PyTorch中的合并版本只需执行类似<code>out = inp.clone()</code>的操作。这会高效地复制连续元素。事实上，连续张量上的<code>clone()</code>在底层使用向量化内存复制，类似于我们的合并内核。</p>
+<p>为简洁起见，我们省略了合并版本的 PyTorch 实现，因为它已内置于 PyTorch 中。PyTorch 里的合并版本只需做类似 out = inp.clone() 的操作即可。这会高效地拷贝连续元素。事实上，在连续张量上调用 clone() 会在底层使用向量化内存拷贝，与我们的合并核函数类似。</p>
 <blockquote>
 <p>We leave out the coalesced PyTorch implementation for brevity since it's already built into PyTorch. A coalesced version in PyTorch would simply do something like <code>out = inp.clone()</code>. This copies contiguous elements efficiently. In fact, <code>clone()</code> on a contiguous tensor uses a vectorized memory copy under the hood, analogous to our coalesced kernel.</p>
 </blockquote>
-<p>您还可以使用带有默认TorchInductor后端的<code>torch.compile</code>来减少冗余复制，并在安全时融合相邻操作。<code>clone()</code>已经是设备到设备的复制，因此通常不会融合到单独的自定义内核中。启用自动调优（例如，<code>mode="max-autotune"</code>）以帮助TorchInductor在形状稳定时选择合并和向量化的调度。我们将在第13章和第14章深入介绍PyTorch编译器。</p>
+<p>你也可以使用带默认 TorchInductor 后端的 torch.compile 来减少冗余拷贝，并在安全时融合相邻算子。clone() 本身已是设备到设备的拷贝，因此通常不会被融合进一个单独的自定义核函数。启用自动调优（autotuning，例如 mode="max-autotune"）有助于在形状稳定时让 TorchInductor 选择合并且向量化的调度方案。我们将在第 13 章和第 14 章深入讲解 PyTorch 编译器。</p>
 <blockquote>
 <p>You can also use torch.compile with the default TorchInductor backend to reduce redundant copies and to fuse adjacent operations when safe. clone() is already a device-to-device copy, so it's typically not fused into a separate custom kernel. Enable autotuning (e.g., mode="max-autotune") to help TorchInductor pick coalesced and vectorized schedules when shapes are stable. We'll cover the PyTorch compiler in depth in Chapters 13 and 14.</p>
 </blockquote>
-<p>通过合并访问或无跨步，每个线程束的线程访问相邻地址。在这种情况下，硬件将每个线程束的加载合并为最少数量的128字节事务--当第一个地址是128字节对齐时，通常每个线程束一个128字节事务，如果访问跨越边界则为两个。表7-1显示了此优化带来的显著改进。</p>
+<p>在合并访问下，或者说无步长时，每个 warp 的线程访问相邻地址。此时，硬件把每个 warp 的加载合并为最少数量的 128 字节事务——当首地址为 128 字节对齐时，往往是每个 warp 一个 128 字节事务；若访问跨越了边界，则为两个。表 7-1 展示了此优化带来的巨大改善。</p>
 <blockquote>
 <p>With coalesced access, or no stride, each warp's threads access adjacent addresses. In this case, the hardware coalesces each warp's loads into the minimum number of 128-byte transactions-often one 128-byte transaction per warp when the first address is 128-byte aligned, or two if the access straddles a boundary. Table 7-1 shows the dramatic improvements resulting from this optimization.</p>
 </blockquote>
-<p><strong>表7-1 合并与非合并内存访问性能</strong></p>
+<p><strong>表 7-1 合并与非合并内存访问性能</strong></p>
 <table>
 <thead>
 <tr>
@@ -1419,9 +1419,9 @@
 </thead>
 <tbody>
 <tr>
-<td>DRAM吞吐量（峰值百分比）</td>
+<td>DRAM 吞吐量（峰值百分比）</td>
 <td>25%</td>
-<td>90%（3.6倍）</td>
+<td>90%（3.6 倍）</td>
 </tr>
 <tr>
 <td>全局内存加载效率</td>
@@ -1434,14 +1434,14 @@
 <td>4.0（最佳）</td>
 </tr>
 <tr>
-<td>SM活跃百分比</td>
+<td>SM 活跃百分比</td>
 <td>62%</td>
 <td>99%</td>
 </tr>
 <tr>
-<td>内核执行时间（ms）</td>
+<td>核函数执行时间（ms）</td>
 <td>4.8 ms</td>
-<td>1.3 ms（3.7倍）</td>
+<td>1.3 ms（3.7 倍）</td>
 </tr>
 </tbody>
 </table>
@@ -1484,56 +1484,56 @@
 </tr>
 </tbody>
 </table>
-<p>注意：所有指标表中的数值均为说明概念而设的示例。有关不同GPU架构的实际基准测试结果，请参见GitHub仓库。</p>
+<p>注：所有指标表格中的数值均为示意性质，用于阐释概念。不同 GPU 架构上的实际基准测试结果，请参见 GitHub 仓库。</p>
 <blockquote>
 <p>Note: The numeric values in all metrics tables are illustrative to explain the concepts. For actual benchmark results on different GPU architectures, see the GitHub repository.</p>
 </blockquote>
-<p>修复数据布局并合并全局内存访问后，DRAM吞吐量从峰值的25%上升到90%，提高了约3.6倍。内核执行时间改善了约3.7倍，从4.8 ms降至1.3 ms，因为更少的停顿使SM能够取得进展。</p>
+<p>修复数据布局并合并全局内存访问后，DRAM 吞吐量从峰值的 25%上升到 90%，提高了约 3.6 倍。核函数执行时间改善了约 3.7 倍，从 4.8 ms 降至 1.3 ms，因为更少的停顿使 SM 能够取得进展。</p>
 <blockquote>
 <p>After fixing the data layout and coalescing global memory accesses, DRAM throughput rises from 25% to 90% of peak, about 3.6x higher. Kernel execution time improves by about 3.7x, from 4.8 ms to 1.3 ms, as fewer stalls free the SMs to make forward progress.</p>
 </blockquote>
-<p>全局内存加载效率从23%上升到99%，这意味着几乎每个获取的字节都是有用的。同时，平均每请求扇区数下降到约4.0。</p>
+<p>全局内存加载效率从 23% 升至 99%，意味着几乎每个取回的字节都是有用的。与此同时，每次请求平均扇区数降至约 4.0。</p>
 <blockquote>
 <p>Global Memory Load Efficiency rises from 23% to 99%, meaning nearly every fetched byte is useful. At the same time, Average Sectors per Request falls to about 4.0.</p>
 </blockquote>
-<p>接近4.0的值意味着线程束的加载已完全合并。当第一个地址128字节对齐时，所有32个线程映射到一个128字节行。该行有四个32字节扇区，因此该指标报告平均每请求4.0个扇区。</p>
+<p>接近 4.0 的值意味着该 warp 的加载已完全合并。当首地址为 128 字节对齐时，全部 32 个线程都映射到一条 128 字节缓存行。这条缓存行有四个 32 字节扇区，因此该指标报告每次请求平均 4.0 个扇区。</p>
 <blockquote>
 <p>A value near 4.0 means the warp's loads are fully coalesced. With the first address 128-byte aligned, all 32 threads map to one 128-byte line. This line has four 32-byte sectors, so the metric reports an average of 4.0 sectors per request.</p>
 </blockquote>
-<p>在最坏情况下，使用跨步或分散访问，该值可能接近32，因为活动是以L2处的32字节扇区报告的。高于4.0的值表示非合并或未对齐访问。在未优化版本中，非合并加载可以将单个逻辑访问分解为每请求许多扇区，接近最坏情况。</p>
+<p>在最坏情况下，即跨步或分散访问时，该值可能接近 32，因为在 L2 处活动是以 32 字节扇区为单位报告的。高于 4.0 的值表明存在非合并或未对齐的访问。在未优化版本中，非合并加载会把单个逻辑访问拆成每次请求许多扇区，逼近最坏情况。</p>
 <blockquote>
 <p>In the worst case with strided or scattered access, the value can approach 32 because activity is reported in 32-byte sectors at L2. Values above 4.0 indicate uncoalesced or misaligned access. In an unoptimized version, uncoalesced loads can break a single logical access into many sectors per request, approaching the worst case.</p>
 </blockquote>
-<p>这里我们处于约4.0扇区/请求，这表明请求干净地映射到128字节行，没有未使用的扇区。由于内存停顿减少，SM活跃百分比从62%提高到99%。</p>
+<p>这里我们处于每次请求约 4.0 个扇区的水平，表明请求干净地映射到 128 字节缓存行，没有未使用的扇区。随着内存停顿减少，SM 活跃百分比从 62% 提升到 99%。</p>
 <blockquote>
 <p>Here we are at about 4.0 sectors per request, which indicates that requests map cleanly to 128-byte lines with no unused sectors. With fewer memory stalls, SM Active percent improves from 62% to 99%.</p>
 </blockquote>
-<p>总之，通过对齐每个线程束的线程在连续地址上，GPU的内存控制器可以用几个大事务而不是数十个小事务为每个线程束服务。这将全局内存加载效率（每个事务返回有用数据的比例）提升到接近100%，并通过保持线程束忙碌而非空闲来提高SM活跃百分比。</p>
+<p>总而言之，通过让每个 warp 的线程对齐到连续地址，GPU 的内存控制器就能用少数几个大事务、而非数十个微小事务来服务每个 warp。这会把全局内存加载效率（每个事务中返回有用数据的比例）提升到接近 100%，并通过让 warp 保持忙碌而非空闲来抬高 SM 活跃百分比。</p>
 <blockquote>
 <p>In summary, by aligning each warp's threads on successive addresses, the GPU's memory controller can service each warp with a few large transactions instead of dozens of tiny ones. This boosts the Global Memory Load Efficiency (fraction of each transaction that returns useful data) to near 100% and raises SM Active % by keeping warps busy instead of idle. </p>
 </blockquote>
-<p>至此，您已经看到合并如何重塑您的线程到地址映射，使整个线程束的加载与GPU的128字节段对齐。然而，即使是完全合并的线程束，在底层仍然发出32个独立的4字节读取，每个线程一个，迫使硬件将它们重新拼接成每个128字节事务。</p>
+<p>至此，你已经看到合并如何重塑线程到地址的映射，使整个 warp 的加载对齐到 GPU 的 128 字节段上。然而，即便是完全合并的 warp，底层仍会发出 32 次独立的 4 字节读取——每个线程一次——迫使硬件把它们重新拼合成每个 128 字节事务。</p>
 <blockquote>
 <p>And with that, you've seen how coalescing reshapes your thread-to-address mapping so an entire warp's loads line up on the GPU's 128-byte segments. However, even a fully coalesced warp still issues 32 individual 4-byte reads under the hood, one per thread, forcing the hardware to stitch them back together into each 128-byte transaction.</p>
 </blockquote>
-<p>为了消除最后一层低效，我们转向向量化内存访问：让每个线程在单条指令中获取更宽、对齐的块（例如16字节的float4），以便合并的线程束精确发出四个128字节事务，而不是32个。让我们深入了解如何将每线程加载打包到CUDA的内置向量类型中。</p>
+<p>要消除这最后一层低效，我们转向向量化内存访问：让每个线程在单条指令中取回一个更宽、对齐的数据块（例如一个 16 字节的 float4），使一个合并的 warp 恰好发出四个 128 字节事务，而非 32 个。下面我们深入探讨如何把每线程的加载打包进 CUDA 的内建向量类型。</p>
 <blockquote>
 <p>To eliminate that last layer of inefficiency, we turn to vectorized memory access: having each thread fetch a wider, aligned chunk (e.g., a 16-byte float4) in a single instruction so that a coalesced warp issues exactly four 128-byte transactions, not 32. Let's dive into how to pack your per-thread loads into CUDA's built-in vector types.</p>
 </blockquote>
 <h2 id="72-vectorized-memory-access">7.2 向量化内存访问 (Vectorized Memory Access)<a class="headerlink" href="#72-vectorized-memory-access" title="Permanent link">&para;</a></h2>
-<p>虽然内存合并是NVIDIA GPU上的运行时硬件优化，但向量化内存访问是一种编译时策略，其中每条加载或存储指令显式获取多个连续元素（例如float4或16字节）每线程。这减少了指令数量并消除了拼接开销。</p>
+<p>内存合并是 NVIDIA GPU 上的一种运行期硬件优化，而向量化内存访问则是一种编译期策略——每条加载或存储指令显式地为每个线程取回多个连续元素（例如 float4，即 16 字节）。这既降低了指令数量，又消除了拼合开销。</p>
 <blockquote>
 <p>While memory coalescing is a runtime hardware optimization on NVIDIA GPUs, vectorized memory access is a compile-time strategy in which each load or store instruction explicitly fetches multiple contiguous elements (e.g., float4, or 16 bytes) per thread. This reduces instruction count and eliminates stitching overhead.</p>
 </blockquote>
-<p>Blackwell上高效的全局内存访问依赖于将您的加载与GPU的原生128字节事务大小匹配。当每个线程只读取一个4字节float时，32线程线程束仍然需要拼接32个4字节请求来填充一个128字节行。</p>
+<p>Blackwell 上高效的全局内存访问依赖于让你的加载与 GPU 原生的 128 字节事务大小相匹配。当每个线程只读取一个 4 字节的 float 时，一个 32 线程的 warp 仍需把 32 个 4 字节请求拼合起来才能填满一条 128 字节缓存行。</p>
 <blockquote>
 <p>Efficient global‐memory access on Blackwell relies on matching your loads to the GPU's native 128-byte transaction size. When each thread reads only a 4-byte float, a 32-thread warp still has to stitch together 32 4-byte requests to fill one 128-byte line.</p>
 </blockquote>
-<p>在理想的合并情况下，读取32个4字节字并对齐到128字节边界的线程束精确映射到四个32字节扇区。Nsight Compute在平均每请求扇区数指标中捕获这种浪费，当您的访问未对齐、跨步或分散时，该值可能远高于4.0。因此，当带宽未被充分利用时，您会看到全局内存加载效率下降。</p>
+<p>在理想的合并情形下，一个读取 32 个对齐到 128 字节边界的 4 字节字的 warp 恰好映射到四个 32 字节扇区。Nsight Compute 通过每次请求平均扇区数这一指标捕捉到这种浪费——当你的访问未对齐、跨步或分散时，该值可能远超 4.0。这样一来，你会看到全局内存加载效率随着带宽被闲置而下降。</p>
 <blockquote>
 <p>In ideal coalesced cases, a warp that reads 32 4-byte words aligned to a 128-byte boundary maps to exactly four 32-byte sectors. Nsight Compute captures this waste in the average sectors per request metric, which can climb well above 4.0 when your accesses are misaligned, strided, or scattered. As such, you'll see Global Memory Load Efficiency drop as bandwidth goes underutilized.</p>
 </blockquote>
-<p>解决方案是将每个线程的工作打包成更大的、自然对齐的向量，干净地映射到那些128字节事务。CUDA的内置float4类型正是这样做的：它将四个4字节float打包成一个16字节结构，由编译器保证16字节对齐。出于说明目的，它看起来类似于以下代码：</p>
+<p>修复之道是把每个线程的工作打包成一个更大、天然对齐的向量，让它干净地映射到那些 128 字节事务上。CUDA 内建的 float4 类型正是如此：它把四个 4 字节的 float 打包进一个 16 字节的结构体，编译器保证其为 16 字节对齐。为便于说明，它大致如下所示：</p>
 <blockquote>
 <p>The fix is to bundle each thread's work into a larger, naturally aligned vector that maps cleanly onto those 128-byte transactions. CUDA's built-in float4 type does exactly that: it packs four 4-byte floats into a 16-byte struct guaranteed by the compiler to be 16-byte aligned. For illustration purposes, it looks something like the following code:</p>
 </blockquote>
@@ -1552,53 +1552,53 @@
 </span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="n">w</span><span class="p">;</span><span class="w">  </span><span class="c1">// 4 bytes</span>
 </span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="p">};</span>
 </span></code></pre></div>
-<p>当线程束中的所有32个线程发出float4加载时，它们一起获取32 x 16字节 = 512字节的连续数据，Blackwell内存控制器随后将其精确分成四个128字节事务（512字节 / 128字节每事务 = 4个事务）。这保持了理想的4.0扇区每128字节事务（之前讨论的合并内存访问），因为线程束请求512字节，硬件用四个对齐的128字节事务服务该请求，总共16个扇区，每个都完全利用。</p>
+<p>当一个 warp 中全部 32 个线程都发出一次 float4 加载时，它们合起来取回 32 × 16 字节 = 512 字节的连续数据，Blackwell 内存控制器随后把它恰好拆成四个 128 字节事务（512 字节 ÷ 每事务 128 字节 = 4 个事务）。这就保持了理想的每个 128 字节事务 4.0 个扇区（前文讨论合并内存访问时提到过），因为该 warp 请求 512 字节，硬件用四个对齐的 128 字节事务、共计 16 个扇区来服务此请求，且每个扇区都被完全利用。</p>
 <blockquote>
 <p>When all 32 threads in a warp issue a float4 load, they together fetch 32 x 16 bytes = 512 bytes of contiguous data, which the Blackwell memory controller then splits into exactly four 128-byte transactions (512 bytes / 128 bytes per transaction = 4 transactions). This preserves the ideal 4.0 sectors per 128-byte transaction (discussed earlier re: coalesced memory access) because the warp requests 512 bytes, and the hardware services the request with four aligned 128-byte transactions for a total of 16 sectors, each fully utilized.</p>
 </blockquote>
-<p>与可能膨胀扇区计数的未对齐或跨步情况相比，向量化float4加载将每线程加载指令减少4倍。这有助于在满足对齐时保持理想的4.0扇区每请求。</p>
+<p>与可能令扇区数膨胀的未对齐或跨步情形相比，向量化的 float4 加载把每线程的加载指令减少了 4×。在满足对齐时，这有助于维持理想的每次请求 4.0 个扇区。</p>
 <blockquote>
 <p>Compared to an unaligned or strided case that can inflate sector counts, vectorized float4 loads reduce per-thread load instructions by 4x. This helps maintain the ideal 4.0 sectors per request when alignment is satisfied.</p>
 </blockquote>
-<p>像PyTorch编译器这样的高级GPU编译器，当满足对齐和连续性要求时，通常可以生成向量化内存操作。您可以通过使用与向量宽度匹配的每线程tile来鼓励这种行为。因此，框架通常可以在底层实现类似的内存事务减少。但是，从一开始就正确对齐数据仍然是有益的。</p>
+<p>像 PyTorch 编译器这样的高层 GPU 编译器，在满足对齐与连续性要求时，往往能生成向量化的内存操作。你可以通过使用与向量宽度相匹配的每线程分块来促成这一行为。因此，各类框架通常也能在底层实现类似的内存事务缩减。不过，从一开始就恰当地对齐数据仍然是有益的。</p>
 <blockquote>
 <p>High-level GPU compilers like the PyTorch compiler can often generate vectorized memory operations when alignment and contiguity requirements are met. You can encourage this behavior by using per-thread tiles that match vector widths. As such, frameworks can usually achieve a similar reduction in memory transactions under the hood. However, it's still beneficial to align data properly from the start.</p>
 </blockquote>
-<p>由于这种向量化内存访问优化，全局内存加载效率向100%增加。当每个128字节事务完全利用时，每事务扇区数保持为4.0，而线程束发出多个对齐事务来服务更宽的请求。</p>
+<p>作为这项向量化内存访问优化的结果，全局内存加载效率朝 100% 攀升。当每个 128 字节事务被完全利用时，每事务扇区数保持在 4.0，同时该 warp 发出多个对齐事务来服务一个更宽的请求。</p>
 <blockquote>
 <p>As a result of this vectorized memory access optimization, global memory load efficiency increases toward 100%. Sectors per transaction remain at 4.0 when each 128-byte transaction is fully utilized, while the warp issues multiple aligned transactions to serve a wider request.</p>
 </blockquote>
-<p>向量化加载减少了每移动字节的内存指令数量，通常增加有效带宽。要从向量化加载中受益，数据指针必须对齐到向量宽度。CUDA运行时和驱动程序分配函数（如cudaMalloc）返回至少256字节对齐的设备指针。</p>
+<p>向量化加载降低了每移动一字节所需的内存指令数，往往还能提升有效带宽。要从向量化加载中获益，数据指针必须对齐到向量宽度。CUDA 运行时与驱动的分配函数（例如 cudaMalloc）返回的设备指针至少对齐到 256 字节。</p>
 <blockquote>
 <p>Vectorized loads reduce the number of memory instructions per byte moved and often increase effective bandwidth. To benefit from vectorized loads, data pointers must be aligned to the vector width. The CUDA runtime and driver allocation functions, such as cudaMalloc return device pointers aligned to at least 256 bytes.</p>
 </blockquote>
-<p>基础对齐在分配边界处足以满足16字节和32字节向量对齐。如果偏移不是向量宽度的倍数，添加元素偏移可能会破坏对齐。以下转换向编译器断言预期类型，并假设指针已正确对齐：</p>
+<p>基础对齐在分配边界处足以满足 16 字节和 32 字节向量对齐。如果偏移不是向量宽度的倍数，添加元素偏移可能会破坏对齐。以下转换向编译器断言预期类型，并假设指针已正确对齐：</p>
 <div class="language-cpp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">ptr4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">float4</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
 </span></code></pre></div>
 <blockquote>
 <p>The base alignment is sufficient for 16-byte and 32-byte vector alignment at the allocation boundary. Adding an element offset can break alignment if the offset is not a multiple of the vector width. The following cast asserts the intended type to the compiler and assumes the pointer is already correctly aligned:</p>
 </blockquote>
-<p>在转换之前，请确保指针值是16字节（4个float）的倍数。这是因为<code>cudaMalloc()</code>返回至少256字节对齐。如果偏移不是4个float的倍数，添加元素偏移可能会破坏对齐。正确的对齐是向量化加载的前提条件。</p>
+<p>在转换之前，务必确保指针值是 16 字节（4 个 float）的整数倍。这是因为 cudaMalloc() 返回至少 256 字节的对齐。如果加上的元素偏移量不是 4 个 float 的整数倍，添加偏移量可能会破坏对齐。正确的对齐是向量化加载的前提条件。</p>
 <blockquote>
 <p>Make sure the pointer value is a multiple of 16 bytes (4 floats) before casting. This is because cudaMalloc() returns at least 256-byte alignment. Adding an element offset can break alignment if the offset is not a multiple of 4 floats. Correct alignment is a precondition for vectorized loads.</p>
 </blockquote>
-<p>当基础地址对齐到32字节时，每个线程每次迭代读取32字节，通常编译为每个线程两条16字节向量加载指令（Hopper）或一条32字节加载指令（Blackwell）。32线程线程束因此请求1,024字节。每个128字节缓存行由四个32字节扇区组成。因此，当访问正确对齐时，线程束生成八个对齐的128字节事务，总共32个扇区。这样，每次访问都落在自然边界上，避免分裂事务。</p>
+<p>在基址对齐到 32 字节的情况下，每个线程每次迭代读取 32 字节，通常在 Hopper 上编译为每线程两条 16 字节向量加载指令，或在 Blackwell 上编译为一条 32 字节加载指令。于是一个 32 线程的 warp 请求 1,024 字节。每条 128 字节缓存行由四个 32 字节扇区组成。因此，当访问恰当对齐时，该 warp 生成八个对齐的 128 字节事务，共计 32 个扇区。这样一来，每次访问都落在天然边界上，避免了被拆分的事务。</p>
 <blockquote>
 <p>With a base address aligned to 32 bytes, each thread reads 32 bytes per iteration, typically compiling into two 16-byte vector load instructions per thread (Hopper) or one 32-byte load instruction (Blackwell). A 32-thread warp therefore requests 1,024 bytes. Each 128-byte cache line comprises four 32-byte sectors. As such, the warp generates eight aligned 128-byte transactions for a total of 32 sectors when accesses are aligned properly. This way, each access falls on a natural boundary and avoids split transactions.</p>
 </blockquote>
-<p>值得注意的是，截至本文撰写时，CUDA在其<code>&lt;vector_types.h&gt;</code>中不提供内置的8-float聚合CUDA向量类型（例如八个组合的float32）。您可以定义自己的8个float值的结构体，然后每个线程将其作为两个float4值加载。您可以在类型上使用<code>alignas(32)</code>进行32字节对齐。这样，指针值是32字节的倍数。现代GPU上的全局内存向量指令通常每个线程加载16字节（Hopper）或32字节（Blackwell）。在Hopper每线程16字节的情况下，8-float聚合加载将编译为每个线程两条16字节加载以包含所有32字节。另一方面，Blackwell在使用正确的32字节对齐数据时，将编译为每个线程单条32字节加载。</p>
+<p>值得注意的是，截至本文撰写时，CUDA 在其 <vector_types.h> 中并未提供内建的 8-float 聚合 CUDA 向量类型（例如八个组合的 float32）。你可以自定义一个含 8 个 float 值的结构体，然后每线程将其作为两个 float4 值加载。你会用 alignas(32) 为该类型施加 32 字节对齐。这样一来，指针值就是 32 字节的整数倍。现代 GPU 上的全局内存向量指令通常每线程加载 16 字节（Hopper）或每线程 32 字节（Blackwell）。在 Hopper 每线程 16 字节的情形下，一次 8-float 聚合加载会编译为每线程两次 16 字节加载，以涵盖全部 32 字节。</p>
 <blockquote>
 <p>It's worth noting that CUDA, as of this writing, does not provide a built-in 8-float aggregate CUDA vector type (e.g., eight combined float32s) in its <vector_types.h>. You can define your own struct of 8 float values, then load it as two float4 values per thread. You would use 32-byte alignment on the type with alignas(32). This way, the pointer value is a multiple of 32 bytes. Global memory vector instructions on modern GPUs typically load 16 bytes per thread (Hopper) or 32 bytes per thread (Blackwell). In the case of Hopper's 16 bytes per thread, an 8-float aggregate load will compile into two 16-byte loads per thread to include all 32 bytes. Blackwell, on the other hand, would compile into a single 32-byte load per thread when using proper 32-byte aligned data.</p>
 </blockquote>
-<p>使用每线程32字节加载（例如8个float x 每float 4字节），线程束移动1,024字节（1,024字节 = 每线程束32个线程 x 每线程32字节）。这通常映射到8 x 128字节行，因为每行由四个32字节扇区组成。使用每线程16字节加载（例如四个float4），线程束移动512字节（512字节 = 每线程束32个线程 x 每线程16字节）或4 x 128字节行。当基础指针和每线程跨步自然对齐时，硬件合并器将通道访问组合成完整的行，避免分裂扇区。这种对硬件特性的理解对于实现峰值吞吐量至关重要。因此，对于Blackwell上的256位加载，您应该强制执行32字节对齐以保持峰值性能。</p>
+<p>使用每线程 32 字节加载（例如 8 个 float x 每 float 4 字节），warp 移动 1,024 字节（1,024 字节 = 每 warp32 个线程 x 每线程 32 字节）。这通常映射到 8 x 128 字节行，因为每行由四个 32 字节扇区组成。使用每线程 16 字节加载（例如四个 float4），warp 移动 512 字节（512 字节 = 每 warp32 个线程 x 每线程 16 字节）或 4 x 128 字节行。当基础指针和每线程跨步自然对齐时，硬件合并器将通道访问组合成完整的行，避免分裂扇区。这种对硬件特性的理解对于实现峰值吞吐量至关重要。因此，对于 Blackwell 上的 256 位加载，您应该强制执行 32 字节对齐以保持峰值性能。</p>
 <blockquote>
 <p>With 32-byte per-thread loads (e.g., 8 floats x 4 bytes per float), a warp moves 1,024 bytes (1,024 bytes = 32 threads per warp x 32 bytes per thread). This typically maps to 8 x 128-byte lines since each line consists of four 32-byte sectors. With 16-byte per-thread loads (e.g., four float4s), a warp moves 512 bytes (512 bytes = 32 threads per warp x 16 bytes per thread) or 4 x 128-byte lines. When the base pointer and per-thread stride are naturally aligned, the hardware coalescer combines lane accesses into full lines and avoids split sectors. This type of mechanical sympathy is crucial to achieving peak throughput. Therefore, for 256-bit loads on Blackwell, you should enforce 32-byte alignment to maintain peak performance.</p>
 </blockquote>
-<p>让我们看一个简单向量复制内核中标量与向量化内存访问的示例。</p>
+<p>让我们看一个简单向量复制核函数中标量与向量化内存访问的示例。</p>
 <blockquote>
 <p>Let's see an example of scalar versus vectorized memory access in a simple vector copy kernel.</p>
 </blockquote>
-<p><strong>优化前示例（C++）：标量复制</strong>。每个线程复制一个float：</p>
+<p><strong>优化前示例（C++）：标量复制</strong>。每个线程复制一个 float：</p>
 <blockquote>
 <p>Before example (C++): scalar copy. Each thread copies one float:</p>
 </blockquote>
@@ -1641,7 +1641,7 @@
 </span><span id="__span-5-37"><a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-5-38"><a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a><span class="p">}</span>
 </span></code></pre></div>
-<p><strong>优化前示例（PyTorch）</strong>。PyTorch中的标量逐元素复制可以用Python循环进行说明：</p>
+<p><em>前置示例（PyTorch）。</em> 在 PyTorch 中，一个标量逐元素拷贝可以用 Python 循环来演示：</p>
 <blockquote>
 <p>Before example (PyTorch). A scalar elementwise copy in PyTorch could be done with a Python loop for illustration:</p>
 </blockquote>
@@ -1664,11 +1664,11 @@
 </span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="n">inp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="n">out</span> <span class="o">=</span> <span class="n">copy_scalar</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
 </span></code></pre></div>
-<p>使用标量4字节加载，当对齐时，线程束通常发出一个128字节事务用于128字节。否则，如果访问跨越128字节边界，则使用两个事务。使用float4（每线程16字节）意味着每个线程束每条内存指令发出4倍更多的数据--每线程束512字节--分成四个128字节事务。这允许传输在更少的指令中完成。接下来，让我们使用向量加载进行优化。</p>
+<p>在标量 4 字节加载下，当对齐时，一个 warp 往往为 128 字节发出一个 128 字节事务。否则，若访问跨越了 128 字节边界，就会使用两个事务。使用 float4（每线程 16 字节）意味着每个 warp 每条内存指令发出的数据量多 4×——每 warp 512 字节——拆成四个 128 字节事务。这让传输能以更少的指令完成。接下来，我们通过使用向量加载来优化。</p>
 <blockquote>
 <p>With scalar 4-byte loads, a warp often issues one 128-byte transaction for 128 bytes when aligned. Otherwise, it uses two transactions if the access straddles a 128-byte boundary. Using float4 (16 bytes per thread) means each warp issues 4x more data per memory instruction-512 bytes per warp -split into four 128-byte transactions. This allows the transfer to complete in fewer instructions. Next, let's optimize by using vector loads.</p>
 </blockquote>
-<p><strong>优化后示例（C++）：向量化复制</strong>。每个线程复制一个float4（16字节）：</p>
+<p><strong>优化后示例（C++）：向量化复制</strong>。每个线程复制一个 float4（16 字节）：</p>
 <blockquote>
 <p>After example (C++): vectorized copy. Each thread copies a float4 (16 bytes):</p>
 </blockquote>
@@ -1714,11 +1714,11 @@
 </span><span id="__span-7-40"><a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-7-41"><a id="__codelineno-7-41" name="__codelineno-7-41" href="#__codelineno-7-41"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>这里我们使用CUDA的内置float4类型（来自<code>&lt;cuda_runtime.h&gt;</code>）。我们启动N/4个线程以保持16字节对齐并发出真正的向量加载/存储，每个线程复制一个float4（16字节）。这意味着每个线程处理四个float，每个线程束总共处理128个float，分成四个事务。<code>cudaMalloc</code>返回至少256字节对齐的指针，这满足float4（16字节）要求，并在您为数据起始地址使用32字节对齐时有助于32字节对齐向量。重要的是要注意，未对齐的转换可能会丧失向量化。以下是利用Blackwell对32字节向量化加载支持的示例：</p>
+<p>这里我们使用来自 <cuda_runtime.h> 的 CUDA 内建 float4 类型。我们启动 N/4 个线程以维持 16 字节对齐并发出真正的向量加载/存储，每个线程拷贝一个 float4（16 字节）。这意味着每个线程处理四个 float，每个 warp 在四个事务中总共处理 128 个 float。cudaMalloc 返回至少对齐到 256 字节的指针，这既满足 float4（16 字节）的要求，也有助于在你为数据起始地址采用 32 字节对齐时使用 32 字节对齐的向量。需要注意的是，未对齐的类型转换会葬送向量化。下面是一个利用 Blackwell 对 32 字节向量化加载支持的示例：</p>
 <blockquote>
 <p>Here we use CUDA's built-in float4 type from <cuda_runtime.h>. We launch N/4 threads to maintain 16-byte alignment and issue true vector loads/stores, and each thread copies one float4 (16 bytes). This means each thread handles four floats, and each warp handles 128 floats total in four transactions. cudaMalloc returns pointers aligned to at least 256 bytes which satisfies the float4 (16-byte) requirement and helps with 32-byte aligned vectors when you use 32-byte alignment for the data's starting address. It's important to note that misaligned casts can forfeit vectorization. Following is an example that takes advantage of Blackwell's support for 32-byte vectorized loads:</p>
 </blockquote>
-<p>以下是一个利用Blackwell对32字节向量化加载支持的示例：</p>
+<p>以下是一个利用 Blackwell 对 32 字节向量化加载支持的示例：</p>
 <blockquote>
 <p>Here is an example that takes advantage of Blackwell's support for 32-byte vectorized loads:</p>
 </blockquote>
@@ -1762,7 +1762,7 @@
 </span><span id="__span-8-38"><a id="__codelineno-8-38" name="__codelineno-8-38" href="#__codelineno-8-38"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-8-39"><a id="__codelineno-8-39" name="__codelineno-8-39" href="#__codelineno-8-39"></a><span class="p">}</span>
 </span></code></pre></div>
-<p><strong>优化后示例（PyTorch）</strong>。我们可以通过使用张量视图和clone来模拟向量化复制：</p>
+<p><em>后置示例（PyTorch）。</em> 我们可以通过使用张量视图与 clone 来模拟向量化拷贝：</p>
 <blockquote>
 <p>After example (PyTorch). We can simulate vectorized copy by using a tensor view and clone:</p>
 </blockquote>
@@ -1783,19 +1783,19 @@
 </span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">inp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="n">out</span> <span class="o">=</span> <span class="n">copy_vectorized</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
 </span></code></pre></div>
-<p>在重塑后的张量上调用<code>clone()</code>会使PyTorch执行连续复制。这与逐元素复制形成对比。通过使用float4向量加载，每个线程每条指令移动16字节，这对Hopper进行了优化。（Blackwell支持每线程32字节向量加载。）线程束为该加载发出512字节，当对齐时通常分成四个128字节事务。好处来自每移动字节的指令更少、更好的扇区利用率以及正确的对齐以最大化现代GPU上的内存吞吐量。这显示了更好的内存带宽利用率，如表7-2所示。</p>
+<p>在重塑后的张量上调用 clone() 会让 PyTorch 执行连续拷贝。这与逐元素拷贝形成对比。通过使用 float4 向量加载，每个线程每条指令移动 16 字节，这一点针对 Hopper 做了优化。（Blackwell 支持每线程 32 字节向量加载。）一个 warp 为该次加载发出 512 字节，当对齐时通常拆成四个 128 字节事务。收益来自每移动一字节所需指令更少、更好的扇区利用率，以及恰当的对齐，从而在现代 GPU 上最大化内存吞吐。这体现出对内存带宽好得多的利用率，如表 7-2 所示。</p>
 <blockquote>
 <p>Calling clone() on the reshaped tensor causes PyTorch to perform contiguous copies. This is in contrast to copying element by element. By using float4 vector loads, each thread moves 16 bytes per instruction, which is optimized for Hopper. (Blackwell supports 32-byte vector loads per thread.) A warp issues 512 bytes for that load, typically split into four 128-byte transactions when aligned. The benefit comes from fewer instructions per byte moved, better sector utilization, and proper alignment to maximize memory throughput on modern GPUs. This shows far better utilization of memory bandwidth, as shown in Table 7-2.</p>
 </blockquote>
-<p>Blackwell将每线程向量加载/存储的字节数相对于Hopper翻倍。在CUDA 13中，Blackwell可以执行32字节向量加载和存储，而不是Hopper上的16字节。这要求编译器能够证明32字节对齐。否则，它可能会将每线程加载/存储拆分为两条16字节指令。这将增加加载/存储相同数据量所需的指令数量，从而对性能产生负面影响。</p>
+<p>Blackwell 相对于 Hopper，把每线程向量加载/存储的字节数翻了一倍。借助 CUDA 13，Blackwell 可以执行 32 字节的向量加载与存储，而不是 Hopper 上的 16 字节。这要求编译器能够证明 32 字节对齐。否则，它可能把每线程的加载/存储拆成两条 16 字节指令。这会增加加载/存储相同数据量所需的指令数，从而对性能产生负面影响。</p>
 <blockquote>
 <p>Blackwell doubles the number of bytes for vector loads/stores per thread relative to Hopper. With CUDA 13, Blackwell can perform 32-byte vector loads and stores instead of 16 bytes on Hopper. This requires that the compiler can prove 32-byte alignment. Otherwise, it may split the per-thread load/store into two 16-byte instructions. This will increase the number of instructions required to load/store the same amount of data which will negatively impact performance.</p>
 </blockquote>
-<p>通过使用正确对齐的float4向量加载，每个线程每条指令移动16字节。这显示了更好的内存带宽利用率，如表7-2中的结果所示。</p>
+<p>通过使用恰当对齐的 float4 向量加载，每个线程每条指令移动 16 字节。这体现出对内存带宽好得多的利用率，如表 7-2 的结果所示。</p>
 <blockquote>
 <p>By using properly aligned float4 vector loads, each thread moves 16 bytes per instruction. This shows far better utilization of memory bandwidth, as shown in the results in Table 7-2.</p>
 </blockquote>
-<p><strong>表7-2 标量与向量化内存访问的Nsight Compute指标</strong></p>
+<p><strong>表 7-2 标量与向量化内存访问的 Nsight Compute 指标</strong></p>
 <table>
 <thead>
 <tr>
@@ -1816,14 +1816,14 @@
 <td>4.0</td>
 </tr>
 <tr>
-<td>DRAM吞吐量（峰值百分比）</td>
+<td>DRAM 吞吐量（峰值百分比）</td>
 <td>25%</td>
-<td>90%（3.6倍）</td>
+<td>90%（3.6 倍）</td>
 </tr>
 <tr>
-<td>内核执行时间</td>
+<td>核函数执行时间</td>
 <td>4.2 ms</td>
-<td>1.2 ms（3.5倍改进）</td>
+<td>1.2 ms（3.5 倍改进）</td>
 </tr>
 </tbody>
 </table>
@@ -1861,19 +1861,19 @@
 </tr>
 </tbody>
 </table>
-<p>这些指标确认了改进。全局内存加载效率从28%跃升至97%（约3.5倍），峰值DRAM吞吐量百分比从25%增加到90%（约3.6倍），将整体内核运行时间缩短了约3.5倍。</p>
+<p>这些指标确认了改进。全局内存加载效率从 28%跃升至 97%（约 3.5 倍），峰值 DRAM 吞吐量百分比从 25%增加到 90%（约 3.6 倍），将整体核函数运行时间缩短了约 3.5 倍。</p>
 <blockquote>
 <p>These metrics confirm the improvement. Global Memory Load Efficiency jumped from 28% to 97% (~3.5x), and percentage of peak DRAM throughput increased from 25% to 90% (~3.6x), trimming the overall kernel runtime by ~3.5x.</p>
 </blockquote>
-<p>此优化将内核执行运行时间从4.2 ms缩短到约1.2 ms，减少了约3.5倍。全局内存加载效率从28%（标量）跃升至97%（向量化），这意味着几乎每个获取的128字节事务现在都被使用。</p>
+<p>这项优化把核函数执行运行时间削减了大约 3.5×，从 4.2 ms 降到 1.2 ms。全局内存加载效率从 28%（标量）跃升至 97%（向量化），意味着现在几乎每个取回的 128 字节事务都被用上。</p>
 <blockquote>
 <p>This optimization trimmed the kernel execution runtime by roughly 3.5x from 4.2 ms down to 1.2 ms. Global Memory Load Efficiency jumps from 28% (scalar) to 97% (vectorized), meaning that almost every fetched 128-byte transaction is now used.</p>
 </blockquote>
-<p>平均每请求扇区数下降到接近4.0扇区每行的理想值。这表明每个128字节行被完全利用。每个线程束范围的float4指令发出四个对齐的128字节事务来移动512字节。因此，每个事务都被完全利用。</p>
+<p>每次请求平均扇区数朝着每缓存行 4.0 扇区的理想值下降。这表明每条 128 字节缓存行都被完全利用。每条 warp 级（warp-wide）的 float4 指令发出四个对齐的 128 字节事务来移动 512 字节。因此，每个事务都被完全利用。</p>
 <blockquote>
 <p>The average sectors per request drops toward the 4.0 sector-per-line ideal value. This indicates that each 128-byte line is fully utilized. Each warp-wide float4 instruction issues four aligned 128-byte transactions to move 512 bytes. As such, every transaction is fully utilized.</p>
 </blockquote>
-<p>内存请求的减少以及用一次向量加载替换四次标量加载，将全局内存加载效率从28%提高到97%，并将持续DRAM吞吐量从约25%提高到约峰值的90%。在这种情况下，线程束执行的内存操作少得多，每次操作获取更多数据，因此它们在等待内存上花费的时间少得多，在执行有用工作上花费的时间多得多。最终结果是显著更快的内核。</p>
+<p>内存请求的减少，以及用一次向量加载替代四次标量加载，把全局内存加载效率从 28% 提升到 97%，并把持续 DRAM 吞吐从约峰值的 25% 抬高到约 90%。在这种情况下，warp 执行的内存操作大为减少，且每次操作获取更多数据，因此它们花在等待内存上的时间大大减少，而花在执行有用工作上的时间更多。最终结果是一个显著更快的核函数。</p>
 <blockquote>
 <p>The reduction in memory requests and the replacement of four scalar loads with one vector load increase global memory load efficiency from 28% to 97% and raise sustained DRAM throughput from about 25% to about 90% of peak. In this case, warps are doing far fewer memory operations and get more data with each operation, so they spend much less time waiting on memory and more time executing useful work. The end result is a significantly faster kernel.</p>
 </blockquote>
@@ -1881,16 +1881,16 @@
 <blockquote>
 <p>Vectorization reduces instruction count. Coalescing and alignment improve the number of sectors per request.</p>
 </blockquote>
-<p>让我们快速比较上一节的合并全局内存访问与本节讨论的向量化内存访问。合并确保线程束中的线程都命中一个大的连续块。向量化确保每个线程获取一个精确映射到那些大块的宽块。差异总结在表7-3中。</p>
+<p>我们快速对比一下上一节的合并全局内存访问与这里讨论的向量化内存访问。合并确保一个 warp 中的线程全部命中一个大的连续块。向量化确保每个线程取回一个恰好映射到那些大块上的宽数据块。二者的区别汇总于表 7-3。</p>
 <blockquote>
 <p>Let's quickly compare coalesced global memory access from the previous section to vectorized memory access discussed here. Coalescing makes sure threads in a warp all hit one big contiguous block. Vectorizing makes sure each thread fetches a wide chunk that exactly maps onto those big blocks. The differences are summarized in Table 7-3.</p>
 </blockquote>
-<p><strong>表7-3 合并内存访问（上一节）与向量化内存访问的比较</strong></p>
+<p><strong>表 7-3 合并内存访问（上一节）与向量化内存访问的比较</strong></p>
 <table>
 <thead>
 <tr>
 <th>方面</th>
-<th>合并线程束加载（线程间）</th>
+<th>合并 warp 加载（线程间）</th>
 <th>向量化（线程内）</th>
 </tr>
 </thead>
@@ -1903,17 +1903,17 @@
 <tr>
 <td>典型修复</td>
 <td>连续索引（跨步 = 1）</td>
-<td>使用float4、自定义32字节结构（显式32字节对齐）或32字节对齐向量类型（例如Blackwell和CUDA 13+）</td>
+<td>使用 float4、自定义 32 字节结构（显式 32 字节对齐）或 32 字节对齐向量类型（例如 Blackwell 和 CUDA 13+）</td>
 </tr>
 <tr>
-<td>每线程束事务数</td>
-<td>32线程 x 4字节 → 128字节，等于4个32字节扇区（如果对齐，4个扇区）</td>
-<td>32线程 x 16字节 → 512字节，等于4个128字节事务，对应16个32字节扇区（16个扇区）</td>
+<td>每 warp 事务数</td>
+<td>32 线程 x 4 字节 → 128 字节，等于 4 个 32 字节扇区（如果对齐，4 个扇区）</td>
+<td>32 线程 x 16 字节 → 512 字节，等于 4 个 128 字节事务，对应 16 个 32 字节扇区（16 个扇区）</td>
 </tr>
 <tr>
 <td>指令数量变化</td>
 <td>相同数量的加载</td>
-<td>1次向量加载代替4次标量加载</td>
+<td>1 次向量加载代替 4 次标量加载</td>
 </tr>
 <tr>
 <td>好处</td>
@@ -1961,48 +1961,48 @@
 </tr>
 </tbody>
 </table>
-<p>通过结合这两种策略，您确保线程束命中连续块，使每个线程获取宽、对齐的向量。这有助于将内核的内存带宽利用率推向峰值，并释放GPU的全部能力。</p>
+<p>通过组合这两种策略，你就能确保 warp 命中连续块，同时让每个线程取回一个宽而对齐的向量。这有助于你把核函数的内存带宽利用率推向峰值，并释放 GPU 的全部威力。</p>
 <blockquote>
 <p>By combining both strategies, you ensure that warps hit contiguous blocks such that each thread fetches a wide, aligned vector. This helps you push your kernel's memory bandwidth utilization to its peak and unlock the full power of your GPU.</p>
 </blockquote>
-<p>值得注意的是，在Blackwell和CUDA 13之前，全局内存向量加载仅限于每线程16字节（128位）。然而，Blackwell和CUDA 13为具有32字节对齐的特定向量类型添加了32字节（256位）加载/存储指令和数据类型。</p>
+<p>值得注意的是，在 Blackwell 与 CUDA 13 之前，全局内存向量加载在每个线程上被限制为 16 字节（128 位）。不过，Blackwell 与 CUDA 13 为具有 32 字节对齐的特定向量类型新增了 32 字节（256 位）的加载/存储指令与数据类型。</p>
 <blockquote>
 <p>It's worth noting that, prior to Blackwell and CUDA 13, global memory vector loads were limited to 16 bytes (128 bits) per thread. However, Blackwell and CUDA 13 added 32-byte (256-bit) load/store instructions and data types for specific vector types with 32-byte alignment.</p>
 </blockquote>
-<p>当可用时，对于用户定义的8-float聚合，优先使用这些更宽的32字节类型和指令。这将减少加载和存储更宽的32字节对齐数据所需的指令数量。</p>
+<p>在可用时，对于用户自定义的 8 个 float 的聚合体，应优先使用这些更宽的 32 字节类型与指令。这样可以减少加载和存储更宽的 32 字节对齐数据所需的指令数量。</p>
 <blockquote>
 <p>When available, prefer these wider 32-byte types and instructions for user-defined 8-float aggregates. This will reduce the number of instructions needed to load and store wider 32-byte aligned data.</p>
 </blockquote>
-<p>自定义8-float聚合仍将编译为两条16字节加载，除非您显式使用映射到单条32字节指令的32字节对齐类型。</p>
+<p>自定义的 8 个 float 聚合体仍会被编译成两条 16 字节加载，除非你显式使用映射到单条 32 字节指令的 32 字节对齐类型。</p>
 <blockquote>
 <p>Custom 8-float aggregates will still compile into two 16-byte loads unless you explicitly use the 32-byte-aligned types that map to a single 32-byte instruction.</p>
 </blockquote>
-<p>尽管Blackwell线程可以加载完整的32字节向量类型，但内存合并器仍然只能以128字节块或四个32字节扇区来服务请求。在Blackwell上，一个32线程的线程束每线程移动32字节，传输1024字节（8 x 128字节行）。Hopper的16字节/线程变体移动512字节（4 x 128字节）。请注意，事务数量随移动的字节数缩放。当正确对齐时，两者都完全高效：16字节（Hopper）或32字节（Blackwell及更高版本）。</p>
+<p>尽管 Blackwell 线程可以加载一个完整的 32 字节向量类型，内存合并器（memory coalescer）仍然只能以 128 字节为单位、也就是四个 32 字节扇区（sector）来处理请求。在 Blackwell 上，一个 32 线程的 warp 每线程搬运 32 B，共传输 1024 B（8 × 128 B 缓存行）。Hopper 的 16 B/线程 变体搬运 512 B（4 × 128 B）。注意事务数量随搬运的字节数一起增长。只要正确对齐，两者都是完全高效的：16 字节（Hopper）或 32 字节（Blackwell 及更新架构）。</p>
 <blockquote>
 <p>Even though a Blackwell thread can load a full 32-byte vector type, the memory coalescer can still only service requests in 128-byte chunks, or four 32-byte sectors. On Blackwell, a 32-thread warp moving 32 B per thread transfers 1024 B (8 x 128 B lines). Hopper's 16 B/thread variant moves 512 B (4 x 128 B). Note that the transaction count scales with bytes moved. Both are fully efficient when properly aligned: 16-byte (Hopper) or 32-byte (Blackwell and beyond).</p>
 </blockquote>
 <h2 id="73-tiling-and-data-reuse-using-shared-memory">7.3 使用共享内存进行分块和数据重用 (Tiling and Data Reuse Using Shared Memory)<a class="headerlink" href="#73-tiling-and-data-reuse-using-shared-memory" title="Permanent link">&para;</a></h2>
-<p>一个常见的性能陷阱是从全局内存重复读取相同数据。分块是一种避免这种情况的技术，通过将数据块加载到更快的片上共享内存--并在多个线程之间重用这些块。</p>
+<p>一个常见的性能陷阱是反复从全局内存读取相同的数据。<em>分块</em>（tiling）是一种避免这种情况的技术：把数据块加载到更快的片上共享内存中——并让这些数据块在许多线程之间复用。</p>
 <blockquote>
 <p>A common performance pitfall is repeatedly reading the same data from global memory. Tiling is a technique to avoid this by loading chunks of data into faster on-chip shared memory-and reusing those chunks across many threads.</p>
 </blockquote>
-<p>例如，N x N大小的朴素矩阵乘法可能会从HBM加载矩阵A的每个元素N次，每次与B的一行相乘。这导致每个元素有N-1次冗余加载。在Blackwell上，它可以轻松执行数十万亿次浮点运算（TFLOPS），冗余加载会浪费内存带宽，而这些带宽本可以为GPU SM提供更多数学运算。</p>
+<p>例如，N x N 大小的朴素矩阵乘法可能会从 HBM 加载矩阵 A 的每个元素 N 次，每次与 B 的一行相乘。这导致每个元素有 N-1 次冗余加载。在 Blackwell 上，它可以轻松执行数十万亿次浮点运算（TFLOPS），冗余加载会浪费内存带宽，而这些带宽本可以为 GPU SM 提供更多数学运算。</p>
 <blockquote>
 <p>For example, a naive matrix multiplication of size N x N might load each element of matrix A from HBM N times, once for each row of B it multiplies with. This results in N-1 redundant loads per element. And on Blackwell, which can easily execute tens of teraFLOPS (TFLOPS), redundant loads can waste memory bandwidth, which could otherwise be feeding more math operations to the GPU SMs.</p>
 </blockquote>
-<p>分块通过让每个线程块精确一次将A和B的小子矩阵（一个分块）拉入共享内存来消除这种浪费。然后，它在多个乘累加操作中跨所有线程重用缓存的值。在我们的下一个示例中，我们将使用32 x 32的分块，这是一个常见的选择，非常适合共享内存。</p>
+<p>分块通过让每个线程块只把 A 和 B 的一个小子矩阵（一个<em>瓦片</em>，tile）拉入共享内存恰好一次，来消除这种浪费。随后它在所有线程之间复用这些被缓存的值，进行多次乘加运算。在下一个示例中，我们会使用 32 × 32 的瓦片，这是一个能很好地放入共享内存的常见选择。</p>
 <blockquote>
 <p>Tiling eliminates this waste by having each thread block pull a small submatrix (a tile) of A and B into shared memory exactly once. It then reuses the cached values across all threads for multiple multiply-accumulate operations. In our next example, we'll use a 32 x 32 tile, which is a common choice that fits well in shared memory.</p>
 </blockquote>
-<p>线程块内的线程可以协作将分块加载到共享内存，然后调用<code>__syncthreads()</code>同步数据。然后线程使用共享内存中的数据执行并行矩阵乘法计算。这分摊了全局内存访问成本到多个线程和计算。值得注意的是，这些分块加载也被安排为合并的。具体来说，每个线程束从全局内存加载一个完整的128字节段到共享内存--与之前的合并示例一致。</p>
+<p>一个线程块内的线程可以协作地把瓦片加载到共享内存中，然后调用 ___syncthreads() 来同步数据。之后，线程们使用共享内存中的数据执行并行的矩阵乘法计算。这样就把全局内存访问的开销摊分到了许多线程和计算之上。值得注意的是，这些瓦片加载也被安排成合并的（coalesced）。具体来说，每个 warp 从全局内存把一个完整的 128 字节段加载到共享内存中——与前面的合并示例保持一致。</p>
 <blockquote>
 <p>Threads within a block can cooperatively load the tile into shared memory, then call __syncthreads() to synchronize the data. Then the threads perform parallel matrix-multiply computations using the data in shared memory. This amortizes the global memory access cost over many threads and computations. It's worth noting that these tile loads are also arranged to be coalesced. Specifically, each warp loads a full 128-byte segment from global memory into shared memory-consistent with the coalescing example from earlier.</p>
 </blockquote>
-<p>通过从DRAM只读取每个元素一次（到共享内存）并在多次计算中重用它，我们减少了全局内存流量。让我们用N x N矩阵乘法示例来说明这一点。首先，考虑一个朴素实现。</p>
+<p>通过把每个元素从 DRAM 只读取一次（读入共享内存）并复用它进行许多次计算，我们减少了全局内存流量。让我们用一个 <em>N</em> × <em>N</em> 矩阵乘法示例来说明这一点。首先，考虑一个朴素实现。</p>
 <blockquote>
 <p>By reading each element from DRAM only once (into shared memory) and reusing it for many calculations, we reduce global memory traffic. Let's illustrate this with an N x N matrix multiplication example. First, consider a naive implementation.</p>
 </blockquote>
-<p><strong>优化前示例（CUDA C++）：朴素矩阵乘法</strong>。每个线程计算结果矩阵C的一个元素，从全局内存读取A的整行和B的列用于每个输出：</p>
+<p><em>前例（CUDA C++）：朴素矩阵乘法</em>。每个线程计算结果矩阵 C 的一个元素，为每个输出从全局内存读取 A 的整行和 B 的整列：</p>
 <blockquote>
 <p>Before example (CUDA C++): naive matrix multiply. Each thread computes one element of the result matrix C, reading entire rows of A and columns of B from global memory for each output:</p>
 </blockquote>
@@ -2060,11 +2060,11 @@
 </span><span id="__span-10-52"><a id="__codelineno-10-52" name="__codelineno-10-52" href="#__codelineno-10-52"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-10-53"><a id="__codelineno-10-53" name="__codelineno-10-53" href="#__codelineno-10-53"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>这个CUDA C++内核在内循环中为每次乘法发出全局内存加载。每个线程为每个k从DRAM读取<code>A[row, k]</code>和<code>B[k, col]</code>，导致大量冗余流量。</p>
+<p>这个 CUDA C++ 核函数在内层循环里为每一次乘法都发起全局内存加载。每个线程为每一个 <em>k</em> 从 DRAM 读取 A[row, k] 和 B[k, col]，造成海量的冗余流量。其结果是一个严重访存受限（memory-bound）的核函数，SM 利用率很低，并且频繁因等待全局内存而停顿。下面是朴素矩阵乘法的 PyTorch 版本：</p>
 <blockquote>
 <p>This CUDA C++ kernel issues global memory loads for every multiplication inside the inner loop. Each thread reads A[row, k] and B[k, col] from DRAM for every k, causing massive redundant traffic.</p>
 </blockquote>
-<p>结果是一个严重内存密集型的内核，SM利用率低，频繁在全局内存上停顿等待。以下是朴素矩阵乘法的PyTorch版本：</p>
+<p>结果是一个严重内存密集型的核函数，SM 利用率低，频繁在全局内存上停顿等待。以下是朴素矩阵乘法的 PyTorch 版本：</p>
 <blockquote>
 <p>The result is a heavily memory-bound kernel with low SM utilization and frequent stalls waiting on global memory. Here is the PyTorch version of the naive matrix multiplication:</p>
 </blockquote>
@@ -2086,19 +2086,19 @@
 </span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="n">B</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="n">C</span> <span class="o">=</span> <span class="n">naive_matmul</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
 </span></code></pre></div>
-<p>这个PyTorch实现使用嵌套Python循环。虽然最内层操作作为逐元素乘法和求和操作被卸载到GPU，但它仍然在底层为每个点积触发重复的全局内存加载。这模仿了朴素CUDA内核的内存密集型行为，因为GPU大部分周期在等待内存而不是计算乘法。</p>
+<p>这个 PyTorch 实现使用了嵌套的 Python 循环。虽然最内层的操作会作为逐元素乘法和求和操作卸载到 GPU 上，它在底层仍然会为每个点积触发重复的全局内存加载。这模拟了朴素 CUDA 核函数的访存受限行为，因为 GPU 把大部分周期都花在等待内存上，而不是计算乘法。</p>
 <blockquote>
 <p>This PyTorch implementation uses nested Python loops. While the innermost operations are offloaded to GPU as elementwise multiply and sum operations, it still triggers repeated global memory loads under the hood for each dot product. This mimics the memory-bound behavior of the naive CUDA kernel since the GPU spends most cycles waiting on memory rather than computing multiplications.</p>
 </blockquote>
-<p>这段PyTorch代码故意写得非常慢，以说明在循环内执行冗余全局内存访问加载的极端情况。在实践中，像PyTorch这样的框架为此类操作使用优化的内核。</p>
+<p>这段 PyTorch 代码故意写得极其缓慢，以此说明在循环内执行冗余全局内存访问加载的极端情形。在实践中，像 PyTorch 这样的框架会对这类操作使用优化过的核函数。</p>
 <blockquote>
 <p>This PyTorch code is extremely slow on purpose to illustrate the extreme case of performing redundant global memory access loads inside of a loop. In practice, frameworks like PyTorch use optimized kernels for this type of operation.</p>
 </blockquote>
-<p>现在，让我们应用分块来改进这一点。我们将矩阵分成32 x 32的分块。32 x 32是一个方便的分块大小，因为它与32的线程束大小对齐，它很适合共享内存，并且它映射到一个完整的32线程线程束读取每一行。这允许每个线程束协作加载和处理一次一行（每个分块）。</p>
+<p>现在，让我们应用分块来改进它。我们把矩阵划分成 32 × 32 的瓦片。32 × 32 是一个方便的瓦片尺寸，因为它与 32 的 warp 大小对齐，能很好地放入共享内存，并且映射到一个完整的 32 线程 warp 来读取每一行。这让每个 warp 能够协作地一次加载并处理（每个瓦片的）单独一行。</p>
 <blockquote>
 <p>Now, let's apply tiling to improve this. We divide the matrices into 32 x 32 tiles. 32 x 32 is a convenient tile size since it aligns with a warp size of 32, it fits well in shared memory, and it maps to a full warp of 32 threads reading each row. This allows each warp to collaboratively load and process one single row (per tile) at a time.</p>
 </blockquote>
-<p>因此，每个线程块加载一个32 x 32的A分块和一个32 x 32的B分块到共享内存，执行32 x 32矩阵乘法，并累加结果。这样，A和B的每个元素每个分块只从HBM加载一次，而不是朴素版本中的32次。</p>
+<p>因此，每个线程块加载一个 32 x 32 的 A 分块和一个 32 x 32 的 B 分块到共享内存，执行 32 x 32 矩阵乘法，并累加结果。这样，A 和 B 的每个元素每个分块只从 HBM 加载一次，而不是朴素版本中的 32 次。</p>
 <blockquote>
 <p>As such, each thread block loads one 32 x 32 tile of A and one 32 x 32 tile of B into shared memory, performs the 32 x 32 matrix multiplies, and accumulates the results. This way, each element of A and B is loaded from HBM only once per tile instead of 32 times in the naive version.</p>
 </blockquote>
@@ -2198,23 +2198,23 @@
 </span><span id="__span-12-90"><a id="__codelineno-12-90" name="__codelineno-12-90" href="#__codelineno-12-90"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-12-91"><a id="__codelineno-12-91" name="__codelineno-12-91" href="#__codelineno-12-91"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>在这个分块内核中，每个块协作从全局内存加载一个32 x 32的A分块（到sA）和一个32 x 32的B分块（到sB）。这些加载发生在循环内的前两行，随后是<code>__syncthreads()</code>以确保分块在使用前完全加载。</p>
+<p>在这个分块核函数中，每个线程块协作地从全局内存把 A 的一个 32 × 32 瓦片（加载到 sA）和 B 的一个 32 × 32 瓦片（加载到 sB）加载进来。这些加载发生在循环内部的前两行，随后是 ___syncthreads()，以确保瓦片在使用前已完全加载。</p>
 <blockquote>
 <p>In this tiled kernel, each block cooperatively loads a 32 x 32 tile of A (into sA) and a 32 x 32 tile of B (into sB) from global memory. These loads happen in the first two lines inside the loop and are followed by __syncthreads() to ensure the tile is fully loaded before use.</p>
 </blockquote>
-<p>然后块使用共享内存分块执行32 x 32乘累加操作。这个内循环，以32为步长在k上运行，重用每个加载值32次，为这些元素产生32倍的全局内存读取减少。</p>
+<p>然后，线程块使用这些共享内存瓦片执行 32 × 32 次乘加运算。这个以 32 为步长在 k 上运行的内层循环，把每个加载进来的值复用 32×，从而使这些元素的全局内存读取减少 32×。</p>
 <blockquote>
 <p>Then the block performs 32 x 32 multiply-accumulate operations using the shared memory tiles. This inner loop, running over k in steps of 32, reuses each loaded value 32x, yielding a 32x reduction in global memory reads for those elements.</p>
 </blockquote>
-<p>完成所有分块迭代后，每个线程将其结果写入C。结果是全局内存访问每线程大幅减少8倍，您很快就会看到。</p>
+<p>在完成所有瓦片迭代后，每个线程把它的结果写入 C。其结果是每个线程的全局内存访问量大幅减少 8×，你稍后就会看到。</p>
 <blockquote>
 <p>After finishing all tile iterations, each thread writes its result to C. The result is a dramatic 8x reduction in global memory accesses per thread, as you'll see in a bit.</p>
 </blockquote>
-<p>这些示例专注于内存访问模式，使用的是FP32 CUDA核心——而不是降低精度的Tensor Core。第9章演示了使用降低精度计算（如16位、8位、4位）来进一步提高性能。</p>
+<p>这些示例聚焦于内存访问模式，使用的是 FP32 CUDA 核心——而非低精度的 Tensor Core。第 9 章会演示使用低精度计算（例如 16 位、8 位、4 位）来进一步提升性能。</p>
 <blockquote>
 <p>These examples are focused on memory access patterns and are using FP32 CUDA cores-not the reduced-precision Tensor Cores. Chapter 9 demonstrates the use of reduced-precision computations (e.g., 16-bit, 8-bit, 4-bit) to improve performance even further.</p>
 </blockquote>
-<p>这个PyTorch版本手动将矩阵分块并在每个分块上调用<code>torch.mm</code>。PyTorch的<code>torch.mm</code>利用NVIDIA的cuBLAS和CUTLASS，它们在C++级别内部实现了共享内存分块和重用。以下是分块矩阵乘法的PyTorch版本：</p>
+<p>这个 PyTorch 版本手动对矩阵进行分块，并对每个瓦片调用 torch.mm。PyTorch 的 torch.mm 利用了 NVIDIA 的 cuBLAS 和 CUTLASS，它们在 C++ 层面内部实现了共享内存分块与复用。下面是分块矩阵乘法的 PyTorch 版本：</p>
 <blockquote>
 <p>This PyTorch version manually tiles the matrices and invokes torch.mm on each tile. PyTorch's torch.mm leverages NVIDIA's cuBLAS and CUTLASS, which implement shared memory tiling and reuse internally at the C++ level. Here is the PyTorch version of the tiled matrix multiply:</p>
 </blockquote>
@@ -2243,54 +2243,54 @@
 </span><span id="__span-13-23"><a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a><span class="n">B</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">N</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </span><span id="__span-13-24"><a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a><span class="n">C</span> <span class="o">=</span> <span class="n">tiled_matmul</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
 </span></code></pre></div>
-<p>使用32 x 32分块时，当线程束中的线程都访问同一列时，它们会争用同一个共享内存bank。在实践中，您可以通过将分块填充到33列来避免这种情况——或者使用如交错等技术——使每次访问落入不同的bank。我们将在下一节应用此优化。目前，让我们专注于分块作为一种独立的优化。</p>
+<p>在 32 × 32 的瓦片下，当一个 warp 中的线程都访问同一列时，它们会争用同一个共享内存 bank。在实践中，你可以通过把瓦片填充到 33 列——或者使用像混洗（swizzling）这样的技术——来避免这一点，使得每次访问落在不同的 bank 上。我们会在下一节应用这项优化。目前，先让我们把分块本身作为一项优化来关注。</p>
 <blockquote>
 <p>With a 32 x 32 tile, threads in a warp will contend for the same shared-memory bank when they all access the same column. In practice, you can avoid this by padding the tile to 33 columns-or using techniques like swizzling-so that each access falls in a different bank. We will apply this optimization in the next section. For now, let's focus on tiling as an optimization on its own.</p>
 </blockquote>
-<p>分块的性能影响是显著的。通过以分块形式组织计算并在共享内存中重用数据，我们减少了DRAM流量并提高了算术强度，因为从内存检索的每个字节用于更多的浮点运算。除了更少的全局内存事务，我们还观察到更高的实现占用率。表7-4比较了应用共享内存分块前后的关键指标。</p>
+<p>分块带来的性能影响是显著的。通过以瓦片方式组织计算并在共享内存中复用数据，我们减少了 DRAM 流量并提高了算术强度（arithmetic intensity），因为从内存取回的每个字节都被用于更多的浮点运算。除了更少的全局内存事务，我们还观察到更高的实测占用率（occupancy）。表 7-4 比较了应用共享内存分块前后的关键指标。</p>
 <blockquote>
 <p>The performance impact of tiling is significant. By structuring the computation in tiles and reusing data in shared memory, we reduce DRAM traffic and raise arithmetic intensity because each byte retrieved from memory is used for many more floating-point operations. Along with fewer global memory transactions, we also observe higher achieved occupancy. Table 7-4 compares key metrics before and after applying shared memory tiling.</p>
 </blockquote>
-<p><strong>表7-4 使用共享内存分块的性能改进</strong></p>
+<p><strong>表 7-4 使用共享内存分块的性能改进</strong></p>
 <table>
 <thead>
 <tr>
 <th>指标</th>
-<th>优化前（朴素内核）</th>
-<th>优化后（分块内核）</th>
+<th>优化前（朴素核函数）</th>
+<th>优化后（分块核函数）</th>
 <th>说明</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>DRAM吞吐量（峰值百分比）</td>
+<td>DRAM 吞吐量（峰值百分比）</td>
 <td>90%</td>
-<td>25%（减少3.6倍）</td>
+<td>25%（减少 3.6 倍）</td>
 <td>朴素使用更多带宽，但是浪费的。分块实现较低是因为分块后由于冗余加载减少而更高效。</td>
 </tr>
 <tr>
 <td>实现的占用率（%）</td>
 <td>42%</td>
 <td>89%</td>
-<td>更多驻留线程束以更少停顿取得进展。</td>
+<td>更多驻留 warp 以更少停顿取得进展。</td>
 </tr>
 <tr>
 <td>浮点吞吐量（GFLOPS）</td>
 <td>15 GFLOPS</td>
 <td>170 GFLOPS</td>
-<td>小矩阵大小限制了绝对值。重用增加了持续计算。（绝对GFLOPS数值较低是因为矩阵大小（N = 1,024）较小且内核受内存限制。）</td>
+<td>小矩阵大小限制了绝对值。重用增加了持续计算。（绝对 GFLOPS 数值较低是因为矩阵大小（N = 1,024）较小且核函数受内存限制。）</td>
 </tr>
 <tr>
 <td>全局内存加载扇区数</td>
 <td>9800</td>
 <td>1200</td>
-<td>每个元素每个分块获取一次而不是32次（每线程一次）。内核发出的32字节扇区读取总数。减少反映了由于共享内存分块而消除的冗余加载。</td>
+<td>每个元素每个分块获取一次而不是 32 次（每线程一次）。核函数发出的 32 字节扇区读取总数。减少反映了由于共享内存分块而消除的冗余加载。</td>
 </tr>
 <tr>
 <td>共享内存吞吐量（峰值百分比）</td>
 <td>52%</td>
 <td>99%</td>
-<td>分块内核访问模式避免了sA和sB上的内存bank冲突。</td>
+<td>分块核函数访问模式避免了 sA 和 sB 上的内存 bank 冲突。</td>
 </tr>
 </tbody>
 </table>
@@ -2339,128 +2339,128 @@
 </tr>
 </tbody>
 </table>
-<p>在共享内存中暂存32 x 32分块确保每个元素从DRAM获取一次并在块中的所有线程间重用。DRAM吞吐量从90%下降到25%，减少约3.6倍，这是移除冗余流量时的预期结果。</p>
+<p>在共享内存中暂存 32 x 32 分块确保每个元素从 DRAM 获取一次并在块中的所有线程间重用。DRAM 吞吐量从 90%下降到 25%，减少约 3.6 倍，这是移除冗余流量时的预期结果。</p>
 <blockquote>
 <p>Staging 32 x 32 tiles in shared memory makes sure that each element is fetched once from DRAM and reused across all threads in a block. DRAM throughput falls from 90% to 25%, a reduction of about 3.6x, which is expected when redundant traffic is removed.</p>
 </blockquote>
-<p>DRAM吞吐量的下降是理想的，因为内核现在每移动字节执行更多工作。算术强度增加，持续浮点吞吐量从15 GFLOPS上升到170 GFLOPS，增长近11倍。</p>
+<p>DRAM 吞吐的下降是我们想要的，因为核函数现在每搬运一个字节所完成的工作更多了。算术强度上升，持续浮点吞吐从 15 GFLOPS 升到 170 GFLOPS，提升近 11×。</p>
 <blockquote>
 <p>The drop in DRAM throughput is desirable because the kernel now performs more work per byte moved. Arithmetic intensity increases, and sustained floating-point throughput rises from 15 GFLOPS to 170 GFLOPS, a gain of nearly 11x.</p>
 </blockquote>
-<p>优化后的170 GFLOPS远低于Blackwell接近80 TFLOPS的理论FP32峰值。这对于小分块和频繁内存访问是预期的。重要的结果是在消除内存瓶颈后获得了11倍的改进。更大的问题或每字节更多的计算工作将使性能更接近峰值。</p>
+<p>优化后的 170 GFLOPS 远低于 Blackwell 接近 80 TFLOPS 的理论 FP32 峰值。这对于小瓦片和频繁的内存访问来说是符合预期的。重要的结果是消除内存瓶颈后带来的 11× 提升。更大的问题规模或每字节更多的计算量会让性能更接近峰值。</p>
 <blockquote>
 <p>The optimized 170 GFLOPS is far below Blackwell's theoretical FP32 peak near 80 TFLOPS. This is expected for small tiles and frequent memory access. The important result is the 11x improvement after removing the memory bottleneck. Larger problems or more compute work per byte would move performance closer to peak.</p>
 </blockquote>
-<p>这种算术强度的转变将内核从内存密集型移向计算密集型，这是理想的，因为性能变得受丰富的浮点吞吐量限制，而不是相对稀缺的芯片带宽。全局内存加载扇区从9,800大幅下降到1,200，因为每个元素获取一次到共享内存并跨线程重用。这消除了冗余加载。分块内核还以避免共享内存bank冲突的方式访问sA和sB，这就是为什么共享内存吞吐量接近100%。</p>
+<p>这种算术强度上的转变把核函数从访存受限推向计算受限（compute-bound），这是理想的，因为性能此时受限于充裕的浮点吞吐，而不是相对稀缺的芯片带宽。全局内存加载扇区数从 9,800 大幅下降到 1,200，因为每个元素只被取一次到共享内存中并在线程之间复用。这消除了冗余加载。分块核函数还以一种避免共享内存 bank 冲突（bank conflict）的方式访问 sA 和 sB，这就是共享内存吞吐接近 100% 的原因。</p>
 <blockquote>
 <p>This shift in arithmetic intensity moves the kernel from memory bound toward compute bound, which is ideal because performance becomes limited by abundant floating-point throughput rather than comparatively scarce chip bandwidth. Global memory load sectors drop substantially from 9,800 down to 1,200 because each element is fetched once into shared memory and reused across threads. This eliminates redundant loads. The tiled kernel also accesses sA and sB in a way that avoids shared-memory bank conflicts, which is why shared memory throughput approaches 100%.</p>
 </blockquote>
-<p>总的来说，我们将此内核从内存密集型转变为计算密集型，这是目标。我们成功缓解了内存压力，为其他有用工作释放了内存总线，并实现了更高的计算吞吐量。</p>
+<p>总的来说，我们把这个核函数从访存受限转变为了计算受限，而这正是目标所在。我们成功缓解了内存压力，为其他有用工作腾出了内存总线，并实现了更高的算力吞吐。</p>
 <blockquote>
 <p>Overall, we shifted this kernel from memory bound to compute bound, which was the goal. We successfully relieved memory pressure, freed up the memory bus for other useful work, and achieved higher compute throughput.</p>
 </blockquote>
-<p>我们还看到实现的占用率百分比从42%大幅增加到89%。这个指标几乎翻倍，因为分块内核允许更多驻留线程束以更少停顿取得进展。因此，SM保持更一致的忙碌。</p>
+<p>我们还看到实测占用率百分比从 42% 大幅提升到 89%。这个指标几乎翻倍，是因为分块核函数持续允许更多驻留 warp 以更少的停顿向前推进。因此，SM 更持续地保持繁忙。</p>
 <blockquote>
 <p>We also see a large increase in achieved occupancy percentage from 42% to 89%. This metric nearly doubles because the tiled kernel keeps allowing more resident warps to make progress with fewer stalls. As such, the SMs remain busy more consistently.</p>
 </blockquote>
-<p>通过引入共享内存分块，我们增加了每线程工作，而没有将每线程资源使用增加到超出可用寄存器和共享内存的范围。这帮助我们的内核实现了更高的占用率和利用率，这在像Blackwell这样的GPU上很重要，它们提供非常大的寄存器文件（每SM 65,536个32位寄存器)，线程可以利用这些寄存器直到每线程255寄存器的限制而不溢出。</p>
+<p>通过引入共享内存分块，我们在不让每线程资源使用超过可用寄存器和共享内存的前提下，增加了每线程的工作量。这帮助我们的核函数达到了更高的占用率和利用率，这在像 Blackwell 这样的 GPU 上很重要——它提供了非常大的寄存器文件（每个 SM 有 65,536 个 32 位寄存器），线程可以在不发生溢出的情况下利用到每线程 255 个寄存器的上限。</p>
 <blockquote>
 <p>By introducing shared memory tiling, we increased per-thread work without increasing per-thread resource usage beyond available registers and shared memory. This helped our kernel achieve higher occupancy and utilization, which is important on GPUs like Blackwell, which offer a very large register file (65,536 32-bit registers per SM) that threads can exploit up to the 255-register per-thread limit without spilling.</p>
 </blockquote>
-<p>回想一下，每个线程最多可以使用255个寄存器。我们的分块内核实现保持在此限制内，避免了寄存器溢出，并保持了高性能。</p>
+<p>请回想，每个线程最多可以使用 255 个寄存器。我们的分块核函数实现保持在这个上限之内，避免了寄存器溢出（register spilling），并保持了高性能。</p>
 <blockquote>
 <p>Recall that each thread can use up to 255 registers. Our tiling kernel implementation stays within this limit, avoids register spilling, and preserves high performance.</p>
 </blockquote>
-<p>我们可以通过检查朴素和分块内核的持续FLOP速率和平均DRAM带宽来比较它们的算术强度。朴素版本以15 GFLOPS运行，同时平均移动10 GB/s的数据，即每字节1.5 FLOPS。分块实现相比之下以170 GFLOPS持续运行，同时平均移动21 GB/s，即8 FLOPS/byte。</p>
+<p>我们可以通过考察朴素核函数和分块核函数的持续 FLOP 速率以及平均 DRAM 带宽，来比较它们的算术强度。朴素版本以 15 GFLOPS 运行，同时平均搬运 10 GB/s 的数据，即每字节 1.5 FLOPS。相比之下，分块实现持续达到 170 GFLOPS，同时平均搬运 21 GB/s，即 8 FLOPS/字节。</p>
 <blockquote>
 <p>We can compare the arithmetic intensity of the naive and tiled kernels by examining their sustained FLOP rates and average DRAM bandwidth. The naive version ran at 15 GFLOPS while moving 10 GB/s of data on average, or 1.5 FLOPS per byte. The tiled implementation, by contrast, sustained 170 GFLOPS while moving 21 GB/s on average, or 8 FLOPS/byte.</p>
 </blockquote>
-<p>可能会想进一步将分块大小增加到64 x 64或128 x 128，以进一步减少内存流量并增加数据重用。只需记住，更大的分块消耗更多片上资源，包括寄存器和共享内存。这留给每个SM更少的容量用于额外的线程块。</p>
+<p>可能会想进一步将分块大小增加到 64 x 64 或 128 x 128，以进一步减少内存流量并增加数据重用。只需记住，更大的分块消耗更多片上资源，包括寄存器和共享内存。这留给每个 SM 更少的容量用于额外的线程块。</p>
 <blockquote>
 <p>It might be tempting to increase the tile size further to 64 x 64 or 128 x 128 in order to reduce memory traffic even more and increase data reuse. Just remember that larger tiles consume more on-chip resources, including both registers and shared memory. This leaves less capacity for additional thread blocks on each SM.</p>
 </blockquote>
-<p>例如，Blackwell GPU提供每SM最多228 KB的可分配共享内存。这可以轻松容纳64 x 64的4字节float分块，其中每个A和B分块需要16 KB（16,384字节 = 64 x 64个float x 每float 4字节）。然而，除了共享内存使用外，您还需要预算额外的每线程寄存器。</p>
+<p>例如，Blackwell GPU 每个 SM 提供多达 228 KB 的可分配共享内存。这可以轻松容纳一个由 4 字节 float 构成的 64 × 64 瓦片，其中每个 A 瓦片和 B 瓦片各需要 16 KB（16,384 字节 = 64 × 64 个 float × 每个 float 4 字节）。然而，除了共享内存的使用之外，你还需要为每线程的额外寄存器留出预算。</p>
 <blockquote>
 <p>For instance, Blackwell GPUs provide up to 228 KB of allocatable shared memory per SM. This can easily accommodate a 64 x 64 tile of 4-byte floats in which each A and B tile requires 16 KB (16,384 bytes = 64 x 64 floats x 4 bytes per float). However, in addition to shared-memory usage, you need to budget for the additional registers per thread.</p>
 </blockquote>
-<p>每个Blackwell SM总共提供最多64K寄存器（每个32位），每线程最多255个寄存器。当您启动一个32 x 32线程块（1,024个线程）来计算64 x 64分块时，每个线程处理一个2 x 2子分块，产生4个输出。</p>
+<p>每个 Blackwell SM 总共提供最多 64K 寄存器（每个 32 位），每线程最多 255 个寄存器。当您启动一个 32 x 32 线程块（1,024 个线程）来计算 64 x 64 分块时，每个线程处理一个 2 x 2 子分块，产生 4 个输出。</p>
 <blockquote>
 <p>Each Blackwell SM provides up to 64K registers (32-bit each) in total with a per-thread maximum of 255 registers. When you launch a 32 x 32 thread block (1,024 threads) to compute a 64 x 64 tile, each thread handles a 2 x 2 subtile, which produces 4 outputs.</p>
 </blockquote>
-<p>对于64 x 64分块大小，您需要以下：四个累加器寄存器（每个输出一个），两个寄存器用于A分块元素（跨两个输出重用），两个寄存器用于B分块元素（相同重用），以及约4个寄存器用于循环计数器、线程索引和地址算术。总共，这是每线程约12个寄存器。</p>
+<p>对于 64 × 64 的瓦片尺寸，你需要如下寄存器：四个累加器寄存器（每个输出一个）、两个用于 A 瓦片元素的寄存器（在两个输出间复用）、两个用于 B 瓦片元素的寄存器（同样复用），以及约 4 个用于循环计数器、线程索引和地址运算的寄存器。总计约为每线程 12 个寄存器。</p>
 <blockquote>
 <p>For a 64 x 64 tile size, you need the following: four accumulator registers (one per output), two registers for A-tile elements (reused across two outputs), two registers for B-tile elements (same reuse), and ~4 registers for loop counters, thread indices, and address arithmetic. In total, this is ~12 registers per thread.</p>
 </blockquote>
-<p>每线程12个寄存器 x 每块1,024个线程 = 每线程块需要12,288个寄存器。由于每个Blackwell SM有65,536个32位寄存器（每线程最多255个寄存器），理论上，最多可以容纳5个块的寄存器（≈61,440个寄存器）。然而，SM只能支持2,048个并发线程（64个线程束）。因此，在实践中，占用率受寄存器、共享内存、线程束和线程的较小限制约束。对于此配置，每个SM两个块将饱和2,048线程限制。</p>
+<p>每线程 12 个寄存器 × 每块 1,024 个线程 = 每个线程块需要 12,288 个寄存器。由于每个 Blackwell SM 有 65,536 个 32 位寄存器（每线程最多 255 个寄存器），理论上可以容纳多达 5 个线程块所需的寄存器（≈61,440 个寄存器）。然而，SM 只能支持 2,048 个并发线程（64 个 warp）。所以在实践中，占用率受寄存器、共享内存、warp 和线程这几者中较小的限制所约束。对于这种配置，每个 SM 两个线程块就会占满 2,048 线程的上限。</p>
 <blockquote>
 <p>12 registers per thread x 1,024 threads per block = 12,288 registers needed per thread block. And since each Blackwell SM has 65,536 32-bit registers (maximum 255 registers per thread), in theory, up to 5 blocks' worth of registers can fit (≈61,440 registers). However, the SM can support only 2,048 concurrent threads (64 warps). So, in practice, occupancy is limited by the smaller limits of registers, shared memory, warps, and threads. For this configuration, two blocks per SM will saturate the 2,048-thread limit.</p>
 </blockquote>
-<p>如果您的内核使用额外的寄存器进行双缓冲寄存器、向量化加载等，您可以使用cudaOccupancyMaxPotentialBlockSize或Nsight Compute的占用率报告重新计算占用率。</p>
+<p>如果你的核函数为双缓冲（double buffering）寄存器、向量化加载等使用了额外的寄存器，你可以用 cudaOccupancyMaxPotentialBlockSize 或 Nsight Compute 的占用率报告重新计算占用率。</p>
 <blockquote>
 <p>If your kernel uses additional registers for double-buffering registers, vectorized loads, etc., you can recalculate the occupancy with cudaOccupancyMaxPotentialBlockSize or Nsight Compute's occupancy report.</p>
 </blockquote>
-<p>对于64 x 64分块大小，需要每线程22个寄存器，总共22,528个寄存器用于32 x 32线程块（1,024个线程）。在这种情况下，每个Blackwell SM只能容纳最多两个线程块。这意味着最大占用率仅为2,048个线程--仅用两个块就达到了SM的线程限制（每SM最多16个并发块中的两个）。</p>
+<p>对于 64 x 64 分块大小，需要每线程 22 个寄存器，总共 22,528 个寄存器用于 32 x 32 线程块（1,024 个线程）。在这种情况下，每个 Blackwell SM 只能容纳最多两个线程块。这意味着最大占用率仅为 2,048 个线程--仅用两个块就达到了 SM 的线程限制（每 SM 最多 16 个并发块中的两个）。</p>
 <blockquote>
 <p>For a 64 x 64 tile size, 22 registers per thread are needed for a total of 22,528 registers for a 32 x 32 thread block (1,024 threads). In this case, you can only fit up to two thread blocks per Blackwell SM. This translates to a maximum occupancy of only 2,048 threads-hitting the SM's thread limit with only two blocks (out of the 16 maximum concurrent blocks per SM).</p>
 </blockquote>
-<p>使用更大分块大小导致的并发线程块减少将降低占用率，如果您超过硬件限制则会损害性能。在实践中，您的分块维度必须适合GPU的共享内存和寄存器预算，以保持高占用率和吞吐量。</p>
+<p>使用更大的瓦片尺寸导致并发线程块减少，如果你超出了硬件的限制，这会降低占用率并损害性能。在实践中，你的瓦片维度必须能放入 GPU 的共享内存和寄存器预算内，以维持高占用率和吞吐。</p>
 <blockquote>
 <p>A reduction in concurrent thread blocks caused by using a larger tile size will lower occupancy and hurt performance if you exceed the hardware's limits. In practice, your tile dimensions must fit within the GPU's shared-memory and register budgets to maintain high occupancy and throughput.</p>
 </blockquote>
-<p>对于具有每SM约228 KB可分配共享内存的Blackwell GPU，64 x 64分块（每个输入矩阵分块约16 KB）可能仍然适合，但将分块维度加倍会使重用因子平方化，同时使共享内存使用量增加四倍。存在收益递减和可能的权衡。</p>
+<p>对于每个 SM 有约 228 KB 可分配共享内存的 Blackwell GPU，一个 64 × 64 的瓦片（每个输入矩阵瓦片约 16 KB）也许仍然放得下，但把瓦片维度翻倍会让复用系数平方增长，同时让共享内存使用量翻两番。这里存在收益递减以及可能的权衡。</p>
 <blockquote>
 <p>For a Blackwell GPU with ~228 KB of allocatable shared memory per SM, a 64 x 64 tile (~16 KB per input matrix tile) might still fit, but doubling the tile dimensions squares the reuse factor while quadrupling shared memory usage. There are diminishing returns and possible trade-offs.</p>
 </blockquote>
-<p>建议尝试不同的分块维度来平衡片上重用与资源限制。32 x 32分块是现代NVIDIA GPU上的一个坚实起点，但根据您的共享内存和寄存器使用情况，您可能会发现稍小或稍大的分块提供更好的吞吐量。</p>
+<p>建议尝试不同的瓦片维度，以在片上复用与资源限制之间取得平衡。在现代 NVIDIA GPU 上，32 × 32 的瓦片是一个可靠的起点，但取决于你的共享内存和寄存器使用情况，你可能会发现稍小或稍大的瓦片能带来更好的吞吐。</p>
 <blockquote>
 <p>It is recommended to experiment with different tile dimensions to balance on-chip reuse against resource limits. A 32 x 32 tile is a solid starting point on modern NVIDIA GPUs, but depending on your shared-memory and register usage, you may find that a slightly smaller or larger tile delivers better throughput.</p>
 </blockquote>
-<p>像CUTLASS这样的库还包括性能分析器，可以自动化此探索过程，让您找到内核和硬件的最佳分块大小。</p>
+<p>像 CUTLASS 这样的库也包含能自动化这种探索的剖析器（profiler），让你为你的核函数和硬件找到最优的瓦片尺寸。</p>
 <blockquote>
 <p>Libraries like CUTLASS also include profilers that automate this exploration, letting you find the optimal tile size for your kernel and hardware.</p>
 </blockquote>
-<p>简而言之，我们将一个朴素的、仅使用全局内存的矩阵乘法转变为一个使用共享内存的分块实现。这实现了协作数据重用、减少了DRAM事务数量并提高了算术强度。CUDA C++和PyTorch实现都受益于这种分块技术。</p>
+<p>简而言之，我们把一个仅使用全局内存的朴素矩阵乘法转变成了使用共享内存的分块实现。这实现了协作式数据复用，减少了 DRAM 事务的数量，并提升了算术强度。CUDA C++ 和 PyTorch 两种实现都从这项分块技术中获益。</p>
 <blockquote>
 <p>In short, we transformed a naive, global-memory-only matrix multiplication into a tiled implementation that uses shared memory. This enabled cooperative data reuse, reduced the number of DRAM transactions, and boosted arithmetic intensity. Both the CUDA C++ and PyTorch implementations benefited from this tiling technique.</p>
 </blockquote>
-<p>值得注意的是，我们手动应用的分块技术正是高性能GPU库在底层所做的事情。例如，NVIDIA的CUTLASS库提供模板化组件来实现通用矩阵乘法（GEMM），具有多层分块。这些CUTLASS组件将矩阵片段加载到寄存器和共享内存中--然后计算部分结果，就像我们之前的32 x 32分块示例一样。</p>
+<p>值得注意的是，我们手动应用的分块技术，正是高性能 GPU 库在底层所做的事情。举例来说，NVIDIA 的 CUTLASS 库提供了模板化组件，用多层分块来实现通用矩阵乘法（GEMM）。这些 CUTLASS 组件把矩阵的片段加载到寄存器和共享内存中——然后计算部分结果，很像我们前面 32 × 32 瓦片的示例。</p>
 <blockquote>
 <p>It's worth noting that the tiling techniques we applied manually are exactly what high-performance GPU libraries do under the hood. NVIDIA's CUTLASS library, for instance, provides templated components to implement general matrix multiplies (GEMMs) with multiple layers of tiling. These CUTLASS components load fragments of matrices into registers and shared memory-and then compute partial results much like our previous 32 x 32 tile example.</p>
 </blockquote>
-<p>事实上，NVIDIA优化的cuBLAS和cuDNN库在线程、线程束和块级别使用类似的分块策略来实现接近峰值的吞吐量。NVIDIA甚至在2025年初宣布了一个名为cuTile的Python优先API，让程序员以更方便的Python方式描述这些分块形状。事实上，NVIDIA开发了一种基于分块的中间表示（IR）称为TileIR来支持cuTile并促进自动编译和调优。</p>
+<p>事实上，NVIDIA 优化过的 cuBLAS 和 cuDNN 库在线程、warp 和线程块层面使用了类似的分块策略，以达到接近峰值的吞吐。NVIDIA 甚至在 2025 年初宣布了一个 Python 优先的 API，称为 cuTile，让程序员能以更方便的 Python 风格描述这些瓦片形状。事实上，NVIDIA 已经开发了一种基于瓦片的中间表示（intermediate representation，IR），称为 TileIR，来支持 cuTile 并促进自动编译与调优。</p>
 <blockquote>
 <p>In fact, NVIDIA's optimized cuBLAS and cuDNN libraries use similar blocking strategies at the thread, warp, and block levels to achieve near-peak throughput. NVIDIA even announced a Python-first API in early 2025 called cuTile that lets programmers describe these tile shapes in a more convenient Pythonic way. In fact, NVIDIA has developed a Tile-based intermediate representation (IR) called TileIR to support cuTile and facilitate automatic compilation and tuning.</p>
 </blockquote>
-<p>其他高性能库也封装了这些分块模式。例如，NVIDIA的CUTLASS C++和Python库暴露了模板化分块迭代器和性能分析器。基于PyTorch的编译器如TorchInductor（使用OpenAI Triton库）在形状和对齐允许时自动生成分块内核。这些库降低了使用这些分块优化的门槛--并减少了样板代码量。</p>
+<p>其他高性能库同样封装了这些分块模式。例如，NVIDIA 的 CUTLASS C++ 和 Python 库暴露了模板化的瓦片迭代器与剖析器。而像 TorchInductor（使用 OpenAI 的 Triton 库）这样基于 PyTorch 的编译器，会在形状和对齐允许时自动生成分块核函数。这些库降低了使用这些分块优化的门槛——并减少了样板代码的数量。</p>
 <blockquote>
 <p>Other high-performance libraries encapsulate these tiling patterns as well. For instance, NVIDIA's CUTLASS C++ and Python libraries expose templated tile iterators and profilers. And PyTorch-based compilers like TorchInductor (using the OpenAI Triton library) generate tiled kernels automatically when shapes and alignment permit. These libraries lower the barrier to using these tiling optimizations-and reduce the amount of boilerplate code.</p>
 </blockquote>
-<p>关键思想是尽可能在返回DRAM之前在寄存器/共享内存中重用数据是基础，库封装了这一点。因此，只要可能，利用这些高度优化的库（或参考它们）来获得高性能分块模式。</p>
+<p>关键思想在于：在返回 DRAM 之前尽可能多地在寄存器/共享内存中复用数据，这是根本性的，而各种库正封装了这一点。所以只要有可能，就利用（或参考）这些高度优化的库来获得高性能的分块模式。</p>
 <blockquote>
 <p>The key idea is that reusing data in registers/shared memory as much as possible before going back to DRAM is fundamental, and libraries encapsulate this. So whenever possible, leverage these highly optimized libraries (or refer to them) for performant tiling patterns.</p>
 </blockquote>
-<p>例如，如果您在PyTorch中使用<code>torch.mm</code>或在代码中使用<code>cublasSgemm</code>，在底层它正在执行这种分块和内存合并。这就是为什么我们的PyTorch示例自动获得了相同的好处。</p>
+<p>例如，如果你在 PyTorch 中使用 torch.mm，或在代码中使用 cublasSgemm，其底层做的正是这种分块与内存合并。这就是为什么我们的 PyTorch 示例会自动获得同样的收益。</p>
 <blockquote>
 <p>For instance, if you use torch.mm in PyTorch or cublasSgemm in your code, under the covers it's doing exactly this kind of tiling and memory coalescing. This is why our PyTorch example saw the same benefits automatically.</p>
 </blockquote>
-<p>在实践中，您会使用像cuBLAS和PyTorch的torch.matmul这样的高性能库，它们已经在C++中实现了分块和其他优化。在生产代码中，直接使用torch.mm或torch.matmul会产生相同的好处——甚至可能更多，这要归功于高度调优的内核。</p>
+<p>在实践中，你会使用像 cuBLAS 和 PyTorch 的 torch.matmul 这样的高性能库，它们已经用 C++ 实现了分块和其他优化。在生产代码中，直接使用 torch.mm 或 torch.matmul 会产生同样的收益——甚至更多，这要归功于高度调优的核函数。</p>
 <blockquote>
 <p>In practice, you would use high-performance libraries like cuBLAS and PyTorch's torch.matmul, which already implement tiling and other optimizations in C++. In production code, directly using torch.mm or torch.matmul would produce the same benefits-and possibly more, thanks to highly tuned kernels.</p>
 </blockquote>
-<p>虽然您肯定可以重用现有的分块库和框架，但理解它们的工作原理（正如我们在这里所做的那样）对于诊断性能问题以及可能为这些库和框架未涵盖的专业情况编写自己的自定义内核是非常宝贵的。只是不要忘记回馈社区，因为他们给了您很多！</p>
+<p>虽然你完全可以复用现有的分块库和框架，但像我们这里所做的那样理解它们的工作原理是非常宝贵的——当你需要诊断性能问题，或者可能需要为这些库和框架未覆盖的专门场景编写自己的自定义核函数时尤其如此。只是别忘了回馈社区，因为他们给了你很多！</p>
 <blockquote>
 <p>While you can definitely reuse existing tiling libraries and frameworks, understanding how they work, as we've done here, is invaluable for when you need to diagnose performance issues and possibly write your own custom kernels for specialized situations that these libraries and frameworks don't cover. Just don't forget to give back to the community as they've given you a lot!</p>
 </blockquote>
-<p>如本节前面所述，当使用32 x 32分块时，线程束中的线程在访问同一列时会争用同一个共享内存bank。让我们在下一节解释这个问题--以及一些优化。</p>
+<p>正如本节前面所提到的，在使用 32 × 32 的瓦片时，当一个 warp 中的线程访问同一列时，它们会争用同一个共享内存 bank。让我们在下一节解释这个问题——以及一些优化方法。</p>
 <blockquote>
 <p>As mentioned earlier in this section, when using a 32 x 32 tile, threads in a warp will contend for the same shared-memory bank when accessing the same column. Let's explain this problem-and some optimizations-in the next section.</p>
 </blockquote>
-<h2 id="74-bank-avoid-shared-memory-bank-conflicts">7.4 避免共享内存bank冲突 (Avoid Shared-Memory Bank Conflicts)<a class="headerlink" href="#74-bank-avoid-shared-memory-bank-conflicts" title="Permanent link">&para;</a></h2>
-<p>在现代NVIDIA GPU（包括Blackwell）上，共享内存有32个bank，每个bank宽度为4字节（即地址映射mod 32）。因此，一个以128 B（32个float x 4 B）为跨步的线程束将所有线程映射到同一个bank。如果线程束中的多个线程访问同一个bank，就会发生bank冲突。这会强制内存访问串行化，从而抵消共享内存的速度优势。</p>
+<h2 id="74-bank-avoid-shared-memory-bank-conflicts">7.4 避免共享内存 bank 冲突 (Avoid Shared-Memory Bank Conflicts)<a class="headerlink" href="#74-bank-avoid-shared-memory-bank-conflicts" title="Permanent link">&para;</a></h2>
+<p>在现代 NVIDIA GPU（包括 Blackwell）上，共享内存有 32 个 bank，每个 bank 宽度为 4 字节（即地址映射 mod 32）。因此，一个以 128 B（32 个 float x 4 B）为跨步的 warp 将所有线程映射到同一个 bank。如果 warp 中的多个线程访问同一个 bank，就会发生 bank 冲突。这会强制内存访问串行化，从而抵消共享内存的速度优势。</p>
 <blockquote>
 <p>On modern NVIDIA GPUs (including Blackwell), shared memory has 32 banks, each 4 bytes wide (i.e., address mapping mod 32). As such, a warp striding by 128 B (32 floats x 4 B) will map all threads to the same bank. If multiple threads in a warp access the same bank, a bank conflict occurs. This forces serialization of memory accesses, which defeats the speed advantage of shared memory.</p>
 </blockquote>
-<p>在代码中，当线程以导致它们落入同一个bank的跨步访问共享内存数组时，通常会发生bank冲突。图7-4显示了两个无bank冲突内存访问的示例。</p>
+<p>在代码中，当线程以导致它们落入同一个 bank 的跨步访问共享内存数组时，通常会发生 bank 冲突。图 7-4 显示了两个无 bank 冲突内存访问的示例。</p>
 <blockquote>
 <p>In code, bank conflicts typically occur when threads access a shared-memory array with a stride that causes them to land in the same bank. Figure 7-4 shows two examples of memory access without bank conflicts.</p>
 </blockquote>
@@ -2468,7 +2468,7 @@
 <blockquote>
 <p>Figure 7-4. No bank conflicts</p>
 </blockquote>
-<p>这里，没有两个线程同时访问同一个内存bank。这是理想的。图7-5显示了2路和16路bank冲突的示例。</p>
+<p>这里，没有两个线程同时访问同一个内存 bank。这是理想的。图 7-5 显示了 2 路和 16 路 bank 冲突的示例。</p>
 <blockquote>
 <p>Here, no two threads access the same memory bank at the same time. This is ideal. Figure 7-5 shows examples of 2-way and 16-way bank conflicts.</p>
 </blockquote>
@@ -2476,23 +2476,23 @@
 <blockquote>
 <p>Figure 7-5. 2-way and 16-way bank conflicts</p>
 </blockquote>
-<p>这里，多个线程正在访问同一个内存bank，这将导致冲突并影响性能。bank冲突的一个典型示例是使用32 x 32共享内存分块的朴素矩阵转置。如果32个线程每个读取<code>tile[i][threadIdx.x]</code>，使得同一列索引（<code>threadIdx.x</code>）跨不同行（i）被读取，线程束中的所有32个线程将每个访问位于同一共享内存bank中的内存地址，导致32路bank冲突。</p>
+<p>这里，多个线程正在访问同一个内存 bank，这会造成冲突并影响性能。bank 冲突的一个经典例子是使用 32 × 32 共享内存瓦片的朴素矩阵转置。如果 32 个线程各自读取 tile[i][threadIdx.x]，使得同一个列索引（threadIdx.x）在不同行（i）之间被读取，那么这个 warp 中的全部 32 个线程各自访问的内存地址都落在同一个共享内存 bank 中，造成 32 路 bank 冲突。</p>
 <blockquote>
 <p>Here, multiple threads are accessing the same memory bank, which will cause conflicts and impact performance. A classic example of bank conflicts is a naive matrix transpose using a 32 x 32 shared-memory tile. If 32 threads each read tile[i][threadIdx.x], such that the same column index (threadIdx.x) is read across different rows (i), all 32 threads in a warp will each access a memory address located in the same shared-memory bank, resulting in a 32-way bank conflict.</p>
 </blockquote>
-<p>具体来说，在矩阵转置期间，您通过保持列索引不变（<code>threadIdx.x</code>）并跨线程变化行索引（i）来读取行主序分块的同一列。由于每行在内存中相隔128字节（32列 x 每列4字节 = 128字节），访问的内存地址将相差精确的128字节倍数。</p>
+<p>具体来说，在矩阵转置期间，您通过保持列索引不变（<code>threadIdx.x</code>）并跨线程变化行索引（i）来读取行主序分块的同一列。由于每行在内存中相隔 128 字节（32 列 x 每列 4 字节 = 128 字节），访问的内存地址将相差精确的 128 字节倍数。</p>
 <blockquote>
 <p>Specifically, during a matrix transpose, you read the same column of a row-major tile by keeping the column index constant (threadIdx.x) and varying the row index (i) across threads. Since each row is separated in memory by 128 bytes (32 columns x 4 bytes per column = 128 bytes), the memory addresses accessed will differ by exactly 128-byte multiples.</p>
 </blockquote>
-<p>记住，地址到bank的映射每128字节重复一次，因为有32个bank，每个bank宽度为4字节（每次访问）。因此，访问偏移128字节的内存地址将总是落回bank 0--因此产生完整的32路bank冲突。</p>
+<p>请记住，由于有 32 个 bank、bank 宽度为 4 字节（每次访问），地址到 bank 的映射每 128 字节重复一次。因此，访问相差 128 字节的内存地址总会落回 bank 0——于是产生了完整的 32 路 bank 冲突。</p>
 <blockquote>
 <p>Remember that the address-to-bank mapping repeats every 128 bytes because there are 32 banks, each 4 bytes wide (per access). Therefore, accessing memory addresses offset by 128 bytes will always fall back to bank 0-and thus produce a full 32-way bank conflict.</p>
 </blockquote>
-<p>有一个值得注意的例外：如果线程束中的所有32个线程访问同一内存bank中的完全相同地址，硬件将在单个周期内将该值广播到所有线程。这避免了bank冲突。任何其他两个或多个不同内存地址访问同一bank的情况都会导致bank冲突并使内存访问串行化。</p>
+<p>有一个值得注意的例外：如果一个 warp 中的全部 32 个线程访问同一个内存 bank 中的完全相同的地址，硬件会在单个周期内把该值广播（broadcast）给所有线程。这就避免了 bank 冲突。任何其他情形——即两个或更多不同的内存地址访问同一个 bank——都会造成 bank 冲突并使内存访问串行化。</p>
 <blockquote>
 <p>There is one exception worth noting: If all 32 threads in a warp access the exact same address in the same memory bank, the hardware will broadcast the value to all threads in a single cycle. This avoids the bank conflict. Any other scenario in which two or more different memory addresses are accessing the same bank will cause a bank conflict and serialize the memory accesses.</p>
 </blockquote>
-<p>另一个常见的陷阱是使用等于内存bank数量的跨步，在这种情况下是32。例如，如果您的索引跨步正好是32个float，每个4字节，那么每个线程的地址最终相差128字节的倍数。在这种情况下，所有线程映射到bank 0，如下代码所示：</p>
+<p>另一个常见陷阱是使用等于内存 bank 数量（这里是 32）的步长。例如，如果你以恰好 32 个 float（每个 4 字节）为步长来访问索引，那么每个线程的地址最终会相差 128 字节的倍数。在这种情况下，所有线程都映射到 bank 0，如以下代码所示：</p>
 <blockquote>
 <p>Another common pitfall is using a stride equal to the number of memory banks, in this case 32. For example, if your index strides exactly 32 floats, each 4 bytes, then each thread's address ends up differing by multiples of 128 bytes. In this case, all threads map to bank 0, as shown in the following code:</p>
 </blockquote>
@@ -2503,23 +2503,23 @@
 </span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1">// Each thread reads from arr[threadIdx.x * 32]</span>
 </span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="kt">float</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">arr</span><span class="p">[</span><span class="n">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">32</span><span class="p">];</span>
 </span></code></pre></div>
-<p>这里，float中的<code>threadIdx.x * 32</code>变为<code>(threadIdx.x * 32 * 4)</code>字节。因为32 * 4 = 128，每个线程的内存加载地址是<code>threadIdx.x * 128</code>字节。而<code>threadIdx.x * 128 mod 128 = 0</code>对于所有线程。它们都同时命中bank 0，创建32路bank冲突。</p>
+<p>这里，float 中的<code>threadIdx.x * 32</code>变为<code>(threadIdx.x * 32 * 4)</code>字节。因为 32 * 4 = 128，每个线程的内存加载地址是<code>threadIdx.x * 128</code>字节。而<code>threadIdx.x * 128 mod 128 = 0</code>对于所有线程。它们都同时命中 bank 0，创建 32 路 bank 冲突。</p>
 <blockquote>
 <p>Here, threadIdx.x * 32 in floats becomes (threadIdx.x * 32 * 4) bytes. Since 32 * 4 = 128, each thread's memory load address is threadIdx.x * 128 bytes. And threadIdx.x * 128 mod 128 = 0 for all threads. They all hit bank 0 at the same time, creating a 32-way bank conflict.</p>
 </blockquote>
-<p>当这种情况发生时，硬件必须将本应是32个并行读取的操作串行化为一系列单bank访问。在Nsight Compute（共享内存部分）中，您会看到bank冲突计数增加，共享内存效率降低。同时，共享内存吞吐量只是其预期带宽的一小部分。在Nsight Systems中，您会看到线程束在等待长时间的bank冲突停顿，而不是做有用的工作。</p>
+<p>当这种情况发生时，硬件必须把本应是 32 次并行读取的操作串行化为一系列单 bank 访问。在 Nsight Compute（Shared Memory 部分）中，你会看到 bank 冲突计数增加、共享内存效率降低。与此同时，共享内存吞吐只是其预期带宽的一小部分。在 Nsight Systems 中，你会看到 warp 因长时间的 bank 冲突停顿而等待，而不是在做有用的工作。</p>
 <blockquote>
 <p>When this happens, the hardware must serialize what should have been 32 parallel reads into a sequence of single-bank accesses. In Nsight Compute (Shared Memory section), you'll see bank-conflict counts increase and shared memory efficiency decrease. Meanwhile, shared memory throughput is only a fraction of its expected bandwidth. In Nsight Systems, you'll see warps stalled for long periods on bank conflicts instead of doing useful work.</p>
 </blockquote>
-<p>Bank冲突强制本应并行的片上共享内存访问一个接一个地重放，消除了您期望从缓冲获得的任何加速，并往往产生令人失望的、低于预期的性能。如果您的内核没有按预期加速，bank冲突是一个可能的原因。</p>
+<p>Bank 冲突强制本应并行的片上共享内存访问一个接一个地重放，消除了您期望从缓冲获得的任何加速，并往往产生令人失望的、低于预期的性能。如果您的核函数没有按预期加速，bank 冲突是一个可能的原因。</p>
 <blockquote>
 <p>Bank conflicts force what should have been parallel on-chip shared-memory accesses to replay one after another, wiping out any speedup you expected from buffering and often resulting in disappointing, lower-than-expected performance. If your kernel is not accelerating as expected, bank conflicts are a likely culprit.</p>
 </blockquote>
-<p>始终选择您的跨步和数据布局，使同一线程束中的线程命中不同的bank，避免那种串行化瓶颈。</p>
+<p>始终选择你的步长和数据布局，让同一个 warp 中的线程命中不同的 bank，从而避免那个串行化瓶颈。</p>
 <blockquote>
 <p>Always choose your stride and data layout so that threads in the same warp hit different banks and avoid that serializing bottleneck.</p>
 </blockquote>
-<p>解决方案是调整共享内存中的数据布局以避免冲突。一种常见的技术是填充共享数组，使每行或每个内存访问模式映射到不同的bank。例如，如果您有一个32 x 32的共享分块，您可以通过添加一个额外的填充列将其声明为<code>[32][33]</code>，使每行现在占用33个float。这个额外的1元素偏移意味着当线程束的线程k访问<code>tile[i][k]</code>时，连续行从跨共享内存bank偏移的地址开始。这使所有线程不会命中同一个bank，如图7-6所示。</p>
+<p>解决办法是调整共享内存中的数据布局以避免冲突。一种常见技术是对共享数组进行<em>填充</em>（padding），使每一行、或每一种内存访问模式映射到不同的 bank。例如，如果你有一个 32 × 32 的共享瓦片，你可以通过增加一个额外的填充列，把它声明为 [32][33]，这样每一行现在占据 33 个 float。这额外的 1 个元素偏移意味着，当一个 warp 的线程 k 访问 tile[i][k] 时，连续的行会从跨越不同共享内存 bank 的地址开始。这就使所有线程不再命中同一个 bank，如图 7-6 所示。</p>
 <blockquote>
 <p>A common technique is padding shared arrays so that each row, or each memory-access pattern, maps to different banks. For instance, if you have a 32 x 32 shared tile, you can declare it as [32][33] by adding one extra padding column so that each row now occupies 33 floats. This extra 1-element offset means that when thread k of a warp accesses tile[i][k], successive rows start at addresses that shift across shared-memory banks. This keeps all threads from hitting the same bank, as shown in Figure 7-6.</p>
 </blockquote>
@@ -2527,19 +2527,19 @@
 <blockquote>
 <p>Figure 7-6. Avoiding bank conflicts with padding</p>
 </blockquote>
-<p>通过将跨步更改为33，线程束中没有两个线程在访问给定列时会争用同一个bank。这消除了本应是32路bank冲突的情况。</p>
+<p>通过把步长改为 33，一个 warp 中没有任何两个线程在访问某一给定列时会争用同一个 bank。这消除了本会发生的 32 路 bank 冲突。</p>
 <blockquote>
 <p>By changing the stride to 33, no two threads in a warp will contend for the same bank when accessing a given column. This eliminates what would have been a 32-way bank conflict.</p>
 </blockquote>
-<p>填充增加了可忽略的开销，对于32宽的分块约3%的内存增加，但它完全消除了冲突，这极大地提高了性能。记住Blackwell每SM有&gt; 200 KB共享内存。3%的内存开销对于32 x 32分块只有1 KB。这值得性能提升。</p>
+<p>填充增加了可忽略的开销，对于 32 宽的分块约 3%的内存增加，但它完全消除了冲突，这极大地提高了性能。记住 Blackwell 每 SM 有&gt; 200 KB 共享内存。3%的内存开销对于 32 x 32 分块只有 1 KB。这值得性能提升。</p>
 <blockquote>
 <p>Padding adds negligible overhead, about 3% more memory for a 32-wide tile, but it completely eliminates conflicts, which dramatically improves performance. Remember that Blackwell has &gt; 200 KB shared memory per SM. A 3% memory overhead for a 32 x 32 tile is only 1 KB. This is well worth the performance gain.</p>
 </blockquote>
-<p>让我们展示一个为简单转置内核移除共享内存bank冲突的示例。在这个示例中，每个线程访问与其他线程落入同一共享内存bank的共享内存地址。这导致内存访问串行化，阻止并行性，并显示缓慢的性能。以下是产生bank冲突的转置内核的朴素实现。</p>
+<p>让我们展示一个为简单转置核函数移除共享内存 bank 冲突的示例。在这个示例中，每个线程访问与其他线程落入同一共享内存 bank 的共享内存地址。这导致内存访问串行化，阻止并行性，并显示缓慢的性能。以下是产生 bank 冲突的转置核函数的朴素实现。</p>
 <blockquote>
 <p>Let's demonstrate removing shared-memory bank conflicts for a simple transpose kernel. In this example, each thread accesses a shared-memory address that falls into the same shared-memory bank as other threads. This causes memory access serialization, prevents parallelism, and shows slow performance. Following is the naive implementation of a transpose kernel that produces bank conflicts.</p>
 </blockquote>
-<p><strong>优化前示例（C++）：有bank冲突的朴素转置</strong>：</p>
+<p><strong>优化前示例（C++）：有 bank 冲突的朴素转置</strong>：</p>
 <blockquote>
 <p>Before example (C++): naive transpose with bank conflicts:</p>
 </blockquote>
@@ -2586,23 +2586,23 @@
 </span><span id="__span-15-41"><a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-15-42"><a id="__codelineno-15-42" name="__codelineno-15-42" href="#__codelineno-15-42"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>在这个内核中，分块写入共享内存是行主序的（<code>tile[ty][tx]</code>），因此是合并的，使每个线程束以连续方式将完整的32个float行写入共享内存。（注意：使用列主序<code>tile[tx][ty]</code>将分块写入共享内存会使线程束跨步128字节并触发32路bank冲突。）相比之下，分块读取是转置的，因为每个线程读取一个值，其中<code>threadIdx.y</code>是行索引，<code>threadIdx.x</code>是列索引。</p>
+<p>在这个核函数中，写入共享内存的瓦片写操作是行主序的（tile[ty][tx]），因此是合并的，使得每个 warp 以连续方式把一整行 32 个 float 写入共享内存。（注：以列主序 tile[tx][ty] 写入瓦片到共享内存会使 warp 以 128 字节为步长，并触发 32 路 bank 冲突。）相比之下，瓦片的读操作是转置的，因为每个线程读取的值中 threadIdx.y 是行索引、threadIdx.x 是列索引。</p>
 <blockquote>
 <p>In this kernel, the tile write into shared memory is row-major (tile[ty][tx]) and therefore coalesced such that each warp writes a full row of 32 floats to shared memory in a contiguous manner. (Note: Writing the tile to shared memory with column-major tile[tx][ty] would make the warp stride by 128 bytes and trigger a 32-way bank conflict.) In contrast, the tile read is transposed since each thread reads a value where threadIdx.y is the row index and threadIdx.x is the column index.</p>
 </blockquote>
-<p>因此，对于给定的线程束，固定的<code>threadIdx.y</code>跨线程0-31，所有线程访问<code>tile[constant_row][varying_col]</code>，意味着同一行索引跨不同列使用。这意味着所有32个地址都在分块数组的同一行中，该行占用单个内存bank段并导致32路bank冲突。因此，这些读取被串行化32倍。</p>
+<p>因此，对于一个给定的 warp，若各线程的 threadIdx.y 固定、跨越线程 0–31，那么所有线程访问的都是 tile[constant<em>row][varying</em>col]，也就是在不同的列上使用同一个行索引。这意味着这 32 个地址全部落在 tile 数组的同一行内，而该行占据单个内存 bank 段，从而引发一次 32 路 bank 冲突（bank conflict）。结果，这些读取被序列化，速度降为原来的 1/32。</p>
 <blockquote>
 <p>As such, for a given warp, fixed threadIdx.y across threads 0-31, all threads access tile[constant<em>row][varying</em>col], meaning the same row index is used across different columns. This means all 32 addresses are in the same row of the tile array, which occupies a single memory bank segment and causes a 32-way bank conflict. As a result, those reads are serialized by a factor of 32.</p>
 </blockquote>
-<p>请记住，Blackwell的共享内存有32个bank。这个数字正好与线程束中的线程数量32相匹配。因此，如果所有线程索引到同一个bank（当您固定行并改变列时会发生这种情况），您将始终获得完整的32路冲突。这种一对一对应意味着在线程束粒度上的任何未对齐访问模式都将强制每个线程串行化通过同一个bank——无论GPU的架构进步如何。</p>
+<p>请记住，Blackwell 的共享内存有 32 个 bank。这个数字恰好等于一个 warp 中的线程数 32。因此，如果所有线程都索引到同一个 bank——正如固定行、变化列时所发生的那样——你总会得到一次完整的 32 路冲突。这种一一对应关系意味着：在 warp 粒度上任何未对齐的访问模式，都会迫使每个线程串行地通过同一个 bank——无论 GPU 架构如何演进都是如此。</p>
 <blockquote>
 <p>Remember that Blackwell's shared memory has 32 banks. This number exactly matches the number of threads in a warp, 32. So if all threads index into the same bank, as happens when you fix the row and vary the column, you will always get a full 32-way conflict. This one-to-one correspondence means any misaligned access pattern at warp granularity will force every thread to serialize through the same bank-regardless of the GPU's architectural advancements.</p>
 </blockquote>
-<p>在这种情况下，32个线程尝试从32个不同的地址读取，全部在bank 0中。这导致内存访问的严重串行化和糟糕的性能。让我们应用填充来消除冲突。</p>
+<p>在这种情况下，32 个线程试图从 32 个不同的地址读取，而这些地址全都在 bank 0 中。这导致内存访问被严重序列化、性能低下。下面我们应用填充（padding）来消除这些冲突。</p>
 <blockquote>
 <p>In this case, 32 threads attempt to read from 32 different addresses, all in bank 0. This results in heavy serialization of memory accesses and poor performance. Let's apply padding to remove the conflicts.</p>
 </blockquote>
-<p><strong>优化后示例（C++）：填充转置（避免bank冲突）</strong>。这里，我们添加一个小填充，一个额外的未使用列，使共享内存的每行以不同的bank模数开始。这样，bank索引冲突被偏移消除：</p>
+<p><em>后例（CUDA C++）：带填充的转置（避免 bank 冲突）</em>。这里我们加入一小段填充，即一个额外的、未使用的列，使共享内存的每一行都从不同的 bank 取模值开始。这样，bank 索引冲突就被这个偏移量消除了：</p>
 <blockquote>
 <p>After example (C++): padded transpose (avoiding bank conflicts). Here, we add a small padding, one extra unused column, so that each row of shared memory starts at a different bank modulus. This way, bank index conflicts are eliminated by the offset:</p>
 </blockquote>
@@ -2629,19 +2629,19 @@
 <blockquote>
 <p>(The host code and setup are the same as in the naive version and omitted for brevity.)</p>
 </blockquote>
-<p>PyTorch本身不暴露任何用于共享内存填充的高级API，因此您必须在CUDA内核中手动实现这些，并使用torch.utils.cpp_extension加载它们。然而，在实践中，PyTorch依赖于像cuDNN和cuBLAS这样的优化库，它们在底层实现了避免bank冲突和最大化吞吐量的技术。</p>
+<p>PyTorch 本身并不暴露任何用于共享内存填充的高层 API，因此你必须在 CUDA 核函数中手动实现，并用 torch.utils.cpp_extension 加载它们。不过在实践中，PyTorch 依赖 cuDNN 和 cuBLAS 等优化过的库，这些库在底层实现了各种技术来避免 bank 冲突并最大化吞吐。</p>
 <blockquote>
 <p>PyTorch itself doesn't expose any high-level APIs for shared-memory padding, so you would have to implement those manually in CUDA kernels and load them with torch.utils.cpp_extension). However, in practice, PyTorch relies on optimized libraries like cuDNN and cuBLAS, which implement techniques under the hood to avoid bank conflicts and maximize throughput.</p>
 </blockquote>
-<p>填充每个共享内存行为一个额外元素使每行长度为33个float。填充1改变了索引数学，使<code>tile[row][col]</code>地址在每个线程的低5位不同，而不是所有线程共享相同的5位bank索引。这确保每个线程索引映射到不同的bank。</p>
+<p>给每一行共享内存填充一个额外元素，会让每行变成 33 个 float。填充 1 会改变索引运算，使得 tile[row][col] 的地址在每个线程的低 5 位上各不相同，而不再是所有线程共享同一个 5 位 bank 索引。这确保了每个线程索引都映射到不同的 bank。</p>
 <blockquote>
 <p>Padding each shared-memory row with an extra element makes each row 33 floats long. Padding by 1 changes the indexing math so that tile[row][col] addresses differ in the lower 5 bits for each thread, rather than all threads sharing the same 5-bit bank index. This ensures each thread index maps to a different bank.</p>
 </blockquote>
-<p>在填充内核中，当线程束读取<code>tile[threadIdx.y][threadIdx.x]</code>时，线程0-31的地址跨越多个bank，而不是全部命中bank 0。现在线程束中的每个线程在读取时访问不同的bank，bank冲突完全消除，如表7-5所示。</p>
+<p>在带填充的核函数中，当一个 warp 读取 tile[threadIdx.y][threadIdx.x] 时，线程 0–31 的地址会跨越多个 bank，而不再全部命中 bank 0。既然 warp 中的每个线程在读取时都访问不同的 bank，bank 冲突就被彻底消除了，如表 7-5 所示。</p>
 <blockquote>
 <p>In the padded kernel, when a warp reads tile[threadIdx.y][threadIdx.x], the addresses for threads 0-31 span multiple banks rather than all hitting bank 0. Now that each thread in the warp accesses distinct banks on reads, bank conflicts are eliminated entirely, as shown in Table 7-5.</p>
 </blockquote>
-<p><strong>表7-5 消除共享内存bank冲突的效果</strong></p>
+<p><strong>表 7-5 消除共享内存 bank 冲突的效果</strong></p>
 <table>
 <thead>
 <tr>
@@ -2652,8 +2652,8 @@
 </thead>
 <tbody>
 <tr>
-<td>共享内存加载bank冲突</td>
-<td>480万</td>
+<td>共享内存加载 bank 冲突</td>
+<td>480 万</td>
 <td>0</td>
 </tr>
 <tr>
@@ -2662,14 +2662,14 @@
 <td>100%</td>
 </tr>
 <tr>
-<td>线程束停顿比例（内存）</td>
+<td>warp 停顿比例（内存）</td>
 <td>38%</td>
 <td>0.5%</td>
 </tr>
 <tr>
-<td>内核执行时间（ms）</td>
+<td>核函数执行时间（ms）</td>
 <td>4 ms</td>
-<td>1.3 ms（3倍改进）</td>
+<td>1.3 ms（3 倍改进）</td>
 </tr>
 </tbody>
 </table>
@@ -2707,31 +2707,31 @@
 </tr>
 </tbody>
 </table>
-<p>表7-5中的Nsight Compute指标确认了影响：共享内存加载bank冲突降至0。根据Nsight Compute，共享内存吞吐量在消除冲突后从52%上升到100%。线程束停顿比例（线程束在共享内存读取上停顿的周期百分比）从约38%下降到接近0%。</p>
+<p>表 7-5 中的 Nsight Compute 指标印证了这一影响：共享内存加载 bank 冲突降到了 0。根据 Nsight Compute，消除冲突后共享内存吞吐从 52% 上升到 100%。warp 停顿占比——即 warp 因等待共享内存读取而停顿的周期百分比——从约 38% 降到接近 0%。</p>
 <blockquote>
 <p>The Nsight Compute metrics in Table 7-5 confirm the impact: shared-memory load bank conflicts dropped to 0. Shared memory throughput, according to Nsight Compute, rose from 52% to 100% after eliminating conflicts. The warp stall fraction, the percentage of cycles warps spend stalled on shared-memory reads, dropped from ~38% to near 0%.</p>
 </blockquote>
-<p>这里，我们成功消除了bank冲突并解锁了片上共享内存的全部性能。此更改将内核执行时间从4 ms提高到1.3 ms约3倍，因为共享内存访问从串行化变为完全并行。</p>
+<p>至此，我们成功消除了 bank 冲突，释放出片上共享内存的全部性能。由于共享内存访问从序列化变为完全并行，这一改动把核函数的执行时间从 4 ms 缩短到 1.3 ms，提升了约 3 倍。</p>
 <blockquote>
 <p>Here, we have successfully eliminated bank conflicts and unlocked the full performance of the on-chip shared memory. This change improved the kernel's execution time by about 3x from 4 ms to 1.3 ms since shared-memory accesses went from serialized to fully parallel.</p>
 </blockquote>
-<p>这恢复了共享内存访问的完全并行性。填充的成本，每32个float额外1个，与性能增益相比是微不足道的（约3%内存开销）。</p>
+<p>这恢复了共享内存访问的完全并行性。填充的代价——每 32 个 float 多出 1 个——微不足道（约 3% 的内存开销），相比之下所获得的性能收益相当可观。</p>
 <blockquote>
 <p>This restores full parallelism for the shared-memory accesses. The cost of padding, 1 extra float per 32, is trivial (~3% memory overhead) compared to the performance gain.</p>
 </blockquote>
-<p>填充的一个有效替代方案是swizzling。Swizzling是一种编译时索引转换，"打乱"用于共享内存的线性索引，使连续线程映射到不同的bank。例如，可以将索引与位掩码进行XOR运算或使用模偏移来实现无冲突模式。</p>
+<p>除了填充之外，还有一种有效的替代方案是<em>混洗</em>（swizzling）。混洗是一种编译期的索引变换，它把用于共享内存的线性索引"打乱"，使相邻的线程映射到不同的 bank。例如，可以把索引与一个位掩码做 XOR，或使用一个取模偏移，来实现无冲突的访问模式。</p>
 <blockquote>
 <p>An effective alternative to padding is swizzling. Swizzling is a compile-time index transformation that "scrambles" the linear index used for shared memory so that sequential threads map to different banks. For example, one can XOR the index with a bit mask or use a modulo offset to achieve a conflict-free pattern.</p>
 </blockquote>
-<p>Swizzling避免了填充的轻微内存开销，同时仍然确保完美的bank并行性。填充实现起来更简单，但swizzling可以在零内存开销的情况下实现相同的目标--而且说起来很有趣！</p>
+<p>混洗在保证完美 bank 并行的同时，避免了填充带来的那一点点内存开销。填充实现起来更简单，但混洗能以零内存开销达到同样的目标——而且这个词念起来也挺有意思！</p>
 <blockquote>
 <p>Swizzling avoids the slight memory overhead of padding while still ensuring perfect bank parallelism. Padding is simpler to implement, but swizzling can achieve the same goal with zero memory overhead-and it's fun to say!</p>
 </blockquote>
-<p>NVIDIA的CUTLASS库和其他高性能基于CUDA的库在其tile迭代器中使用索引swizzling，以确保线程映射到不同的bank，避免bank冲突，并优化共享内存使用。</p>
+<p>NVIDIA 的 CUTLASS 库以及其他高性能的基于 CUDA 的库，会在其瓦片迭代器中使用索引混洗，以确保线程映射到各自独立的 bank、避免 bank 冲突并优化共享内存的使用。</p>
 <blockquote>
 <p>NVIDIA's CUTLASS library and other high-performance CUDA-based libraries use index swizzling in their tile iterators to ensure threads map to separate banks, avoid bank conflicts, and optimize shared-memory usage.</p>
 </blockquote>
-<p>总之，当使用共享内存时，重要的是让线程束中的线程并行访问不同的内存bank，而不是在同一个bank上排队。填充和swizzling等技术提高了共享内存加载/存储效率，每当使用共享内存时都能产生更高的吞吐量和更好的性能。</p>
+<p>总之，在使用共享内存时，重要的是让一个 warp 中的线程并行访问不同的内存 bank，而不是在同一个 bank 上排队。填充和混洗这类技术能提升共享内存加载/存储效率，只要用到共享内存，就能带来更高的吞吐和更好的性能。</p>
 <blockquote>
 <p>In summary, when using shared memory, it's important that threads in a warp access different memory banks in parallel rather than queueing up on the same bank. Techniques like padding and swizzling improve shared-memory load/store efficiency, yielding higher throughput and better performance whenever shared memory is used.</p>
 </blockquote>
@@ -2739,24 +2739,24 @@
 <blockquote>
 <p>Next, let's explore a technique that avoids shared memory entirely and communicates directly between threads.</p>
 </blockquote>
-<h2 id="75-warp-shuffle-intrinsics-avoid-shared-memory-and-explicit-synchronization">7.5 线程束洗牌内建函数：避免共享内存和显式同步 (Warp Shuffle Intrinsics: Avoid Shared Memory and Explicit Synchronization)<a class="headerlink" href="#75-warp-shuffle-intrinsics-avoid-shared-memory-and-explicit-synchronization" title="Permanent link">&para;</a></h2>
-<p>前面避免bank冲突的技术假设我们使用共享内存进行线程间通信。但如果我们能完全避免共享内存--及其bank冲突问题呢？</p>
+<h2 id="75-warp-warp-shuffle-intrinsics-avoid-shared-memory-and-explicit-synchronization">7.5 warp 洗牌内建函数：避免共享内存和显式同步 (Warp Shuffle Intrinsics: Avoid Shared Memory and Explicit Synchronization)<a class="headerlink" href="#75-warp-warp-shuffle-intrinsics-avoid-shared-memory-and-explicit-synchronization" title="Permanent link">&para;</a></h2>
+<p>前面这种避免 bank 冲突的技术，假设我们使用共享内存在线程之间通信。但如果我们能够彻底避开共享内存——以及它带来的 bank 冲突问题——又会怎样呢？</p>
 <blockquote>
 <p>The preceding avoiding-bank-conflicts technique assumes that we use shared memory for communication between threads. But what if we could avoid shared memory altogether-and its bank conflict issues?</p>
 </blockquote>
-<p>NVIDIA GPU支持线程束同步原语，允许同一线程束中的线程通过寄存器而不是共享内存交换数据。事实上，这些原语只在单个线程束内工作，使线程与其31个兄弟线程交换数据。因此，此线程束内通信不涉及内存bank--因此不可能发生bank冲突。</p>
+<p>NVIDIA GPU 支持 warp 同步原语，允许同一个 warp 中的线程通过寄存器而不是共享内存来交换数据。事实上，这些原语只在单个 warp 内工作，线程与它的 31 个同胞交换数据。因此这种 warp 内通信不涉及任何内存 bank——也就不可能出现 bank 冲突。</p>
 <blockquote>
 <p>NVIDIA GPUs support warp-synchronous primitives that allow threads in the same warp to exchange data through registers instead of shared memory. In fact, these primitives work only within a single warp such that threads exchange data with their 31 siblings. So no memory banks are involved for this intrawarp communication-and therefore no bank conflicts are possible.</p>
 </blockquote>
-<p>最常见的是<code>__shfl_sync</code>内建函数（shuffle）。<code>__shfl_sync</code>让您将一个值从一个线程广播到线程束中的所有其他线程。您还可以执行线程束级别的归约，而无需将数据写入共享内存。记住，这些内建函数让线程通过寄存器（而不是共享内存）交换值，这完全消除了共享内存bank冲突。</p>
+<p>其中最常见的是 <strong>__shfl_sync 内建函数（shuffle）。</strong>__shfl_sync 让你可以把一个线程的值广播（broadcast）给 warp 中的所有其他线程。你还可以在完全不写入共享内存的情况下执行 warp 级归约（reduction）。请记住，这些内建函数让线程通过寄存器（而非共享内存）交换数据，从而彻底消除了共享内存 bank 冲突。</p>
 <blockquote>
 <p>The most common are the __shfl<em>sync intrinsics (shuffle). __shfl</em>sync lets you broadcast a value from one thread to all other threads in a warp. You can also perform warp-level reductions without ever writing to shared memory. And remember that these intrinsics let threads exchange values through registers (instead of shared memory), which completely eliminates shared-memory bank conflicts.</p>
 </blockquote>
-<p>现代GPU会自动广播单个共享内存值，如果所有线程访问完全相同的内存地址。这将在这个特殊的单地址情况下避免bank冲突。另一方面，线程束shuffle使用广播来避免更一般的、任意的多值数据访问模式的bank问题。</p>
+<p>如果所有线程访问的都是完全相同的内存地址，现代 GPU 会自动广播这一个共享内存值。在这种特殊的单地址情形下，这可以避免一次 bank 冲突。而 warp shuffle 则是利用广播，来避免更一般的、任意的、多值数据访问模式下的 bank 问题。</p>
 <blockquote>
 <p>Modern GPUs will automatically broadcast a single shared-memory value if all threads access the exact same memory address. This will avoid a bank conflict in this special, single-address case. Warp shuffles, on the other hand, use broadcasting to avoid bank issues for the more general, arbitrary, multivalue pattern of data access.</p>
 </blockquote>
-<p>想象您需要在单个线程束内对32个每线程部分结果求和。朴素的共享内存方法会让每个线程将其值写入共享数组，调用同步屏障，然后读取并累加所有32个条目。这有bank冲突的风险并增加额外的同步开销。</p>
+<p>设想你需要在单个 warp 内对 32 个每线程的部分结果求和。朴素的共享内存做法会让每个线程把自己的值写入一个共享数组，调用一次同步屏障，然后读取并累加全部 32 个条目。这既有 bank 冲突的风险，又增加了额外的同步开销。</p>
 <blockquote>
 <p>Imagine you need to sum the 32 per-thread partial results within a single warp. The naive shared-memory approach would have each thread write its value into a shared array, call a synchronization barrier, and then read and accumulate all 32 entries. This risks bank conflicts and adds additional synchronization overhead.</p>
 </blockquote>
@@ -2776,64 +2776,64 @@
 </span><span id="__span-17-10"><a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
 </span><span id="__span-17-11"><a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="c1">// After the loop, lane 0 holds the warp's total sum</span>
 </span></code></pre></div>
-<p>这里，每个<code>__shfl_down_sync</code>直接读取另一个通道的寄存器，每步将活动线程减半，直到通道0累加完整的总和。因为所有通信都停留在寄存器中，没有共享内存流量，因此零bank冲突或额外同步。</p>
+<p>在这里，每次 __<em>shfl</em>down_sync 都直接读取另一个通道的寄存器，每一步都把活跃线程数减半，直到通道 0 累加出完整的总和。由于所有通信都停留在寄存器中，没有共享内存流量，因此零 bank 冲突、也无需额外同步。</p>
 <blockquote>
 <p>Here, each __shfl<em>down</em>sync directly reads another lane's register, halving the active threads each step, until lane 0 accumulates the full sum. Because all communication stays in registers, there's no shared-memory traffic and thus zero bank conflicts or extra synchronizations.</p>
 </blockquote>
-<p>总之，<code>__shfl_sync</code>及其变体完全在线程束的执行通道内执行操作。这避免了bank冲突，因为没有使用共享内存。而且它通常更快，因为它使用寄存器并减少了共享内存指令的数量。</p>
+<p>简而言之，__<em>shfl</em>sync 及其变体完全在 warp 的执行通道内完成操作。这避免了 bank 冲突，因为根本不使用共享内存。而且它通常更快，因为它使用寄存器并减少了共享内存指令的数量。</p>
 <blockquote>
 <p>In short, __shfl_sync and its variants perform operations entirely within the warp's execution lanes. This avoids bank conflicts because no shared memory is used. And it's often faster since it uses registers and cuts down on the number of shared-memory instructions.</p>
 </blockquote>
-<p>许多高性能线程束级别归约通过使用shuffle内建函数完全绕过共享内存，这些内建函数只需几条指令就通过寄存器直接交换值，并且不会产生bank冲突。CUDA的协作组API构建在这些原语之上。此API提供类似<code>thread_group.shuffle()</code>的调用来简化线程束内通信。辅助内建函数如<code>__reduce_sync()</code>最终编译为这些shuffle模式，用于现代NVIDIA GPU上的线程束内数据交换。</p>
+<p>许多高性能的 warp 级归约完全绕开共享内存，转而使用 shuffle 内建函数——它们仅用寥寥几条指令就通过寄存器直接交换值，且不产生任何 bank 冲突。CUDA 的 Cooperative Groups API 正是构建在这些原语之上。该 API 提供了 thread<em>group.shuffle() 这样的调用来简化 warp 内通信。像 __</em>reduce_sync() 这样的辅助内建函数，最终在现代 NVIDIA GPU 上会被编译为这些 shuffle 模式，用于 warp 内的数据交换。</p>
 <blockquote>
 <p>Many high-performance warp-level reductions bypass shared memory entirely by using shuffle intrinsics, which exchange values directly through registers in just a few instructions and incur no bank conflicts. CUDA's Cooperative Groups API builds on these primitives. This API provides calls like thread<em>group.shuffle() to simplify intrawarp communication. Helper intrinsics like __reduce</em>sync() ultimately compile down to these shuffle patterns for intra-warp data exchange on modern NVIDIA GPUs.</p>
 </blockquote>
-<p>Shuffle仅限于单个线程束内。对于现代GPU架构上的线程束间交换，还可以考虑使用协作组进行线程块级别的归约，或在支持时使用线程块集群级别的通信。我们将在第10章讨论这些概念。</p>
+<p>Shuffle 仅在单个 warp 内工作。在现代 GPU 架构上进行 warp 间交换时，还可以考虑使用 cooperative groups 的线程块级归约，或在受支持时使用线程块簇（thread block cluster）级别的通信。我们将在第 10 章讨论这些概念。</p>
 <blockquote>
 <p>Shuffles work within a single warp only. For interwarp exchange on modern GPU architectures, also consider thread-block-wide reductions using cooperative groups or thread-block-cluster-level communication when supported. We will discuss these concepts in Chapter 10.</p>
 </blockquote>
-<p>然而，请记住，shuffle仅限于单个线程束内的32个线程。每当您需要跨线程束传递数据时，您仍然必须回退到共享或全局内存并进行适当的同步。</p>
+<p>不过请记住，shuffle 局限于单个 warp 内的这 32 个线程。每当你需要在 warp 之间传递数据时，仍然必须退回到共享内存或全局内存，并配合适当的同步。</p>
 <blockquote>
 <p>Remember, however, that shuffles are limited to the 32 threads within a single warp. Whenever you need to pass data across warps, you must still fall back on shared or global memory with proper synchronization.</p>
 </blockquote>
-<p>在第10章中，我们将探讨线程束间模式，如协作组（CG）同步原语、多线程束shuffle方法和线程块集群（CTA集群）。所有这些最终在底层使用相同的硬件内建函数。掌握线程束内和线程束间技术都很重要，因为与内存相关的瓶颈仍然是GPU性能问题最常见的原因之一。</p>
+<p>在第 10 章，我们会探讨 warp 间的模式，如 cooperative group（CG）同步原语、多 warp shuffle 方法，以及线程块簇（CTA cluster）。所有这些底层最终都使用同一套硬件内建函数。掌握 warp 内和 warp 间这两类技术都至关重要，因为与内存相关的瓶颈始终是 GPU 性能问题最常见的根源之一。</p>
 <blockquote>
 <p>In Chapter 10, we'll explore interwarp patterns like cooperative group (CG) synchronization primitives, multiwarp shuffle methods, and thread block clusters (CTA clusters). All of these ultimately use the same hardware intrinsics under the hood. Mastering both intrawarp and interwarp techniques is essential because memory-related bottlenecks remain one of the most common causes of GPU performance issues.</p>
 </blockquote>
 <h2 id="76-read-only-data-caches">7.6 只读数据缓存 (Read-Only Data Caches)<a class="headerlink" href="#76-read-only-data-caches" title="Permanent link">&para;</a></h2>
-<p>当所有线程读取相同的值或线程重复读取不会改变的数据时，未能使用GPU的缓存机制可能会成为性能瓶颈。例如，考虑一个大型查找表，例如在自然语言处理（NLP）模型中的嵌入向量，在推理期间是只读的。许多线程可能需要并行访问此向量。朴素的实现可能每次都从全局内存获取，即使数据是不可变的并且可以缓存在芯片上。</p>
+<p>当所有线程读取相同的值，或某个线程反复读取不会改变的数据时，如果不利用 GPU 的缓存机制，就会成为性能瓶颈。例如，考虑一个大型查找表，比如自然语言处理（natural language processing，NLP）模型中的嵌入向量，它在推理期间是只读的。许多线程可能需要并行访问这个向量。朴素的实现可能每次都从全局内存取数，尽管这些数据是不可变的、本可以缓存在片上。</p>
 <blockquote>
 <p>When all threads read the same values or a thread rereads data that does not change, failing to use the GPU's caching mechanisms can bottleneck performance. For example, consider a large lookup table such as an embedding vector in a natural language processing (NLP) model that is read-only during inference. Many threads might need to access this vector in parallel. A naive implementation might fetch from global memory each time, even though the data is immutable and could be cached on-chip.</p>
 </blockquote>
-<p>请注意，我们这里所说的只读缓存与之前GPU内存层次结构部分讨论的64 KB常量内存缓存不同。它是一个用于不可变数据的大型缓存。另一方面，常量内存缓存对于大型数组来说太小了。现代架构依赖于更大的L1/只读缓存来进行这类嵌入向量查找——而不是试图将这些数据塞进小的64 KB常量内存缓存中。</p>
+<p>请注意，我们这里所说的只读缓存，不同于前面在 GPU 内存层级一节讨论过的 64 KB 常量内存缓存。它是一个面向不可变数据的大容量缓存。而常量内存缓存对于大数组来说太小了。现代架构依赖更大的 L1/只读缓存来处理这类嵌入向量查找——而不是试图把这些数据硬塞进小小的 64 KB 常量内存缓存里。</p>
 <blockquote>
 <p>Note that the read-only cache we refer to here is different from the 64 KB constant memory cache discussed previously in the GPU memory hierarchy section. It's a large cache for immutable data. The constant memory cache, on the other hand, is too small for big arrays. Modern architectures rely on the larger L1/read-only cache for these types of embedding-vector lookups-rather than trying to squeeze this data into the small 64 KB constant memory cache.</p>
 </blockquote>
-<p>在现代GPU上，全局内存加载会自动缓存在L2中，通常也在L1中。您可以使用<code>const __restrict__</code>限定指针将函数参数定义为非一致性和以读取为主（而不是只读）。对于只读数据，当编译器能够证明不可变性、非别名性和安全性时，可能会通过此只读路径路由加载。这使编译器/硬件将不变的数据通过只读L1缓存路由，该缓存具有更低的延迟--特别是对于广播访问--并且不会驱逐其他缓存数据。</p>
+<p>在现代 GPU 上，全局内存加载会被自动缓存到 L2、且通常也会缓存到 L1。你可以使用 const <strong>restrict</strong> 限定的指针，把函数参数声明为非一致性的（non-coherent）、以读为主（read-mostly，相对于只读而言）。对于只读数据，当编译器能够证明其不可变性、无别名性和安全性时，它可以把加载路由到这条只读路径上。这让编译器/硬件能够把不变的数据经由只读 L1 缓存传送——该缓存延迟更低，尤其是对广播访问而言——而且不会驱逐其他已缓存的数据。</p>
 <blockquote>
 <p>On modern GPUs, global memory loads are automatically cached in L2 and often L1. You can use const <strong>restrict</strong> qualified pointers to define your function arguments as non-coherent and read-mostly (versus read-only). For read-only data, the compiler may route loads through this read-only path when it can prove immutability, nonaliasing, and safety. This lets the compiler/hardware route unchanging data through the read-only L1 cache, which has lower latency-especially for broadcast accesses-and doesn't evict other cached data.</p>
 </blockquote>
-<p>在现代CUDA中，您通常不需要显式调用<code>__ldg()</code>。如果指针是<code>const __restrict__</code>，编译器可以在提供安全性时为全局内存加载使用只读数据缓存。较旧的<code>__ldg()</code>内建函数仍然可用于显式控制，但在现代编译器中通常不需要。</p>
+<p>在现代 CUDA 中，你通常不需要显式调用 **ldg()。如果一个指针是 const <strong>restrict</strong>，当编译器能够保证安全时，它可能会为全局内存加载使用只读数据缓存。较老的 **ldg() 内建函数仍然可用于显式控制，但在现代编译器下一般并不需要。</p>
 <blockquote>
 <p>In modern CUDA, you usually don't need to call <code>__ldg()</code> explicitly. If a pointer is <code>const __restrict__</code>, the compiler may use the read-only data cache for global memory loads when it can provide safety. The older <code>__ldg()</code> intrinsic is still available for explicit control, but it's generally not needed with modern compilers.</p>
 </blockquote>
-<p>一个常见的性能陷阱是忘记告诉编译器缓冲区是真正只读的，这意味着它不会使用只读（非一致性）数据路径，也不会通过专门的只读缓存路由这些加载。相反，每次访问都变成普通的全局内存加载，导致冗余的DRAM流量和虚假的缓存未命中。</p>
+<p>一个常见的性能陷阱是忘记告诉编译器某个缓冲区确实是只读的，这意味着它不会使用只读（非一致性）数据路径，也不会把那些加载经由专门的只读缓存来路由。相反，每一次访问都变成一次普通的全局内存加载，导致冗余的 DRAM 流量和不必要的缓存未命中。</p>
 <blockquote>
 <p>A common performance pitfall is forgetting to tell the compiler that a buffer is truly read-only, which means it won't use the read-only (non-coherent) data path and won't route those loads through the specialized read-only cache. Instead, every access becomes a plain global memory load, resulting in redundant DRAM traffic and spurious cache misses.</p>
 </blockquote>
-<p>当您分析这样的内核时，您会发现相同的地址从片外内存重复获取，在指令流中看不到<code>__ldg()</code>操作，观察到该数组惊人的低L2命中率，并测量到类似于未缓存工作负载的DRAM吞吐量升高。</p>
+<p>当你剖析这样一个核函数时，你会发现相同的地址被反复从片外内存取回、在指令流中看不到任何 __ldg() 操作、观察到该数组出人意料地低的 L2 命中率，并测得偏高的 DRAM 吞吐——就像一个未缓存的工作负载。</p>
 <blockquote>
 <p>When you profile such a kernel, you'll spot the same addresses fetched repeatedly from off-chip memory, see no __ldg() operations in the instruction stream, observe a surprisingly low L2 hit rate for that array, and measure elevated DRAM throughput reminiscent of an uncached workload.</p>
 </blockquote>
-<p>解决方案是通过将数据标记为<code>const __restrict__</code>来利用只读路径，或者显式使用<code>__ldg()</code>内建函数来加载它。这告诉硬件数据不会被修改，允许它缓存在专门的只读缓存中，该缓存与L1并存，对广播加载具有更低的延迟。</p>
+<p>解决办法是通过把数据标记为 const <strong>restrict</strong>，或显式使用 __ldg() 内建函数来加载它，从而利用只读路径。这告诉硬件该数据不会被修改，允许它被缓存到专门的只读缓存中——该缓存紧邻 L1，对广播加载具有更低的延迟。</p>
 <blockquote>
 <p>The solution is to leverage the read-only path by marking data as const <strong>restrict</strong> , or by explicitly using the __ldg() intrinsic to load it. This tells the hardware that the data will not be modified, allowing it to be cached in the specialized read-only cache, which sits alongside L1 and has lower latency for broadcast loads.</p>
 </blockquote>
-<p>当一个线程束发出常量缓存加载（旧GPU中的<code>__constant__</code>或统一的<code>__ldg()</code>）时，如果它们命中相同的地址，硬件可以用单个事务为所有32个通道服务。通过将该值广播到每个线程，它只使用一个周期，而不是执行32次单独的加载。这种线程束范围的广播减少了统一数据（如查找表、系数等）的延迟和内存带宽使用。这使您基本上可以免费获取一个共享常量，每个线程束一次，而不是每个线程束32次（每个线程一次）。</p>
+<p>当一个 warp 发起一次常量缓存加载（在较老的 GPU 上为 <strong>constant</strong> 或统一的 __ldg()）时，如果这些访问命中同一地址，硬件可以用一次事务服务全部 32 个通道。通过把该值广播给每个线程，它只用一个周期，而不必执行 32 次单独的加载。对于查找表、系数等统一数据，这种 warp 级（warp-wide）广播同时降低了延迟和内存带宽占用。这让你几乎可以"免费"地每个 warp 取一次共享常量，而不是每个 warp 取 32 次（每线程 1 次）。</p>
 <blockquote>
 <p>When a warp issues a constant-cache load (<strong>constant</strong> or uniform __ldg() in older GPUs), the hardware can service all 32 lanes with a single transaction if they hit the same address. By broadcasting that value to every thread, it uses only one cycle instead of doing 32 separate loads. This warp-wide broadcast reduces both latency and memory bandwidth usage for uniform data like lookup tables, coefficients, etc. This lets you fetch a shared constant, for free essentially, once per warp rather than 32 times per warp (1 per thread).</p>
 </blockquote>
-<p>作为使用标准只读缓存的缓存优势示例，假设我们有一个内核，对于每个线程，从大小为T = 1,024的表中查找一个值并将其写入输出。这模拟了嵌入查找模式，以下是在CUDA C++和PyTorch中的实现：</p>
+<p>作为使用标准只读缓存的缓存优势示例，假设我们有一个核函数，对于每个线程，从大小为 T = 1,024 的表中查找一个值并将其写入输出。这模拟了嵌入查找模式，以下是在 CUDA C++和 PyTorch 中的实现：</p>
 <blockquote>
 <p>As an example of the caching advantage of using the standard read-only cache, assume we have a kernel that, for each thread, looks up a value from a table of size T = 1,024 and writes it to output. This simulates an embedding lookup pattern, and following is the implementation in both CUDA C++ and PyTorch:</p>
 </blockquote>
@@ -2878,7 +2878,7 @@
 </span><span id="__span-18-39"><a id="__codelineno-18-39" name="__codelineno-18-39" href="#__codelineno-18-39"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-18-40"><a id="__codelineno-18-40" name="__codelineno-18-40" href="#__codelineno-18-40"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>以下是PyTorch中与CUDA C++朴素版本大致等效的实现：</p>
+<p>以下是 PyTorch 中与 CUDA C++朴素版本大致等效的实现：</p>
 <blockquote>
 <p>Here is a roughly equivalent implementation in PyTorch to the CUDA C++ naive version:</p>
 </blockquote>
@@ -2899,11 +2899,11 @@
 </span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>                     <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
 </span><span id="__span-19-16"><a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a><span class="n">out</span> <span class="o">=</span> <span class="n">vectorized_lookup</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
 </span></code></pre></div>
-<p>在这些朴素版本中，每次查找在首次使用后可能会在L2中命中（因为L2会缓存它），但没有使用专门的只读缓存。硬件可能仍将其视为普通全局数据，这可能会驱逐其他有用的数据，或者如果多个线程在线程束中读取相同的<code>table[t]</code>，则无法充分利用广播缓存。</p>
+<p>在这些朴素版本中，每次查找在首次使用之后很可能会命中 L2（因为 L2 会缓存它），但完全没有用到专门的只读缓存。硬件仍可能把它当作普通的全局数据来对待，这可能驱逐其他有用的数据，或者在一个 warp 中多个线程读取同一个 table[t] 时无法充分利用广播缓存。</p>
 <blockquote>
 <p>In these naive versions, each lookup may hit in L2 after first use (since L2 caches it), but there's no use of the specialized read-only cache. The hardware may still treat it as ordinary global data, which could evict other useful data or fail to take full advantage of broadcast caching if multiple threads read the same table[t] in a warp.</p>
 </blockquote>
-<p>现在我们通过将表标记为<code>const __restrict__</code>来优化内核。这将提示硬件应该使用只读缓存路径，如下所示：</p>
+<p>现在我们通过将表标记为<code>const __restrict__</code>来优化核函数。这将提示硬件应该使用只读缓存路径，如下所示：</p>
 <blockquote>
 <p>Now we optimize the kernel by marking the table as const <strong>restrict</strong>. This hints to the hardware that the read-only cache path should be used, as shown below:</p>
 </blockquote>
@@ -2949,15 +2949,15 @@
 </span><span id="__span-20-40"><a id="__codelineno-20-40" name="__codelineno-20-40" href="#__codelineno-20-40"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 </span><span id="__span-20-41"><a id="__codelineno-20-41" name="__codelineno-20-41" href="#__codelineno-20-41"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>在PyTorch环境中，您可以通过使用<code>torch.utils.cpp_extension</code>编写一个小型CUDA扩展来实现相同的技巧，该扩展将您的嵌入表指针声明为<code>const __restrict__</code>。您也可以使用PyTorch编译器来优化此代码。我们将在第13章和第14章深入介绍PyTorch编译器。</p>
+<p>在 PyTorch 环境下，你可以通过用 torch.utils.cpp_extension 编写一个小的 CUDA 扩展来实现同样的技巧，在其中把你的嵌入表指针声明为 const <strong>restrict</strong>。你也可以使用 PyTorch 编译器来优化这段代码。我们将在第 13 章和第 14 章深入介绍 PyTorch 编译器。</p>
 <blockquote>
 <p>In a PyTorch setting, you could implement the same trick by writing a small CUDA extension with <code>torch.utils.cpp_extension</code> that declares your embedding table pointer as <code>const __restrict__</code>. You could also use the PyTorch compiler to optimize this code. We'll cover the PyTorch compiler in depth in Chapters 13 and 14.</p>
 </blockquote>
-<p>简而言之，将表标记为<code>const __restrict__</code>告诉编译器这些值是不可变的且非别名的，这允许在安全时使用只读数据路径。这增加了缓存命中率并减少了片外流量。表7-6显示了此更改前后的Nsight Compute测量结果。</p>
+<p>简而言之，将表标记为<code>const __restrict__</code>告诉编译器这些值是不可变的且非别名的，这允许在安全时使用只读数据路径。这增加了缓存命中率并减少了片外流量。表 7-6 显示了此更改前后的 Nsight Compute 测量结果。</p>
 <blockquote>
 <p>In short, marking the table as const <strong>restrict</strong> tells the compiler that the values are immutable and non-aliased, which allows the read-only data path to be used when safe. This increases cache hit rates and reduces off-chip traffic. Table 7-6 shows the Nsight Compute measurements before and after this change.</p>
 </blockquote>
-<p><strong>表7-6. 只读缓存的优势</strong></p>
+<p><strong>表 7-6. 只读缓存的优势</strong></p>
 <table>
 <thead>
 <tr>
@@ -2973,22 +2973,22 @@
 <td>97%</td>
 </tr>
 <tr>
-<td>DRAM吞吐量(GB/s)</td>
+<td>DRAM 吞吐量(GB/s)</td>
 <td>600 GB/s</td>
 <td>200 GB/s</td>
 </tr>
 <tr>
-<td>L2读取吞吐量(GB/s)</td>
+<td>L2 读取吞吐量(GB/s)</td>
 <td>1,500 GB/s</td>
 <td>1,800 GB/s</td>
 </tr>
 <tr>
-<td>SM活跃度%</td>
+<td>SM 活跃度%</td>
 <td>45%</td>
 <td>93%</td>
 </tr>
 <tr>
-<td>内核执行时间(ms)</td>
+<td>核函数执行时间(ms)</td>
 <td>2.5 ms</td>
 <td>1.0 ms</td>
 </tr>
@@ -3033,41 +3033,41 @@
 </tr>
 </tbody>
 </table>
-<p>Nsight Systems呈现整体GPU活动的时间线视图，而Nsight Compute报告每个内核的指标，如SM活跃度%。当您需要定量的逐内核分析时，请使用Nsight Compute。</p>
+<p>Nsight Systems 呈现的是整体 GPU 活动的时间线视图，而 Nsight Compute 报告的是逐核函数的指标，如 SM 活跃百分比。当你需要定量的逐核函数分析时，请使用 Nsight Compute。</p>
 <blockquote>
 <p>Nsight Systems presents a timeline view of overall GPU activity, while Nsight Compute reports per-kernel metrics such as SM Active %. Use Nsight Compute when you need quantitative per-kernel analysis.</p>
 </blockquote>
-<p>添加<code>const __restrict__</code>后，内核时间提高了约2.5倍，从2.5毫秒降至1.0毫秒，因为线程束在DRAM上的停顿时间减少。SM活跃度%从45%上升到93%，表明几乎每个周期都有活跃工作而不是空闲的内存等待。DRAM吞吐量从600 GB/s降至200 GB/s，而L2读取吞吐量从1,500 GB/s增加到1,800 GB/s，因为更多请求在缓存中满足。全局内存加载效率从52%增加到97%，确认大多数获取的缓存行携带有用数据。</p>
+<p>添加<code>const __restrict__</code>后，核函数时间提高了约 2.5 倍，从 2.5 毫秒降至 1.0 毫秒，因为 warp 在 DRAM 上的停顿时间减少。SM 活跃度%从 45%上升到 93%，表明几乎每个周期都有活跃工作而不是空闲的内存等待。DRAM 吞吐量从 600 GB/s 降至 200 GB/s，而 L2 读取吞吐量从 1,500 GB/s 增加到 1,800 GB/s，因为更多请求在缓存中满足。全局内存加载效率从 52%增加到 97%，确认大多数获取的缓存行携带有用数据。</p>
 <blockquote>
 <p>After adding const <strong>restrict</strong>, the kernel time improves by about 2.5x, from 2.5 milliseconds to 1.0 millisecond, because warps spend less time stalled on DRAM. SM Active % rises from 45% to 93%, indicating that nearly every cycle has active work rather than idle memory waits. DRAM throughput falls from 600 GB/s to 200 GB/s, while L2 read throughput increases from 1,500 GB/s to 1,800 GB/s as more requests are satisfied in cache. Global Memory Load Efficiency increases from 52% to 97%, confirming that most fetched cache lines carry useful data.</p>
 </blockquote>
-<p>因为更多流量由片上缓存服务而不是传输到DRAM，计算单元保持供给，算术强度增加。这种平衡是将内核从内存受限状态移向计算受限状态的关键。纹理对象和表面对象也可用于具有强二维或三维局部性的只读和读/写访问模式。通过将数组绑定到<code>cudaTextureObject_t</code>并使用<code>tex1Dfetch</code>或<code>tex2D</code>获取，硬件可以利用空间局部性实现高缓存命中率，以及包装和插值等功能。表面对象允许在类似访问模式上进行写入。</p>
+<p>因为更多流量由片上缓存服务而不是传输到 DRAM，计算单元保持供给，算术强度增加。这种平衡是将核函数从内存受限状态移向计算受限状态的关键。纹理对象和表面对象也可用于具有强二维或三维局部性的只读和读/写访问模式。通过将数组绑定到<code>cudaTextureObject_t</code>并使用<code>tex1Dfetch</code>或<code>tex2D</code>获取，硬件可以利用空间局部性实现高缓存命中率，以及包装和插值等功能。表面对象允许在类似访问模式上进行写入。</p>
 <blockquote>
 <p>Because more traffic is served by on-chip caches instead of going to DRAM, the compute units stay fed, and arithmetic intensity increases. This balance is key to moving a kernel from memory-bound toward compute-bound. Texture objects and surface objects are also available for read-only and read/write access patterns with strong 2D or 3D locality. By binding arrays to a cudaTextureObject_t and fetching with tex1Dfetch or tex2D, the hardware can exploit spatial locality for high cache hit rates, as well as features like wrapping and interpolation. Surface objects allow writes on similar access patterns.</p>
 </blockquote>
-<p>虽然纹理引用和表面引用API已被弃用，但纹理对象和表面对象API仍然受支持，适用于具有二维或三维局部性的访问模式。然而，对于大多数涉及1D数据的AI工作负载，使用只读数据缓存配合常量内存更简单且更受推荐。</p>
+<p>尽管纹理引用与表面引用 API 已被弃用，纹理对象与表面对象 API 仍受支持，适用于具有二维或三维局部性的访问模式。不过，对于大多数涉及一维数据的 AI 工作负载，使用只读数据缓存配合常量内存要简单得多，也是更受青睐的做法。</p>
 <blockquote>
 <p>While texture reference and surface reference APIs are deprecated, texture object and surface object APIs remain supported and are appropriate for access patterns with two- or three-dimensional locality. However, for most AI workloads involving 1D data, using the read-only data cache with constant memory is much simpler and preferred.</p>
 </blockquote>
-<p>总之，将只读数据标记为<code>const __restrict__</code>以利用低延迟只读缓存，减少DRAM流量并提高SM活跃度。当您的访问模式具有常规缓存可能无法最佳处理的2D/3D局部性时，考虑纹理或表面内存。这些技术共同消除内存停顿、提高缓存利用率，并为内存受限的内核释放显著的性能提升。</p>
+<p>总之，将只读数据标记为<code>const __restrict__</code>以利用低延迟只读缓存，减少 DRAM 流量并提高 SM 活跃度。当您的访问模式具有常规缓存可能无法最佳处理的 2D/3D 局部性时，考虑纹理或表面内存。这些技术共同消除内存停顿、提高缓存利用率，并为内存受限的核函数释放显著的性能提升。</p>
 <blockquote>
 <p>In summary, mark read-only data as const <strong>restrict</strong> to leverage the low-latency read-only cache, reduce DRAM traffic, and boost SM active percentages. Consider texture or surface memory when your access pattern has 2D/3D locality that regular caching may not handle optimally. Together, these techniques eliminate memory stalls, improve cache utilization, and unlock significant performance gains for memory-bound kernels.</p>
 </blockquote>
 <h2 id="77-asynchronous-memory-prefetching-and-tensor-memory-accelerator">7.7 异步内存预取和张量内存加速器 (Asynchronous Memory Prefetching and Tensor Memory Accelerator)<a class="headerlink" href="#77-asynchronous-memory-prefetching-and-tensor-memory-accelerator" title="Permanent link">&para;</a></h2>
-<p>在前面的章节中，我们看到了将数十个4字节加载合并为单个128字节事务如何显著提高全局加载效率并减少每个请求的浪费扇区。然而，即使是完美合并的加载仍然会使线程束停顿完整的DRAM往返时间。</p>
+<p>在前面的章节中，我们看到了将数十个 4 字节加载合并为单个 128 字节事务如何显著提高全局加载效率并减少每个请求的浪费扇区。然而，即使是完美合并的加载仍然会使 warp 停顿完整的 DRAM 往返时间。</p>
 <blockquote>
 <p>In the preceding sections, we saw how coalescing dozens of 4-byte loads into a single 128-byte transaction dramatically improves global load efficiency and reduces wasted sectors per request. However, even perfectly coalesced loads still stall warps for the full DRAM round-trip time.</p>
 </blockquote>
-<p>例如，在Blackwell上，完整的DRAM往返时间约为数百个周期，在任何计算开始之前。为了隐藏该延迟，我们需要将数据传输与计算重叠。这种重叠隐藏了大部分DRAM延迟。</p>
+<p>例如，在 Blackwell 上，完整的 DRAM 往返时间约为数百个周期，在任何计算开始之前。为了隐藏该延迟，我们需要将数据传输与计算重叠。这种重叠隐藏了大部分 DRAM 延迟。</p>
 <blockquote>
 <p>For example, on Blackwell, the full DRAM round-trip time is on the order of hundreds of cycles before any computation even begins. To hide that latency, we need to overlap data transfers with computation. This overlap hides much of the DRAM latency.</p>
 </blockquote>
-<p>CUDA的Pipeline API与张量内存加速器（TMA）硬件引擎将此理念提升到线程块级别。您可以让TMA引擎异步地将整个tile从全局内存获取到共享内存，而不是让每个线程束使用SM的加载和存储（LD/ST）单元从全局内存获取数据，如图7-7所示。</p>
+<p>CUDA 的 Pipeline API 与张量内存加速器（TMA）硬件引擎将此理念提升到线程块级别。您可以让 TMA 引擎异步地将整个 tile 从全局内存获取到共享内存，而不是让每个 warp 使用 SM 的加载和存储（LD/ST）单元从全局内存获取数据，如图 7-7 所示。</p>
 <blockquote>
 <p>CUDA's Pipeline API with the Tensor Memory Accelerator (TMA) hardware engine takes this concept to the thread-block level. Instead of having each warp use the SM's load and store (LD/ST) units to fetch data from global memory, you can have the TMA engine asynchronously fetch entire tiles from global memory into shared memory, as shown in Figure 7-7.</p>
 </blockquote>
 <p><img alt="图7-7. TMA异步从全局HBM获取数据到共享内存" src="../../assets/images/ch07/fig07_430_1.png" /></p>
-<p>要启动TMA传输，您可以调用<code>cuda::memcpy_async()</code>。在现代GPU架构上，<code>cuda::memcpy_async()</code>与<code>cuda::pipeline</code>暴露了用于全局到共享异步传输的硬件引擎。这包括可用时的TMA。这将使用TMA的片上DMA引擎执行异步批量数据传输。这在CUDA中实现如下：</p>
+<p>要启动 TMA 传输，您可以调用<code>cuda::memcpy_async()</code>。在现代 GPU 架构上，<code>cuda::memcpy_async()</code>与<code>cuda::pipeline</code>暴露了用于全局到共享异步传输的硬件引擎。这包括可用时的 TMA。这将使用 TMA 的片上 DMA 引擎执行异步批量数据传输。这在 CUDA 中实现如下：</p>
 <blockquote>
 <p>To initiate a TMA transfer, you can call cuda::memcpy<em>async(). On modern GPU architectures, cuda::memcpy</em>async() with cuda::pipeline exposes the hardware engine for global-to-shared asynchronous transfers. This includes TMA when available. This performs asynchronous bulk data transfers using TMA's on-chip DMA engine. This is implemented in CUDA as follows:</p>
 </blockquote>
@@ -3077,19 +3077,19 @@
 </span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">               </span><span class="n">pipe</span><span class="p">);</span>
 </span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="n">pipe</span><span class="p">.</span><span class="n">producer_commit</span><span class="p">();</span>
 </span></code></pre></div>
-<p>当TMA处理批量复制（包括合并、跨步传输甚至多维传输）时，内核计算上一个tile。这称为双缓冲或乒乓。</p>
+<p>当 TMA 处理批量复制（包括合并、跨步传输甚至多维传输）时，核函数计算上一个 tile。这称为双缓冲或乒乓。</p>
 <blockquote>
 <p>While TMA handles the bulk copy-including coalescing, strided transfers, or even multidimensional transfers-the kernel computes on the previous tile. This is called double-buffering or ping-pong.</p>
 </blockquote>
-<p>通过使用TMA实现双缓冲，SM的加载/存储单元现在可以自由地进行实际工作，因为TMA的DMA引擎在后台为我们移动数据。实际上，数据移动变得异步，当TMA流入下一块数据时，SM的线程束计算上一个tile。这种重叠隐藏了800周期的DRAM延迟。</p>
+<p>通过使用 TMA 实现双缓冲，SM 的加载/存储单元现在可以自由地进行实际工作，因为 TMA 的 DMA 引擎在后台为我们移动数据。实际上，数据移动变得异步，当 TMA 流入下一块数据时，SM 的 warp 计算上一个 tile。这种重叠隐藏了 800 周期的 DRAM 延迟。</p>
 <blockquote>
 <p>By using TMA to implement double-buffering, the SM's load/store units are now free to do real work since TMA's DMA engine moves data for us in the background. Effectively, data movement becomes asynchronous, and the SM's warps compute on the previous tile while TMA streams in the next chunk of data. This overlap hides the 800-cycle DRAM latency.</p>
 </blockquote>
-<p>具体来说，TMA能够在全局内存和共享内存之间执行1D-5D批量复制和任意跨步，而不会阻塞SM指令流水线。通过将这些传输从SM卸载到TMA，您的内核发出的LD/ST指令大大减少，消除了额外的同步，并让线程束调度器几乎每个周期都用于有用的计算而不是等待内存。</p>
+<p>具体来说，TMA 能够在全局内存和共享内存之间执行 1D-5D 批量复制和任意跨步，而不会阻塞 SM 指令流水线。通过将这些传输从 SM 卸载到 TMA，您的核函数发出的 LD/ST 指令大大减少，消除了额外的同步，并让 warp 调度器几乎每个周期都用于有用的计算而不是等待内存。</p>
 <blockquote>
 <p>Specifically, TMA is capable of performing 1D-5D bulk copies and arbitrary strides between global memory and shared memory without blocking the SM instruction pipeline. By offloading these transfers from the SM to TMA, your kernel issues far fewer LD/ST instructions, eliminates extra synchronization, and lets the warp scheduler use almost every cycle for useful computation instead of waiting on memory.</p>
 </blockquote>
-<p>以下代码片段展示了如何使用CUDA C++ Pipeline API和TMA硬件引擎启动从全局内存到共享内存的异步复制：</p>
+<p>以下代码片段展示了如何使用 CUDA C++ Pipeline API 和 TMA 硬件引擎启动从全局内存到共享内存的异步复制：</p>
 <blockquote>
 <p>The following code snippet shows how to use the CUDA C++ Pipeline API and TMA hardware engine to initiate an asynchronous copy from global memory to shared memory:</p>
 </blockquote>
@@ -3176,7 +3176,7 @@
 </span><span id="__span-22-81"><a id="__codelineno-22-81" name="__codelineno-22-81" href="#__codelineno-22-81"></a><span class="w">    </span><span class="n">pipe</span><span class="p">.</span><span class="n">consumer_release</span><span class="p">();</span>
 </span><span id="__span-22-82"><a id="__codelineno-22-82" name="__codelineno-22-82" href="#__codelineno-22-82"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>内核启动后，每个块分配两个共享内存tile（tile0、tile1）并构造一个块范围的流水线，以便线程块中的所有线程协调其异步DMA，如下所示：</p>
+<p>核函数启动后，每个线程块立即分配两个共享内存瓦片（tile0、tile1），并构造一个块级作用域的流水线，使线程块中的所有线程协同其异步 DMA，如下所示：</p>
 <blockquote>
 <p>After the kernel launches, each block allocates two shared-memory tiles (tile0, tile1) and constructs a block-scoped pipeline so that all threads in the thread block coordinate their asynchronous DMA, as shown below:</p>
 </blockquote>
@@ -3187,7 +3187,7 @@
 </span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">    </span><span class="n">cuda</span><span class="o">::</span><span class="n">make_pipeline</span><span class="p">(</span><span class="n">cuda</span><span class="o">::</span><span class="n">this_thread_block</span><span class="p">(),</span>
 </span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="w">        </span><span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
 </span></code></pre></div>
-<p>为了启动流水线，我们使用TMA提交异步复制，它甚至合并跨步或多维传输，并在后台将字节从全局内存流式传输到<code>tiles[0]</code>，如下所示：</p>
+<p>为了启动流水线，我们使用 TMA 提交异步复制，它甚至合并跨步或多维传输，并在后台将字节从全局内存流式传输到<code>tiles[0]</code>，如下所示：</p>
 <blockquote>
 <p>To prime the pipeline, we commit an async copy using TMA, which even coalesces strided or multidimensional transfers and streams bytes from global memory into tiles[0] in the background, as shown below:</p>
 </blockquote>
@@ -3198,7 +3198,7 @@
 </span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="w">                   </span><span class="n">pipe</span><span class="p">);</span>
 </span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="n">pipe</span><span class="p">.</span><span class="n">producer_commit</span><span class="p">();</span>
 </span></code></pre></div>
-<p>在使用该数据之前，我们执行以下操作以确保我们阻塞足够长的时间让TMA完成复制：</p>
+<p>在使用该数据之前，我们执行以下操作以确保我们阻塞足够长的时间让 TMA 完成复制：</p>
 <blockquote>
 <p>Before using that data, we do the following to ensure we block long enough for TMA to finish copying:</p>
 </blockquote>
@@ -3206,31 +3206,31 @@
 </span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="n">processTile</span><span class="p">(</span><span class="n">tiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
 </span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="n">pipe</span><span class="p">.</span><span class="n">consumer_release</span><span class="p">();</span>
 </span></code></pre></div>
-<p>在主循环内部，我们使用<code>pipe.consumer_wait();</code> + <code>processTile()</code>处理上一个tile，<code>pipe.consumer_release()</code>，<code>pipe.producer_acquire()</code> + 新的<code>cuda::memcpy_async()</code>到另一个tile，以及<code>pipe.producer_commit()</code>。然后我们重复！</p>
+<p>在主循环内部，我们通过以下步骤交替缓冲区：对上一个瓦片执行 pipe.consumer<em>wait(); + processTile()，然后 pipe.consumer</em>release()、pipe.producer<em>acquire() + 一次新的 cuda::memcpy</em>async() 写入另一个瓦片，以及 pipe.producer_commit()。然后循环往复！</p>
 <blockquote>
 <p>Inside the main loop, we use pipe.consumer<em>wait(); + processTile() to process the previous tile, pipe.consumer</em>release(), pipe.producer<em>acquire() + a new cuda::memcpy</em>async() into the other tile, and pipe.producer_commit(). Then we repeat!</p>
 </blockquote>
-<p>通过在tile0和tile1之间乒乓，每个新的<code>memcpy_async</code>与上一个缓冲区上的<code>processTile</code>重叠。SM上的加载和存储单元承受较低的压力，有更多指令发射槽可用于计算。同时，TMA并行移动数据。这消除了冗余的全局内存加载，减少了同步开销，并使线程束保持忙碌而不是在内存上停顿。</p>
+<p>通过在 tile0 与 tile1 之间乒乓（ping-pong），每一次新的 memcpy_async 都与对上一个缓冲区的 processTile 重叠。SM 上的加载和存储单元压力更低，从而有更多指令发射槽可用于计算。与此同时，TMA 并行地搬运数据。这消除了冗余的全局内存加载、减少了同步开销，并让 warp 保持忙碌，而不是停顿在内存上。</p>
 <blockquote>
 <p>By ping-ponging between tile0 and tile1, each new memcpy_async overlaps with processTile on the previous buffer. The load and store units on the SM see lower pressure, and there are more instruction-issue slots available for computation. Meanwhile, TMA moves data in parallel. This eliminates redundant global memory loads, reduces synchronization overhead, and keeps warps busy instead of stalling on memory.</p>
 </blockquote>
-<p>从全局内存到共享内存的异步预取将延迟隐藏在计算之后。线程在计算先前加载的数据时，将即将到来的数据预加载到共享内存中。</p>
+<p>从全局内存到共享内存的异步预取，把延迟隐藏在计算之后。线程在对先前加载的数据进行计算的同时，把即将用到的数据预加载到共享内存中。</p>
 <blockquote>
 <p>Asynchronous prefetch from global memory to shared memory hides latency behind computation. Threads preload upcoming data into shared memory while computing on previously loaded data.</p>
 </blockquote>
-<p>这种模式在内存受限的循环和张量计算中特别有效。在现代GPU上，TMA可以在处理当前tile时为矩阵乘法流入下一个tile。</p>
+<p>这种模式在访存受限的循环和张量计算中尤其有效。在现代 GPU 上，TMA 可以在当前瓦片正被处理时，为矩阵乘法流式送入下一个瓦片。</p>
 <blockquote>
 <p>This pattern is particularly effective in memory-bound loops and tensor computations. On modern GPUs, TMA can stream in the next tile for a matrix multiplication while processing the current tile.</p>
 </blockquote>
-<p>TMA是在全局内存和SMEM/TMEM之间移动2D和N维tile时进行分块批量复制的首选路径。在块作用域中优先使用<code>cuda::memcpy_async</code>配合<code>cuda::pipeline</code>；在Hopper/Blackwell上，当对齐和方向允许时（例如全局内存↔共享内存），实现将利用TMA（<code>cp.async.bulk.*</code>系列）。</p>
+<p>在全局内存与 SMEM/TMEM 之间搬运 2D 和 N 维瓦片时，TMA 是分块批量拷贝的首选路径。优先在块作用域使用 cuda::memcpy_async 配合 cuda::pipeline；在 Hopper/Blackwell 上，只要对齐和方向允许（例如全局内存 ↔ 共享内存），其实现就会利用 TMA（cp.async.bulk.* 系列）。</p>
 <blockquote>
 <p>TMA is the preferred path for tiled bulk copies when moving 2D and N-dimensional tiles between global memory and SMEM/TMEM. Prefer <code>cuda::memcpy_async</code> with <code>cuda::pipeline</code> at block scope; on Hopper/Blackwell the implementation will leverage TMA (<code>cp.async.bulk.*</code> family) when alignment and direction permit (e.g., global memory ↔ shared memory).</p>
 </blockquote>
-<p>我们将许多分散的全局读取交换为一个合并的全局复制加上许多快速的共享内存加载。考虑到DRAM和片上SRAM之间的差距，这是有利的。表7-7总结了基于TMA的双缓冲实现前后的Nsight Compute指标。</p>
+<p>我们将许多分散的全局读取交换为一个合并的全局复制加上许多快速的共享内存加载。考虑到 DRAM 和片上 SRAM 之间的差距，这是有利的。表 7-7 总结了基于 TMA 的双缓冲实现前后的 Nsight Compute 指标。</p>
 <blockquote>
 <p>We swap many scattered global reads for one coalesced global copy plus many fast shared-memory loads. Given the disparity between DRAM and on-chip SRAM, this is advantageous. Table 7-7 summarizes the Nsight Compute metrics before and after a TMA-based double-buffering implementation.</p>
 </blockquote>
-<p><strong>表7-7. 比较朴素内核（无预取）与TMA加速的双缓冲</strong></p>
+<p><strong>表 7-7. 比较朴素核函数（无预取）与 TMA 加速的双缓冲</strong></p>
 <table>
 <thead>
 <tr>
@@ -3251,17 +3251,17 @@
 <td>4.0</td>
 </tr>
 <tr>
-<td>DRAM吞吐量（峰值百分比）</td>
+<td>DRAM 吞吐量（峰值百分比）</td>
 <td>25%</td>
 <td>90%</td>
 </tr>
 <tr>
-<td>SM活跃度%</td>
+<td>SM 活跃度%</td>
 <td>62%</td>
 <td>100%</td>
 </tr>
 <tr>
-<td>内核执行时间</td>
+<td>核函数执行时间</td>
 <td>18 ms</td>
 <td>7 ms</td>
 </tr>
@@ -3306,28 +3306,28 @@
 </tr>
 </tbody>
 </table>
-<p>在这里，我们看到SM活跃度%接近100%，这表明SM在几乎所有周期都有活跃的线程束。全局内存加载效率从23%增加到99%，意味着几乎每个获取的字节都是有用的。每请求平均扇区数从6.4降至约4.0，这表明请求干净地映射到缓存中的128字节行。DRAM吞吐量从峰值的25%上升到90%，总体时间从18毫秒改善到7毫秒，快约2.6倍。这些结果证实，将批量复制卸载到TMA并乒乓共享内存缓冲区使GPU保持忙碌，并将大部分DRAM延迟隐藏在有功工作之后。</p>
+<p>在这里，我们看到 SM 活跃度%接近 100%，这表明 SM 在几乎所有周期都有活跃的 warp。全局内存加载效率从 23%增加到 99%，意味着几乎每个获取的字节都是有用的。每请求平均扇区数从 6.4 降至约 4.0，这表明请求干净地映射到缓存中的 128 字节行。DRAM 吞吐量从峰值的 25%上升到 90%，总体时间从 18 毫秒改善到 7 毫秒，快约 2.6 倍。这些结果证实，将批量复制卸载到 TMA 并乒乓共享内存缓冲区使 GPU 保持忙碌，并将大部分 DRAM 延迟隐藏在有功工作之后。</p>
 <blockquote>
 <p>Here, we see SM Active % approach 100%, which indicates that the SM has active warps in nearly every cycle. Global Memory Load Efficiency increases from 23% to 99%, meaning nearly every byte fetched is useful. Average sectors per request drops from 6.4 to about 4.0, which indicates that requests map cleanly to 128-byte lines in cache. DRAM throughput rises from 25% to 90% of peak, and overall time improves from 18 milliseconds to 7 milliseconds, about 2.6x faster. These results confirm that offloading bulk copies to TMA and ping-ponging shared-memory buffers keeps the GPU busy and hides most of the DRAM latency behind useful work.</p>
 </blockquote>
-<p>NVIDIA的CUDA流水线API加上TMA是硬件-软件协同设计的教科书示例。流水线API专门暴露了TMA的能力--而TMA硬件恰好支持<code>cuda::memcpy_async</code>所需的异步、合并、多维复制。API和TMA DMA引擎是协同开发的，因此您可以表达紧密映射到硬件传输能力的高级流水线操作。这允许内存移动与计算的有效重叠以提高性能。</p>
+<p>NVIDIA 的 CUDA pipeline API 加上 TMA，是软硬件协同设计（codesign）的教科书式范例。Pipeline API 专门暴露了 TMA 的能力——而 TMA 硬件恰好支持 cuda::memcpy_async 所需的那种异步、合并、多维的拷贝。</p>
 <blockquote>
 <p>NVIDIA's CUDA pipeline API plus TMA is a textbook example of hardware-software co-design. The pipeline API specifically exposes TMA's capabilities-and the TMA hardware happens to support exactly the asynchronous, coalesced, multidimensional copies that cuda::memcpy_async needs. The API and TMA DMA engine were co-developed, so you can express high-level pipeline operations that map tightly to the hardware's transfer capabilities. This allows effective overlapping of memory movement with computation for improved performance.</p>
 </blockquote>
-<p>对于几乎所有情况，您应该使用可用的最高级别和最新的API来编写CUDA内核进行全局到共享内存的tiling。这包括CUDA流水线API（<code>cuda::memcpy_async</code>）。这些API和库不断改进，并将透明地利用最新的硬件功能，如TMA进行批量、跨步和2D/3D传输。此外，它们还支持高级性能优化功能，如线程块集群的多播。使用这些API时，您可以"免费"获得所有这些功能——无需更改代码。</p>
+<p>几乎在所有情况下，对于全局到共享的分块，你都应当使用可用的最高层、最新的 API 来编写 CUDA 核函数。这包括 CUDA Pipeline API（cuda::memcpy_async）。这些 API 和库在不断改进，会透明地利用像 TMA 这样的最新硬件特性来进行批量、跨步以及 2D/3D 传输。此外，它们还启用了诸如配合线程块簇的多播（multicast）等高级性能优化特性。使用这些 API 时，你能"免费"获得所有这一切——而无需改动代码。</p>
 <blockquote>
 <p>For almost all cases, you should write your CUDA kernels with the highest-level and most-recent APIs available for global-to-shared tiling. This includes the CUDA Pipeline API (<code>cuda::memcpy_async</code>). These APIs and libraries are constantly improving and will transparently leverage the latest hardware features like TMA for bulk, strided, and 2D/3D transfers. In addition, they enable advanced performance optimization features like multicast with thread block clusters. When using these APIs, you get all of this "for free"-without requiring code changes.</p>
 </blockquote>
-<p>总之，当内存访问限制内核性能时，通过结合仔细的tiling、双缓冲和TMA驱动的异步预取来卸载和重叠数据移动。通过在共享内存中暂存tile并使用<code>cuda::memcpy_async</code>配合<code>pipe.producer_commit</code>和<code>pipe.consumer_wait</code>，您将合并的多维DMA传输移交给TMA，卸载全局到共享内存的传输。</p>
+<p>总之，当内存访问限制核函数性能时，通过结合仔细的 tiling、双缓冲和 TMA 驱动的异步预取来卸载和重叠数据移动。通过在共享内存中暂存 tile 并使用<code>cuda::memcpy_async</code>配合<code>pipe.producer_commit</code>和<code>pipe.consumer_wait</code>，您将合并的多维 DMA 传输移交给 TMA，卸载全局到共享内存的传输。</p>
 <blockquote>
 <p>In summary, when memory access limits kernel performance, offload and overlap data movement by combining careful tiling, double-buffering, and TMA-driven asynchronous prefetch. By staging tiles in shared memory and using cuda::memcpy<em>async with pipe.producer</em>commit and pipe.consumer_wait, you hand off coalesced, multidimensional DMA transfers to TMA, offloading global-to-shared-memory transfers.</p>
 </blockquote>
-<p>使用TMA卸载内存传输有助于减轻SM加载/存储单元的压力，有助于保持计算流水线满载。因此，SM专注于计算，而共享内存流量使用片上TMA路径。在Blackwell的大带宽HBM3e结构上，这些技术对于隐藏DRAM延迟、维持峰值吞吐量以及将内存受限的内核转变为接近计算受限的主力至关重要。</p>
+<p>使用 TMA 卸载内存传输有助于减轻 SM 加载/存储单元的压力，有助于保持计算流水线满载。因此，SM 专注于计算，而共享内存流量使用片上 TMA 路径。在 Blackwell 的大带宽 HBM3e 结构上，这些技术对于隐藏 DRAM 延迟、维持峰值吞吐量以及将内存受限的核函数转变为接近计算受限的主力至关重要。</p>
 <blockquote>
 <p>Offloading memory transfers using TMA helps relieve pressure on the SM load/store units and helps keep the compute pipeline full. As a result, the SM focuses on computation while shared-memory traffic uses the on-chip TMA path. On Blackwell's massive-bandwidth HBM3e fabric, these techniques are essential for hiding DRAM latency, sustaining peak throughput, and transforming memory-bound kernels into near-compute-bound workhorses.</p>
 </blockquote>
 <h2 id="key-takeaways">关键要点 (Key Takeaways)<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
-<p>优化GPU上的内存访问模式--通过合并、数据重用和异步传输--可以将内核从内存受限转变为接近硬件峰值能力。对代码进行小的更改以更好地与GPU架构对齐（例如正确的线程分组、使用共享内存、避免bank冲突）可以产生巨大的性能提升。以下是本章的关键要点：</p>
+<p>优化 GPU 上的内存访问模式--通过合并、数据重用和异步传输--可以将核函数从内存受限转变为接近硬件峰值能力。对代码进行小的更改以更好地与 GPU 架构对齐（例如正确的线程分组、使用共享内存、避免 bank 冲突）可以产生巨大的性能提升。以下是本章的关键要点：</p>
 <blockquote>
 <p>Optimizing memory access patterns on the GPU-through coalescing, data reuse, and asynchronous transfers-can transform a kernel from memory-bound to near-peak hardware capability. Small changes to code to better align with GPU architecture (e.g., correct thread grouping, using shared memory, avoiding bank conflicts) can yield massive performance gains. Here are the key takeaways from this chapter:</p>
 </blockquote>
@@ -3335,7 +3335,7 @@
 <blockquote>
 <p>Global Memory Coalescing</p>
 </blockquote>
-<p>当每个线程束的访问落在尽可能少的128字节缓存行中时，就实现了合并。安排您的数据和线程索引，使每个线程束的线程读取连续的4字节字，让硬件将它们融合为几个128字节事务。合并的内存加载最大化有效的DRAM带宽或全局内存加载效率，并将每请求平均扇区数降至最佳的4.0值。使用现代版本的Nsight Compute时，您还可以使用<code>sm__sass_data_bytes_mem_*</code>计数器和<code>gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed</code>来分析和优化内存合并。</p>
+<p>当每个 warp 的访问落在尽可能少的 128 字节缓存行中时，就实现了合并。安排您的数据和线程索引，使每个 warp 的线程读取连续的 4 字节字，让硬件将它们融合为几个 128 字节事务。合并的内存加载最大化有效的 DRAM 带宽或全局内存加载效率，并将每请求平均扇区数降至最佳的 4.0 值。使用现代版本的 Nsight Compute 时，您还可以使用<code>sm__sass_data_bytes_mem_*</code>计数器和<code>gpu__dram_throughput.avg.pct_of_peak_sustained_elapsed</code>来分析和优化内存合并。</p>
 <blockquote>
 <p>Coalescing is achieved when each warp's accesses land in as few 128-byte cache lines as possible. Arrange your data and thread indices so that threads in each warp read contiguous 4-byte words, letting the hardware fuse them into a few 128-byte transactions. Coalesced memory loads maximize effective DRAM bandwidth or global memory load efficiency and bring average sectors per request down to the optimal 4.0 value. With modern versions of Nsight Compute, you can also use sm<strong>sass<em>data</em>bytes<em>mem</em>* counters and gpu</strong>dram<em>throughput.avg.pct</em>of<em>peak</em>sustained_elapsed to analyze and optimize memory coalescing.</p>
 </blockquote>
@@ -3343,23 +3343,23 @@
 <blockquote>
 <p>Vectorized Loads/Stores</p>
 </blockquote>
-<p>使用内置向量类型如<code>float4</code>进行16字节向量。在Blackwell上使用CUDA 13+时，当32字节对齐可证明时，优先使用每线程32字节向量。这包括<code>double4</code>或自定义结构<code>alignas(32) { float v[8]; }</code>。这减少了每字节的指令数，并在正确对齐时将扇区/请求保持在理想的4.0。这样，每个线程在一条指令中移动尽可能多的元素。每个线程束的128字节事务数与请求的总字节数成比例。注意对齐：确保您的数组至少使用16字节对齐分配给<code>float4</code>，<code>cudaMalloc</code>默认使用256字节对齐。未对齐的向量访问将失去这些好处。</p>
+<p>使用内置向量类型（如 float4）来处理 16 字节向量。在 Blackwell 上配合 CUDA 13+，当能够证明 32 字节对齐成立时，优先采用每线程 32 字节向量，这包括 double4 或自定义结构体 alignas(32) { float v[8]; }。这样能降低每字节的指令数，并在正确对齐时把每次请求的扇区数保持在理想的 4.0。如此一来，每个线程可以在一条指令中搬运尽可能多的元素。每个 warp 的 128 字节事务数量与请求的总字节数成正比。要注意对齐：确保你的数组以至少 16 字节对齐来分配以配合 float4，而 cudaMalloc 默认通常就以 256 字节对齐来完成这一点。未对齐的向量访问会让这些收益付诸东流。</p>
 <blockquote>
 <p>Use built-in vector types like float4 for 16-byte vectors. On Blackwell with CUDA 13+, prefer 32-byte vectors per thread when 32-byte alignment is provable. This includes double4 or a custom struct alignas(32) { float v[8]; }. This reduces instructions per byte and keeps sectors/request at the ideal 4.0 when properly aligned. This way, each thread moves as many elements as possible in one instruction. The number of 128-byte transactions per warp is proportional to the total bytes requested. Watch alignment: ensure your arrays are allocated with at least 16-byte alignment for float4, and cudaMalloc defaults to 256-byte alignment. Misaligned vector accesses will forfeit these benefits.</p>
 </blockquote>
-<p><strong>避免bank冲突</strong></p>
+<p><strong>避免 bank 冲突</strong></p>
 <blockquote>
 <p>Avoid Bank Conflicts</p>
 </blockquote>
-<p>填充您的共享内存数组（例如，使行为33个float宽以适应32线程的线程束），以便没有两个线程在同一周期命中同一个bank。消除bank冲突可恢复完整的共享内存吞吐量。尝试swizzling以获得比填充更节省内存的实现。</p>
+<p>填充您的共享内存数组（例如，使行为 33 个 float 宽以适应 32 线程的 warp），以便没有两个线程在同一周期命中同一个 bank。消除 bank 冲突可恢复完整的共享内存吞吐量。尝试 swizzling 以获得比填充更节省内存的实现。</p>
 <blockquote>
 <p>Pad your shared-memory arrays (e.g., make rows 33 floats wide to accommodate a warp of 32 threads) so that no two threads hit the same bank in the same cycle. Eliminating bank conflicts restores full shared-memory throughput. Experiment with swizzling for a more memory-efficient implementation than padding.</p>
 </blockquote>
-<p><strong>共享内存tiling和数据重用</strong></p>
+<p><strong>共享内存 tiling 和数据重用</strong></p>
 <blockquote>
 <p>Shared Memory Tiling and Data Reuse</p>
 </blockquote>
-<p>在片上共享内存中暂存工作集（例如，以32x32块tiling矩阵），以便每个元素从DRAM获取一次但在SM上使用多次。这提高了算术强度并将内核推向计算受限。</p>
+<p>在片上共享内存中暂存工作集（例如，以 32x32 块 tiling 矩阵），以便每个元素从 DRAM 获取一次但在 SM 上使用多次。这提高了算术强度并将核函数推向计算受限。</p>
 <blockquote>
 <p>Stage working sets in on-chip shared memory (e.g., tiling matrices in 32x32 blocks) so that each element is fetched once from DRAM but used many times on the SM. This raises arithmetic intensity and pushes the kernel toward compute-bound.</p>
 </blockquote>
@@ -3367,27 +3367,27 @@
 <blockquote>
 <p>Read-Only Data Cache</p>
 </blockquote>
-<p>将小型静态查找表或系数标记为<code>const __restrict__</code>，以便编译器在适用时通过只读数据路径路由加载。统一广播比DRAM延迟更低，避免冗余事务，并且可以从片上缓存服务。</p>
+<p>把小而静态的查找表或系数标记为 const <strong>restrict</strong>，以便编译器在适用时把这些加载路由到只读数据路径。相比 DRAM，统一广播的延迟更低，能避免冗余事务，并可由片上缓存来提供服务。</p>
 <blockquote>
 <p>Mark small static lookup tables or coefficients as const <strong>restrict</strong> so the compiler routes loads through the read-only data path when applicable. Uniform broadcasts are lower latency than DRAM, avoid redundant transactions, and can be served from on-chip cache.</p>
 </blockquote>
-<p><strong>使用流重叠主机-GPU复制</strong></p>
+<p><strong>使用流重叠主机-GPU 复制</strong></p>
 <blockquote>
 <p>Overlap Host-GPU Copies with Streams</p>
 </blockquote>
-<p>将主机缓冲区分配为页锁定（"pinned"）内存，并在多个流上使用<code>cudaMemcpyAsync</code>以重叠H2D/D2H传输与内核执行。页锁定内存启用异步DMA传输，多个流允许复制与内核执行重叠以隐藏PCIe或NVLink传输延迟。优先使用带有显式流和事件的<code>cudaMemcpyAsync</code>来重叠H2D/D2H和内核。请记住，可分页（非页锁定）内存将禁用DMA重叠。您应该验证是使用可分页还是页锁定内存，因为观察到的传输速率将根据此配置而大不相同。</p>
+<p>把主机缓冲区分配为页锁定（"固定"，pinned）内存，并在多个流上使用 cudaMemcpyAsync，以便把 H2D/D2H 传输与核函数执行重叠。固定内存可启用异步 DMA 传输，而多个流则让拷贝与核函数执行重叠，从而隐藏 PCIe 或 NVLink 的传输延迟。优先使用带显式流和事件的 cudaMemcpyAsync 来重叠 H2D/D2H 与核函数。请记住，可分页（非固定）内存会禁用 DMA 重叠。你应当核实使用的是可分页还是固定内存，因为观测到的传输速率会随这一配置而大相径庭。</p>
 <blockquote>
 <p>Allocate host buffers as page-locked ("pinned") memory and use cudaMemcpyAsync over multiple streams to overlap H2D/D2H transfers with kernel execution. Pinned memory enables asynchronous DMA transfers, and multiple streams allow copies to overlap kernel execution to hide PCIe or NVLink transfer latency. Prefer cudaMemcpyAsync with explicit streams and events to overlap H2D/D2H and kernels. Remember that pageable (non-pinned) memory will disable DMA overlap. You should verify whether pageable or pinned memory is used, as observed transfer rates will vary widely depending on this configuration.</p>
 </blockquote>
-<p><strong>使用TMA + Pipeline API进行异步预取</strong></p>
+<p><strong>使用 TMA + Pipeline API 进行异步预取</strong></p>
 <blockquote>
 <p>Asynchronous Prefetch with TMA + Pipeline API</p>
 </blockquote>
-<p>当满足对齐和范围要求时，使用C++ libcu++屏障和流水线API（<code>cuda::barrier</code>和<code>cuda::pipeline</code>）配合<code>cuda::memcpy_async</code>驱动TMA（<code>cp.async.bulk.tensor</code>）进行全局内存→共享内存批量复制。这将合并的、跨步的（甚至多维的）复制卸载到共享内存，并通过双缓冲与计算重叠。这将减少SM的LD/ST单元的压力，让SM专注于计算。</p>
+<p>当满足对齐与作用域要求时，使用 C++ libcu++ 的 barrier 与 pipeline API（cuda::barrier 与 cuda::pipeline）配合 cuda::memcpy_async 来驱动 TMA（cp.async.bulk.tensor），完成全局内存 → 共享内存的批量拷贝。这会把合并的、跨步的（乃至多维的）拷贝卸载到共享内存中，并借助双缓冲（double buffering）与计算重叠。这将减轻 SM 的 LD/ST 单元压力，让 SM 专注于计算。</p>
 <blockquote>
 <p>Use the C++ libcu++ barrier and pipeline APIs (cuda::barrier and cuda::pipeline) with cuda::memcpy_async to drive TMA (cp.async.bulk.tensor) for global memory → shared memory bulk copies when alignment and scope requirements are met. This offloads coalesced, strided (even multidimensional) copies into shared memory and overlaps them with computation with double buffering. This will reduce pressure on the SM's LD/ST units and let the SM focus on compute.</p>
 </blockquote>
-<p>值得注意的是，libcu++流水线API和TMA继续发展。优先使用分阶段形式（例如<code>producer_acquire()</code>、<code>producer_commit()</code>、<code>consumer_wait()</code>、<code>consumer_release()</code>）进行两阶段乒乓缓冲。使用块范围流水线（例如<code>cuda::thread_scope_block</code>）或块范围屏障（例如<code>cuda::barrier&lt;cuda::thread_scope_block&gt;</code>），除非您特别需要集群范围或网格范围的复制。</p>
+<p>值得注意的是，libcu++ 的 pipeline API 与 TMA 仍在持续演进。对于两阶段乒乓（ping-pong）缓冲，优先采用分阶段形式（例如 producer<em>acquire()、producer</em>commit()、consumer<em>wait()、consumer</em>release()）。除非你确实需要簇作用域或网格作用域的拷贝，否则请使用块作用域的 pipeline（例如 cuda::thread<em>scope</em>block）或块作用域的 barrier（例如 cuda::barrier<a href="cuda::thread_scope_block">cuda::thread<em>scope</em>block</a>）。</p>
 <blockquote>
 <p>It's important to note that the libcu++ pipeline APIs and TMA continue to evolve. Prefer the staged forms (e.g., producer<em>acquire(), producer</em>commit(), consumer<em>wait(), consumer</em>release()) for two-stage ping-pong buffers. Use a block-scoped pipeline (e.g., cuda::thread<em>scope</em>block) or block-scoped barrier (e.g., cuda::barrier<cuda::thread_scope_block>) unless you specifically need cluster-scoped or grid-scoped copies.</p>
 </blockquote>
@@ -3395,20 +3395,20 @@
 <blockquote>
 <p>Let Profiling Be Your Guide</p>
 </blockquote>
-<p>依赖Nsight Compute指标，如全局内存加载效率、每请求平均扇区数、共享内存bank冲突、SM活跃度%、线程束停顿原因等。此外，查看Nsight Systems时间线以可视化重叠和停顿，精确定位瓶颈，并验证每个优化。</p>
+<p>依赖 Nsight Compute 指标，如全局内存加载效率、每请求平均扇区数、共享内存 bank 冲突、SM 活跃度%、warp 停顿原因等。此外，查看 Nsight Systems 时间线以可视化重叠和停顿，精确定位瓶颈，并验证每个优化。</p>
 <blockquote>
 <p>Rely on Nsight Compute metrics such as global memory load efficiency, average sectors per request, shared-memory bank conflicts, SM active %, warp stall reasons, and more. Also, look at Nsight Systems timelines to visualize overlap and stalls, pinpoint bottlenecks, and verify each optimization.</p>
 </blockquote>
 <h2 id="conclusion">结论 (Conclusion)<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
-<p>现在您的内存访问流水线已经通过合并的全局内存加载、无冲突的tiling、向量化获取、只读缓存和TMA驱动的预取全面运转，您已经消除了最大的数据移动瓶颈，释放了SM以全速运行。</p>
+<p>现在您的内存访问流水线已经通过合并的全局内存加载、无冲突的 tiling、向量化获取、只读缓存和 TMA 驱动的预取全面运转，您已经消除了最大的数据移动瓶颈，释放了 SM 以全速运行。</p>
 <blockquote>
 <p>Now that your memory access pipeline is fully primed with coalesced global memory loads, conflict-free tiling, vectorized fetches, read-only caching, and TMA-driven prefetching, you've eliminated the biggest data-movement bottlenecks and unleashed the SM to run at full speed.</p>
 </blockquote>
-<p>在本章中，我们依靠Nsight Compute和Nsight Systems来准确揭示线程束在何处因数据而饥饿。我们还使用它们逐步确认每个优化确实减少了停顿、消除了浪费的事务并提高了持续带宽。每当您调整新内核时，这些工具仍然是您的指路明灯。</p>
+<p>在本章中，我们依靠 Nsight Compute 和 Nsight Systems 来准确揭示 warp 在何处因数据而饥饿。我们还使用它们逐步确认每个优化确实减少了停顿、消除了浪费的事务并提高了持续带宽。每当您调整新核函数时，这些工具仍然是您的指路明灯。</p>
 <blockquote>
 <p>In this chapter, we relied on Nsight Compute and Nsight Systems to reveal exactly where warps were starving for data. We also used them to confirm step-by-step that each optimization actually reduced stalls, eliminated wasted transactions, and increased sustained bandwidth. These tools remain your guiding light whenever you tune a new kernel.</p>
 </blockquote>
-<p>在下一章中，我们将介绍CUDA和GPU编程中的一些基本延迟隐藏技术。这些技术包括调整占用率、提高线程束效率、避免线程束分歧以及暴露指令级并行性。</p>
+<p>在下一章，我们将介绍 CUDA 与 GPU 编程中一些基础的延迟隐藏技术。这些技术包括调优占用率、提升 warp 效率、避免 warp 分歧，以及暴露指令级并行。</p>
 <blockquote>
 <p>In the next chapter, we'll introduce some fundamental latency-hiding techniques in CUDA and GPU programming. These techniques include tuning occupancy, improving warp efficiency, avoiding warp divergence, and exposing instruction-level parallelity.</p>
 </blockquote>
@@ -3434,7 +3434,7 @@
     <span class="md-icon" title="最后更新">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 01:45:02 UTC">2026年11月23日 01:45:02</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime" title="2026年11月23日 03:57:15 UTC">2026年11月23日 03:57:15</span>
   </span>
 
     
