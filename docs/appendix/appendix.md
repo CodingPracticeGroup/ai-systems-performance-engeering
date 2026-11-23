@@ -28,17 +28,17 @@
 
 > Use the 80/20 rule. Find the top contributors to runtime and focus on those. If 90% of the time is in a couple of kernels or a communication phase, it's better to optimize those deeply than to microoptimize something taking 1% of the time.
 
-每个章节的技术都应该应用在最重要的地方。例如，如果您的训练时间是 40%数据加载、50% GPU 计算和 10%通信，那么首先修复数据加载，因为您可能可以将开销减半。然后考虑 GPU 核函数优化。
+每个章节的技术都应该应用在最重要的地方。例如，如果你的训练时间是 40%数据加载、50% GPU 计算和 10%通信，那么首先修复数据加载，因为你可能可以将开销减半。然后考虑 GPU 核函数优化。
 
 > Each chapter's techniques should be applied where they matter most. For example, if your training is 40% data loading, 50% GPU compute, and 10% communication, then first fix data loading, as you can maybe halve the overhead. Then look at GPU kernel optimization.
 
 ### 优化前后进行剖析 (Profile before and after)
 
-每当您应用优化时，都要衡量其影响。这听起来很明显，但通常调整是基于理论做出的，实际上可能没有帮助——甚至有害。
+每当你应用优化时，都要衡量其影响。这听起来很明显，但通常调整是基于理论做出的，实际上可能没有帮助——甚至有害。
 
 > Whenever you apply an optimization, measure its impact. This sounds obvious, but often tweaks are made based on theory and might not help-or even hurt-in practice.
 
-考虑一个场景，您的工作负载不受内存限制，但您决定尝试为训练任务启用激活检查点。这实际上可能会通过使用额外的计算来减少内存，从而减慢任务速度。换句话说，始终在更改前后比较吞吐量、延迟和利用率等关键指标。
+考虑一个场景，你的工作负载不受内存限制，但你决定尝试为训练任务启用激活检查点。这实际上可能会通过使用额外的计算来减少内存，从而减慢任务速度。换句话说，始终在更改前后比较吞吐量、延迟和利用率等关键指标。
 
 > Consider a scenario where your workload is not memory-limited, but you decide to try enabling activation checkpointing for your training job. This may actually slow down the job by using extra compute to reduce memory. In other words, always compare key metrics like throughput, latency, and utilization before and after making changes.
 
@@ -48,7 +48,7 @@
 
 ### 拥抱自适应自动调优反馈循环 (Embrace adaptive autotuning feedback loops)
 
-实施利用实时性能反馈的高级自动调优框架——使用强化学习或贝叶斯优化等技术——动态调整系统参数。这种方法使您的系统能够根据不断变化的工作负载和运行条件持续微调设置。
+实施利用实时性能反馈的高级自动调优框架——使用强化学习或贝叶斯优化等技术——动态调整系统参数。这种方法使你的系统能够根据不断变化的工作负载和运行条件持续微调设置。
 
 > Implement advanced autotuning frameworks that leverage real-time performance feedback-using techniques like reinforcement learning or Bayesian optimization-to dynamically adjust system parameters. This approach enables your system to continuously fine-tune settings in response to changing workloads and operating conditions.
 
@@ -344,7 +344,7 @@ OS 抖动、NUMA 未命中与驱动不匹配会悄然消耗吞吐量，并制造
 
 ### 使用为 HPC 调优的 Linux 内核 (Use a Linux kernel tuned for HPC)
 
-确保您的 GPU 服务器运行为高性能计算配置的最近、稳定的 Linux 内核。禁用消耗 CPU 或 I/O 的不必要的后台服务。使用"performance" CPU 调控器——而不是"on-demand"或"power-save"——以保持 CPU 核心在高频率运行以供给 GPU。
+确保你的 GPU 服务器运行为高性能计算配置的最近、稳定的 Linux 内核。禁用消耗 CPU 或 I/O 的不必要的后台服务。使用"performance" CPU 调控器——而不是"on-demand"或"power-save"——以保持 CPU 核心在高频率运行以供给 GPU。
 
 > Ensure your GPU servers run a recent, stable Linux kernel configured for high-performance computing. Disable unnecessary background services that consume CPU or I/O. Use the "performance" CPU governor-versus "on-demand" or "power-save"-to keep CPU cores at a high clock for feeding GPUs.
 
@@ -468,7 +468,7 @@ _GPU 时钟与功耗设置_ 如果你需要逐次运行的一致性，可考虑�
 
 ### ECC 内存 (ECC memory)
 
-在数据中心 GPU 上保持 ECC 启用以确保可靠性，除非您有特定原因禁用它。性能成本很小——带宽和内存损失约几个百分点——但 ECC 捕获可能破坏长时间训练作业的内存错误。大多数服务器 GPU 默认启用 ECC。保持启用以保护数周的训练。
+在数据中心 GPU 上保持 ECC 启用以确保可靠性，除非你有特定原因禁用它。性能成本很小——带宽和内存损失约几个百分点——但 ECC 捕获可能破坏长时间训练作业的内存错误。大多数服务器 GPU 默认启用 ECC。保持启用以保护数周的训练。
 
 > Keep ECC enabled on data center GPUs for reliability unless you have a specific reason to disable it. The performance cost is minimal-on the order of a few percent loss in bandwidth and memory-but ECC catches memory errors that could otherwise corrupt a long training job. Most server GPUs ship with ECC on by default. Leave it on to safeguard multiweek training.
 
@@ -670,7 +670,7 @@ _聚焦端到端吞吐量（例如每秒 token 数）_ 记住，如果你的数�
 
 ### 分析以发现瓶颈和根本原因 (Profile to find bottlenecks and root cause analysis)
 
-定期在训练/推理作业上运行分析器。使用 NVIDIA Nsight Systems 获取 CPU 和 GPU 活动的时间线。您还可以使用 Nsight Compute 或 PyTorch 分析器深入研究核函数效率。识别您的作业是计算绑定、内存绑定还是等待 I/O/通信。相应地针对您的优化。例如，如果您的工作负载是内存绑定的，专注于减少内存流量而不是实现计算绑定优化。结合机器学习驱动的分析来预测和预防性能瓶颈。这可以帮助自动化实时微调调整。使用 GPUDirect Storage 时，启用 GDS 跟踪以将 cuFile 活动与核函数间隙相关联。
+定期在训练/推理作业上运行分析器。使用 NVIDIA Nsight Systems 获取 CPU 和 GPU 活动的时间线。你还可以使用 Nsight Compute 或 PyTorch 分析器深入研究核函数效率。识别你的作业是计算绑定、内存绑定还是等待 I/O/通信。相应地针对你的优化。例如，如果你的工作负载是内存绑定的，专注于减少内存流量而不是实现计算绑定优化。结合机器学习驱动的分析来预测和预防性能瓶颈。这可以帮助自动化实时微调调整。使用 GPUDirect Storage 时，启用 GDS 跟踪以将 cuFile 活动与核函数间隙相关联。
 
 > Regularly run profilers on your training/inference jobs. Use NVIDIA Nsight Systems to get a timeline of CPU and GPU activity. You can also use Nsight Compute or the PyTorch profiler to drill down into kernel efficiency. Identify whether your job is compute bound, memory bound, or waiting on I/O/communication. Target your optimizations accordingly. For example, if your workload is memory bound, focus on reducing memory traffic rather than implementing compute-bound optimizations. Combine with machine-learning-driven analytics to predict and preempt performance bottlenecks. This can help in automating fine-tuning adjustments in real time. When using GPUDirect Storage, enable GDS tracing to correlate cuFile activity with kernel gaps.
 
@@ -718,7 +718,7 @@ _监控内存使用_ 随时间跟踪 GPU 内存的分配与使用。确保你没
 
 ### 监控网络和磁盘 (Monitor network and disk)
 
-对于分布式作业，使用操作系统工具监控网络吞吐量和磁盘吞吐量。确保实际吞吐量符合预期。例如，在 100 Gbps 链路上，如果充分利用，您应该看到 12.5 GB/s（12.5 GB/s = 100 Gb/s / 8 位每字节）。如果没有，网络可能是瓶颈或配置错误。类似地，监控训练节点上的磁盘 I/O。如果您看到 100%磁盘利用率峰值和 GPU 空闲，您可能需要更好地缓冲或缓存数据。
+对于分布式作业，使用操作系统工具监控网络吞吐量和磁盘吞吐量。确保实际吞吐量符合预期。例如，在 100 Gbps 链路上，如果充分利用，你应该看到 12.5 GB/s（12.5 GB/s = 100 Gb/s / 8 位每字节）。如果没有，网络可能是瓶颈或配置错误。类似地，监控训练节点上的磁盘 I/O。如果你看到 100%磁盘利用率峰值和 GPU 空闲，你可能需要更好地缓冲或缓存数据。
 
 > For distributed jobs, use OS tools to monitor network throughput and disk throughput. Ensure the actual throughput matches expectations. For example, on a 100 Gbps link, you should see 12.5 GB/s (12.5 GB/s = 100 Gb/s / 8 bits per byte) if fully utilized. If not, the network might be a bottleneck or misconfigured. Similarly, monitor disk I/O on training nodes. If you see spikes of 100% disk utilization and GPU idle, you likely need to buffer or cache data better.
 
@@ -1082,9 +1082,9 @@ _为动态形状做规划_ 如果你的输入尺寸会变化，就用 torch.\tor
 
 > Pin network interrupts and threads to the CPU core(s) on the same NUMA node as the NIC. This avoids cross-NUMA penalties for network traffic and keeps the networking stack's memory accesses local. Check /proc/interrupts and use irqaffinity settings to ensure, for example, your NIC in NUMA node 0 is handled by a core in NUMA node 0. This can improve network performance and consistency, especially under high packet rates.
 
-### 为您的环境优化 NCCL 环境变量 (Optimize NCCL environment variables for your environment)
+### 为你的环境优化 NCCL 环境变量 (Optimize NCCL environment variables for your environment)
 
-为大型多节点作业试验 NCCL 参数。例如，将 NCCL_NTHREADS（NCCL 每 GPU 的 CPU 线程数）从默认 4 增加到 8 或 16，以在更多 CPU 使用成本的代价下驱动更高带宽。将 NCCL_BUFFSIZE（每 GPU 的缓冲区大小）从默认 1 MB 增加到 4 MB 或更多，以在大型消息上获得更好吞吐量。如果您的集群使用支持 SHARP 的交换机，安装 NCCL SHARP 插件并通过设置 NCCL_COLLNET_ENABLE=1 启用 CollNet，然后使用 SHARP 插件变量如 SHARP_COLL_LOCK_ON_COMM_INIT=1 和 SHARP_COLL_NUM_COLL_GROUP_RESOURCE_ALLOC_THRESHOLD=0。只有当您的归约足够大且网络结构支持 SHARP 卸载时期望加速。
+为大型多节点作业试验 NCCL 参数。例如，将 NCCL_NTHREADS（NCCL 每 GPU 的 CPU 线程数）从默认 4 增加到 8 或 16，以在更多 CPU 使用成本的代价下驱动更高带宽。将 NCCL_BUFFSIZE（每 GPU 的缓冲区大小）从默认 1 MB 增加到 4 MB 或更多，以在大型消息上获得更好吞吐量。如果你的集群使用支持 SHARP 的交换机，安装 NCCL SHARP 插件并通过设置 NCCL_COLLNET_ENABLE=1 启用 CollNet，然后使用 SHARP 插件变量如 SHARP_COLL_LOCK_ON_COMM_INIT=1 和 SHARP_COLL_NUM_COLL_GROUP_RESOURCE_ALLOC_THRESHOLD=0。只有当你的归约足够大且网络结构支持 SHARP 卸载时期望加速。
 
 > Experiment with NCCL parameters for large multinode jobs. For example, increase NCCL_NTHREADS, the number of CPU threads per GPU for NCCL, from the default 4 to 8 or 16 to drive higher bandwidth at the cost of more CPU usage. Increase NCCL_BUFFSIZE, the buffer size per GPU, from the default 1 MB to 4 MB or more for better throughput on large messages. If your cluster uses SHARP-capable switches, install the NCCL SHARP plugin and enable CollNet by setting NCCL_COLLNET_ENABLE=1, then use the SHARP plugin variables such as SHARP_COLL_LOCK_ON_COMM_INIT=1 and SHARP_COLL_NUM_COLL_GROUP_RESOURCE_ALLOC_THRESHOLD=0 as documented. Expect speedups only when your reductions are large enough and the network fabric supports SHARP offload.
 
@@ -1270,7 +1270,7 @@ _针对每瓦性能优化_ 在功耗预算受限（或能源成本高）的多 G
 
 ### 整合工作负载 (Consolidate workloads)
 
-让 GPU 在高利用率下运行，而不是让许多 GPU 在低利用率下运行。忙碌的 GPU 在每瓦完成的工作方面比空闲或轻度使用的 GPU 更节能。这是因为基线功率在 GPU 忙碌时更好地摊销。在 90%利用率下在一个 GPU 上一个接一个地运行一个作业可能比在两个 GPU 上并行运行两个作业各 45%更好——除非您需要优化最小的挂钟时间。计划调度以在不使用时关闭或空闲整个节点，而不是让许多硬件在低利用率下运行。
+让 GPU 在高利用率下运行，而不是让许多 GPU 在低利用率下运行。忙碌的 GPU 在每瓦完成的工作方面比空闲或轻度使用的 GPU 更节能。这是因为基线功率在 GPU 忙碌时更好地摊销。在 90%利用率下在一个 GPU 上一个接一个地运行一个作业可能比在两个 GPU 上并行运行两个作业各 45%更好——除非你需要优化最小的挂钟时间。计划调度以在不使用时关闭或空闲整个节点，而不是让许多硬件在低利用率下运行。
 
 > Run GPUs at high utilization rather than running many GPUs at low utilization. A busy GPU is more energy efficient in terms of work done per watt than an idle or lightly used GPU. This is because the baseline power is better amortized when the GPU is busy. It may be better to run one job after another on one GPU at 90% utilization than two GPUs at 45% each in parallel-unless you need to optimize for the smallest wall-clock time. Plan scheduling to turn off or idle whole nodes when not in use, rather than leaving lots of hardware running at low utilization.
 
@@ -1314,6 +1314,6 @@ _提升长时间运行作业的韧性_ 如果你正在运行长达数月的训�
 
 > Keep this checklist handy and add to it as you discover new tricks. Combine these tips and best practices with the in-depth understanding from the earlier chapters, and you will design and run AI systems that are efficient, scalable, maintainable, cost-effective, and reliable.
 
-现在去实现您最雄心勃勃的想法吧。祝您优化愉快！
+现在去实现你最雄心勃勃的想法吧。祝你优化愉快！
 
 > Now go forth and make your most ambitious ideas a reality. Happy optimizing!
